@@ -4,7 +4,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class Plex extends JavaPlugin
 {
-
     @Override
     public void onLoad()
     {
