@@ -1,7 +1,6 @@
 package me.totalfreedom.plex.storage;
 
 import me.totalfreedom.plex.Plex;
-import me.totalfreedom.plex.util.PlexLog;
 
 import java.io.File;
 import java.sql.Connection;

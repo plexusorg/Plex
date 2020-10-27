@@ -1,22 +1,16 @@
 package me.totalfreedom.plex.cache;
 
-import com.google.common.collect.Maps;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
-import dev.morphia.query.Query;
-import dev.morphia.query.UpdateOperations;
 import me.totalfreedom.plex.Plex;
 import me.totalfreedom.plex.player.PlexPlayer;
-import me.totalfreedom.plex.player.PunishedPlayer;
 import me.totalfreedom.plex.rank.Rank;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 public class SQLPlayerData

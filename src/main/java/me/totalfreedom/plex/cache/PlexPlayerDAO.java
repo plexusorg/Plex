@@ -1,6 +1,5 @@
 package me.totalfreedom.plex.cache;
 
-import dev.morphia.DAO;
 import dev.morphia.Datastore;
 import dev.morphia.Key;
 import dev.morphia.dao.BasicDAO;

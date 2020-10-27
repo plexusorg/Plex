@@ -8,7 +8,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import me.totalfreedom.plex.rank.Rank;
-import me.totalfreedom.plex.storage.MongoConnection;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,13 +1,10 @@
 package me.totalfreedom.plex.cache;
 
-import com.google.common.collect.Maps;
 import dev.morphia.query.Query;
 import dev.morphia.query.UpdateOperations;
 import me.totalfreedom.plex.Plex;
 import me.totalfreedom.plex.player.PlexPlayer;
-import me.totalfreedom.plex.player.PunishedPlayer;
 
-import java.util.Map;
 import java.util.UUID;
 
 public class MongoPlayerData

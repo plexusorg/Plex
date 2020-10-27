@@ -5,8 +5,6 @@ import lombok.Getter;
 import lombok.Setter;
 import me.totalfreedom.plex.cache.MongoPlayerData;
 import me.totalfreedom.plex.cache.SQLPlayerData;
-import me.totalfreedom.plex.config.Config;
-import me.totalfreedom.plex.config.YamlConfig;
 import me.totalfreedom.plex.listeners.PlayerListener;
 import me.totalfreedom.plex.storage.MongoConnection;
 import me.totalfreedom.plex.storage.RedisConnection;
