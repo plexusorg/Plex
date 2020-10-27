@@ -44,6 +44,7 @@ public class SQLConnection
                     "\t`prefix` VARCHAR(30),\n" +
                     "\t`rank` VARCHAR(256),\n" +
                     "\t`ips` VARCHAR(65535),\n" +
+                    "\t`coins` BIGINT,\n" +
                     "\tPRIMARY KEY (`uuid`)\n" +
                     ");").execute();
         } catch (SQLException throwables) {

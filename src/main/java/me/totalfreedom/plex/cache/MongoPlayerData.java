@@ -50,6 +50,7 @@ public class MongoPlayerData
         updateOps.set("prefix", player.getPrefix());
         updateOps.set("rank", player.getRank() == null ? "" : player.getRank().name().toLowerCase());
         updateOps.set("ips", player.getIps());
+        updateOps.set("coins", player.getCoins());
         plexPlayerDAO.update(filter, updateOps);
     }
 

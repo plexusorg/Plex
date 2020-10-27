@@ -33,6 +33,8 @@ public class PlexPlayer
     private String loginMSG;
     private String prefix;
 
+    private long coins;
+
     private Rank rank;
 
     private List<String> ips;
@@ -49,6 +51,8 @@ public class PlexPlayer
 
         this.loginMSG = "";
         this.prefix = "";
+
+        this.coins = 0;
 
         this.ips = new ArrayList<>();
 

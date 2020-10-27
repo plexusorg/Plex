@@ -17,8 +17,8 @@ public class SQLPlayerData
 {
 
     private final String SELECT = "SELECT * FROM `players` WHERE uuid=?";
-    private final String UPDATE = "UPDATE `players` SET name=?, login_msg=?, prefix=?, rank=?, ips=? WHERE uuid=?";
-    private final String INSERT = "INSERT INTO `players` (`uuid`, `name`, `login_msg`, `prefix`, `rank`, `ips`) VALUES (?, ?, ?, ?, ?, ?);";
+    private final String UPDATE = "UPDATE `players` SET name=?, login_msg=?, prefix=?, rank=?, ips=?, coins=? WHERE uuid=?";
+    private final String INSERT = "INSERT INTO `players` (`uuid`, `name`, `login_msg`, `prefix`, `rank`, `ips`, `coins`) VALUES (?, ?, ?, ?, ?, ?, ?);";
 
     public boolean exists(UUID uuid)
     {
@@ -54,6 +54,7 @@ public class SQLPlayerData
                 String loginMSG = set.getString("login_msg");
                 String prefix = set.getString("prefix");
                 String rankName = set.getString("rank").toUpperCase();
+                long coins = set.getLong("coins");
                 Rank rank = Rank.valueOf(rankName);
                 List<String> ips = new Gson().fromJson(set.getString("ips"), new TypeToken<List<String>>(){}.getType());
                 plexPlayer.setName(name);
@@ -61,6 +62,7 @@ public class SQLPlayerData
                 plexPlayer.setPrefix(prefix);
                 plexPlayer.setRank(rankName.isEmpty() ? null : rank);
                 plexPlayer.setIps(ips);
+                plexPlayer.setCoins(coins);
             }
             return plexPlayer;
         }
@@ -80,7 +82,8 @@ public class SQLPlayerData
             statement.setString(3, player.getPrefix());
             statement.setString(4, player.getRank() == null ? "" : player.getRank().name().toLowerCase());
             statement.setString(5, new Gson().toJson(player.getIps()));
-            statement.setString(6, player.getUuid());
+            statement.setLong(6, player.getCoins());
+            statement.setString(7, player.getUuid());
             statement.executeUpdate();
         }
         catch (SQLException throwables) {
