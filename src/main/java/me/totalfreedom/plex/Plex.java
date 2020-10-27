@@ -6,6 +6,7 @@ import lombok.Setter;
 import me.totalfreedom.plex.cache.MongoPlayerData;
 import me.totalfreedom.plex.cache.SQLPlayerData;
 import me.totalfreedom.plex.listeners.PlayerListener;
+import me.totalfreedom.plex.rank.RankManager;
 import me.totalfreedom.plex.storage.MongoConnection;
 import me.totalfreedom.plex.storage.RedisConnection;
 import me.totalfreedom.plex.storage.SQLConnection;
@@ -30,6 +31,8 @@ public class Plex extends JavaPlugin
     private MongoPlayerData mongoPlayerData;
     private SQLPlayerData sqlPlayerData;
 
+    private RankManager rankManager;
+
     @Override
     public void onLoad()
     {
@@ -43,13 +46,13 @@ public class Plex extends JavaPlugin
         sqlConnection = new SQLConnection();
         mongoConnection = new MongoConnection();
         redisConnection = new RedisConnection();
-        try {
+        /*try {
             redisConnection.openPool();
             PlexLog.log("Successfully opened redis pool. Closing.");
         } catch (Exception e) {
             e.printStackTrace();
         }
-        redisConnection.getJedis().close();
+        redisConnection.getJedis().close();*/
     }
 
     @Override
@@ -65,17 +68,20 @@ public class Plex extends JavaPlugin
         }
 
         getServer().getPluginManager().registerEvents(new PlayerListener(), this);
-        PlexLog.log(storageType.name());
+
+        rankManager = new RankManager();
+        rankManager.generateDefaultRanks();
+
     }
 
     @Override
     public void onDisable()
     {
-        if (redisConnection.getJedis().isConnected())
+        /*if (redisConnection.getJedis().isConnected())
         {
             PlexLog.log("Disabling Redis/Jedis. No memory leaks in this Anarchy server !");
             redisConnection.getJedis().close();
-        }
+        }*/
     }
 
     public static Plex get() {

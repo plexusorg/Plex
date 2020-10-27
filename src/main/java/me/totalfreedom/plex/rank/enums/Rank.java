@@ -1,4 +1,4 @@
-package me.totalfreedom.plex.rank;
+package me.totalfreedom.plex.rank.enums;
 
 import org.bukkit.ChatColor;
 
@@ -21,4 +21,11 @@ public enum Rank
         this.prefix = prefix;
     }
 
+    public String getPrefix() {
+        return prefix;
+    }
+
+    public String getLoginMSG() {
+        return loginMSG;
+    }
 }

@@ -1,4 +1,4 @@
-package me.totalfreedom.plex.rank;
+package me.totalfreedom.plex.rank.enums;
 
 import org.bukkit.ChatColor;
 

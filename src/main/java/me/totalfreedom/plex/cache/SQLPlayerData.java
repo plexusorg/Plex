@@ -4,7 +4,7 @@ import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import me.totalfreedom.plex.Plex;
 import me.totalfreedom.plex.player.PlexPlayer;
-import me.totalfreedom.plex.rank.Rank;
+import me.totalfreedom.plex.rank.enums.Rank;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

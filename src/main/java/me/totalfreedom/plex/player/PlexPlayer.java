@@ -7,7 +7,7 @@ import dev.morphia.annotations.Indexed;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
-import me.totalfreedom.plex.rank.Rank;
+import me.totalfreedom.plex.rank.enums.Rank;
 
 import java.util.ArrayList;
 import java.util.List;
