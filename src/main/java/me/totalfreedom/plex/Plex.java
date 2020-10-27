@@ -9,6 +9,7 @@ import me.totalfreedom.plex.config.Config;
 import me.totalfreedom.plex.config.YamlConfig;
 import me.totalfreedom.plex.listeners.PlayerListener;
 import me.totalfreedom.plex.storage.MongoConnection;
+import me.totalfreedom.plex.storage.RedisConnection;
 import me.totalfreedom.plex.storage.SQLConnection;
 import me.totalfreedom.plex.storage.StorageType;
 import me.totalfreedom.plex.util.PlexLog;
@@ -26,6 +27,7 @@ public class Plex extends JavaPlugin
 
     private SQLConnection sqlConnection;
     private MongoConnection mongoConnection;
+    private RedisConnection redisConnection;
 
     private MongoPlayerData mongoPlayerData;
     private SQLPlayerData sqlPlayerData;
@@ -42,6 +44,14 @@ public class Plex extends JavaPlugin
 
         sqlConnection = new SQLConnection();
         mongoConnection = new MongoConnection();
+        redisConnection = new RedisConnection();
+        try {
+            redisConnection.openPool();
+            PlexLog.log("Successfully opened redis pool. Closing.");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        redisConnection.getJedis().close();
     }
 
     @Override
@@ -63,6 +73,11 @@ public class Plex extends JavaPlugin
     @Override
     public void onDisable()
     {
+        if (redisConnection.getJedis().isConnected())
+        {
+            PlexLog.log("Disabling Redis/Jedis. No memory leaks in this Anarchy server !");
+            redisConnection.getJedis().close();
+        }
     }
 
     public static Plex get() {
