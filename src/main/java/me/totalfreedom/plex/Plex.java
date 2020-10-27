@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import me.totalfreedom.plex.cache.MongoPlayerData;
+import me.totalfreedom.plex.cache.SQLPlayerData;
 import me.totalfreedom.plex.config.Config;
 import me.totalfreedom.plex.config.YamlConfig;
 import me.totalfreedom.plex.listeners.PlayerListener;
@@ -27,6 +28,7 @@ public class Plex extends JavaPlugin
     private MongoConnection mongoConnection;
 
     private MongoPlayerData mongoPlayerData;
+    private SQLPlayerData sqlPlayerData;
 
     @Override
     public void onLoad()
@@ -50,6 +52,8 @@ public class Plex extends JavaPlugin
         if (storageType == StorageType.MONGO)
         {
             mongoPlayerData = new MongoPlayerData();
+        } else {
+            sqlPlayerData = new SQLPlayerData();
         }
 
         getServer().getPluginManager().registerEvents(new PlayerListener(), this);

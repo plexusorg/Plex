@@ -13,9 +13,6 @@ import java.util.UUID;
 public class MongoPlayerData
 {
 
-    private Map<UUID, PunishedPlayer> punishedPlayerMap = Maps.newHashMap();
-    private Map<UUID, PlexPlayer> plexPlayerMap = Maps.newHashMap();
-
     private PlexPlayerDAO plexPlayerDAO;
 
     public MongoPlayerData()
@@ -36,9 +33,9 @@ public class MongoPlayerData
 
     public PlexPlayer getByUUID(UUID uuid) {
 
-        if (plexPlayerMap.containsKey(uuid))
+        if (PlayerCache.getPlexPlayerMap().containsKey(uuid))
         {
-            return plexPlayerMap.get(uuid);
+            return PlayerCache.getPlexPlayerMap().get(uuid);
         }
         Query<PlexPlayer> query2 = plexPlayerDAO.createQuery().field("uuid").exists().field("uuid").equal(uuid.toString());
         return query2.first();
@@ -57,15 +54,6 @@ public class MongoPlayerData
         updateOps.set("rank", player.getRank() == null ? "" : player.getRank().name().toLowerCase());
         updateOps.set("ips", player.getIps());
         plexPlayerDAO.update(filter, updateOps);
-    }
-
-
-    public Map<UUID, PlexPlayer> getPlexPlayerMap() {
-        return plexPlayerMap;
-    }
-
-    public Map<UUID, PunishedPlayer> getPunishedPlayerMap() {
-        return punishedPlayerMap;
     }
 
     public PlexPlayerDAO getPlexPlayerDAO() {

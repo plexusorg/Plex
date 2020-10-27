@@ -47,7 +47,6 @@ public class SQLConnection
                     "\t`ips` VARCHAR(65535),\n" +
                     "\tPRIMARY KEY (`uuid`)\n" +
                     ");").execute();
-            PlexLog.log("Successfully created table `players`!");
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
