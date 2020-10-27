@@ -1,0 +1,26 @@
+# -------------------------------#
+#                                #
+#           P L E X              #
+#                                #
+# -------------------------------#
+
+# ------------------------------ #
+#                                #
+#   You can use MySQL, MongoDB   #
+#     or SQLite for the data     #
+#             type               #
+# -------------------------------#
+
+data:
+  central:
+    storage: sqlite
+    user: ""
+    password: ""
+    hostname: 127.0.0.1
+    port: 27017
+    db: "plex"
+  side: # This is redis, leave password blank if auth is false
+    auth: true
+    hostname: 127.0.0.1
+    port: 6379
+    password: ""
