@@ -1,6 +1,7 @@
 package me.totalfreedom.plex.storage;
 
 import me.totalfreedom.plex.Plex;
+import me.totalfreedom.plex.util.PlexLog;
 
 import java.io.File;
 import java.sql.Connection;
@@ -19,7 +20,7 @@ public class SQLConnection
         int port = plugin.getConfig().getInt("data.central.port");
         String username = plugin.getConfig().getString("data.central.user");
         String password = plugin.getConfig().getString("data.central.password");
-        String database = plugin.getConfig().getString("data.central.database");
+        String database = plugin.getConfig().getString("data.central.db");
 
         try {
             if (plugin.getConfig().getString("data.central.storage").equalsIgnoreCase("sqlite"))
@@ -30,11 +31,27 @@ public class SQLConnection
             else if (plugin.getConfig().getString("data.central.storage").equalsIgnoreCase("mysql"))
             {
                 connection = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database, username, password);
-                Plex.get().setStorageType(StorageType.MONGO);
+                Plex.get().setStorageType(StorageType.SQL);
             }
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
+
+        try {
+            connection.prepareStatement("CREATE TABLE IF NOT EXISTS `players` (\n" +
+                    "\t`uuid` VARCHAR(46),\n" +
+                    "\t`name` VARCHAR(18),\n" +
+                    "\t`login_msg` VARCHAR(256),\n" +
+                    "\t`prefix` VARCHAR(30),\n" +
+                    "\t`rank` VARCHAR(256),\n" +
+                    "\t`ips` VARCHAR(65535),\n" +
+                    "\tPRIMARY KEY (`uuid`)\n" +
+                    ");").execute();
+            PlexLog.log("Successfully created table `players`!");
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+
         return connection;
     }
 

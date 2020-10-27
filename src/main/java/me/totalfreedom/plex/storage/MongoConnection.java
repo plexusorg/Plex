@@ -24,7 +24,7 @@ public class MongoConnection
         int port = plugin.getConfig().getInt("data.central.port");
         String username = plugin.getConfig().getString("data.central.user");
         String password = plugin.getConfig().getString("data.central.password");
-        String database = plugin.getConfig().getString("data.central.database");
+        String database = plugin.getConfig().getString("data.central.db");
 
         String connectionString = "mongodb://" + username  + ":" + password + "@" + host + ":" + port + "/?authSource=" + database;
 

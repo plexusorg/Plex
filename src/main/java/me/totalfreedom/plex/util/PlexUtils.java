@@ -23,7 +23,7 @@ public class PlexUtils
                 Plex.get().getSqlConnection().getCon().close();
             } catch (SQLException throwables) {
             }
-        } else if (Plex.get().getMongoConnection() != null)
+        } else if (Plex.get().getMongoConnection().getDatastore() != null)
         {
             PlexLog.log("Successfully enabled MongoDB!");
         }

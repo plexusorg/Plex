@@ -30,16 +30,28 @@
             <version>1.16.3-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
+
+        <!-- UTILITIES -->
+
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>1.18.12</version>
             <scope>compile</scope>
         </dependency>
+
+        <!-- DATABASING -->
+
         <dependency>
             <groupId>dev.morphia.morphia</groupId>
             <artifactId>core</artifactId>
             <version>1.5.2</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+            <version>3.3.0</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>

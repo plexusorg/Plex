@@ -4,8 +4,10 @@ import dev.morphia.annotations.Entity;
 import dev.morphia.annotations.Id;
 import dev.morphia.annotations.IndexOptions;
 import dev.morphia.annotations.Indexed;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import me.totalfreedom.plex.rank.Rank;
 import me.totalfreedom.plex.storage.MongoConnection;
 
 import java.util.ArrayList;
@@ -18,21 +20,23 @@ import java.util.UUID;
 @Entity(value = "players", noClassnameStored = true)
 public class PlexPlayer
 {
+    @Setter(AccessLevel.NONE)
     @Id
     private String id;
 
+    @Setter(AccessLevel.NONE)
     @Indexed(options = @IndexOptions(unique = true))
     private String uuid;
 
     @Indexed
     private String name;
 
+    private String loginMSG;
+    private String prefix;
+
+    private Rank rank;
+
     private List<String> ips;
-
-    private boolean muted;
-    private boolean frozen;
-
-    //insert Rank check
 
     public PlexPlayer(){}
 
@@ -44,10 +48,12 @@ public class PlexPlayer
 
         this.name = "";
 
+        this.loginMSG = "";
+        this.prefix = "";
+
         this.ips = new ArrayList<>();
 
-        this.muted = false;
-        this.frozen = false;
+        this.rank = null;
     }
 
 }
