@@ -29,12 +29,12 @@ public enum Rank
 
     public String getPrefix()
     {
-        return prefix;
+        return ChatColor.translateAlternateColorCodes('&', prefix);
     }
 
     public String getLoginMSG()
     {
-        return loginMessage;
+        return ChatColor.translateAlternateColorCodes('&', loginMessage);
     }
 
     public int getLevel() {

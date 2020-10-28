@@ -13,6 +13,7 @@ import me.totalfreedom.plex.storage.MongoConnection;
 import me.totalfreedom.plex.storage.RedisConnection;
 import me.totalfreedom.plex.storage.SQLConnection;
 import me.totalfreedom.plex.storage.StorageType;
+import me.totalfreedom.plex.util.PlexLog;
 import me.totalfreedom.plex.util.PlexUtils;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -66,8 +67,17 @@ public class Plex extends JavaPlugin
     public void onEnable()
     {
         config.load();
+        PlexLog.log("Loaded config.yml");
 
-        PlexUtils.testConnections();
+        try {
+            PlexUtils.testConnections();
+            PlexLog.log("Connected to " + storageType.name().toUpperCase());
+        } catch (Exception e)
+        {
+            PlexLog.error("Failed to connect to " + storageType.name().toUpperCase());
+            e.printStackTrace();
+        }
+
 
         if (storageType == StorageType.MONGO)
         {
@@ -84,6 +94,7 @@ public class Plex extends JavaPlugin
         rankManager = new RankManager();
         rankManager.generateDefaultRanks();
         rankManager.importDefaultRanks();
+        PlexLog.log("Rank Manager initialized");
 
     }
 
