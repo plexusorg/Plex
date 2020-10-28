@@ -14,7 +14,7 @@ import me.totalfreedom.plex.rank.enums.Rank;
 
 @Getter
 @Setter
-@Entity(value = "players", noClassnameStored = true)
+@Entity(value = "players", useDiscriminator = false)
 public class PlexPlayer
 {
     @Setter(AccessLevel.NONE)
