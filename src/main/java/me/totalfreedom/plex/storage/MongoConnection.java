@@ -1,9 +1,10 @@
 package me.totalfreedom.plex.storage;
 
-import com.mongodb.MongoClient;
-import com.mongodb.MongoClientURI;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
 import dev.morphia.Datastore;
 import dev.morphia.Morphia;
+import dev.morphia.mapping.MapperOptions;
 import me.totalfreedom.plex.Plex;
 import me.totalfreedom.plex.player.PlexPlayer;
 
@@ -26,10 +27,9 @@ public class MongoConnection
         String database = plugin.config.getString("data.central.db");
 
         String connectionString = "mongodb://" + username + ":" + password + "@" + host + ":" + port + "/?authSource=" + database;
-        MongoClient client = new MongoClient(new MongoClientURI(connectionString));
-        Morphia morphia = new Morphia();
-        Datastore datastore = morphia.createDatastore(client, database);
-        datastore.getMapper().addMappedClass(PlexPlayer.class);
+        MongoClient client = MongoClients.create(connectionString);
+        Datastore datastore = Morphia.createDatastore(client, database, MapperOptions.DEFAULT);
+        datastore.getMapper().map(PlexPlayer.class);
         datastore.ensureIndexes();
         plugin.setStorageType(StorageType.MONGO);
         return datastore;
