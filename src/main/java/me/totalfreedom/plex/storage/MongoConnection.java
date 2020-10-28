@@ -2,10 +2,10 @@ package me.totalfreedom.plex.storage;
 
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
-import dev.morphia.Datastore;
-import dev.morphia.Morphia;
 import me.totalfreedom.plex.Plex;
 import me.totalfreedom.plex.player.PlexPlayer;
+import org.mongodb.morphia.Datastore;
+import org.mongodb.morphia.Morphia;
 
 public class MongoConnection
 {
@@ -33,7 +33,7 @@ public class MongoConnection
         Morphia morphia = new Morphia();
         Datastore datastore = morphia.createDatastore(client, database);
 
-        datastore.getMapper().addMappedClass(PlexPlayer.class);
+        morphia.map(PlexPlayer.class);
         datastore.ensureIndexes();
 
         plugin.setStorageType(StorageType.MONGO);

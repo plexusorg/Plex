@@ -49,9 +49,9 @@
         <!-- DATABASING -->
 
         <dependency>
-            <groupId>dev.morphia.morphia</groupId>
-            <artifactId>core</artifactId>
-            <version>1.5.2</version>
+            <groupId>org.mongodb.morphia</groupId>
+            <artifactId>morphia</artifactId>
+            <version>1.3.2</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

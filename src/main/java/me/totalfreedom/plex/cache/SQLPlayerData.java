@@ -60,7 +60,7 @@ public class SQLPlayerData
                 plexPlayer.setName(name);
                 plexPlayer.setLoginMSG(loginMSG);
                 plexPlayer.setPrefix(prefix);
-                plexPlayer.setRank(rankName.isEmpty() ? null : rank);
+                plexPlayer.setRank(rankName.toLowerCase());
                 plexPlayer.setIps(ips);
                 plexPlayer.setCoins(coins);
             }
@@ -80,7 +80,7 @@ public class SQLPlayerData
             statement.setString(1, player.getName());
             statement.setString(2, player.getLoginMSG());
             statement.setString(3, player.getPrefix());
-            statement.setString(4, player.getRank() == null ? "" : player.getRank().name().toLowerCase());
+            statement.setString(4, player.getRank().toLowerCase());
             statement.setString(5, new Gson().toJson(player.getIps()));
             statement.setLong(6, player.getCoins());
             statement.setString(7, player.getUuid());
@@ -100,7 +100,7 @@ public class SQLPlayerData
             statement.setString(2, player.getName());
             statement.setString(3, player.getLoginMSG());
             statement.setString(4, player.getPrefix());
-            statement.setString(5, player.getRank() == null ? "" : player.getRank().name().toLowerCase());
+            statement.setString(5, player.getRank().toLowerCase());
             statement.setString(6, new Gson().toJson(player.getIps()));
             statement.execute();
         }
