@@ -33,9 +33,11 @@ public class PlexPlayer
 
     private long coins;
 
-    private Rank rank;
+    private String rank;
 
     private List<String> ips;
+
+    public PlexPlayer() {}
 
     public PlexPlayer(UUID playerUUID)
     {
@@ -52,6 +54,11 @@ public class PlexPlayer
 
         this.ips = new ArrayList<>();
 
-        this.rank = null;
+        this.rank = "";
+    }
+
+    public Rank getRankFromString()
+    {
+        return Rank.valueOf(rank.toUpperCase());
     }
 }

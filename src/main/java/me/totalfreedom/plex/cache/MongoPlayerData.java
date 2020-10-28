@@ -1,25 +1,27 @@
 package me.totalfreedom.plex.cache;
 
-import java.util.UUID;
+import dev.morphia.Datastore;
+import dev.morphia.query.Query;
+import dev.morphia.query.UpdateOperations;
 import me.totalfreedom.plex.Plex;
 import me.totalfreedom.plex.player.PlexPlayer;
-import org.mongodb.morphia.query.Query;
-import org.mongodb.morphia.query.UpdateOperations;
+
+import java.util.UUID;
 
 public class MongoPlayerData
 {
-    private final PlexPlayerDAO plexPlayerDAO;
+    private final Datastore datastore;
 
     public MongoPlayerData()
     {
-        this.plexPlayerDAO = new PlexPlayerDAO(PlexPlayer.class, Plex.get().getMongoConnection().getDatastore());
+        this.datastore = Plex.get().getMongoConnection().getDatastore();
     }
 
     public boolean exists(UUID uuid)
     {
-        Query<PlexPlayer> query = plexPlayerDAO.createQuery();
+        Query<PlexPlayer> query = datastore.createQuery(PlexPlayer.class);
 
-        return query.field("uuid").exists().field("uuid").equal(uuid.toString()).get() != null;
+        return query.field("uuid").exists().field("uuid").equal(uuid.toString()).first() != null;
     }
 
     public PlexPlayer getByUUID(UUID uuid)
@@ -29,16 +31,16 @@ public class MongoPlayerData
         {
             return PlayerCache.getPlexPlayerMap().get(uuid);
         }
-        Query<PlexPlayer> query2 = plexPlayerDAO.createQuery().field("uuid").exists().field("uuid").equal(uuid.toString());
-        return query2.get();
+        Query<PlexPlayer> query2 = datastore.createQuery(PlexPlayer.class).field("uuid").exists().field("uuid").equal(uuid.toString());
+        return query2.first();
     }
 
     public void update(PlexPlayer player)
     {
-        Query<PlexPlayer> filter = plexPlayerDAO.createQuery()
+        Query<PlexPlayer> filter = datastore.createQuery(PlexPlayer.class)
                 .field("uuid").equal(player.getUuid());
 
-        UpdateOperations<PlexPlayer> updateOps = plexPlayerDAO.createUpdateOperations();
+        UpdateOperations<PlexPlayer> updateOps = datastore.createUpdateOperations(PlexPlayer.class);
 
         updateOps.set("name", player.getName());
         updateOps.set("loginMSG", player.getLoginMSG());
@@ -46,11 +48,12 @@ public class MongoPlayerData
         updateOps.set("rank", player.getRank().toLowerCase());
         updateOps.set("ips", player.getIps());
         updateOps.set("coins", player.getCoins());
-        plexPlayerDAO.update(filter, updateOps);
+        datastore.update(filter, updateOps);
     }
 
-    public PlexPlayerDAO getPlexPlayerDAO()
+    public void save(PlexPlayer plexPlayer)
     {
-        return plexPlayerDAO;
+        datastore.save(plexPlayer);
     }
+
 }

@@ -54,14 +54,13 @@ public class SQLPlayerData
                 String prefix = set.getString("prefix");
                 String rankName = set.getString("rank").toUpperCase();
                 long coins = set.getLong("coins");
-                Rank rank = Rank.valueOf(rankName);
                 List<String> ips = new Gson().fromJson(set.getString("ips"), new TypeToken<List<String>>()
                 {
                 }.getType());
                 plexPlayer.setName(name);
                 plexPlayer.setLoginMSG(loginMSG);
                 plexPlayer.setPrefix(prefix);
-                plexPlayer.setRank(rankName.toLowerCase());
+                plexPlayer.setRank(rankName);
                 plexPlayer.setIps(ips);
                 plexPlayer.setCoins(coins);
             }

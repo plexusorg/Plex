@@ -35,7 +35,7 @@ public class PlayerListener implements Listener
                 plexPlayer.setName(player.getName()); //set the name of the player
                 plexPlayer.setIps(Arrays.asList(player.getAddress().getAddress().getHostAddress().trim())); //set the arraylist of ips
 
-                mongoPlayerData.getPlexPlayerDAO().save(plexPlayer); //and put their document in mongo collection
+                mongoPlayerData.save(plexPlayer); //and put their document in mongo collection
             }
             else
             {

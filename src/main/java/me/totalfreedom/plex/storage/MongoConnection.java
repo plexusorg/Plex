@@ -15,15 +15,15 @@ public class MongoConnection
 
     public Datastore getDatastore()
     {
-        if (!plugin.config().getString("data.central.storage").equalsIgnoreCase("mongodb"))
+        if (!plugin.config.getString("data.central.storage").equalsIgnoreCase("mongodb"))
         {
             return null;
         }
-        String host = plugin.config().getString("data.central.hostname");
-        int port = plugin.config().getInt("data.central.port");
-        String username = plugin.config().getString("data.central.user");
-        String password = plugin.config().getString("data.central.password");
-        String database = plugin.config().getString("data.central.db");
+        String host = plugin.config.getString("data.central.hostname");
+        int port = plugin.config.getInt("data.central.port");
+        String username = plugin.config.getString("data.central.user");
+        String password = plugin.config.getString("data.central.password");
+        String database = plugin.config.getString("data.central.db");
 
         String connectionString = "mongodb://" + username + ":" + password + "@" + host + ":" + port + "/?authSource=" + database;
         MongoClient client = new MongoClient(new MongoClientURI(connectionString));

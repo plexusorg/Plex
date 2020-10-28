@@ -40,16 +40,19 @@ public class SQLConnection
 
         try
         {
-            connection.prepareStatement("CREATE TABLE IF NOT EXISTS `players` (\n" +
-                    "\t`uuid` VARCHAR(46),\n" +
-                    "\t`name` VARCHAR(18),\n" +
-                    "\t`login_msg` VARCHAR(256),\n" +
-                    "\t`prefix` VARCHAR(30),\n" +
-                    "\t`rank` VARCHAR(256),\n" +
-                    "\t`ips` VARCHAR(65535),\n" +
-                    "\t`coins` BIGINT,\n" +
-                    "\tPRIMARY KEY (`uuid`)\n" +
-                    ");").execute();
+            if (connection != null)
+            {
+                connection.prepareStatement("CREATE TABLE IF NOT EXISTS `players` (\n" +
+                        "\t`uuid` VARCHAR(46),\n" +
+                        "\t`name` VARCHAR(18),\n" +
+                        "\t`login_msg` VARCHAR(256),\n" +
+                        "\t`prefix` VARCHAR(30),\n" +
+                        "\t`rank` VARCHAR(256),\n" +
+                        "\t`ips` VARCHAR(65535),\n" +
+                        "\t`coins` BIGINT,\n" +
+                        "\tPRIMARY KEY (`uuid`)\n" +
+                        ");").execute();
+            }
         }
         catch (SQLException throwables)
         {
