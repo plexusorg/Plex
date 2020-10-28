@@ -1,14 +1,19 @@
 package me.totalfreedom.plex.rank;
 
-import com.google.common.collect.Lists;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.List;
+import com.google.common.collect.Maps;
 import me.totalfreedom.plex.Plex;
+import me.totalfreedom.plex.player.PlexPlayer;
 import me.totalfreedom.plex.rank.enums.Rank;
 import me.totalfreedom.plex.util.PlexLog;
 import org.json.JSONObject;
+import org.json.JSONTokener;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class RankManager
 {
@@ -25,34 +30,65 @@ public class RankManager
         {
             return;
         }
-        else
+        try
         {
-            try
+            defaultRanks.createNewFile();
+
+            Map<String, DefaultRankObj> rankMap = Maps.newHashMap();
+            for (Rank rank : Rank.values())
             {
-                defaultRanks.createNewFile();
-
-                List<DefaultRankObj> ranks = Lists.newArrayList();
-                for (Rank rank : Rank.values())
-                {
-                    ranks.add(new DefaultRankObj(rank));
-                }
-
-                JSONObject obj = new JSONObject();
-                if (obj.length() == 0)
-                {
-                    obj.put("ranks", ranks);
-
-                    FileWriter writer = new FileWriter(defaultRanks);
-                    writer.append(obj.toString(4));
-                    writer.flush();
-                    writer.close();
-                    PlexLog.log("Generating default-ranks.json");
-                }
+                rankMap.put(rank.name().toUpperCase(), new DefaultRankObj(rank));
             }
-            catch (IOException e)
+
+            JSONObject obj = new JSONObject();
+            if (obj.length() == 0)
             {
-                e.printStackTrace();
+                obj.put("ranks", rankMap);
+
+                FileWriter writer = new FileWriter(defaultRanks);
+                writer.append(obj.toString(4));
+                writer.flush();
+                writer.close();
+                PlexLog.log("Generating default-ranks.json");
             }
         }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    public void importDefaultRanks()
+    {
+        if (!defaultRanks.exists())
+        {
+            return;
+        }
+
+        try
+        {
+            FileInputStream stream = new FileInputStream(defaultRanks);
+            JSONTokener tokener = new JSONTokener(stream);
+            JSONObject object = new JSONObject(tokener);
+            JSONObject rankObj = object.getJSONObject("ranks");
+            for (Rank rank : Rank.values())
+            {
+                if (rankObj.isNull(rank.name().toUpperCase())) continue;
+                rank.setLoginMessage(rankObj.getJSONObject(rank.name().toUpperCase()).getString("loginMSG"));
+                rank.setPrefix(rankObj.getJSONObject(rank.name().toUpperCase()).getString("prefix")); //should i even be doing this
+                rank.setPermissions(rankObj.getJSONObject(rank.name().toUpperCase()).getJSONArray("permissions").toList().stream().map(Object::toString).collect(Collectors.toList()));
+
+            }
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+
+    }
+
+    public boolean isAdmin(PlexPlayer plexPlayer)
+    {
+        return !plexPlayer.getRank().isEmpty() && plexPlayer.getRankFromString().isAtleast(Rank.ADMIN);
     }
 }

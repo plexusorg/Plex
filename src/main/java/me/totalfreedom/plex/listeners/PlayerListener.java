@@ -8,8 +8,10 @@ import me.totalfreedom.plex.cache.SQLPlayerData;
 import me.totalfreedom.plex.player.PlexPlayer;
 import me.totalfreedom.plex.player.PunishedPlayer;
 import me.totalfreedom.plex.util.PlexLog;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -19,8 +21,8 @@ public class PlayerListener implements Listener
     private final MongoPlayerData mongoPlayerData = Plex.get().getMongoPlayerData() != null ? Plex.get().getMongoPlayerData() : null;
     private final SQLPlayerData sqlPlayerData = Plex.get().getSqlPlayerData() != null ? Plex.get().getSqlPlayerData() : null;
 
-    @EventHandler
-    public void onJoin(PlayerJoinEvent event)
+    @EventHandler(priority =  EventPriority.HIGHEST)
+    public void onPlayerSetup(PlayerJoinEvent event)
     {
         Player player = event.getPlayer();
 
@@ -62,10 +64,23 @@ public class PlayerListener implements Listener
 
         PlayerCache.getPlexPlayerMap().put(player.getUniqueId(), plexPlayer); //put them into the cache
         PlayerCache.getPunishedPlayerMap().put(player.getUniqueId(), new PunishedPlayer(player.getUniqueId()));
+
+        assert plexPlayer != null;
+
+        if (Plex.get().getRankManager().isAdmin(plexPlayer))
+        {
+            if (!plexPlayer.getLoginMSG().isEmpty())
+            {
+                event.setJoinMessage(ChatColor.AQUA + player.getName() + " is " + plexPlayer.getLoginMSG());
+            } else {
+                event.setJoinMessage(ChatColor.AQUA + player.getName() + " is " + plexPlayer.getRankFromString().getLoginMSG());
+            }
+
+        }
     }
 
-    @EventHandler
-    public void onQuit(PlayerQuitEvent event)
+    @EventHandler(priority =  EventPriority.HIGHEST)
+    public void onPlayerSave(PlayerQuitEvent event)
     {
         PlexPlayer plexPlayer = PlayerCache.getPlexPlayerMap().get(event.getPlayer().getUniqueId()); //get the player because it's literally impossible for them to not have an object
 
@@ -81,4 +96,5 @@ public class PlayerListener implements Listener
         PlayerCache.getPlexPlayerMap().remove(event.getPlayer().getUniqueId()); //remove them from cache
         PlayerCache.getPunishedPlayerMap().remove(event.getPlayer().getUniqueId());
     }
+
 }

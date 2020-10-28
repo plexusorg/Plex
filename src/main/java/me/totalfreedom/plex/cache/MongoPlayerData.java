@@ -2,7 +2,9 @@ package me.totalfreedom.plex.cache;
 
 import dev.morphia.Datastore;
 import dev.morphia.query.Query;
-import dev.morphia.query.UpdateOperations;
+import dev.morphia.query.Update;
+import dev.morphia.query.experimental.filters.Filters;
+import dev.morphia.query.experimental.updates.UpdateOperators;
 import me.totalfreedom.plex.Plex;
 import me.totalfreedom.plex.player.PlexPlayer;
 
@@ -19,36 +21,38 @@ public class MongoPlayerData
 
     public boolean exists(UUID uuid)
     {
-        Query<PlexPlayer> query = datastore.createQuery(PlexPlayer.class);
+        Query<PlexPlayer> query = datastore.find(PlexPlayer.class)
+                .filter(Filters.eq("uuid", uuid.toString()));
 
-        return query.field("uuid").exists().field("uuid").equal(uuid.toString()).first() != null;
+        return query.first() != null;
     }
 
     public PlexPlayer getByUUID(UUID uuid)
     {
-
         if (PlayerCache.getPlexPlayerMap().containsKey(uuid))
         {
             return PlayerCache.getPlexPlayerMap().get(uuid);
         }
-        Query<PlexPlayer> query2 = datastore.createQuery(PlexPlayer.class).field("uuid").exists().field("uuid").equal(uuid.toString());
+
+        Query<PlexPlayer> query2 = datastore.find(PlexPlayer.class).filter(Filters.eq("uuid", uuid.toString()));
         return query2.first();
     }
 
     public void update(PlexPlayer player)
     {
-        Query<PlexPlayer> filter = datastore.createQuery(PlexPlayer.class)
-                .field("uuid").equal(player.getUuid());
+        Query<PlexPlayer> filter = datastore.find(PlexPlayer.class)
+                .filter(Filters.eq("uuid", player.getUuid()));
 
-        UpdateOperations<PlexPlayer> updateOps = datastore.createUpdateOperations(PlexPlayer.class);
+        Update<PlexPlayer> updateOps = filter
+                .update(
+                        UpdateOperators.set("name", player.getName()),
+                        UpdateOperators.set("loginMSG", player.getLoginMSG()),
+                        UpdateOperators.set("prefix", player.getPrefix()),
+                        UpdateOperators.set("rank", player.getRank().toLowerCase()),
+                        UpdateOperators.set("ips", player.getIps()),
+                        UpdateOperators.set("coins", player.getCoins()));
 
-        updateOps.set("name", player.getName());
-        updateOps.set("loginMSG", player.getLoginMSG());
-        updateOps.set("prefix", player.getPrefix());
-        updateOps.set("rank", player.getRank().toLowerCase());
-        updateOps.set("ips", player.getIps());
-        updateOps.set("coins", player.getCoins());
-        datastore.update(filter, updateOps);
+        updateOps.execute();
     }
 
     public void save(PlexPlayer plexPlayer)
