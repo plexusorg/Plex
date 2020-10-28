@@ -2,20 +2,18 @@ package me.totalfreedom.plex.cache;
 
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
-import me.totalfreedom.plex.Plex;
-import me.totalfreedom.plex.player.PlexPlayer;
-import me.totalfreedom.plex.rank.enums.Rank;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
+import me.totalfreedom.plex.Plex;
+import me.totalfreedom.plex.player.PlexPlayer;
+import me.totalfreedom.plex.rank.enums.Rank;
 
 public class SQLPlayerData
 {
-
     private final String SELECT = "SELECT * FROM `players` WHERE uuid=?";
     private final String UPDATE = "UPDATE `players` SET name=?, login_msg=?, prefix=?, rank=?, ips=?, coins=? WHERE uuid=?";
     private final String INSERT = "INSERT INTO `players` (`uuid`, `name`, `login_msg`, `prefix`, `rank`, `ips`, `coins`) VALUES (?, ?, ?, ?, ?, ?, ?);";
@@ -29,7 +27,8 @@ public class SQLPlayerData
             ResultSet set = statement.executeQuery();
             return set.next();
         }
-        catch (SQLException throwables) {
+        catch (SQLException throwables)
+        {
             throwables.printStackTrace();
         }
         return false;
@@ -56,7 +55,9 @@ public class SQLPlayerData
                 String rankName = set.getString("rank").toUpperCase();
                 long coins = set.getLong("coins");
                 Rank rank = Rank.valueOf(rankName);
-                List<String> ips = new Gson().fromJson(set.getString("ips"), new TypeToken<List<String>>(){}.getType());
+                List<String> ips = new Gson().fromJson(set.getString("ips"), new TypeToken<List<String>>()
+                {
+                }.getType());
                 plexPlayer.setName(name);
                 plexPlayer.setLoginMSG(loginMSG);
                 plexPlayer.setPrefix(prefix);
@@ -66,7 +67,8 @@ public class SQLPlayerData
             }
             return plexPlayer;
         }
-        catch (SQLException throwables) {
+        catch (SQLException throwables)
+        {
             throwables.printStackTrace();
         }
         return null;
@@ -86,7 +88,8 @@ public class SQLPlayerData
             statement.setString(7, player.getUuid());
             statement.executeUpdate();
         }
-        catch (SQLException throwables) {
+        catch (SQLException throwables)
+        {
             throwables.printStackTrace();
         }
     }
@@ -104,7 +107,8 @@ public class SQLPlayerData
             statement.setString(6, new Gson().toJson(player.getIps()));
             statement.execute();
         }
-        catch (SQLException throwables) {
+        catch (SQLException throwables)
+        {
             throwables.printStackTrace();
         }
     }

@@ -4,28 +4,29 @@ import org.bukkit.ChatColor;
 
 public enum Rank
 {
+    IMPOSTER(-1, ChatColor.AQUA + "an " + ChatColor.YELLOW + "Imposter", ChatColor.YELLOW + "[Imp]"),
+    NONOP(0, ChatColor.WHITE + "a " + ChatColor.WHITE + "Non-Op", ChatColor.WHITE + ""),
+    OP(1, ChatColor.GREEN + "an " + ChatColor.GREEN + "Operator", ChatColor.GREEN + "[OP]"),
+    ADMIN(2, ChatColor.DARK_GREEN + "an " + ChatColor.DARK_GREEN + "Admin", ChatColor.DARK_GREEN + "[Admin]"),
+    SENIOR_ADMIN(3, ChatColor.GOLD + "a " + ChatColor.GOLD + "Senior Admin", ChatColor.GOLD + "[SrA]"),
+    EXECUTIVE(4, ChatColor.RED + "an " + ChatColor.RED + "Executive", ChatColor.RED + "[Exec]");
 
-    IMPOSTER(0, ChatColor.AQUA + "an " + ChatColor.YELLOW + "Imposter", ChatColor.YELLOW + "[IMP]"),
-    ADMIN(1, ChatColor.AQUA + "an " + ChatColor.AQUA + "Admin", ChatColor.AQUA + "[ADMIN]"),
-    SENIOR_ADMIN(2, ChatColor.AQUA + "a " + ChatColor.LIGHT_PURPLE + "Senior Admin", ChatColor.LIGHT_PURPLE + "[SrA]"),
-    EXECUTIVE(3, ChatColor.AQUA + "an " + ChatColor.RED + "Executive", ChatColor.RED + "[EXEC]");
+    private final String loginMessage;
+    private final String prefix;
 
-    private int level;
-    private String loginMSG;
-    private String prefix;
-
-    Rank(int level, String loginMSG, String prefix)
+    Rank(int level, String loginMessage, String prefix)
     {
-        this.level = level;
-        this.loginMSG = loginMSG;
+        this.loginMessage = loginMessage;
         this.prefix = prefix;
     }
 
-    public String getPrefix() {
+    public String getPrefix()
+    {
         return prefix;
     }
 
-    public String getLoginMSG() {
-        return loginMSG;
+    public String getLoginMSG()
+    {
+        return loginMessage;
     }
 }

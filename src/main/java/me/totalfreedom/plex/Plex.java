@@ -5,13 +5,13 @@ import lombok.Getter;
 import lombok.Setter;
 import me.totalfreedom.plex.cache.MongoPlayerData;
 import me.totalfreedom.plex.cache.SQLPlayerData;
+import me.totalfreedom.plex.config.MainConfig;
 import me.totalfreedom.plex.listeners.PlayerListener;
 import me.totalfreedom.plex.rank.RankManager;
 import me.totalfreedom.plex.storage.MongoConnection;
 import me.totalfreedom.plex.storage.RedisConnection;
 import me.totalfreedom.plex.storage.SQLConnection;
 import me.totalfreedom.plex.storage.StorageType;
-import me.totalfreedom.plex.util.PlexLog;
 import me.totalfreedom.plex.util.PlexUtils;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -21,6 +21,8 @@ public class Plex extends JavaPlugin
 {
     @Setter(AccessLevel.NONE)
     private static Plex plugin;
+
+    public MainConfig config;
 
     private StorageType storageType = StorageType.SQLITE;
 
@@ -33,13 +35,17 @@ public class Plex extends JavaPlugin
 
     private RankManager rankManager;
 
+    public static Plex get()
+    {
+        return plugin;
+    }
+
     @Override
     public void onLoad()
     {
         plugin = this;
 
-        getConfig().options().copyDefaults(true);
-        saveConfig();
+        config = new MainConfig(this, "config.yml");
 
         saveResource("database.db", false);
 
@@ -58,12 +64,16 @@ public class Plex extends JavaPlugin
     @Override
     public void onEnable()
     {
+        config.load();
+
         PlexUtils.testConnections();
 
         if (storageType == StorageType.MONGO)
         {
             mongoPlayerData = new MongoPlayerData();
-        } else {
+        }
+        else
+        {
             sqlPlayerData = new SQLPlayerData();
         }
 
@@ -77,14 +87,11 @@ public class Plex extends JavaPlugin
     @Override
     public void onDisable()
     {
+        config.save();
         /*if (redisConnection.getJedis().isConnected())
         {
             PlexLog.log("Disabling Redis/Jedis. No memory leaks in this Anarchy server !");
             redisConnection.getJedis().close();
         }*/
-    }
-
-    public static Plex get() {
-        return plugin;
     }
 }

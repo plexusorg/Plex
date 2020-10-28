@@ -7,7 +7,6 @@ import redis.clients.jedis.JedisPoolConfig;
 
 public class RedisConnection
 {
-
     private JedisPool pool;
     private Jedis jedis;
 

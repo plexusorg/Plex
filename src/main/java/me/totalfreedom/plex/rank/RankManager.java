@@ -1,18 +1,18 @@
 package me.totalfreedom.plex.rank;
 
 import com.google.common.collect.Lists;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.List;
 import me.totalfreedom.plex.Plex;
 import me.totalfreedom.plex.rank.enums.Rank;
 import me.totalfreedom.plex.util.PlexLog;
 import org.json.JSONObject;
 
-import java.io.*;
-import java.util.List;
-
 public class RankManager
 {
-
-    private File defaultRanks;
+    private final File defaultRanks;
 
     public RankManager()
     {
@@ -24,8 +24,11 @@ public class RankManager
         if (defaultRanks.exists())
         {
             return;
-        } else {
-            try {
+        }
+        else
+        {
+            try
+            {
                 defaultRanks.createNewFile();
 
                 List<DefaultRankObj> ranks = Lists.newArrayList();
@@ -45,11 +48,11 @@ public class RankManager
                     writer.close();
                     PlexLog.log("Generating default-ranks.json");
                 }
-
-            } catch (IOException e) {
+            }
+            catch (IOException e)
+            {
                 e.printStackTrace();
             }
         }
-
     }
 }

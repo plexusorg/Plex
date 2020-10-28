@@ -1,21 +1,19 @@
 package me.totalfreedom.plex.player;
 
+import dev.morphia.annotations.Entity;
+import dev.morphia.annotations.Id;
+import dev.morphia.annotations.IndexOptions;
+import dev.morphia.annotations.Indexed;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import me.totalfreedom.plex.rank.enums.Rank;
-import org.mongodb.morphia.annotations.Entity;
-import org.mongodb.morphia.annotations.Id;
-import org.mongodb.morphia.annotations.IndexOptions;
-import org.mongodb.morphia.annotations.Indexed;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 
 @Getter
 @Setter
-
 @Entity(value = "players", noClassnameStored = true)
 public class PlexPlayer
 {
@@ -35,11 +33,9 @@ public class PlexPlayer
 
     private long coins;
 
-    private String rank;
+    private Rank rank;
 
     private List<String> ips;
-
-    public PlexPlayer(){}
 
     public PlexPlayer(UUID playerUUID)
     {
@@ -56,12 +52,6 @@ public class PlexPlayer
 
         this.ips = new ArrayList<>();
 
-        this.rank = "";
+        this.rank = null;
     }
-
-    public Rank getRankFromString()
-    {
-        return Rank.valueOf(rank.toUpperCase());
-    }
-
 }

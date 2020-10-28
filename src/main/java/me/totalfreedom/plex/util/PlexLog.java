@@ -4,7 +4,6 @@ import me.totalfreedom.plex.Plex;
 
 public class PlexLog
 {
-
     public static void log(String message)
     {
         Plex.get().getServer().getConsoleSender().sendMessage(String.format("§e[Plex] §7%s", message));
@@ -14,5 +13,4 @@ public class PlexLog
     {
         Plex.get().getServer().getConsoleSender().sendMessage(String.format("§c[Plex Error] §6%s", message));
     }
-
 }

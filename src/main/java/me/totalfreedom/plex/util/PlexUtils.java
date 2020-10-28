@@ -1,13 +1,11 @@
 package me.totalfreedom.plex.util;
 
+import java.sql.SQLException;
 import me.totalfreedom.plex.Plex;
 import me.totalfreedom.plex.storage.StorageType;
 
-import java.sql.SQLException;
-
 public class PlexUtils
 {
-
     public static void testConnections()
     {
         if (Plex.get().getSqlConnection().getCon() != null)
@@ -15,15 +13,20 @@ public class PlexUtils
             if (Plex.get().getStorageType() == StorageType.SQL)
             {
                 PlexLog.log("Successfully enabled MySQL!");
-            } else if (Plex.get().getStorageType() == StorageType.SQLITE)
+            }
+            else if (Plex.get().getStorageType() == StorageType.SQLITE)
             {
                 PlexLog.log("Successfully enabled SQLite!");
             }
-            try {
+            try
+            {
                 Plex.get().getSqlConnection().getCon().close();
-            } catch (SQLException throwables) {
             }
-        } else if (Plex.get().getMongoConnection().getDatastore() != null)
+            catch (SQLException ignored)
+            {
+            }
+        }
+        else if (Plex.get().getMongoConnection().getDatastore() != null)
         {
             PlexLog.log("Successfully enabled MongoDB!");
         }
