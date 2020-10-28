@@ -1,10 +1,10 @@
 package me.totalfreedom.plex.cache;
 
-import dev.morphia.query.Query;
-import dev.morphia.query.UpdateOperations;
 import java.util.UUID;
 import me.totalfreedom.plex.Plex;
 import me.totalfreedom.plex.player.PlexPlayer;
+import org.mongodb.morphia.query.Query;
+import org.mongodb.morphia.query.UpdateOperations;
 
 public class MongoPlayerData
 {
@@ -17,10 +17,9 @@ public class MongoPlayerData
 
     public boolean exists(UUID uuid)
     {
-
         Query<PlexPlayer> query = plexPlayerDAO.createQuery();
 
-        return query.field("uuid").exists().field("uuid").equal(uuid.toString()).find().tryNext() != null;
+        return query.field("uuid").exists().field("uuid").equal(uuid.toString()).get() != null;
     }
 
     public PlexPlayer getByUUID(UUID uuid)
@@ -31,7 +30,7 @@ public class MongoPlayerData
             return PlayerCache.getPlexPlayerMap().get(uuid);
         }
         Query<PlexPlayer> query2 = plexPlayerDAO.createQuery().field("uuid").exists().field("uuid").equal(uuid.toString());
-        return query2.first();
+        return query2.get();
     }
 
     public void update(PlexPlayer player)
@@ -44,7 +43,7 @@ public class MongoPlayerData
         updateOps.set("name", player.getName());
         updateOps.set("loginMSG", player.getLoginMSG());
         updateOps.set("prefix", player.getPrefix());
-        updateOps.set("rank", player.getRank() == null ? "" : player.getRank().name().toLowerCase());
+        updateOps.set("rank", player.getRank().toLowerCase());
         updateOps.set("ips", player.getIps());
         updateOps.set("coins", player.getCoins());
         plexPlayerDAO.update(filter, updateOps);
