@@ -5,11 +5,10 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import me.totalfreedom.plex.Plex;
+import me.totalfreedom.plex.PlexBase;
 
-public class SQLConnection
+public class SQLConnection extends PlexBase
 {
-    private final Plex plugin = Plex.get();
-
     private Connection connection;
 
     public Connection getCon()
@@ -25,7 +24,7 @@ public class SQLConnection
             if (plugin.config.getString("data.central.storage").equalsIgnoreCase("sqlite"))
             {
                 connection = DriverManager.getConnection("jdbc:sqlite:" + new File(plugin.getDataFolder(), "database.db").getAbsolutePath());
-                Plex.get().setStorageType(StorageType.SQLITE);
+                plugin.setStorageType(StorageType.SQLITE);
             }
             else if (plugin.config.getString("data.central.storage").equalsIgnoreCase("mysql"))
             {
@@ -45,12 +44,12 @@ public class SQLConnection
                 connection.prepareStatement("CREATE TABLE IF NOT EXISTS `players` (\n" +
                         "\t`uuid` VARCHAR(46),\n" +
                         "\t`name` VARCHAR(18),\n" +
-                        "\t`login_msg` VARCHAR(256),\n" +
-                        "\t`prefix` VARCHAR(30),\n" +
-                        "\t`rank` VARCHAR(256),\n" +
-                        "\t`ips` VARCHAR(65535),\n" +
-                        "\t`coins` BIGINT,\n" +
-                        "\tPRIMARY KEY (`uuid`)\n" +
+                        "\t`login_msg` VARCHAR,\n" +
+                        "\t`prefix` VARCHAR,\n" +
+                        "\t`rank` VARCHAR,\n" +
+                        "\t`ips` VARCHAR,\n" +
+                        "\t`coins` INT\n" +
+                        //"\tPRIMARY KEY (`uuid`)\n" +
                         ");").execute();
             }
         }

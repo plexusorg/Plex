@@ -1,4 +1,4 @@
-package me.totalfreedom.plex.listeners;
+package me.totalfreedom.plex.listener;
 
 import java.util.Arrays;
 import me.totalfreedom.plex.Plex;

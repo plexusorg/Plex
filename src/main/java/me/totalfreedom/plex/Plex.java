@@ -1,13 +1,13 @@
 package me.totalfreedom.plex;
 
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import me.totalfreedom.plex.cache.MongoPlayerData;
 import me.totalfreedom.plex.cache.SQLPlayerData;
+import me.totalfreedom.plex.command.PlexCommand;
 import me.totalfreedom.plex.config.MainConfig;
-import me.totalfreedom.plex.listeners.ChatListener;
-import me.totalfreedom.plex.listeners.PlayerListener;
+import me.totalfreedom.plex.listener.ChatListener;
+import me.totalfreedom.plex.listener.PlayerListener;
 import me.totalfreedom.plex.rank.RankManager;
 import me.totalfreedom.plex.storage.MongoConnection;
 import me.totalfreedom.plex.storage.RedisConnection;
@@ -21,11 +21,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 @Setter
 public class Plex extends JavaPlugin
 {
-    @Setter(AccessLevel.NONE)
-    private static Plex plugin;
-
+    public static Plex plugin;
     public MainConfig config;
-
     private StorageType storageType = StorageType.SQLITE;
 
     private SQLConnection sqlConnection;
@@ -46,9 +43,7 @@ public class Plex extends JavaPlugin
     public void onLoad()
     {
         plugin = this;
-
         config = new MainConfig(this);
-
         saveResource("database.db", false);
 
         sqlConnection = new SQLConnection();
@@ -95,12 +90,14 @@ public class Plex extends JavaPlugin
         rankManager.generateDefaultRanks();
         rankManager.importDefaultRanks();
         PlexLog.log("Rank Manager initialized");
+
+        getCommand("plex").setExecutor(new PlexCommand());
+
     }
 
     @Override
     public void onDisable()
     {
-        config.save();
         /*if (redisConnection.getJedis().isConnected())
         {
             PlexLog.log("Disabling Redis/Jedis. No memory leaks in this Anarchy server !");

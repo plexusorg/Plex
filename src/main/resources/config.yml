@@ -1,15 +1,7 @@
-# -------------------------------#
-#                                #
-#           P L E X              #
-#                                #
-# -------------------------------#
+# Plex Configuration File
 
-# ------------------------------ #
-#                                #
-#   You can use MySQL, MongoDB   #
-#     or SQLite for the data     #
-#             type               #
-# -------------------------------#
+server:
+  test: "test string"
 
 data:
   central:

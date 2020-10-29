@@ -1,9 +1,8 @@
-package me.totalfreedom.plex.listeners;
+package me.totalfreedom.plex.listener;
 
 import me.totalfreedom.plex.Plex;
 import me.totalfreedom.plex.cache.PlayerCache;
 import me.totalfreedom.plex.player.PlexPlayer;
-import me.totalfreedom.plex.rank.RankManager;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

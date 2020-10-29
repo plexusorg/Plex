@@ -6,9 +6,8 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 public class MainConfig extends YamlConfiguration
 {
-    private static MainConfig config;
-    private final Plex plugin;
-    private final File file;
+    private Plex plugin;
+    private File file;
 
     public MainConfig(Plex plugin)
     {
