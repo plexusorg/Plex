@@ -5,7 +5,7 @@ server:
 
 data:
   central:
-    storage: sqlite
+    storage: sqlite # use mariadb, mongodb, or sqlite here
     user: ""
     password: ""
     hostname: 127.0.0.1

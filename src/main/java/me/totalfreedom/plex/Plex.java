@@ -21,7 +21,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 @Setter
 public class Plex extends JavaPlugin
 {
-    public static Plex plugin;
+    private static Plex plugin;
     public MainConfig config;
     private StorageType storageType = StorageType.SQLITE;
 

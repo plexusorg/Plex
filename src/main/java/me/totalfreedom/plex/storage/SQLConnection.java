@@ -18,7 +18,6 @@ public class SQLConnection extends PlexBase
         String username = plugin.config.getString("data.central.user");
         String password = plugin.config.getString("data.central.password");
         String database = plugin.config.getString("data.central.db");
-
         try
         {
             if (plugin.config.getString("data.central.storage").equalsIgnoreCase("sqlite"))
@@ -26,13 +25,14 @@ public class SQLConnection extends PlexBase
                 connection = DriverManager.getConnection("jdbc:sqlite:" + new File(plugin.getDataFolder(), "database.db").getAbsolutePath());
                 plugin.setStorageType(StorageType.SQLITE);
             }
-            else if (plugin.config.getString("data.central.storage").equalsIgnoreCase("mysql"))
+            else if (plugin.config.getString("data.central.storage").equalsIgnoreCase("mariadb"))
             {
-                connection = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database, username, password);
+                Class.forName("org.mariadb.jdbc.Driver");
+                connection = DriverManager.getConnection("jdbc:mariadb://" + host + ":" + port + "/" + database, username, password);
                 Plex.get().setStorageType(StorageType.SQL);
             }
         }
-        catch (SQLException throwables)
+        catch (SQLException | ClassNotFoundException throwables)
         {
             throwables.printStackTrace();
         }
