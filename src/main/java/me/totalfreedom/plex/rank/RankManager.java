@@ -21,7 +21,13 @@ public class RankManager
 
     public RankManager()
     {
-        defaultRanks = new File(new File(Plex.get().getDataFolder() + File.separator + "ranks"), "default-ranks.json");
+        File ranksFolder = new File(Plex.get().getDataFolder() + File.separator + "ranks");
+        if (!ranksFolder.exists())
+        {
+            ranksFolder.mkdir();
+        }
+
+        defaultRanks = new File(ranksFolder, "default-ranks.json");
     }
 
     public void generateDefaultRanks()
