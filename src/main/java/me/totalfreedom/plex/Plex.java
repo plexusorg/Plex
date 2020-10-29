@@ -47,7 +47,7 @@ public class Plex extends JavaPlugin
     {
         plugin = this;
 
-        config = new MainConfig(this, "config.yml");
+        config = new MainConfig(this);
 
         saveResource("database.db", false);
 
@@ -67,17 +67,17 @@ public class Plex extends JavaPlugin
     public void onEnable()
     {
         config.load();
-        PlexLog.log("Loaded config.yml");
 
-        try {
+        try
+        {
             PlexUtils.testConnections();
             PlexLog.log("Connected to " + storageType.name().toUpperCase());
-        } catch (Exception e)
+        }
+        catch (Exception e)
         {
             PlexLog.error("Failed to connect to " + storageType.name().toUpperCase());
             e.printStackTrace();
         }
-
 
         if (storageType == StorageType.MONGO)
         {
@@ -95,7 +95,6 @@ public class Plex extends JavaPlugin
         rankManager.generateDefaultRanks();
         rankManager.importDefaultRanks();
         PlexLog.log("Rank Manager initialized");
-
     }
 
     @Override

@@ -10,14 +10,14 @@ public class MainConfig extends YamlConfiguration
     private final Plex plugin;
     private final File file;
 
-    public MainConfig(Plex plugin, String configName)
+    public MainConfig(Plex plugin)
     {
         this.plugin = plugin;
-        this.file = new File(plugin.getDataFolder(), configName);
+        this.file = new File(plugin.getDataFolder(), "config.yml");
 
         if (!file.exists())
         {
-            saveDefault(configName);
+            saveDefault();
         }
     }
 
@@ -45,8 +45,8 @@ public class MainConfig extends YamlConfiguration
         }
     }
 
-    private void saveDefault(String configName)
+    private void saveDefault()
     {
-        plugin.saveResource(configName, false);
+        plugin.saveResource("config.yml", false);
     }
 }
