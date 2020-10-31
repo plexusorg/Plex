@@ -1,4 +1,4 @@
-package me.totalfreedom.plex.command.impl;
+package me.totalfreedom.plex.command;
 
 import me.totalfreedom.plex.PlexBase;
 import me.totalfreedom.plex.rank.enums.Rank;

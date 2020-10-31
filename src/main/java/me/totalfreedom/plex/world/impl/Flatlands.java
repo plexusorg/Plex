@@ -1,12 +1,14 @@
-package me.totalfreedom.plex.world;
+package me.totalfreedom.plex.world.impl;
 
 import me.totalfreedom.plex.Plex;
-import me.totalfreedom.plex.world.impl.CustomWorld;
-import me.totalfreedom.plex.world.impl.FlatChunkGenerator;
-import org.bukkit.ChatColor;
+import me.totalfreedom.plex.world.CustomWorld;
+import me.totalfreedom.plex.world.FlatChunkGenerator;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.Sign;
 import org.bukkit.generator.BlockPopulator;
 
 import java.util.Random;
@@ -23,7 +25,16 @@ public class Flatlands extends CustomWorld
     @Override
     public World generate()
     {
-        return super.generate();
+        World world = super.generate();
+        Block block = world.getBlockAt(0, 51, 0);
+        block.setType(Material.OAK_SIGN);
+        BlockState state = block.getState();
+        if (state instanceof Sign)
+        {
+            Sign sign = (Sign) state;
+
+        }
+        return world;
     }
 
     private static class FlatlandsChunkGenerator extends FlatChunkGenerator

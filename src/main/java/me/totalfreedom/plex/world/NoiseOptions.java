@@ -1,4 +1,4 @@
-package me.totalfreedom.plex.world.impl;
+package me.totalfreedom.plex.world;
 
 import lombok.Getter;
 
