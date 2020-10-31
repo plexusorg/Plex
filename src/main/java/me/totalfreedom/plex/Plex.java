@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import me.totalfreedom.plex.cache.MongoPlayerData;
 import me.totalfreedom.plex.cache.SQLPlayerData;
-import me.totalfreedom.plex.command.MainConfig;
+import me.totalfreedom.plex.config.MainConfig;
 import me.totalfreedom.plex.listener.ChatListener;
 import me.totalfreedom.plex.listener.PlayerListener;
 import me.totalfreedom.plex.rank.RankManager;

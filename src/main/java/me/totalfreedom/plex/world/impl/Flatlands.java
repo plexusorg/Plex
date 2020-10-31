@@ -32,7 +32,9 @@ public class Flatlands extends CustomWorld
         if (state instanceof Sign)
         {
             Sign sign = (Sign) state;
-
+            sign.setLine(1, "Flatlands");
+            sign.setLine(2, "- 0, 0 -");
+            sign.update();
         }
         return world;
     }

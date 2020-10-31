@@ -1,4 +1,4 @@
-package me.totalfreedom.plex.command;
+package me.totalfreedom.plex.config;
 
 import java.io.File;
 import me.totalfreedom.plex.Plex;
