@@ -3,6 +3,14 @@
 server:
   test: "test string"
 
+  flatlands:
+    generate: true
+    parameters:
+      grass_block: 1
+      dirt: 32
+      stone: 16
+      bedrock: 1
+
 data:
   central:
     storage: sqlite # use mariadb, mongodb, or sqlite here

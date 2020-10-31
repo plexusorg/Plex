@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.Setter;
 import me.totalfreedom.plex.cache.MongoPlayerData;
 import me.totalfreedom.plex.cache.SQLPlayerData;
-import me.totalfreedom.plex.command.PlexCommand;
 import me.totalfreedom.plex.config.MainConfig;
 import me.totalfreedom.plex.listener.ChatListener;
 import me.totalfreedom.plex.listener.PlayerListener;
@@ -15,6 +14,8 @@ import me.totalfreedom.plex.storage.SQLConnection;
 import me.totalfreedom.plex.storage.StorageType;
 import me.totalfreedom.plex.util.PlexLog;
 import me.totalfreedom.plex.util.PlexUtils;
+import me.totalfreedom.plex.world.Flatlands;
+import org.bukkit.World;
 import org.bukkit.plugin.java.JavaPlugin;
 
 @Getter
@@ -33,6 +34,8 @@ public class Plex extends JavaPlugin
     private SQLPlayerData sqlPlayerData;
 
     private RankManager rankManager;
+
+    public World flatlands;
 
     public static Plex get()
     {
@@ -91,8 +94,7 @@ public class Plex extends JavaPlugin
         rankManager.importDefaultRanks();
         PlexLog.log("Rank Manager initialized");
 
-        getCommand("plex").setExecutor(new PlexCommand());
-
+        generateWorlds();
     }
 
     @Override
@@ -103,5 +105,12 @@ public class Plex extends JavaPlugin
             PlexLog.log("Disabling Redis/Jedis. No memory leaks in this Anarchy server !");
             redisConnection.getJedis().close();
         }*/
+    }
+
+    private void generateWorlds()
+    {
+        PlexLog.log("Generating any worlds if needed...");
+        flatlands = new Flatlands().generate();
+        PlexLog.log("Finished with world generation!");
     }
 }
