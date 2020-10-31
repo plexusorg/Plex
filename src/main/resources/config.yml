@@ -3,14 +3,6 @@
 server:
   test: "test string"
 
-  flatlands:
-    generate: true
-    parameters:
-      grass_block: 1
-      dirt: 32
-      stone: 16
-      bedrock: 1
-
 data:
   central:
     storage: sqlite # use mariadb, mongodb, or sqlite here
@@ -24,3 +16,26 @@ data:
     hostname: 127.0.0.1
     port: 6379
     password: ""
+
+worlds:
+  flatlands:
+    name: "Flatlands"
+    parameters:
+      grass_block: 1
+      dirt: 32
+      stone: 16
+      bedrock: 1
+  adminworld:
+    name: "Admin World"
+    parameters:
+      grass_block: 1
+      dirt: 32
+      stone: 16
+      bedrock: 1
+  masterbuilderworld:
+    name: "MB World"
+    parameters:
+      grass_block: 1
+      dirt: 32
+      stone: 16
+      bedrock: 1

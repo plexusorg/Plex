@@ -4,12 +4,15 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.google.common.collect.Lists;
 import me.totalfreedom.plex.Plex;
 import me.totalfreedom.plex.storage.StorageType;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.PluginCommandYamlParser;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 public class PlexUtils
@@ -60,4 +63,13 @@ public class PlexUtils
         return false;
     }
 
+    public static String color(String s)
+    {
+        return ChatColor.translateAlternateColorCodes('&', s);
+    }
+
+    public static void warpToWorld(Player player, World world)
+    {
+        player.teleport(new Location(world, 0, world.getHighestBlockYAt(0, 0), 0));
+    }
 }

@@ -21,7 +21,7 @@ public class TestCMD extends PlexCommand
 
     @Override
     public void execute(CommandSender sender, String[] args) {
-        sender.sendMessage("HIIII BICH");
+        sender.sendMessage(plugin.getMessageManager().getMessage("test"));
     }
 
     @Override

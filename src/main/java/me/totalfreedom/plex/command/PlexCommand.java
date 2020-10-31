@@ -16,6 +16,8 @@ import java.util.List;
 
 public abstract class PlexCommand extends Command implements TabExecutor, IPlexCommand
 {
+    protected static Plex plugin = Plex.get();
+
     private final CommandParameters params;
     private final CommandPermissions perms;
 

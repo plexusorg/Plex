@@ -4,15 +4,17 @@ import java.io.File;
 import me.totalfreedom.plex.Plex;
 import org.bukkit.configuration.file.YamlConfiguration;
 
-public class MainConfig extends YamlConfiguration
+public class Config extends YamlConfiguration
 {
     private Plex plugin;
     private File file;
+    private String name;
 
-    public MainConfig(Plex plugin)
+    public Config(Plex plugin, String name)
     {
         this.plugin = plugin;
-        this.file = new File(plugin.getDataFolder(), "config.yml");
+        this.file = new File(plugin.getDataFolder(), name);
+        this.name = name;
 
         if (!file.exists())
         {
@@ -46,6 +48,6 @@ public class MainConfig extends YamlConfiguration
 
     private void saveDefault()
     {
-        plugin.saveResource("config.yml", false);
+        plugin.saveResource(name, false);
     }
 }

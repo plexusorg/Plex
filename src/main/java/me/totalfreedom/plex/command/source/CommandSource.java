@@ -20,6 +20,4 @@ public class CommandSource
         this.player = sender instanceof Player ? Bukkit.getPlayer(sender.getName()) : null;
         this.plexPlayer = sender instanceof Player ? PlayerCache.getPlexPlayerMap().get(((Player)sender).getUniqueId()) : null;
     }
-
-
 }

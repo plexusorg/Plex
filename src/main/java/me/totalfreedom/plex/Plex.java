@@ -4,9 +4,10 @@ import lombok.Getter;
 import lombok.Setter;
 import me.totalfreedom.plex.cache.MongoPlayerData;
 import me.totalfreedom.plex.cache.SQLPlayerData;
-import me.totalfreedom.plex.config.MainConfig;
+import me.totalfreedom.plex.config.Config;
 import me.totalfreedom.plex.handlers.CommandHandler;
 import me.totalfreedom.plex.handlers.ListenerHandler;
+import me.totalfreedom.plex.message.MessageManager;
 import me.totalfreedom.plex.rank.RankManager;
 import me.totalfreedom.plex.storage.MongoConnection;
 import me.totalfreedom.plex.storage.RedisConnection;
@@ -14,8 +15,7 @@ import me.totalfreedom.plex.storage.SQLConnection;
 import me.totalfreedom.plex.storage.StorageType;
 import me.totalfreedom.plex.util.PlexLog;
 import me.totalfreedom.plex.util.PlexUtils;
-import me.totalfreedom.plex.world.impl.Flatlands;
-import org.bukkit.World;
+import me.totalfreedom.plex.world.CustomWorld;
 import org.bukkit.plugin.java.JavaPlugin;
 
 @Getter
@@ -23,7 +23,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class Plex extends JavaPlugin
 {
     private static Plex plugin;
-    public MainConfig config;
+    public Config config;
     private StorageType storageType = StorageType.SQLITE;
 
     private SQLConnection sqlConnection;
@@ -34,8 +34,7 @@ public class Plex extends JavaPlugin
     private SQLPlayerData sqlPlayerData;
 
     private RankManager rankManager;
-
-    public World flatlands;
+    private MessageManager messageManager;
 
     public static Plex get()
     {
@@ -46,7 +45,7 @@ public class Plex extends JavaPlugin
     public void onLoad()
     {
         plugin = this;
-        config = new MainConfig(this);
+        config = new Config(this, "config.yml");
         saveResource("database.db", false);
 
         sqlConnection = new SQLConnection();
@@ -94,6 +93,10 @@ public class Plex extends JavaPlugin
         rankManager.importDefaultRanks();
         PlexLog.log("Rank Manager initialized");
 
+        messageManager = new MessageManager();
+        messageManager.generateMessages();
+        PlexLog.log("Message Manager initialized");
+
         generateWorlds();
     }
 
@@ -110,7 +113,8 @@ public class Plex extends JavaPlugin
     private void generateWorlds()
     {
         PlexLog.log("Generating any worlds if needed...");
-        flatlands = new Flatlands().generate();
+        for (String key : config.getConfigurationSection("worlds").getKeys(false))
+            CustomWorld.generateConfigFlatWorld(key);
         PlexLog.log("Finished with world generation!");
     }
 }
