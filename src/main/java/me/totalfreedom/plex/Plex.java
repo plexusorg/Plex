@@ -5,8 +5,8 @@ import lombok.Setter;
 import me.totalfreedom.plex.cache.MongoPlayerData;
 import me.totalfreedom.plex.cache.SQLPlayerData;
 import me.totalfreedom.plex.config.MainConfig;
-import me.totalfreedom.plex.listener.ChatListener;
-import me.totalfreedom.plex.listener.PlayerListener;
+import me.totalfreedom.plex.handlers.CommandHandler;
+import me.totalfreedom.plex.handlers.ListenerHandler;
 import me.totalfreedom.plex.rank.RankManager;
 import me.totalfreedom.plex.storage.MongoConnection;
 import me.totalfreedom.plex.storage.RedisConnection;
@@ -86,8 +86,8 @@ public class Plex extends JavaPlugin
             sqlPlayerData = new SQLPlayerData();
         }
 
-        getServer().getPluginManager().registerEvents(new PlayerListener(), this);
-        getServer().getPluginManager().registerEvents(new ChatListener(), this);
+        new ListenerHandler(); // this doesn't need a variable.
+        new CommandHandler();
 
         rankManager = new RankManager();
         rankManager.generateDefaultRanks();

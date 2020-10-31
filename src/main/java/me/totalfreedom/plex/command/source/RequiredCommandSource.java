@@ -1,4 +1,4 @@
-package me.totalfreedom.plex.command;
+package me.totalfreedom.plex.command.source;
 
 public enum RequiredCommandSource
 {

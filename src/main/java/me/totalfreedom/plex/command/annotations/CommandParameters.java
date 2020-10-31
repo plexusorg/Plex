@@ -1,4 +1,4 @@
-package me.totalfreedom.plex.command;
+package me.totalfreedom.plex.command.annotations;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

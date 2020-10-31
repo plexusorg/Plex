@@ -3,7 +3,3 @@ version: ${project.version}
 author: Telesphoreo
 main: me.totalfreedom.plex.Plex
 api-version: 1.16
-commands:
-  plex:
-    description: Test
-    usage: /<command>

@@ -1,10 +1,11 @@
-package me.totalfreedom.plex.listener;
+package me.totalfreedom.plex.listener.impl;
 
 import java.util.Arrays;
 import me.totalfreedom.plex.Plex;
 import me.totalfreedom.plex.cache.MongoPlayerData;
 import me.totalfreedom.plex.cache.PlayerCache;
 import me.totalfreedom.plex.cache.SQLPlayerData;
+import me.totalfreedom.plex.listener.PlexListener;
 import me.totalfreedom.plex.player.PlexPlayer;
 import me.totalfreedom.plex.player.PunishedPlayer;
 import me.totalfreedom.plex.util.PlexLog;
@@ -16,10 +17,10 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
-public class PlayerListener implements Listener
+public class PlayerListener extends PlexListener
 {
-    private final MongoPlayerData mongoPlayerData = Plex.get().getMongoPlayerData() != null ? Plex.get().getMongoPlayerData() : null;
-    private final SQLPlayerData sqlPlayerData = Plex.get().getSqlPlayerData() != null ? Plex.get().getSqlPlayerData() : null;
+    private final MongoPlayerData mongoPlayerData = plugin.getMongoPlayerData() != null ? plugin.getMongoPlayerData() : null;
+    private final SQLPlayerData sqlPlayerData = plugin.getSqlPlayerData() != null ? plugin.getSqlPlayerData() : null;
 
     @EventHandler(priority =  EventPriority.HIGHEST)
     public void onPlayerSetup(PlayerJoinEvent event)
@@ -47,13 +48,13 @@ public class PlayerListener implements Listener
         }
         else if (sqlPlayerData != null)
         {
-            if (!sqlPlayerData.exists(player.getUniqueId())) //okay, we're saving with mongo! now check if the player's document exists
+            if (!sqlPlayerData.exists(player.getUniqueId())) //okay, we're saving with sql! now check if the player's document exists
             {
                 PlexLog.log("AYO THIS MAN DONT EXIST"); // funi msg
                 plexPlayer = new PlexPlayer(player.getUniqueId()); //it doesn't! okay so now create the object
                 plexPlayer.setName(player.getName()); //set the name of the player
                 plexPlayer.setIps(Arrays.asList(player.getAddress().getAddress().getHostAddress().trim())); //set the arraylist of ips
-                sqlPlayerData.insert(plexPlayer); //and put their document in mongo collection
+                sqlPlayerData.insert(plexPlayer); //and put their row into the sql table
             }
             else
             {
@@ -67,7 +68,7 @@ public class PlayerListener implements Listener
 
         assert plexPlayer != null;
 
-        if (Plex.get().getRankManager().isAdmin(plexPlayer))
+        if (plugin.getRankManager().isAdmin(plexPlayer))
         {
             if (!plexPlayer.getLoginMSG().isEmpty())
             {
@@ -88,7 +89,7 @@ public class PlayerListener implements Listener
         {
             mongoPlayerData.update(plexPlayer); //update the player's document
         }
-        else if (sqlPlayerData != null)
+        else if (sqlPlayerData != null) //sql checking
         {
             sqlPlayerData.update(plexPlayer);
         }

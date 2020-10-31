@@ -11,6 +11,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import me.totalfreedom.plex.rank.enums.Rank;
+import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 
 @Getter
 @Setter
@@ -59,6 +61,17 @@ public class PlexPlayer
 
     public Rank getRankFromString()
     {
-        return Rank.valueOf(rank.toUpperCase());
+        OfflinePlayer player = Bukkit.getOfflinePlayer(UUID.fromString(uuid));
+        if (rank.isEmpty())
+        {
+            if (player.isOp())
+            {
+                return Rank.OP;
+            } else {
+                return Rank.NONOP;
+            }
+        } else {
+            return Rank.valueOf(rank.toUpperCase());
+        }
     }
 }

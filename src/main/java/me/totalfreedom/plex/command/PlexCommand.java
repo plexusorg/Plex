@@ -1,106 +1,157 @@
 package me.totalfreedom.plex.command;
 
-import me.totalfreedom.plex.PlexBase;
+import com.google.common.collect.ImmutableList;
+import me.totalfreedom.plex.Plex;
+import me.totalfreedom.plex.cache.PlayerCache;
+import me.totalfreedom.plex.command.annotations.CommandParameters;
+import me.totalfreedom.plex.command.annotations.CommandPermissions;
+import me.totalfreedom.plex.command.source.RequiredCommandSource;
+import me.totalfreedom.plex.player.PlexPlayer;
 import me.totalfreedom.plex.rank.enums.Rank;
-import org.bukkit.Bukkit;
 import org.bukkit.command.*;
+import org.bukkit.entity.Player;
 
-import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
-public abstract class PlexCommand extends PlexBase implements CommandExecutor, TabCompleter
+public abstract class PlexCommand extends Command implements TabExecutor, IPlexCommand
 {
-    private static final String COMMAND_PREFIX = "Command_";
-    private static CommandMap COMMAND_MAP;
-
     private final CommandParameters params;
     private final CommandPermissions perms;
-    private final String name;
-    private final String description;
-    private final String usage;
-    private final List<String> aliases;
+
     private final Rank level;
-    private final RequiredCommandSource source;
+    private final RequiredCommandSource commandSource;
 
-    protected PlexCommand()
+    public PlexCommand(String name)
     {
-        this.params = this.getClass().getAnnotation(CommandParameters.class);
-        this.perms = this.getClass().getAnnotation(CommandPermissions.class);
-        this.name = this.getClass().getSimpleName().toLowerCase().replace(COMMAND_PREFIX.toLowerCase(), "");
-        this.description = this.params.description();
-        this.usage = this.params.usage();
-        this.aliases = Arrays.asList(this.params.aliases().split(","));
-        this.level = this.perms.level();
-        this.source = this.perms.source();
-    }
+        super(name);
+        this.params = getClass().getAnnotation(CommandParameters.class);
+        this.perms = getClass().getAnnotation(CommandPermissions.class);
 
-    public void register()
-    {
-        PCommand command = new PCommand(this.name);
-        command.setDescription(this.description);
-        command.setUsage(this.usage);
-        command.setAliases(this.aliases);
-        this.getCommandMap().register("", command);
-        command.setExecutor(this);
-    }
-
-    protected CommandMap getCommandMap()
-    {
-        if (COMMAND_MAP == null)
+        setName(name);
+        setLabel(name);
+        setDescription(params.description());
+        setUsage(params.usage());
+        if (params.aliases().split(",").length > 0)
         {
-            try
+            setAliases(Arrays.asList(params.aliases().split(",")));
+        }
+        this.level = perms.level();
+        this.commandSource = perms.source();
+
+        getMap().register("", this);
+    }
+
+
+    @Override
+    public boolean execute(CommandSender sender, String label, String[] args)
+    {
+        onCommand(sender, this, label, args);
+        return true;
+    }
+
+    @Override
+    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
+    {
+        if (!matches(label)) return false;
+        if (commandSource == RequiredCommandSource.CONSOLE)
+        {
+            if (sender instanceof Player)
             {
-                final Field f = Bukkit.getServer().getClass().getDeclaredField("commandMap");
-                f.setAccessible(true);
-                COMMAND_MAP = (CommandMap) f.get(Bukkit.getServer());
-                return getCommandMap();
+                //TODO: Enter console only msg
+                return true;
             }
-            catch (Exception e)
+            execute(sender, args);
+            return true;
+
+        } else if (commandSource == RequiredCommandSource.IN_GAME)
+        {
+            if (!(sender instanceof Player))
             {
-                e.printStackTrace();
+                //TODO: Enter player only msg
+                return true;
+            }
+
+            Player player = (Player) sender;
+            PlexPlayer plexPlayer = PlayerCache.getPlexPlayerMap().get(player.getUniqueId());
+            if (!plexPlayer.getRankFromString().isAtleast(getLevel()))
+            {
+                //TODO: Enter <insert level> only and higher msg
+                return true;
+            }
+            execute(sender, args);
+            return true;
+        } else {
+            if (!(sender instanceof Player))
+            {
+                execute(sender, args);
+                return true;
+            } else {
+                Player player = (Player) sender;
+                PlexPlayer plexPlayer = PlayerCache.getPlexPlayerMap().get(player.getUniqueId());
+                if (!plexPlayer.getRankFromString().isAtleast(getLevel()))
+                {
+                    //TODO: Enter <insert level> only and higher msg
+                    return true;
+                }
+                execute(sender, args);
+                return true;
             }
         }
-        else
-            return COMMAND_MAP;
-        return getCommandMap();
     }
 
-    private static class PCommand extends Command
+
+    @Override
+    public List<String> tabComplete(CommandSender sender, String alias, String[] args)
     {
-        private PlexCommand command = null;
-
-        private PCommand(String name)
+        if (!matches(alias)) return ImmutableList.of();
+        if (sender instanceof Player)
         {
-            super(name);
-        }
-
-        public void setExecutor(PlexCommand command)
-        {
-            this.command = command;
-        }
-
-        @Override
-        public boolean execute(CommandSender sender, String c, String[] args)
-        {
-            if (command == null)
-                return false;
-            return command.onCommand(sender, this, c, args);
-        }
-
-        @Override
-        public List<String> tabComplete(CommandSender sender, String alias, String[] args)
-        {
-            if (command == null)
-                return null;
-            return Objects.requireNonNull(command.onTabComplete(sender, this, alias, args));
+            Player player = (Player) sender;
+            PlexPlayer plexPlayer = PlayerCache.getPlexPlayerMap().get(player.getUniqueId());
+            if (plexPlayer.getRankFromString().isAtleast(getLevel()))
+            {
+                return onTabComplete(sender, args);
+            } else {
+                return ImmutableList.of();
+            }
+        } else {
+            return onTabComplete(sender, args);
         }
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String c, String[] args)
+    public List<String> onTabComplete(CommandSender sender, Command cmd, String label, String[] args)
     {
+        return tabComplete(sender, label, args);
+    }
+
+    private boolean matches(String label)
+    {
+        if (params.aliases().split(",").length > 0)
+        {
+            for (String alias : params.aliases().split(","))
+            {
+                if (alias.equalsIgnoreCase(label) || getName().equalsIgnoreCase(label))
+                {
+                    return true;
+                }
+            }
+        } else if (params.aliases().split(",").length < 1)
+        {
+            return getName().equalsIgnoreCase(label);
+        }
         return false;
+    }
+
+
+    public Rank getLevel()
+    {
+        return level;
+    }
+
+    public CommandMap getMap()
+    {
+        return Plex.get().getServer().getCommandMap();
     }
 }

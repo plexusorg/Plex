@@ -1,5 +1,6 @@
-package me.totalfreedom.plex.command;
+package me.totalfreedom.plex.command.annotations;
 
+import me.totalfreedom.plex.command.source.RequiredCommandSource;
 import me.totalfreedom.plex.rank.enums.Rank;
 
 import java.lang.annotation.Retention;
