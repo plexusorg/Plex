@@ -71,17 +71,20 @@ public class PlexUtils
     public static String tl(String s, Object... objects)
     {
         Plex plugin = Plex.get();
-        if (s.equals("baseColor") || s.equals("errorColor"))
-            return getChatColorFromConfig(plugin.messages, (s.equals("baseColor") ? ChatColor.GRAY : ChatColor.RED), s).toString();
+        if (s.equals("baseColor") || s.equals("errorColor") || s.equals("broadcastColor"))
+            return getChatColorFromConfig(plugin.messages, ChatColor.WHITE, s).toString();
         String f = plugin.messages.getString(s);
         if (f == null)
             return ChatColor.RED + "No message";
         for (Object object : objects)
             f = f.replace("<v>", String.valueOf(object));
         ChatColor base = getChatColorFromConfig(plugin.messages, ChatColor.GRAY, "baseColor");
+        ChatColor broadcast = getChatColorFromConfig(plugin.messages, ChatColor.AQUA, "broadcastColor");
         ChatColor error = getChatColorFromConfig(plugin.messages, ChatColor.RED, "errorColor");
         f = f.replaceAll("<r>", base.toString());
+        f = f.replaceAll("<b>", broadcast.toString());
         f = f.replaceAll("<e>", error.toString());
+        f = color(f);
         return base + f;
     }
 
@@ -123,5 +126,10 @@ public class PlexUtils
                 }
             }
         }
+    }
+
+    public static void broadcast(String s)
+    {
+        Bukkit.broadcastMessage(s);
     }
 }

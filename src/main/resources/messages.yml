@@ -4,19 +4,31 @@
 # Warning: not all commands have customizable messages
 
 # Base color - the main color prefix; will be used following each of the messages below
+# Broadcast color - the color used when broadcasting a message
 # Error color - the color of an error; will be used when an error is thrown from a command
 baseColor: "7"
+broadcastColor: "b"
 errorColor: "c"
 
 # Variables <v> - these are code-defined replacements for things that should be inserted into messages. (e.g. names, statuses, numbers)
-# if any of these variables are defined within a message, some documentation is provided to give more context to what the variables indicate.
-# message variables are used in numerical order that is unchangeable from this file.
+# if any of these variables are supposed to be used within a message, some documentation is provided to give more context to what the variables indicate.
+# you are unable to change the order the variables are used due to it being a code-side functionality.
+# if you are wishing to change these messages it's recommended you use the same amount of variables as stated in the documentation, however it's not required.
 
 # Reset color <r> - this will reset the color of the message to the base color defined above.
+# Broadcast color <b> - this will make the color of the message the broadcast color defined above.
 # Error color <e> - this will make the color of the message the error color defined above.
 
 test: this is a test message!
+# 1: the command sender's username
 variableTest: variable test with <v>!
+playerNotFound: Player not found!
 noAdminWorldBlockPlace: <e>You are not allowed to place blocks in the admin world!
 noAdminWorldBlockBreak: <e>You are not allowed to break blocks in the admin world!
+# 1: the world you have been teleported to
 playerWorldTeleport: You have been teleported to <v>.
+# 1: the command sender who opped everyone
+oppedAllPlayers: <b><v> has opped all players on the server
+# 1: the person who is opping
+# 2: the person who has been opped
+oppedPlayer: <v> has opped <v>
