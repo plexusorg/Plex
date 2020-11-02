@@ -18,7 +18,7 @@ public class CustomWorld extends WorldCreator
 
     private final CustomChunkGenerator chunks;
 
-    private CustomWorld(String name, CustomChunkGenerator generator)
+    public CustomWorld(String name, CustomChunkGenerator generator)
     {
         super(name);
         this.chunks = generator;

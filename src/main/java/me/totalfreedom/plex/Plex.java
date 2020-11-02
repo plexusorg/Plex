@@ -7,7 +7,6 @@ import me.totalfreedom.plex.cache.SQLPlayerData;
 import me.totalfreedom.plex.config.Config;
 import me.totalfreedom.plex.handlers.CommandHandler;
 import me.totalfreedom.plex.handlers.ListenerHandler;
-import me.totalfreedom.plex.message.MessageManager;
 import me.totalfreedom.plex.rank.RankManager;
 import me.totalfreedom.plex.storage.MongoConnection;
 import me.totalfreedom.plex.storage.RedisConnection;
@@ -24,6 +23,7 @@ public class Plex extends JavaPlugin
 {
     private static Plex plugin;
     public Config config;
+    public Config messages;
     private StorageType storageType = StorageType.SQLITE;
 
     private SQLConnection sqlConnection;
@@ -34,7 +34,6 @@ public class Plex extends JavaPlugin
     private SQLPlayerData sqlPlayerData;
 
     private RankManager rankManager;
-    private MessageManager messageManager;
 
     public static Plex get()
     {
@@ -46,6 +45,7 @@ public class Plex extends JavaPlugin
     {
         plugin = this;
         config = new Config(this, "config.yml");
+        messages = new Config(this, "messages.yml");
         saveResource("database.db", false);
 
         sqlConnection = new SQLConnection();
@@ -64,6 +64,7 @@ public class Plex extends JavaPlugin
     public void onEnable()
     {
         config.load();
+        messages.load();
 
         try
         {
@@ -92,10 +93,6 @@ public class Plex extends JavaPlugin
         rankManager.generateDefaultRanks();
         rankManager.importDefaultRanks();
         PlexLog.log("Rank Manager initialized");
-
-        messageManager = new MessageManager();
-        messageManager.generateMessages();
-        PlexLog.log("Message Manager initialized");
 
         generateWorlds();
     }

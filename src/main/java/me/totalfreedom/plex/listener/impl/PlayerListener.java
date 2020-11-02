@@ -5,11 +5,13 @@ import me.totalfreedom.plex.Plex;
 import me.totalfreedom.plex.cache.MongoPlayerData;
 import me.totalfreedom.plex.cache.PlayerCache;
 import me.totalfreedom.plex.cache.SQLPlayerData;
+import me.totalfreedom.plex.command.impl.FionnCMD;
 import me.totalfreedom.plex.listener.PlexListener;
 import me.totalfreedom.plex.player.PlexPlayer;
 import me.totalfreedom.plex.player.PunishedPlayer;
 import me.totalfreedom.plex.util.PlexLog;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -22,6 +24,7 @@ public class PlayerListener extends PlexListener
     private final MongoPlayerData mongoPlayerData = plugin.getMongoPlayerData() != null ? plugin.getMongoPlayerData() : null;
     private final SQLPlayerData sqlPlayerData = plugin.getSqlPlayerData() != null ? plugin.getSqlPlayerData() : null;
 
+    // setting up a player's data
     @EventHandler(priority =  EventPriority.HIGHEST)
     public void onPlayerSetup(PlayerJoinEvent event)
     {
@@ -80,6 +83,7 @@ public class PlayerListener extends PlexListener
         }
     }
 
+    // saving the player's data
     @EventHandler(priority =  EventPriority.HIGHEST)
     public void onPlayerSave(PlayerQuitEvent event)
     {
@@ -98,4 +102,20 @@ public class PlayerListener extends PlexListener
         PlayerCache.getPunishedPlayerMap().remove(event.getPlayer().getUniqueId());
     }
 
+    // unrelated player quitting
+    @EventHandler
+    public void onPlayerQuit(PlayerQuitEvent e)
+    {
+        Player player = e.getPlayer();
+        PlexPlayer plexPlayer = PlayerCache.getPlexPlayer(player.getUniqueId());
+
+        if (FionnCMD.ENABLED)
+        {
+            player.setInvisible(false);
+            plexPlayer.setFrozen(false);
+            Location location = FionnCMD.LOCATION_CACHE.get(player);
+            if (location != null)
+                player.teleport(location);
+        }
+    }
 }

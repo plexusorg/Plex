@@ -11,8 +11,10 @@ import org.bukkit.command.CommandSender;
 import java.util.Arrays;
 import java.util.List;
 
+import static me.totalfreedom.plex.util.PlexUtils.tl;
+
 @CommandPermissions(level = Rank.OP, source = RequiredCommandSource.ANY)
-@CommandParameters(usage = "/<command>", aliases = "tst,tast", description = "HELLO")
+@CommandParameters(aliases = "tst,tast", description = "HELLO")
 public class TestCMD extends PlexCommand
 {
     public TestCMD() {
@@ -20,8 +22,9 @@ public class TestCMD extends PlexCommand
     }
 
     @Override
-    public void execute(CommandSender sender, String[] args) {
-        sender.sendMessage(plugin.getMessageManager().getMessage("test"));
+    public void execute(CommandSender sender, String[] args)
+    {
+        sender.sendMessage(tl("variableTest", sender.getName()));
     }
 
     @Override

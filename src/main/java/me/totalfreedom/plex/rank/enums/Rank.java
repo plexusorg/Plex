@@ -50,7 +50,7 @@ public enum Rank
         this.prefix = prefix;
     }
 
-    public boolean isAtleast(Rank rank)
+    public boolean isAtLeast(Rank rank)
     {
         return getLevel() >= rank.getLevel();
     }

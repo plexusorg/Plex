@@ -5,37 +5,26 @@ import org.bukkit.Material;
 import org.bukkit.generator.BlockPopulator;
 
 import java.util.LinkedHashMap;
-import java.util.Map;
 
-public class ConfigurationChunkGenerator extends FlatChunkGenerator
+public class ConfigurationChunkGenerator extends BlockMapChunkGenerator
 {
     private static Plex plugin = Plex.get();
 
-    private final String worldName;
-
     public ConfigurationChunkGenerator(String worldName, BlockPopulator... populators)
     {
-        super(0, populators);
-        this.worldName = worldName;
+        super(createBlockMap(worldName), populators);
     }
 
-    @Override
-    public void createLoopChunkData(int x, int y, int z, ChunkData chunk)
+    private static LinkedHashMap<Material, Integer> createBlockMap(String worldName)
     {
-        int height = -1;
-        Map<Material, Integer> blocks = new LinkedHashMap<>();
+        LinkedHashMap<Material, Integer> blockMap = new LinkedHashMap<>();
         for (String key : plugin.config.getConfigurationSection("worlds." + worldName + ".parameters").getKeys(false))
         {
             Material material = Material.getMaterial(key.toUpperCase());
             if (material == null) continue;
             int count = plugin.config.getInt("worlds." + worldName + ".parameters." + key);
-            height += count;
-            blocks.put(material, count);
+            blockMap.put(material, count);
         }
-        for (Map.Entry<Material, Integer> entry : blocks.entrySet())
-        {
-            for (int i = 0; i < entry.getValue(); i++, height--)
-                chunk.setBlock(x, height, z, entry.getKey());
-        }
+        return blockMap;
     }
 }

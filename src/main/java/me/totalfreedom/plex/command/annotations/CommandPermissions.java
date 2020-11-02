@@ -10,5 +10,5 @@ import java.lang.annotation.RetentionPolicy;
 public @interface CommandPermissions
 {
     Rank level() default Rank.IMPOSTOR;
-    RequiredCommandSource source();
+    RequiredCommandSource source() default RequiredCommandSource.ANY;
 }

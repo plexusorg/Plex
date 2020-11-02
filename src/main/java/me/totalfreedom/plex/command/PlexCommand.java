@@ -76,7 +76,7 @@ public abstract class PlexCommand extends Command implements TabExecutor, IPlexC
 
             Player player = (Player) sender;
             PlexPlayer plexPlayer = PlayerCache.getPlexPlayerMap().get(player.getUniqueId());
-            if (!plexPlayer.getRankFromString().isAtleast(getLevel()))
+            if (!plexPlayer.getRankFromString().isAtLeast(getLevel()))
             {
                 //TODO: Enter <insert level> only and higher msg
                 return true;
@@ -91,7 +91,7 @@ public abstract class PlexCommand extends Command implements TabExecutor, IPlexC
             } else {
                 Player player = (Player) sender;
                 PlexPlayer plexPlayer = PlayerCache.getPlexPlayerMap().get(player.getUniqueId());
-                if (!plexPlayer.getRankFromString().isAtleast(getLevel()))
+                if (!plexPlayer.getRankFromString().isAtLeast(getLevel()))
                 {
                     //TODO: Enter <insert level> only and higher msg
                     return true;
@@ -111,7 +111,7 @@ public abstract class PlexCommand extends Command implements TabExecutor, IPlexC
         {
             Player player = (Player) sender;
             PlexPlayer plexPlayer = PlayerCache.getPlexPlayerMap().get(player.getUniqueId());
-            if (plexPlayer.getRankFromString().isAtleast(getLevel()))
+            if (plexPlayer.getRankFromString().isAtLeast(getLevel()))
             {
                 return onTabComplete(sender, args);
             } else {

@@ -95,6 +95,6 @@ public class RankManager
 
     public boolean isAdmin(PlexPlayer plexPlayer)
     {
-        return !plexPlayer.getRank().isEmpty() && plexPlayer.getRankFromString().isAtleast(Rank.ADMIN);
+        return !plexPlayer.getRank().isEmpty() && plexPlayer.getRankFromString().isAtLeast(Rank.ADMIN);
     }
 }

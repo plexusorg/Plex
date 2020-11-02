@@ -20,5 +20,14 @@ public class PlayerCache
     {
         return plexPlayerMap;
     }
-    
+
+    public static PunishedPlayer getPunishedPlayer(UUID uuid)
+    {
+        return getPunishedPlayerMap().get(uuid);
+    }
+
+    public static PlexPlayer getPlexPlayer(UUID uuid)
+    {
+        return getPlexPlayerMap().get(uuid);
+    }
 }
