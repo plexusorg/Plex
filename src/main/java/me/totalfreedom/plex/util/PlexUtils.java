@@ -1,6 +1,7 @@
 package me.totalfreedom.plex.util;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -100,11 +101,6 @@ public class PlexUtils
         return color;
     }
 
-    public static void warpToWorld(Player player, World world)
-    {
-        player.teleport(new Location(world, 0, world.getHighestBlockYAt(0, 0), 0));
-    }
-
     public static void setBlocks(Location c1, Location c2, Material material)
     {
         if (!c1.getWorld().getName().equals(c1.getWorld().getName()))
@@ -126,6 +122,14 @@ public class PlexUtils
                 }
             }
         }
+    }
+
+    public static List<String> getPlayerNameList()
+    {
+        List<String> names = new ArrayList<>();
+        for (Player player : Bukkit.getOnlinePlayers())
+            names.add(player.getName());
+        return names;
     }
 
     public static void broadcast(String s)

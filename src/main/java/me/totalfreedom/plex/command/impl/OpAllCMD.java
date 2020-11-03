@@ -1,12 +1,12 @@
 package me.totalfreedom.plex.command.impl;
 
 import me.totalfreedom.plex.command.PlexCommand;
-import me.totalfreedom.plex.command.annotations.CommandParameters;
-import me.totalfreedom.plex.command.annotations.CommandPermissions;
+import me.totalfreedom.plex.command.annotation.CommandParameters;
+import me.totalfreedom.plex.command.annotation.CommandPermissions;
+import me.totalfreedom.plex.command.source.CommandSource;
 import me.totalfreedom.plex.rank.enums.Rank;
 import me.totalfreedom.plex.util.PlexUtils;
 import org.bukkit.Bukkit;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.List;
@@ -23,7 +23,7 @@ public class OpAllCMD extends PlexCommand
     }
 
     @Override
-    public void execute(CommandSender sender, String[] args)
+    public void execute(CommandSource sender, String[] args)
     {
         for (Player player : Bukkit.getOnlinePlayers())
             player.setOp(true);
@@ -31,7 +31,7 @@ public class OpAllCMD extends PlexCommand
     }
 
     @Override
-    public List<String> onTabComplete(CommandSender sender, String[] args) {
+    public List<String> onTabComplete(CommandSource sender, String[] args) {
         return null;
     }
 }

@@ -1,4 +1,4 @@
-package me.totalfreedom.plex.command.annotations;
+package me.totalfreedom.plex.command.annotation;
 
 import me.totalfreedom.plex.command.source.RequiredCommandSource;
 import me.totalfreedom.plex.rank.enums.Rank;

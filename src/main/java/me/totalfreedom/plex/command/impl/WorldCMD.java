@@ -1,20 +1,18 @@
 package me.totalfreedom.plex.command.impl;
 
 import com.google.common.collect.ImmutableList;
-import me.totalfreedom.plex.Plex;
 import me.totalfreedom.plex.command.PlexCommand;
-import me.totalfreedom.plex.command.annotations.CommandParameters;
-import me.totalfreedom.plex.command.annotations.CommandPermissions;
+import me.totalfreedom.plex.command.annotation.CommandParameters;
+import me.totalfreedom.plex.command.annotation.CommandPermissions;
+import me.totalfreedom.plex.command.exception.CommandArgumentException;
+import me.totalfreedom.plex.command.source.CommandSource;
 import me.totalfreedom.plex.command.source.RequiredCommandSource;
 import me.totalfreedom.plex.rank.enums.Rank;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static me.totalfreedom.plex.util.PlexUtils.tl;
@@ -28,16 +26,17 @@ public class WorldCMD extends PlexCommand
     }
 
     @Override
-    public void execute(CommandSender sender, String[] args)
+    public void execute(CommandSource sender, String[] args)
     {
-        Player player = (Player) sender;
-        World world = Bukkit.getWorld(args[0]);
-        player.teleport(new Location(world, 0, world.getHighestBlockYAt(0, 0) + 1, 0, 0, 0));
-        sender.sendMessage(tl("playerWorldTeleport", world.getName()));
+        if (args.length != 1)
+            throw new CommandArgumentException();
+        World world = getNonNullWorld(args[0]);
+        sender.getPlayer().teleport(new Location(world, 0, world.getHighestBlockYAt(0, 0) + 1, 0, 0, 0));
+        send(tl("playerWorldTeleport", world.getName()));
     }
 
     @Override
-    public List<String> onTabComplete(CommandSender sender, String[] args)
+    public List<String> onTabComplete(CommandSource sender, String[] args)
     {
         List<String> worlds = new ArrayList<>();
         for (World world : Bukkit.getWorlds())

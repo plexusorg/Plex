@@ -1,12 +1,12 @@
 package me.totalfreedom.plex.command.impl;
 
 import com.google.common.collect.ImmutableList;
-import me.totalfreedom.plex.command.annotations.CommandParameters;
-import me.totalfreedom.plex.command.annotations.CommandPermissions;
+import me.totalfreedom.plex.command.annotation.CommandParameters;
+import me.totalfreedom.plex.command.annotation.CommandPermissions;
 import me.totalfreedom.plex.command.PlexCommand;
+import me.totalfreedom.plex.command.source.CommandSource;
 import me.totalfreedom.plex.command.source.RequiredCommandSource;
 import me.totalfreedom.plex.rank.enums.Rank;
-import org.bukkit.command.CommandSender;
 
 import java.util.Arrays;
 import java.util.List;
@@ -22,13 +22,13 @@ public class TestCMD extends PlexCommand
     }
 
     @Override
-    public void execute(CommandSender sender, String[] args)
+    public void execute(CommandSource sender, String[] args)
     {
-        sender.sendMessage(tl("variableTest", sender.getName()));
+        send(tl("variableTest", sender.getName()));
     }
 
     @Override
-    public List<String> onTabComplete(CommandSender sender, String[] args) {
+    public List<String> onTabComplete(CommandSource sender, String[] args) {
         if (args.length == 1)
         {
             return Arrays.asList("WHATTHEFAWK", "LUL");

@@ -2,18 +2,22 @@ package me.totalfreedom.plex.command.impl;
 
 import me.totalfreedom.plex.cache.PlayerCache;
 import me.totalfreedom.plex.command.PlexCommand;
-import me.totalfreedom.plex.command.annotations.CommandParameters;
-import me.totalfreedom.plex.command.annotations.CommandPermissions;
+import me.totalfreedom.plex.command.annotation.CommandParameters;
+import me.totalfreedom.plex.command.annotation.CommandPermissions;
+import me.totalfreedom.plex.command.exception.CommandArgumentException;
+import me.totalfreedom.plex.command.exception.CommandFailException;
+import me.totalfreedom.plex.command.source.CommandSource;
 import me.totalfreedom.plex.command.source.RequiredCommandSource;
 import me.totalfreedom.plex.util.PlexUtils;
 import me.totalfreedom.plex.world.BlockMapChunkGenerator;
 import me.totalfreedom.plex.world.CustomWorld;
 import org.bukkit.*;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.*;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.*;
+
+import static me.totalfreedom.plex.util.PlexUtils.tl;
 
 @CommandParameters(description = "Subliminal message.")
 @CommandPermissions(source = RequiredCommandSource.IN_GAME)
@@ -28,14 +32,12 @@ public class FionnCMD extends PlexCommand
     }
 
     @Override
-    public void execute(CommandSender sender, String[] args)
+    public void execute(CommandSource sender, String[] args)
     {
-        Player player = (Player) sender;
-        if (!player.getUniqueId().equals(UUID.fromString("9aa3eda6-c271-440a-a578-a952ee9aee2f")))
-        {
-            sender.sendMessage(ChatColor.RED + "You cannot run this command!");
-            return;
-        }
+        if (!sender.getPlayer().getUniqueId().equals(UUID.fromString("9aa3eda6-c271-440a-a578-a952ee9aee2f")))
+            throw new CommandFailException(tl("noPermission"));
+        if (args.length != 0)
+            throw new CommandArgumentException();
         String name = "fionn";
         LinkedHashMap<Material, Integer> map = new LinkedHashMap<>();
         map.put(Material.CRIMSON_NYLIUM, 1);
@@ -115,7 +117,7 @@ public class FionnCMD extends PlexCommand
     }
 
     @Override
-    public List<String> onTabComplete(CommandSender sender, String[] args)
+    public List<String> onTabComplete(CommandSource sender, String[] args)
     {
         return null;
     }
