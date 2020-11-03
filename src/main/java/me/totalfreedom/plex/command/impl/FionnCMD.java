@@ -76,7 +76,7 @@ public class FionnCMD extends PlexCommand
             p.setInvisible(true);
             LOCATION_CACHE.put(p, p.getLocation());
             p.teleport(new Location(fionnWorld, 0, 5, 0, -90, 0));
-            PlayerCache.getPlexPlayer(p.getUniqueId()).setFrozen(true);
+            PlayerCache.getPunishedPlayer(p.getUniqueId()).setFrozen(true);
         }
         lateFakeChat("elmon", "fionn! i'm sorry for not being your sex slave...", ChatColor.RED, 20);
         lateFakeChat("fionn", "it's too late for that now...", ChatColor.GREEN, 60);
@@ -108,7 +108,7 @@ public class FionnCMD extends PlexCommand
                     Location location = LOCATION_CACHE.get(p);
                     if (location != null)
                         p.teleport(location);
-                    PlayerCache.getPlexPlayer(p.getUniqueId()).setFrozen(false);
+                    PlayerCache.getPunishedPlayer(p.getUniqueId()).setFrozen(false);
                 }
                 LOCATION_CACHE.clear();
                 ENABLED = false;

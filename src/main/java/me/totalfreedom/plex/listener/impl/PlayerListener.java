@@ -84,7 +84,7 @@ public class PlayerListener extends PlexListener
     }
 
     // saving the player's data
-    @EventHandler(priority =  EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerSave(PlayerQuitEvent event)
     {
         PlexPlayer plexPlayer = PlayerCache.getPlexPlayerMap().get(event.getPlayer().getUniqueId()); //get the player because it's literally impossible for them to not have an object
@@ -98,6 +98,9 @@ public class PlayerListener extends PlexListener
             sqlPlayerData.update(plexPlayer);
         }
 
+        if (FionnCMD.ENABLED)
+            PlayerCache.getPunishedPlayer(event.getPlayer().getUniqueId()).setFrozen(false);
+
         PlayerCache.getPlexPlayerMap().remove(event.getPlayer().getUniqueId()); //remove them from cache
         PlayerCache.getPunishedPlayerMap().remove(event.getPlayer().getUniqueId());
     }
@@ -107,12 +110,10 @@ public class PlayerListener extends PlexListener
     public void onPlayerQuit(PlayerQuitEvent e)
     {
         Player player = e.getPlayer();
-        PlexPlayer plexPlayer = PlayerCache.getPlexPlayer(player.getUniqueId());
 
         if (FionnCMD.ENABLED)
         {
             player.setInvisible(false);
-            plexPlayer.setFrozen(false);
             Location location = FionnCMD.LOCATION_CACHE.get(player);
             if (location != null)
                 player.teleport(location);

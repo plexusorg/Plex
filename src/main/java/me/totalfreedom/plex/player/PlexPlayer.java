@@ -39,8 +39,6 @@ public class PlexPlayer
 
     private List<String> ips;
 
-    private boolean frozen;
-
     public PlexPlayer() {}
 
     public PlexPlayer(UUID playerUUID)
@@ -59,8 +57,6 @@ public class PlexPlayer
         this.ips = new ArrayList<>();
 
         this.rank = "";
-
-        this.frozen = false;
     }
 
     public Rank getRankFromString()
