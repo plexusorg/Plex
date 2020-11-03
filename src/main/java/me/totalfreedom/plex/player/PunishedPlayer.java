@@ -4,9 +4,10 @@ import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import me.totalfreedom.plex.event.PunishedPlayerFreezeEvent;
+import org.bukkit.Bukkit;
 
 @Getter
-@Setter
 public class PunishedPlayer
 {
     //everything in here will be stored in redis
@@ -23,4 +24,11 @@ public class PunishedPlayer
         this.frozen = false;
     }
 
+    public void setFrozen(boolean frozen)
+    {
+        PunishedPlayerFreezeEvent e = new PunishedPlayerFreezeEvent(this, this.frozen);
+        Bukkit.getServer().getPluginManager().callEvent(e);
+        if (!e.isCancelled())
+            this.frozen = frozen;
+    }
 }

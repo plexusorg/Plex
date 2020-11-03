@@ -29,10 +29,16 @@ noAdminWorldBlockBreak: <e>You are not allowed to break blocks in the admin worl
 # 1: the world you have been teleported to
 playerWorldTeleport: You have been teleported to <v>.
 # 1: the command sender who opped everyone
-oppedAllPlayers: <b><v> has opped all players on the server
+oppedAllPlayers: <b><v> - Opped all players on the server
 # 1: the person who is opping
 # 2: the person who has been opped
-oppedPlayer: <b><v> has opped <v>
+oppedPlayer: <b><v> - Opped <v>
+# 1: the person who is freezing
+# 2: the person who has been frozen
+frozePlayer: <b><v> - Froze <v>
+# 1: the person who is unfreezing
+# 2: the person who has been unfrozen
+unfrozePlayer: <b><v> - Unfroze <v>
 noPermission: <e>You cannot use this command!
 # 1: the login message (uncolored) of the rank required to use the command
 noPermissionRank: <e>You must be at least <v> rank to use this command!
