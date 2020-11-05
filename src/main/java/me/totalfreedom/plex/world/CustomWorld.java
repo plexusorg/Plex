@@ -1,7 +1,6 @@
 package me.totalfreedom.plex.world;
 
 import me.totalfreedom.plex.Plex;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
@@ -10,6 +9,7 @@ import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 import org.bukkit.generator.ChunkGenerator;
 
+import java.io.File;
 import java.util.Objects;
 
 public class CustomWorld extends WorldCreator
@@ -45,9 +45,9 @@ public class CustomWorld extends WorldCreator
             @Override
             public World generate()
             {
-                boolean addFeatures = Bukkit.getWorld(name) == null;
+                boolean existed = new File(name).exists();
                 World world = super.generate();
-                if (addFeatures)
+                if (!existed)
                 {
                     Block block = world.getBlockAt(0, world.getHighestBlockYAt(0, 0) + 1, 0);
                     block.setType(Material.OAK_SIGN);

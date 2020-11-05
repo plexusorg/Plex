@@ -17,6 +17,8 @@ import me.totalfreedom.plex.util.PlexUtils;
 import me.totalfreedom.plex.world.CustomWorld;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.File;
+
 @Getter
 @Setter
 public class Plex extends JavaPlugin

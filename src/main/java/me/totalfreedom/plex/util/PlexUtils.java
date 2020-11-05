@@ -1,9 +1,13 @@
 package me.totalfreedom.plex.util;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import me.totalfreedom.plex.Plex;
@@ -14,6 +18,8 @@ import org.bukkit.command.Command;
 import org.bukkit.command.PluginCommandYamlParser;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 public class PlexUtils
 {
@@ -78,7 +84,7 @@ public class PlexUtils
         if (f == null)
             return ChatColor.RED + "No message";
         for (Object object : objects)
-            f = f.replace("<v>", String.valueOf(object));
+            f = f.replaceFirst("<v>", String.valueOf(object));
         ChatColor base = getChatColorFromConfig(plugin.messages, ChatColor.GRAY, "baseColor");
         ChatColor broadcast = getChatColorFromConfig(plugin.messages, ChatColor.AQUA, "broadcastColor");
         ChatColor error = getChatColorFromConfig(plugin.messages, ChatColor.RED, "errorColor");
@@ -135,5 +141,20 @@ public class PlexUtils
     public static void broadcast(String s)
     {
         Bukkit.broadcastMessage(s);
+    }
+
+    public static Object simpleGET(String url) throws IOException, ParseException
+    {
+        URL u = new URL(url);
+        HttpURLConnection connection = (HttpURLConnection) u.openConnection();
+        connection.setRequestMethod("GET");
+        BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+        String line;
+        StringBuilder content = new StringBuilder();
+        while ((line = in.readLine()) != null)
+            content.append(line);
+        in.close();
+        connection.disconnect();
+        return new JSONParser().parse(content.toString());
     }
 }

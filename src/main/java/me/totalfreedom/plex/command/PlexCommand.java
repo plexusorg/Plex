@@ -12,6 +12,7 @@ import me.totalfreedom.plex.command.source.CommandSource;
 import me.totalfreedom.plex.command.source.RequiredCommandSource;
 import me.totalfreedom.plex.player.PlexPlayer;
 import me.totalfreedom.plex.rank.enums.Rank;
+import me.totalfreedom.plex.util.PlexLog;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
@@ -69,6 +70,7 @@ public abstract class PlexCommand extends Command implements TabExecutor, IPlexC
         if (!matches(label)) return false;
         if (this.sender == null)
             this.sender = new CommandSource(sender);
+        PlexLog.log(this.sender.getSender().getName());
         if (commandSource == RequiredCommandSource.CONSOLE && sender instanceof Player)
         {
             send(tl("noPermissionInGame"));

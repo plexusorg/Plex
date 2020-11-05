@@ -44,3 +44,10 @@ noPermission: <e>You cannot use this command!
 noPermissionRank: <e>You must be at least <v> rank to use this command!
 noPermissionInGame: <e>You must be in console to use this command!
 noPermissionConsole: <e>You must be in-game to use this command!
+# 1: the username of the name history
+nameHistoryTitle: Name History of <v>
+# 1: a username of the found user
+# 2: when the user changed to that username
+nameHistoryBody: " - <v> (<v>)"
+# 1: the username that failed
+nameHistoryFail: <e>Something went wrong while trying to retrieve name history of <v>! Try again later!
