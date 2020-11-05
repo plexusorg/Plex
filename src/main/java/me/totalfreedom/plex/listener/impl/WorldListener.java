@@ -21,7 +21,7 @@ public class WorldListener extends PlexListener
         Player player = e.getPlayer();
         PlexPlayer plexPlayer = PlayerCache.getPlexPlayerMap().get(player.getUniqueId());
         World world = player.getWorld();
-        switch (world.getName())
+        switch (world.getName().toLowerCase())
         {
             case "adminworld":
             {

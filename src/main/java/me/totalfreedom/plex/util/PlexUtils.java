@@ -8,6 +8,7 @@ import java.net.URL;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import me.totalfreedom.plex.Plex;
@@ -18,6 +19,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.PluginCommandYamlParser;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
+import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
@@ -156,5 +158,18 @@ public class PlexUtils
         in.close();
         connection.disconnect();
         return new JSONParser().parse(content.toString());
+    }
+
+    public static UUID getFromName(String name)
+    {
+        JSONObject profile;
+        try {
+            profile = (JSONObject) PlexUtils.simpleGET("https://api.ashcon.app/mojang/v2/user/" + name);
+        } catch (IOException | ParseException e) {
+            e.printStackTrace();
+            return null;
+        }
+        String uuidString = (String) profile.get("uuid");
+        return UUID.fromString(uuidString);
     }
 }

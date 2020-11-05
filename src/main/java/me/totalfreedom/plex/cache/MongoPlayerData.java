@@ -55,6 +55,7 @@ public class MongoPlayerData
         updateOps.execute();
     }
 
+
     public void save(PlexPlayer plexPlayer)
     {
         datastore.save(plexPlayer);

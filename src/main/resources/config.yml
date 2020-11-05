@@ -1,7 +1,9 @@
 # Plex Configuration File
 
 server:
+  name: "TotalFreedom"
   test: "test string"
+  motd: "&~%servername% &8- %mcversion%"
 
 data:
   central:

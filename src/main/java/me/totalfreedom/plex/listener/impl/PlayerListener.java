@@ -1,7 +1,10 @@
 package me.totalfreedom.plex.listener.impl;
 
 import java.util.Arrays;
+import java.util.UUID;
+
 import me.totalfreedom.plex.Plex;
+import me.totalfreedom.plex.admin.Admin;
 import me.totalfreedom.plex.cache.MongoPlayerData;
 import me.totalfreedom.plex.cache.PlayerCache;
 import me.totalfreedom.plex.cache.SQLPlayerData;
@@ -73,6 +76,11 @@ public class PlayerListener extends PlexListener
 
         if (plugin.getRankManager().isAdmin(plexPlayer))
         {
+            Admin admin = new Admin(UUID.fromString(plexPlayer.getUuid()));
+            admin.setRank(plexPlayer.getRankFromString());
+
+            plugin.getAdminList().addToCache(admin);
+
             if (!plexPlayer.getLoginMSG().isEmpty())
             {
                 event.setJoinMessage(ChatColor.AQUA + player.getName() + " is " + plexPlayer.getLoginMSG());
@@ -89,6 +97,11 @@ public class PlayerListener extends PlexListener
     {
         PlexPlayer plexPlayer = PlayerCache.getPlexPlayerMap().get(event.getPlayer().getUniqueId()); //get the player because it's literally impossible for them to not have an object
 
+        if (plugin.getRankManager().isAdmin(plexPlayer))
+        {
+            plugin.getAdminList().removeFromCache(UUID.fromString(plexPlayer.getUuid()));
+        }
+
         if (mongoPlayerData != null) //back to mongo checking
         {
             mongoPlayerData.update(plexPlayer); //update the player's document
@@ -103,6 +116,7 @@ public class PlayerListener extends PlexListener
 
         PlayerCache.getPlexPlayerMap().remove(event.getPlayer().getUniqueId()); //remove them from cache
         PlayerCache.getPunishedPlayerMap().remove(event.getPlayer().getUniqueId());
+
     }
 
     // unrelated player quitting

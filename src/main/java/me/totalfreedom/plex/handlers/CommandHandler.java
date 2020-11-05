@@ -22,6 +22,7 @@ public class CommandHandler
         commands.add(new OpCMD());
         commands.add(new FreezeCMD());
         commands.add(new NameHistoryCMD());
+        commands.add(new AdminCMD());
 
         PlexLog.log(String.format("Registered %s commands!", commands.size()));
     }

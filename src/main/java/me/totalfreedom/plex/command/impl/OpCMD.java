@@ -1,5 +1,6 @@
 package me.totalfreedom.plex.command.impl;
 
+import com.google.common.collect.ImmutableList;
 import me.totalfreedom.plex.command.PlexCommand;
 import me.totalfreedom.plex.command.annotation.CommandParameters;
 import me.totalfreedom.plex.command.annotation.CommandPermissions;
@@ -35,6 +36,6 @@ public class OpCMD extends PlexCommand
     @Override
     public List<String> onTabComplete(CommandSource sender, String[] args)
     {
-        return args.length == 1 ? PlexUtils.getPlayerNameList() : null;
+        return args.length == 1 ? PlexUtils.getPlayerNameList() : ImmutableList.of();
     }
 }

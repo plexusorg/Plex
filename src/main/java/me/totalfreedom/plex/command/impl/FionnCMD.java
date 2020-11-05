@@ -1,5 +1,6 @@
 package me.totalfreedom.plex.command.impl;
 
+import com.google.common.collect.ImmutableList;
 import me.totalfreedom.plex.cache.PlayerCache;
 import me.totalfreedom.plex.command.PlexCommand;
 import me.totalfreedom.plex.command.annotation.CommandParameters;
@@ -119,7 +120,7 @@ public class FionnCMD extends PlexCommand
     @Override
     public List<String> onTabComplete(CommandSource sender, String[] args)
     {
-        return null;
+        return ImmutableList.of();
     }
 
     public static void lateFakeChat(String name, String message, ChatColor color, int delay)

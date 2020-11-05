@@ -73,21 +73,21 @@ public abstract class PlexCommand extends Command implements TabExecutor, IPlexC
         PlexLog.log(this.sender.getSender().getName());
         if (commandSource == RequiredCommandSource.CONSOLE && sender instanceof Player)
         {
-            send(tl("noPermissionInGame"));
+            sender.sendMessage(tl("noPermissionInGame"));
             return true;
         }
         if (commandSource == RequiredCommandSource.IN_GAME)
         {
             if (sender instanceof ConsoleCommandSender)
             {
-                send(tl("noPermissionConsole"));
+                sender.sendMessage(tl("noPermissionConsole"));
                 return true;
             }
             Player player = (Player) sender;
             PlexPlayer plexPlayer = PlayerCache.getPlexPlayerMap().get(player.getUniqueId());
             if (!plexPlayer.getRankFromString().isAtLeast(getLevel()))
             {
-                send(tl("noPermissionRank", ChatColor.stripColor(getLevel().getLoginMSG())));
+                sender.sendMessage(tl("noPermissionRank", ChatColor.stripColor(getLevel().getLoginMSG())));
                 return true;
             }
         }
@@ -159,6 +159,11 @@ public abstract class PlexCommand extends Command implements TabExecutor, IPlexC
     protected void send(String s, Player player)
     {
         player.sendMessage(s);
+    }
+
+    protected String usage(String s)
+    {
+        return ChatColor.YELLOW + "Correct Usage: " + ChatColor.GRAY + s;
     }
 
     protected void send(String s)

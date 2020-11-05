@@ -2,6 +2,7 @@ package me.totalfreedom.plex;
 
 import lombok.Getter;
 import lombok.Setter;
+import me.totalfreedom.plex.admin.AdminList;
 import me.totalfreedom.plex.cache.MongoPlayerData;
 import me.totalfreedom.plex.cache.SQLPlayerData;
 import me.totalfreedom.plex.config.Config;
@@ -36,6 +37,8 @@ public class Plex extends JavaPlugin
     private SQLPlayerData sqlPlayerData;
 
     private RankManager rankManager;
+
+    private AdminList adminList;
 
     public static Plex get()
     {
@@ -95,6 +98,8 @@ public class Plex extends JavaPlugin
         rankManager.generateDefaultRanks();
         rankManager.importDefaultRanks();
         PlexLog.log("Rank Manager initialized");
+
+        adminList = new AdminList();
 
         generateWorlds();
     }
