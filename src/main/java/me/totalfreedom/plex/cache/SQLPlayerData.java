@@ -2,15 +2,14 @@ package me.totalfreedom.plex.cache;
 
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
-import me.totalfreedom.plex.Plex;
-import me.totalfreedom.plex.player.PlexPlayer;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
+import me.totalfreedom.plex.Plex;
+import me.totalfreedom.plex.player.PlexPlayer;
 
 public class SQLPlayerData
 {

@@ -1,11 +1,10 @@
 package me.totalfreedom.plex.world;
 
+import java.util.Arrays;
+import java.util.List;
 import org.bukkit.World;
 import org.bukkit.generator.BlockPopulator;
 import org.bukkit.generator.ChunkGenerator;
-
-import java.util.Arrays;
-import java.util.List;
 
 public abstract class CustomChunkGenerator extends ChunkGenerator
 {

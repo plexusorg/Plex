@@ -4,13 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import dev.morphia.Datastore;
 import dev.morphia.query.Query;
-import dev.morphia.query.experimental.filters.Filters;
 import dev.morphia.query.internal.MorphiaCursor;
-import me.totalfreedom.plex.Plex;
-import me.totalfreedom.plex.player.PlexPlayer;
-import me.totalfreedom.plex.rank.enums.Rank;
-import me.totalfreedom.plex.storage.StorageType;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -18,6 +12,10 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import me.totalfreedom.plex.Plex;
+import me.totalfreedom.plex.player.PlexPlayer;
+import me.totalfreedom.plex.rank.enums.Rank;
+import me.totalfreedom.plex.storage.StorageType;
 
 public class AdminList
 {
@@ -51,7 +49,9 @@ public class AdminList
                     admins.add(player.getName());
                 }
             }
-        } else {
+        }
+        else
+        {
             try (Connection con = Plex.get().getSqlConnection().getCon())
             {
                 PreparedStatement statement = con.prepareStatement("SELECT * FROM `players` WHERE rank IN(?, ?, ?)");
@@ -65,7 +65,9 @@ public class AdminList
                     admins.add(set.getString("name"));
                 }
 
-            } catch (SQLException throwables) {
+            }
+            catch (SQLException throwables)
+            {
                 throwables.printStackTrace();
             }
         }

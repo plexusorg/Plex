@@ -1,6 +1,11 @@
 package me.totalfreedom.plex.command.impl;
 
 import com.google.common.collect.ImmutableList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import me.totalfreedom.plex.cache.PlayerCache;
 import me.totalfreedom.plex.command.PlexCommand;
 import me.totalfreedom.plex.command.annotation.CommandParameters;
@@ -12,12 +17,16 @@ import me.totalfreedom.plex.command.source.RequiredCommandSource;
 import me.totalfreedom.plex.util.PlexUtils;
 import me.totalfreedom.plex.world.BlockMapChunkGenerator;
 import me.totalfreedom.plex.world.CustomWorld;
-import org.bukkit.*;
-import org.bukkit.entity.*;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.entity.Enderman;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.Strider;
 import org.bukkit.scheduler.BukkitRunnable;
-
-import java.util.*;
-
 import static me.totalfreedom.plex.util.PlexUtils.tl;
 
 @CommandParameters(description = "Subliminal message.")
@@ -36,9 +45,13 @@ public class FionnCMD extends PlexCommand
     public void execute(CommandSource sender, String[] args)
     {
         if (!sender.getPlayer().getUniqueId().equals(UUID.fromString("9aa3eda6-c271-440a-a578-a952ee9aee2f")))
+        {
             throw new CommandFailException(tl("noPermission"));
+        }
         if (args.length != 0)
+        {
             throw new CommandArgumentException();
+        }
         String name = "fionn";
         LinkedHashMap<Material, Integer> map = new LinkedHashMap<>();
         map.put(Material.CRIMSON_NYLIUM, 1);
@@ -47,11 +60,11 @@ public class FionnCMD extends PlexCommand
         ENABLED = true;
         fionnWorld.setTime(0);
         fionnWorld.getBlockAt(0, 5, 0).setType(Material.BARRIER);
-        Strider fionn = (Strider) fionnWorld.spawnEntity(new Location(fionnWorld, 12, 6, 6, -180, -3), EntityType.STRIDER);
+        Strider fionn = (Strider)fionnWorld.spawnEntity(new Location(fionnWorld, 12, 6, 6, -180, -3), EntityType.STRIDER);
         fionn.setCustomNameVisible(true);
         fionn.setCustomName(ChatColor.GREEN + "fionn");
         fionn.setAI(false);
-        Enderman elmon = (Enderman) fionnWorld.spawnEntity(new Location(fionnWorld, 12, 6, 0, 0, 18), EntityType.ENDERMAN);
+        Enderman elmon = (Enderman)fionnWorld.spawnEntity(new Location(fionnWorld, 12, 6, 0, 0, 18), EntityType.ENDERMAN);
         elmon.setCustomNameVisible(true);
         elmon.setCustomName(ChatColor.RED + "elmon");
         elmon.setInvulnerable(true);
@@ -108,7 +121,9 @@ public class FionnCMD extends PlexCommand
                     p.setInvisible(false);
                     Location location = LOCATION_CACHE.get(p);
                     if (location != null)
+                    {
                         p.teleport(location);
+                    }
                     PlayerCache.getPunishedPlayer(p.getUniqueId()).setFrozen(false);
                 }
                 LOCATION_CACHE.clear();

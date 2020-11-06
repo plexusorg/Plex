@@ -1,10 +1,9 @@
 package me.totalfreedom.plex.world;
 
+import java.util.Random;
 import org.bukkit.World;
 import org.bukkit.generator.BlockPopulator;
 import org.bukkit.util.noise.PerlinNoiseGenerator;
-
-import java.util.Random;
 
 public abstract class NoiseChunkGenerator extends CustomChunkGenerator
 {
@@ -25,7 +24,7 @@ public abstract class NoiseChunkGenerator extends CustomChunkGenerator
         {
             for (int zz = 0; zz < 16; zz++)
             {
-                height = (int) generator.noise(options.getX(), options.getY(), options.getFrequency(), options.getAmplitude(), options.isNormalized());
+                height = (int)generator.noise(options.getX(), options.getY(), options.getFrequency(), options.getAmplitude(), options.isNormalized());
                 createLoopChunkData(xx, height, zz, chunk);
             }
         }

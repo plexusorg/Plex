@@ -5,10 +5,9 @@ import dev.morphia.query.Query;
 import dev.morphia.query.Update;
 import dev.morphia.query.experimental.filters.Filters;
 import dev.morphia.query.experimental.updates.UpdateOperators;
+import java.util.UUID;
 import me.totalfreedom.plex.Plex;
 import me.totalfreedom.plex.player.PlexPlayer;
-
-import java.util.UUID;
 
 public class MongoPlayerData
 {

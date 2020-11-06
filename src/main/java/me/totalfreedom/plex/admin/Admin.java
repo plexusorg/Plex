@@ -1,11 +1,10 @@
 package me.totalfreedom.plex.admin;
 
+import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import me.totalfreedom.plex.rank.enums.Rank;
-
-import java.util.UUID;
 
 @Getter
 @Setter
@@ -24,8 +23,6 @@ public class Admin
         this.uuid = uuid;
         this.rank = Rank.ADMIN;
     }
-
-
 
 
 }

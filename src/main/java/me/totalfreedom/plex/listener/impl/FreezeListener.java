@@ -13,6 +13,8 @@ public class FreezeListener extends PlexListener
     {
         PunishedPlayer player = PlayerCache.getPunishedPlayer(e.getPlayer().getUniqueId());
         if (player.isFrozen())
+        {
             e.setCancelled(true);
+        }
     }
 }

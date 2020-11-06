@@ -29,6 +29,8 @@ public class PunishedPlayer
         PunishedPlayerFreezeEvent e = new PunishedPlayerFreezeEvent(this, this.frozen);
         Bukkit.getServer().getPluginManager().callEvent(e);
         if (!e.isCancelled())
+        {
             this.frozen = frozen;
+        }
     }
 }

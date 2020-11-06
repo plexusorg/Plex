@@ -1,10 +1,9 @@
 package me.totalfreedom.plex.world;
 
+import java.util.LinkedHashMap;
 import me.totalfreedom.plex.Plex;
 import org.bukkit.Material;
 import org.bukkit.generator.BlockPopulator;
-
-import java.util.LinkedHashMap;
 
 public class ConfigurationChunkGenerator extends BlockMapChunkGenerator
 {
@@ -21,7 +20,10 @@ public class ConfigurationChunkGenerator extends BlockMapChunkGenerator
         for (String key : plugin.config.getConfigurationSection("worlds." + worldName + ".parameters").getKeys(false))
         {
             Material material = Material.getMaterial(key.toUpperCase());
-            if (material == null) continue;
+            if (material == null)
+            {
+                continue;
+            }
             int count = plugin.config.getInt("worlds." + worldName + ".parameters." + key);
             blockMap.put(material, count);
         }

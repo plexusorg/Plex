@@ -1,6 +1,9 @@
 package me.totalfreedom.plex.command;
 
 import com.google.common.collect.ImmutableList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
 import me.totalfreedom.plex.Plex;
 import me.totalfreedom.plex.cache.PlayerCache;
 import me.totalfreedom.plex.command.annotation.CommandParameters;
@@ -16,13 +19,12 @@ import me.totalfreedom.plex.util.PlexLog;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
-import org.bukkit.command.*;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandMap;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
+import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
-
 import static me.totalfreedom.plex.util.PlexUtils.tl;
 
 public abstract class PlexCommand extends Command implements TabExecutor, IPlexCommand
@@ -67,9 +69,14 @@ public abstract class PlexCommand extends Command implements TabExecutor, IPlexC
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
     {
-        if (!matches(label)) return false;
+        if (!matches(label))
+        {
+            return false;
+        }
         if (this.sender == null)
+        {
             this.sender = new CommandSource(sender);
+        }
         PlexLog.log(this.sender.getSender().getName());
         if (commandSource == RequiredCommandSource.CONSOLE && sender instanceof Player)
         {
@@ -83,7 +90,7 @@ public abstract class PlexCommand extends Command implements TabExecutor, IPlexC
                 sender.sendMessage(tl("noPermissionConsole"));
                 return true;
             }
-            Player player = (Player) sender;
+            Player player = (Player)sender;
             PlexPlayer plexPlayer = PlayerCache.getPlexPlayerMap().get(player.getUniqueId());
             if (!plexPlayer.getRankFromString().isAtLeast(getLevel()))
             {
@@ -109,20 +116,29 @@ public abstract class PlexCommand extends Command implements TabExecutor, IPlexC
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args)
     {
-        if (!matches(alias)) return ImmutableList.of();
+        if (!matches(alias))
+        {
+            return ImmutableList.of();
+        }
         if (this.sender == null)
+        {
             this.sender = new CommandSource(sender);
+        }
         if (sender instanceof Player)
         {
-            Player player = (Player) sender;
+            Player player = (Player)sender;
             PlexPlayer plexPlayer = PlayerCache.getPlexPlayerMap().get(player.getUniqueId());
             if (plexPlayer.getRankFromString().isAtLeast(getLevel()))
             {
                 return onTabComplete(this.sender, args);
-            } else {
+            }
+            else
+            {
                 return ImmutableList.of();
             }
-        } else {
+        }
+        else
+        {
             return onTabComplete(this.sender, args);
         }
     }
@@ -144,7 +160,8 @@ public abstract class PlexCommand extends Command implements TabExecutor, IPlexC
                     return true;
                 }
             }
-        } else if (params.aliases().split(",").length < 1)
+        }
+        else if (params.aliases().split(",").length < 1)
         {
             return getName().equalsIgnoreCase(label);
         }
@@ -169,7 +186,9 @@ public abstract class PlexCommand extends Command implements TabExecutor, IPlexC
     protected void send(String s)
     {
         if (sender == null)
+        {
             return;
+        }
         send(s, sender);
     }
 
@@ -177,7 +196,9 @@ public abstract class PlexCommand extends Command implements TabExecutor, IPlexC
     {
         Player player = Bukkit.getPlayer(name);
         if (player == null)
+        {
             throw new PlayerNotFoundException();
+        }
         return player;
     }
 
@@ -186,7 +207,9 @@ public abstract class PlexCommand extends Command implements TabExecutor, IPlexC
         Player player = getNonNullPlayer(name);
         PlexPlayer plexPlayer = PlayerCache.getPlexPlayer(player.getUniqueId());
         if (plexPlayer == null)
+        {
             throw new PlayerNotFoundException();
+        }
         return plexPlayer;
     }
 
@@ -194,7 +217,9 @@ public abstract class PlexCommand extends Command implements TabExecutor, IPlexC
     {
         PlexPlayer plexPlayer = PlayerCache.getPlexPlayer(uuid);
         if (plexPlayer == null)
+        {
             throw new PlayerNotFoundException();
+        }
         return plexPlayer;
     }
 
@@ -202,7 +227,9 @@ public abstract class PlexCommand extends Command implements TabExecutor, IPlexC
     {
         World world = Bukkit.getWorld(name);
         if (world == null)
+        {
             throw new CommandFailException(tl("worldNotFound"));
+        }
         return world;
     }
 

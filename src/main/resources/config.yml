@@ -35,7 +35,7 @@ worlds:
       stone: 16
       bedrock: 1
   masterbuilderworld:
-    name: "MB World"
+    name: "MasterBuilder World"
     parameters:
       grass_block: 1
       dirt: 32

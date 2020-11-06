@@ -21,7 +21,8 @@ public class AdminRemoveEvent extends Event
         return handlers;
     }
 
-    public PlexPlayer getPlexPlayer() {
+    public PlexPlayer getPlexPlayer()
+    {
         return plexPlayer;
     }
 }

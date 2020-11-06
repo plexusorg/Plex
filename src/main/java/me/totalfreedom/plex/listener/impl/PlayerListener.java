@@ -2,8 +2,6 @@ package me.totalfreedom.plex.listener.impl;
 
 import java.util.Arrays;
 import java.util.UUID;
-
-import me.totalfreedom.plex.Plex;
 import me.totalfreedom.plex.admin.Admin;
 import me.totalfreedom.plex.cache.MongoPlayerData;
 import me.totalfreedom.plex.cache.PlayerCache;
@@ -18,7 +16,6 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
@@ -28,7 +25,7 @@ public class PlayerListener extends PlexListener
     private final SQLPlayerData sqlPlayerData = plugin.getSqlPlayerData() != null ? plugin.getSqlPlayerData() : null;
 
     // setting up a player's data
-    @EventHandler(priority =  EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerSetup(PlayerJoinEvent event)
     {
         Player player = event.getPlayer();
@@ -84,7 +81,9 @@ public class PlayerListener extends PlexListener
             if (!plexPlayer.getLoginMSG().isEmpty())
             {
                 event.setJoinMessage(ChatColor.AQUA + player.getName() + " is " + plexPlayer.getLoginMSG());
-            } else {
+            }
+            else
+            {
                 event.setJoinMessage(ChatColor.AQUA + player.getName() + " is " + plexPlayer.getRankFromString().getLoginMSG());
             }
 
@@ -112,7 +111,9 @@ public class PlayerListener extends PlexListener
         }
 
         if (FionnCMD.ENABLED)
+        {
             PlayerCache.getPunishedPlayer(event.getPlayer().getUniqueId()).setFrozen(false);
+        }
 
         PlayerCache.getPlexPlayerMap().remove(event.getPlayer().getUniqueId()); //remove them from cache
         PlayerCache.getPunishedPlayerMap().remove(event.getPlayer().getUniqueId());
@@ -130,7 +131,9 @@ public class PlayerListener extends PlexListener
             player.setInvisible(false);
             Location location = FionnCMD.LOCATION_CACHE.get(player);
             if (location != null)
+            {
                 player.teleport(location);
+            }
         }
     }
 }

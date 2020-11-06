@@ -10,7 +10,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
-
 import static me.totalfreedom.plex.util.PlexUtils.tl;
 
 public class WorldListener extends PlexListener
@@ -26,7 +25,9 @@ public class WorldListener extends PlexListener
             case "adminworld":
             {
                 if (plexPlayer.getRankFromString().isAtLeast(Rank.ADMIN))
+                {
                     return;
+                }
                 e.setCancelled(true);
                 player.sendMessage(tl("noAdminWorldBlockPlace"));
                 break;
@@ -38,9 +39,13 @@ public class WorldListener extends PlexListener
     public void onEntitySpawn(EntitySpawnEvent e)
     {
         if (!e.getLocation().getWorld().getName().equals("fionn"))
+        {
             return;
+        }
         if (e.getEntityType() != EntityType.SLIME)
+        {
             return;
+        }
         e.setCancelled(true);
     }
 }

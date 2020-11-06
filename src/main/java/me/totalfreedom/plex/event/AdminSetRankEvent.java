@@ -24,11 +24,13 @@ public class AdminSetRankEvent extends Event
         return handlers;
     }
 
-    public PlexPlayer getPlexPlayer() {
+    public PlexPlayer getPlexPlayer()
+    {
         return plexPlayer;
     }
 
-    public Rank getRank() {
+    public Rank getRank()
+    {
         return rank;
     }
 }

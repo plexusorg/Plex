@@ -1,6 +1,10 @@
 package me.totalfreedom.plex.command.impl;
 
 import com.google.common.collect.ImmutableList;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Comparator;
+import java.util.List;
 import me.totalfreedom.plex.command.PlexCommand;
 import me.totalfreedom.plex.command.annotation.CommandParameters;
 import me.totalfreedom.plex.command.annotation.CommandPermissions;
@@ -11,12 +15,6 @@ import me.totalfreedom.plex.util.PlexUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
-
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Comparator;
-import java.util.List;
-
 import static me.totalfreedom.plex.util.PlexUtils.tl;
 
 @CommandParameters(description = "Get the name history of a player", usage = "/<command> <player>", aliases = "nh")
@@ -34,14 +32,16 @@ public class NameHistoryCMD extends PlexCommand
     public void execute(CommandSource sender, String[] args)
     {
         if (args.length != 1)
+        {
             throw new CommandArgumentException();
+        }
         String username = args[0];
         JSONArray array;
         try
         {
-            JSONObject profile = (JSONObject) PlexUtils.simpleGET("https://api.mojang.com/users/profiles/minecraft/" + username);
-            String uuid = (String) profile.get("id");
-            array = (JSONArray) PlexUtils.simpleGET("https://api.mojang.com/user/profiles/" + uuid + "/names");
+            JSONObject profile = (JSONObject)PlexUtils.simpleGET("https://api.mojang.com/users/profiles/minecraft/" + username);
+            String uuid = (String)profile.get("id");
+            array = (JSONArray)PlexUtils.simpleGET("https://api.mojang.com/user/profiles/" + uuid + "/names");
         }
         catch (ParseException | IOException ex)
         {
@@ -56,14 +56,18 @@ public class NameHistoryCMD extends PlexCommand
                 .append("\n");
         for (Object o : array)
         {
-            JSONObject object = (JSONObject) o;
+            JSONObject object = (JSONObject)o;
             Object changedToAt = object.get("changedToAt");
             if (changedToAt == null)
+            {
                 changedToAt = "O";
+            }
             else
+            {
                 changedToAt = DATE_FORMAT.format(changedToAt);
+            }
             result.append(tl("nameHistoryBody", object.get("name"), changedToAt))
-                .append("\n");
+                    .append("\n");
         }
         send(result.toString());
     }

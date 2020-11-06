@@ -10,11 +10,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
 import me.totalfreedom.plex.Plex;
 import me.totalfreedom.plex.config.Config;
 import me.totalfreedom.plex.storage.StorageType;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.PluginCommandYamlParser;
 import org.bukkit.entity.Player;
@@ -81,12 +84,18 @@ public class PlexUtils
     {
         Plex plugin = Plex.get();
         if (s.equals("baseColor") || s.equals("errorColor") || s.equals("broadcastColor"))
+        {
             return getChatColorFromConfig(plugin.messages, ChatColor.WHITE, s).toString();
+        }
         String f = plugin.messages.getString(s);
         if (f == null)
+        {
             return ChatColor.RED + "No message";
+        }
         for (Object object : objects)
+        {
             f = f.replaceFirst("<v>", String.valueOf(object));
+        }
         ChatColor base = getChatColorFromConfig(plugin.messages, ChatColor.GRAY, "baseColor");
         ChatColor broadcast = getChatColorFromConfig(plugin.messages, ChatColor.AQUA, "broadcastColor");
         ChatColor error = getChatColorFromConfig(plugin.messages, ChatColor.RED, "errorColor");
@@ -101,24 +110,32 @@ public class PlexUtils
     {
         ChatColor color;
         if (config.getString(path) == null)
+        {
             color = def;
+        }
         else if (ChatColor.getByChar(config.getString(path)) == null)
+        {
             color = def;
+        }
         else
+        {
             color = ChatColor.getByChar(config.getString(path));
+        }
         return color;
     }
 
     public static void setBlocks(Location c1, Location c2, Material material)
     {
         if (!c1.getWorld().getName().equals(c1.getWorld().getName()))
+        {
             return;
+        }
         int sy = Math.min(c1.getBlockY(), c2.getBlockY()),
-            ey = Math.max(c1.getBlockY(), c2.getBlockY()),
-            sx = Math.min(c1.getBlockX(), c2.getBlockX()),
-            ex = Math.max(c1.getBlockX(), c2.getBlockX()),
-            sz = Math.min(c1.getBlockZ(), c2.getBlockZ()),
-            ez = Math.max(c1.getBlockZ(), c2.getBlockZ());
+                ey = Math.max(c1.getBlockY(), c2.getBlockY()),
+                sx = Math.min(c1.getBlockX(), c2.getBlockX()),
+                ex = Math.max(c1.getBlockX(), c2.getBlockX()),
+                sz = Math.min(c1.getBlockZ(), c2.getBlockZ()),
+                ez = Math.max(c1.getBlockZ(), c2.getBlockZ());
         World world = c1.getWorld();
         for (int y = sy; y <= ey; y++)
         {
@@ -136,7 +153,9 @@ public class PlexUtils
     {
         List<String> names = new ArrayList<>();
         for (Player player : Bukkit.getOnlinePlayers())
+        {
             names.add(player.getName());
+        }
         return names;
     }
 
@@ -148,13 +167,15 @@ public class PlexUtils
     public static Object simpleGET(String url) throws IOException, ParseException
     {
         URL u = new URL(url);
-        HttpURLConnection connection = (HttpURLConnection) u.openConnection();
+        HttpURLConnection connection = (HttpURLConnection)u.openConnection();
         connection.setRequestMethod("GET");
         BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
         String line;
         StringBuilder content = new StringBuilder();
         while ((line = in.readLine()) != null)
+        {
             content.append(line);
+        }
         in.close();
         connection.disconnect();
         return new JSONParser().parse(content.toString());
@@ -163,13 +184,16 @@ public class PlexUtils
     public static UUID getFromName(String name)
     {
         JSONObject profile;
-        try {
-            profile = (JSONObject) PlexUtils.simpleGET("https://api.ashcon.app/mojang/v2/user/" + name);
-        } catch (IOException | ParseException e) {
+        try
+        {
+            profile = (JSONObject)PlexUtils.simpleGET("https://api.ashcon.app/mojang/v2/user/" + name);
+        }
+        catch (IOException | ParseException e)
+        {
             e.printStackTrace();
             return null;
         }
-        String uuidString = (String) profile.get("uuid");
+        String uuidString = (String)profile.get("uuid");
         return UUID.fromString(uuidString);
     }
 }

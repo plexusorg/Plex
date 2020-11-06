@@ -1,6 +1,9 @@
 package me.totalfreedom.plex.command.impl;
 
 import com.google.common.collect.ImmutableList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
 import me.totalfreedom.plex.cache.DataUtils;
 import me.totalfreedom.plex.command.PlexCommand;
 import me.totalfreedom.plex.command.annotation.CommandParameters;
@@ -16,15 +19,12 @@ import me.totalfreedom.plex.util.PlexUtils;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
-
 @CommandPermissions(level = Rank.SENIOR_ADMIN, source = RequiredCommandSource.CONSOLE)
 @CommandParameters(usage = "/<command> <add | remove | setrank | list> [player] [rank]", aliases = "adminconfig,adminmanage", description = "Manages all admins")
 public class AdminCMD extends PlexCommand
 {
-    public AdminCMD() {
+    public AdminCMD()
+    {
         super("admin");
     }
 
@@ -133,11 +133,13 @@ public class AdminCMD extends PlexCommand
     }
 
     @Override
-    public List<String> onTabComplete(CommandSource sender, String[] args) {
+    public List<String> onTabComplete(CommandSource sender, String[] args)
+    {
         if (args.length == 1)
         {
             return Arrays.asList("add", "remove", "setrank", "list");
-        } else if (args.length == 2 && !args[0].equalsIgnoreCase("list"))
+        }
+        else if (args.length == 2 && !args[0].equalsIgnoreCase("list"))
         {
             return PlexUtils.getPlayerNameList();
         }

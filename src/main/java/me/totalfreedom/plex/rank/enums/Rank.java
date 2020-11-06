@@ -1,9 +1,8 @@
 package me.totalfreedom.plex.rank.enums;
 
 import com.google.common.collect.Lists;
-import org.bukkit.ChatColor;
-
 import java.util.List;
+import org.bukkit.ChatColor;
 
 public enum Rank
 {
@@ -15,7 +14,7 @@ public enum Rank
     EXECUTIVE(4, ChatColor.RED + "an " + ChatColor.RED + "Executive", ChatColor.RED + "[Exec]");
 
     private String loginMessage;
-    private  String prefix;
+    private String prefix;
     private int level;
     private List<String> permissions;
 
@@ -37,7 +36,8 @@ public enum Rank
         return ChatColor.translateAlternateColorCodes('&', loginMessage);
     }
 
-    public int getLevel() {
+    public int getLevel()
+    {
         return level;
     }
 
@@ -46,7 +46,8 @@ public enum Rank
         this.loginMessage = msg;
     }
 
-    public void setPrefix(String prefix) {
+    public void setPrefix(String prefix)
+    {
         this.prefix = prefix;
     }
 
@@ -55,11 +56,13 @@ public enum Rank
         return getLevel() >= rank.getLevel();
     }
 
-    public List<String> getPermissions() {
+    public List<String> getPermissions()
+    {
         return permissions;
     }
 
-    public void setPermissions(List<String> permissions) {
+    public void setPermissions(List<String> permissions)
+    {
         this.permissions = permissions;
     }
 }

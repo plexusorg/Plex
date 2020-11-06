@@ -4,6 +4,7 @@ import lombok.Getter;
 import me.totalfreedom.plex.player.PunishedPlayer;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
+
 @Getter
 public class PunishedPlayerFreezeEvent extends PunishedPlayerEvent implements Cancellable
 {

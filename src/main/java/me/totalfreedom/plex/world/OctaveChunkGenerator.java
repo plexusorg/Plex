@@ -1,16 +1,15 @@
 package me.totalfreedom.plex.world;
 
+import java.util.Random;
 import org.bukkit.World;
 import org.bukkit.generator.BlockPopulator;
 import org.bukkit.util.noise.PerlinOctaveGenerator;
-
-import java.util.Random;
 
 public abstract class OctaveChunkGenerator extends CustomChunkGenerator
 {
     private OctaveOptions options;
 
-    public OctaveChunkGenerator(int height, OctaveOptions options,  BlockPopulator... populators)
+    public OctaveChunkGenerator(int height, OctaveOptions options, BlockPopulator... populators)
     {
         super(height, populators);
         this.options = options;
@@ -25,7 +24,7 @@ public abstract class OctaveChunkGenerator extends CustomChunkGenerator
         {
             for (int zz = 0; zz < 16; zz++)
             {
-                height = (int) generator.noise(options.getX(), options.getY(), options.getFrequency(), options.getAmplitude(), options.isNormalized());
+                height = (int)generator.noise(options.getX(), options.getY(), options.getFrequency(), options.getAmplitude(), options.isNormalized());
                 createLoopChunkData(xx, height, zz, chunk);
             }
         }

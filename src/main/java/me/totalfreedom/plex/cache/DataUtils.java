@@ -1,10 +1,9 @@
 package me.totalfreedom.plex.cache;
 
+import java.util.UUID;
 import me.totalfreedom.plex.Plex;
 import me.totalfreedom.plex.player.PlexPlayer;
 import me.totalfreedom.plex.storage.StorageType;
-
-import java.util.UUID;
 
 public class DataUtils
 {
@@ -14,7 +13,9 @@ public class DataUtils
         if (Plex.get().getStorageType() == StorageType.MONGO)
         {
             return Plex.get().getMongoPlayerData().exists(uuid);
-        } else {
+        }
+        else
+        {
             return Plex.get().getSqlPlayerData().exists(uuid);
         }
     }
@@ -29,7 +30,9 @@ public class DataUtils
         if (Plex.get().getStorageType() == StorageType.MONGO)
         {
             return Plex.get().getMongoPlayerData().getByUUID(uuid);
-        } else {
+        }
+        else
+        {
             return Plex.get().getSqlPlayerData().getByUUID(uuid);
         }
     }
@@ -39,7 +42,9 @@ public class DataUtils
         if (Plex.get().getStorageType() == StorageType.MONGO)
         {
             Plex.get().getMongoPlayerData().update(plexPlayer);
-        } else {
+        }
+        else
+        {
             Plex.get().getSqlPlayerData().update(plexPlayer);
         }
     }

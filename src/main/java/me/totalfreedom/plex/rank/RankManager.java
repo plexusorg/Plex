@@ -1,19 +1,18 @@
 package me.totalfreedom.plex.rank;
 
 import com.google.common.collect.Maps;
-import me.totalfreedom.plex.Plex;
-import me.totalfreedom.plex.player.PlexPlayer;
-import me.totalfreedom.plex.rank.enums.Rank;
-import me.totalfreedom.plex.util.PlexLog;
-import org.json.JSONObject;
-import org.json.JSONTokener;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Map;
 import java.util.stream.Collectors;
+import me.totalfreedom.plex.Plex;
+import me.totalfreedom.plex.player.PlexPlayer;
+import me.totalfreedom.plex.rank.enums.Rank;
+import me.totalfreedom.plex.util.PlexLog;
+import org.json.JSONObject;
+import org.json.JSONTokener;
 
 public class RankManager
 {
@@ -79,7 +78,10 @@ public class RankManager
             JSONObject rankObj = object.getJSONObject("ranks");
             for (Rank rank : Rank.values())
             {
-                if (rankObj.isNull(rank.name().toUpperCase())) continue;
+                if (rankObj.isNull(rank.name().toUpperCase()))
+                {
+                    continue;
+                }
                 rank.setLoginMessage(rankObj.getJSONObject(rank.name().toUpperCase()).getString("loginMSG"));
                 rank.setPrefix(rankObj.getJSONObject(rank.name().toUpperCase()).getString("prefix")); //should i even be doing this
                 rank.setPermissions(rankObj.getJSONObject(rank.name().toUpperCase()).getJSONArray("permissions").toList().stream().map(Object::toString).collect(Collectors.toList()));

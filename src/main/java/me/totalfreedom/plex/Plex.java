@@ -18,8 +18,6 @@ import me.totalfreedom.plex.util.PlexUtils;
 import me.totalfreedom.plex.world.CustomWorld;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.File;
-
 @Getter
 @Setter
 public class Plex extends JavaPlugin
@@ -118,7 +116,9 @@ public class Plex extends JavaPlugin
     {
         PlexLog.log("Generating any worlds if needed...");
         for (String key : config.getConfigurationSection("worlds").getKeys(false))
+        {
             CustomWorld.generateConfigFlatWorld(key);
+        }
         PlexLog.log("Finished with world generation!");
     }
 }
