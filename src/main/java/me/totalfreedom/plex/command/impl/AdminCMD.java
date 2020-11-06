@@ -8,6 +8,7 @@ import me.totalfreedom.plex.cache.DataUtils;
 import me.totalfreedom.plex.command.PlexCommand;
 import me.totalfreedom.plex.command.annotation.CommandParameters;
 import me.totalfreedom.plex.command.annotation.CommandPermissions;
+import me.totalfreedom.plex.command.exception.PlayerNotFoundException;
 import me.totalfreedom.plex.command.source.CommandSource;
 import me.totalfreedom.plex.command.source.RequiredCommandSource;
 import me.totalfreedom.plex.event.AdminAddEvent;
@@ -49,8 +50,7 @@ public class AdminCMD extends PlexCommand
 
             if (targetUUID == null || !DataUtils.hasPlayedBefore(targetUUID))
             {
-                sender.send(tl("playerNotFound"));
-                return;
+                throw new PlayerNotFoundException();
             }
             PlexPlayer plexPlayer = DataUtils.getPlayer(targetUUID);
             plexPlayer.setRank(Rank.ADMIN.name());
@@ -70,8 +70,7 @@ public class AdminCMD extends PlexCommand
 
             if (targetUUID == null || !DataUtils.hasPlayedBefore(targetUUID))
             {
-                sender.send(tl("playerNotFound"));
-                return;
+                throw new PlayerNotFoundException();
             }
             PlexPlayer plexPlayer = DataUtils.getPlayer(targetUUID);
             plexPlayer.setRank("");
@@ -92,8 +91,7 @@ public class AdminCMD extends PlexCommand
 
             if (targetUUID == null || !DataUtils.hasPlayedBefore(targetUUID))
             {
-                sender.send(tl("playerNotFound"));
-                return;
+                throw new PlayerNotFoundException();
             }
 
             if (!rankExists(args[2]))
