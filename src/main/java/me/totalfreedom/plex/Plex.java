@@ -8,6 +8,7 @@ import me.totalfreedom.plex.cache.SQLPlayerData;
 import me.totalfreedom.plex.config.Config;
 import me.totalfreedom.plex.handlers.CommandHandler;
 import me.totalfreedom.plex.handlers.ListenerHandler;
+import me.totalfreedom.plex.punishment.PunishmentManager;
 import me.totalfreedom.plex.rank.RankManager;
 import me.totalfreedom.plex.storage.MongoConnection;
 import me.totalfreedom.plex.storage.RedisConnection;
@@ -35,6 +36,8 @@ public class Plex extends JavaPlugin
     private SQLPlayerData sqlPlayerData;
 
     private RankManager rankManager;
+
+    private PunishmentManager punishmentManager;
 
     private AdminList adminList;
 
@@ -96,6 +99,9 @@ public class Plex extends JavaPlugin
         rankManager.generateDefaultRanks();
         rankManager.importDefaultRanks();
         PlexLog.log("Rank Manager initialized");
+
+        punishmentManager = new PunishmentManager();
+        PlexLog.log("Punishment Manager initialized");
 
         adminList = new AdminList();
 

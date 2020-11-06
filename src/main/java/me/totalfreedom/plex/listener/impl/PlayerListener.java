@@ -11,6 +11,8 @@ import me.totalfreedom.plex.command.impl.FionnCMD;
 import me.totalfreedom.plex.listener.PlexListener;
 import me.totalfreedom.plex.player.PlexPlayer;
 import me.totalfreedom.plex.player.PunishedPlayer;
+import me.totalfreedom.plex.punishment.Punishment;
+import me.totalfreedom.plex.punishment.PunishmentType;
 import me.totalfreedom.plex.util.PlexLog;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -99,8 +101,14 @@ public class PlayerListener extends PlexListener
             {
                 event.setJoinMessage(ChatColor.AQUA + player.getName() + " is " + plexPlayer.getRankFromString().getLoginMSG());
             }
-
         }
+
+        /*Punishment test = new Punishment(player.getUniqueId(), player.getUniqueId());
+        test.setPunishedUsername(player.getName());
+        test.setReason("hii");
+        test.setType(PunishmentType.FREEZE);
+        plugin.getPunishmentManager().insertPunishment(PlayerCache.getPunishedPlayer(player.getUniqueId()), test);*/
+
     }
 
     // saving the player's data

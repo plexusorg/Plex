@@ -8,6 +8,8 @@ import org.bukkit.Bukkit;
 
 public class DataUtils
 {
+                /* PLEX PLAYER METHODS */
+
     public static boolean hasPlayedBefore(UUID uuid)
     {
         if (Plex.get().getStorageType() == StorageType.MONGO)
@@ -63,5 +65,7 @@ public class DataUtils
             Plex.get().getSqlPlayerData().insert(plexPlayer);
         }
     }
+
+    /*           REDIS METHODS AT ONE POINT FOR BANS, AND JSON METHODS FOR PUNISHMENTS       */
 
 }
