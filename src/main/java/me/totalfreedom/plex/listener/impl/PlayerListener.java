@@ -3,6 +3,7 @@ package me.totalfreedom.plex.listener.impl;
 import java.util.Arrays;
 import java.util.UUID;
 import me.totalfreedom.plex.admin.Admin;
+import me.totalfreedom.plex.cache.DataUtils;
 import me.totalfreedom.plex.cache.MongoPlayerData;
 import me.totalfreedom.plex.cache.PlayerCache;
 import me.totalfreedom.plex.cache.SQLPlayerData;
@@ -30,9 +31,21 @@ public class PlayerListener extends PlexListener
     {
         Player player = event.getPlayer();
 
-        PlexPlayer plexPlayer = null;
+        PlexPlayer plexPlayer;
 
-        if (mongoPlayerData != null) // Alright, check if we're saving with Mongo first
+        if (!DataUtils.hasPlayedBefore(player.getUniqueId()))
+        {
+            PlexLog.log("AYO THIS MAN DONT EXIST"); // funi msg
+            plexPlayer = new PlexPlayer(player.getUniqueId()); //it doesn't! okay so now create the object
+            plexPlayer.setName(player.getName()); //set the name of the player
+            plexPlayer.setIps(Arrays.asList(player.getAddress().getAddress().getHostAddress().trim())); //set the arraylist of ips
+
+            DataUtils.insert(plexPlayer); // insert data in some wack db
+        } else {
+            plexPlayer = DataUtils.getPlayer(player.getUniqueId());
+        }
+
+        /*if (mongoPlayerData != null) // Alright, check if we're saving with Mongo first
         {
             if (!mongoPlayerData.exists(player.getUniqueId())) //okay, we're saving with mongo! now check if the player's document exists
             {
@@ -64,7 +77,7 @@ public class PlayerListener extends PlexListener
                 plexPlayer = sqlPlayerData.getByUUID(player.getUniqueId()); //oh they do exist!
                 plexPlayer.setName(plexPlayer.getName()); //set the name!
             }
-        }
+        }*/
 
         PlayerCache.getPlexPlayerMap().put(player.getUniqueId(), plexPlayer); //put them into the cache
         PlayerCache.getPunishedPlayerMap().put(player.getUniqueId(), new PunishedPlayer(player.getUniqueId()));

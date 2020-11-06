@@ -42,14 +42,15 @@ public class SQLConnection extends PlexBase
             if (connection != null)
             {
                 connection.prepareStatement("CREATE TABLE IF NOT EXISTS `players` (\n" +
-                        "\t`uuid` VARCHAR(46),\n" +
+                        "\t`uuid` VARCHAR(46) NOT NULL,\n" +
                         "\t`name` VARCHAR(18),\n" +
                         "\t`login_msg` VARCHAR,\n" +
                         "\t`prefix` VARCHAR,\n" +
                         "\t`rank` VARCHAR,\n" +
                         "\t`ips` VARCHAR,\n" +
-                        "\t`coins` INT\n" +
-                        //"\tPRIMARY KEY (`uuid`)\n" +
+                        "\t`coins` BIGINT,\n" +
+                        "\t`vanished` BOOLEAN,\n" +
+                        "\tPRIMARY KEY (`uuid`)\n" +
                         ");").execute();
             }
         }

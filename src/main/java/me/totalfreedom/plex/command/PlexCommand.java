@@ -74,11 +74,7 @@ public abstract class PlexCommand extends Command implements TabExecutor, IPlexC
         {
             return false;
         }
-        if (this.sender == null)
-        {
-            this.sender = new CommandSource(sender);
-        }
-        PlexLog.log(this.sender.getSender().getName());
+
         if (commandSource == RequiredCommandSource.CONSOLE && sender instanceof Player)
         {
             sender.sendMessage(tl("noPermissionInGame"));
@@ -92,6 +88,8 @@ public abstract class PlexCommand extends Command implements TabExecutor, IPlexC
                 return true;
             }
             Player player = (Player)sender;
+
+            this.sender = new CommandSource(player);
             PlexPlayer plexPlayer = PlayerCache.getPlexPlayerMap().get(player.getUniqueId());
             if (!plexPlayer.getRankFromString().isAtLeast(getLevel()))
             {
@@ -101,6 +99,7 @@ public abstract class PlexCommand extends Command implements TabExecutor, IPlexC
         }
         try
         {
+            this.sender = new CommandSource(sender);
             execute(this.sender, args);
         }
         catch (CommandArgumentException ex)
@@ -121,13 +120,12 @@ public abstract class PlexCommand extends Command implements TabExecutor, IPlexC
         {
             return ImmutableList.of();
         }
-        if (this.sender == null)
-        {
-            this.sender = new CommandSource(sender);
-        }
         if (sender instanceof Player)
         {
             Player player = (Player)sender;
+
+            this.sender = new CommandSource(player);
+
             PlexPlayer plexPlayer = PlayerCache.getPlexPlayerMap().get(player.getUniqueId());
             if (plexPlayer.getRankFromString().isAtLeast(getLevel()))
             {
@@ -140,6 +138,7 @@ public abstract class PlexCommand extends Command implements TabExecutor, IPlexC
         }
         else
         {
+            this.sender = new CommandSource(sender);
             return onTabComplete(this.sender, args);
         }
     }
@@ -192,7 +191,7 @@ public abstract class PlexCommand extends Command implements TabExecutor, IPlexC
 
     protected boolean isConsole()
     {
-        return sender instanceof ConsoleCommandSender;
+        return !(sender instanceof Player);
     }
 
     protected String tl(String s, Object... objects)

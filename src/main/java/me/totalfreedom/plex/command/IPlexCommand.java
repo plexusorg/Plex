@@ -2,6 +2,7 @@ package me.totalfreedom.plex.command;
 
 import java.util.List;
 import me.totalfreedom.plex.command.source.CommandSource;
+import org.bukkit.command.CommandSender;
 
 public interface IPlexCommand
 {

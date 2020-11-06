@@ -54,4 +54,14 @@ public class DataUtils
         }
     }
 
+    public static void insert(PlexPlayer plexPlayer)
+    {
+        if (Plex.get().getStorageType() == StorageType.MONGO)
+        {
+            Plex.get().getMongoPlayerData().save(plexPlayer);
+        } else {
+            Plex.get().getSqlPlayerData().insert(plexPlayer);
+        }
+    }
+
 }

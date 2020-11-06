@@ -33,6 +33,8 @@ public class PlexPlayer
     private String loginMSG;
     private String prefix;
 
+    private boolean vanished;
+
     private long coins;
 
     private String rank;
@@ -53,6 +55,8 @@ public class PlexPlayer
 
         this.loginMSG = "";
         this.prefix = "";
+
+        this.vanished = false;
 
         this.coins = 0;
 

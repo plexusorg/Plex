@@ -13,10 +13,12 @@ public class CommandSource
     private final CommandSender sender;
     private final Player player;
     private final PlexPlayer plexPlayer;
+    private final boolean isConsoleSender;
 
     public CommandSource(CommandSender sender)
     {
         this.sender = sender;
+        this.isConsoleSender = !(sender instanceof Player);
         this.player = sender instanceof Player ? Bukkit.getPlayer(sender.getName()) : null;
         this.plexPlayer = sender instanceof Player ? PlayerCache.getPlexPlayerMap().get(((Player)sender).getUniqueId()) : null;
     }

@@ -20,10 +20,12 @@ import me.totalfreedom.plex.util.PlexUtils;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 
-@CommandPermissions(level = Rank.SENIOR_ADMIN, source = RequiredCommandSource.CONSOLE)
+@CommandPermissions(level = Rank.SENIOR_ADMIN, source = RequiredCommandSource.ANY)
 @CommandParameters(usage = "/<command> <add | remove | setrank | list> [player] [rank]", aliases = "saconfig,slconfig,adminconfig,adminmanage", description = "Manage all admins")
 public class AdminCMD extends PlexCommand
 {
+    //TODO: Better return messages
+
     public AdminCMD()
     {
         super("admin");
@@ -46,23 +48,9 @@ public class AdminCMD extends PlexCommand
                 return;
             }
 
-            UUID targetUUID = PlexUtils.getFromName(args[1]);
-
-            if (targetUUID == null || !DataUtils.hasPlayedBefore(targetUUID))
+            if (!sender.isConsoleSender())
             {
-                throw new PlayerNotFoundException();
-            }
-            PlexPlayer plexPlayer = DataUtils.getPlayer(targetUUID);
-            plexPlayer.setRank(Rank.ADMIN.name());
-            DataUtils.update(plexPlayer);
-            Bukkit.getServer().getPluginManager().callEvent(new AdminAddEvent(plexPlayer));
-            return;
-        }
-        if (args[0].equalsIgnoreCase("remove"))
-        {
-            if (args.length != 2)
-            {
-                sender.send(usage("/admin remove <player>"));
+                sender.send("Console only");
                 return;
             }
 
@@ -73,9 +61,49 @@ public class AdminCMD extends PlexCommand
                 throw new PlayerNotFoundException();
             }
             PlexPlayer plexPlayer = DataUtils.getPlayer(targetUUID);
+
+            if (isAdmin(plexPlayer))
+            {
+                sender.send("Player is an admin");
+                return;
+            }
+
+            plexPlayer.setRank(Rank.ADMIN.name());
+            DataUtils.update(plexPlayer);
+            Bukkit.getServer().getPluginManager().callEvent(new AdminAddEvent(sender, plexPlayer));
+            return;
+        }
+        if (args[0].equalsIgnoreCase("remove"))
+        {
+            if (args.length != 2)
+            {
+                sender.send(usage("/admin remove <player>"));
+                return;
+            }
+
+            if (!sender.isConsoleSender())
+            {
+                sender.send("Console only");
+                return;
+            }
+
+            UUID targetUUID = PlexUtils.getFromName(args[1]);
+
+            if (targetUUID == null || !DataUtils.hasPlayedBefore(targetUUID))
+            {
+                throw new PlayerNotFoundException();
+            }
+            PlexPlayer plexPlayer = DataUtils.getPlayer(targetUUID);
+
+            if (!isAdmin(plexPlayer))
+            {
+                sender.send("Player is not an admin");
+                return;
+            }
+
             plexPlayer.setRank("");
             DataUtils.update(plexPlayer);
-            Bukkit.getServer().getPluginManager().callEvent(new AdminRemoveEvent(plexPlayer));
+            Bukkit.getServer().getPluginManager().callEvent(new AdminRemoveEvent(sender, plexPlayer));
             return;
         }
 
@@ -84,6 +112,12 @@ public class AdminCMD extends PlexCommand
             if (args.length != 3)
             {
                 sender.send(usage("/admin setrank <player> <rank>"));
+                return;
+            }
+
+            if (!sender.isConsoleSender())
+            {
+                sender.send("Console only");
                 return;
             }
 
@@ -109,10 +143,17 @@ public class AdminCMD extends PlexCommand
             }
 
             PlexPlayer plexPlayer = DataUtils.getPlayer(targetUUID);
+
+            if (!isAdmin(plexPlayer))
+            {
+                sender.send("Player is not an admin");
+                return;
+            }
+
             plexPlayer.setRank(rank.name().toLowerCase());
             DataUtils.update(plexPlayer);
 
-            Bukkit.getServer().getPluginManager().callEvent(new AdminSetRankEvent(plexPlayer, rank));
+            Bukkit.getServer().getPluginManager().callEvent(new AdminSetRankEvent(sender, plexPlayer, rank));
 
             return;
         }

@@ -49,7 +49,8 @@ public class MongoPlayerData
                         UpdateOperators.set("prefix", player.getPrefix()),
                         UpdateOperators.set("rank", player.getRank().toLowerCase()),
                         UpdateOperators.set("ips", player.getIps()),
-                        UpdateOperators.set("coins", player.getCoins()));
+                        UpdateOperators.set("coins", player.getCoins()),
+                        UpdateOperators.set("vanished", player.isVanished()));
 
         updateOps.execute();
     }
