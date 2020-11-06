@@ -13,7 +13,6 @@ import me.totalfreedom.plex.rank.enums.Rank;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
-import static me.totalfreedom.plex.util.PlexUtils.tl;
 
 @CommandPermissions(level = Rank.OP, source = RequiredCommandSource.IN_GAME)
 @CommandParameters(description = "Teleport to a world.", usage = "/<command> <world>")

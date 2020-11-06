@@ -20,7 +20,7 @@ import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 
 @CommandPermissions(level = Rank.SENIOR_ADMIN, source = RequiredCommandSource.CONSOLE)
-@CommandParameters(usage = "/<command> <add | remove | setrank | list> [player] [rank]", aliases = "adminconfig,adminmanage", description = "Manages all admins")
+@CommandParameters(usage = "/<command> <add | remove | setrank | list> [player] [rank]", aliases = "saconfig,slconfig,adminconfig,adminmanage", description = "Manage all admins")
 public class AdminCMD extends PlexCommand
 {
     public AdminCMD()
@@ -49,7 +49,7 @@ public class AdminCMD extends PlexCommand
 
             if (targetUUID == null || !DataUtils.hasPlayedBefore(targetUUID))
             {
-                sender.send(PlexUtils.tl("playerNotFound"));
+                sender.send(tl("playerNotFound"));
                 return;
             }
             PlexPlayer plexPlayer = DataUtils.getPlayer(targetUUID);
@@ -70,7 +70,7 @@ public class AdminCMD extends PlexCommand
 
             if (targetUUID == null || !DataUtils.hasPlayedBefore(targetUUID))
             {
-                sender.send(PlexUtils.tl("playerNotFound"));
+                sender.send(tl("playerNotFound"));
                 return;
             }
             PlexPlayer plexPlayer = DataUtils.getPlayer(targetUUID);
@@ -92,7 +92,7 @@ public class AdminCMD extends PlexCommand
 
             if (targetUUID == null || !DataUtils.hasPlayedBefore(targetUUID))
             {
-                sender.send(PlexUtils.tl("playerNotFound"));
+                sender.send(tl("playerNotFound"));
                 return;
             }
 

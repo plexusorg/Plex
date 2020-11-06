@@ -15,7 +15,6 @@ import me.totalfreedom.plex.util.PlexUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
-import static me.totalfreedom.plex.util.PlexUtils.tl;
 
 @CommandParameters(description = "Get the name history of a player", usage = "/<command> <player>", aliases = "nh")
 @CommandPermissions(level = Rank.OP)

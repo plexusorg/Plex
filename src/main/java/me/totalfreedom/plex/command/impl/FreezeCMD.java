@@ -12,7 +12,6 @@ import me.totalfreedom.plex.player.PunishedPlayer;
 import me.totalfreedom.plex.rank.enums.Rank;
 import me.totalfreedom.plex.util.PlexUtils;
 import org.bukkit.entity.Player;
-import static me.totalfreedom.plex.util.PlexUtils.tl;
 
 @CommandParameters(description = "Freeze/unfreeze a player on the server", usage = "/<command> <player>")
 @CommandPermissions(level = Rank.ADMIN)

@@ -7,7 +7,11 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Random;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import me.totalfreedom.plex.Plex;
@@ -28,6 +32,26 @@ import org.json.simple.parser.ParseException;
 
 public class PlexUtils
 {
+    public static Map<String, ChatColor> CHAT_COLOR_NAMES;
+    public static List<ChatColor> CHAT_COLOR_POOL;
+    private static Random RANDOM;
+
+    static
+    {
+        RANDOM = new Random();
+        CHAT_COLOR_NAMES = new HashMap<>();
+        CHAT_COLOR_POOL = Arrays.asList(ChatColor.DARK_RED, ChatColor.RED, ChatColor.GOLD, ChatColor.YELLOW, ChatColor.GREEN, ChatColor.DARK_GREEN, ChatColor.AQUA, ChatColor.DARK_AQUA, ChatColor.BLUE, ChatColor.DARK_BLUE, ChatColor.DARK_PURPLE, ChatColor.LIGHT_PURPLE);
+        for (final ChatColor chatColor : CHAT_COLOR_POOL)
+        {
+            CHAT_COLOR_NAMES.put(chatColor.name().toLowerCase().replace("_", ""), chatColor);
+        }
+    }
+
+    public static ChatColor randomChatColor()
+    {
+        return CHAT_COLOR_POOL.get(RANDOM.nextInt(CHAT_COLOR_POOL.size()));
+    }
+
     public static void testConnections()
     {
         if (Plex.get().getSqlConnection().getCon() != null)
@@ -77,6 +101,11 @@ public class PlexUtils
     public static String color(String s)
     {
         return ChatColor.translateAlternateColorCodes('&', s);
+    }
+
+    public static String colorize(final String string)
+    {
+        return ChatColor.translateAlternateColorCodes('&', string);
     }
 
     // if you think the name of this method is dumb feel free to change it i just thought it'd be cool

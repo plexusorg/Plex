@@ -10,7 +10,6 @@ import me.totalfreedom.plex.rank.enums.Rank;
 import me.totalfreedom.plex.util.PlexUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import static me.totalfreedom.plex.util.PlexUtils.tl;
 
 @CommandParameters(description = "Op everyone on the server", aliases = "opa")
 @CommandPermissions(level = Rank.ADMIN)

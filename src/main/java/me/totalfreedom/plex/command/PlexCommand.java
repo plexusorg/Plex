@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import me.totalfreedom.plex.Plex;
+import me.totalfreedom.plex.cache.DataUtils;
 import me.totalfreedom.plex.cache.PlayerCache;
 import me.totalfreedom.plex.command.annotation.CommandParameters;
 import me.totalfreedom.plex.command.annotation.CommandPermissions;
@@ -16,6 +17,7 @@ import me.totalfreedom.plex.command.source.RequiredCommandSource;
 import me.totalfreedom.plex.player.PlexPlayer;
 import me.totalfreedom.plex.rank.enums.Rank;
 import me.totalfreedom.plex.util.PlexLog;
+import me.totalfreedom.plex.util.PlexUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
@@ -25,7 +27,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
-import static me.totalfreedom.plex.util.PlexUtils.tl;
 
 public abstract class PlexCommand extends Command implements TabExecutor, IPlexCommand
 {
@@ -176,6 +177,27 @@ public abstract class PlexCommand extends Command implements TabExecutor, IPlexC
     protected void send(String s, Player player)
     {
         player.sendMessage(s);
+    }
+
+    protected boolean isAdmin(PlexPlayer plexPlayer)
+    {
+        return Plex.get().getRankManager().isAdmin(plexPlayer);
+    }
+
+    protected boolean isAdmin(String name)
+    {
+        PlexPlayer plexPlayer = DataUtils.getPlayer(name);
+        return Plex.get().getRankManager().isAdmin(plexPlayer);
+    }
+
+    protected boolean isConsole()
+    {
+        return sender instanceof ConsoleCommandSender;
+    }
+
+    protected String tl(String s, Object... objects)
+    {
+        return PlexUtils.tl(s, objects);
     }
 
     protected String usage(String s)

@@ -2,14 +2,11 @@ package me.totalfreedom.plex.world;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import me.totalfreedom.plex.Plex;
 import org.bukkit.Material;
 import org.bukkit.generator.BlockPopulator;
 
 public class BlockMapChunkGenerator extends FlatChunkGenerator
 {
-    private static Plex plugin = Plex.get();
-
     protected LinkedHashMap<Material, Integer> blockMap;
 
     public BlockMapChunkGenerator(LinkedHashMap<Material, Integer> blockMap, BlockPopulator... populators)

@@ -2,8 +2,8 @@
 
 server:
   name: "TotalFreedom"
-  test: "test string"
-  motd: "&~%servername% &8- %mcversion%"
+  motd: "%servername% - Minecraft %mcversion%"
+  colorize_motd: true
 
 data:
   central:

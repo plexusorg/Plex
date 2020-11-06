@@ -13,7 +13,7 @@ import org.bukkit.generator.ChunkGenerator;
 
 public class CustomWorld extends WorldCreator
 {
-    private static Plex plugin = Plex.get();
+    private static final Plex plugin = Plex.get();
 
     private final CustomChunkGenerator chunks;
 

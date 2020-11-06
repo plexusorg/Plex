@@ -7,7 +7,7 @@ import org.bukkit.util.noise.PerlinOctaveGenerator;
 
 public abstract class OctaveChunkGenerator extends CustomChunkGenerator
 {
-    private OctaveOptions options;
+    private final OctaveOptions options;
 
     public OctaveChunkGenerator(int height, OctaveOptions options, BlockPopulator... populators)
     {

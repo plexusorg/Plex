@@ -7,11 +7,11 @@ import org.bukkit.ChatColor;
 public enum Rank
 {
     IMPOSTOR(-1, ChatColor.AQUA + "an " + ChatColor.YELLOW + "Impostor", ChatColor.YELLOW + "[Imp]"),
-    NONOP(0, ChatColor.WHITE + "a " + ChatColor.WHITE + "Non-Op", ChatColor.WHITE + ""),
-    OP(1, ChatColor.GREEN + "an " + ChatColor.GREEN + "Operator", ChatColor.GREEN + "[OP]"),
-    ADMIN(2, ChatColor.DARK_GREEN + "an " + ChatColor.DARK_GREEN + "Admin", ChatColor.DARK_GREEN + "[Admin]"),
-    SENIOR_ADMIN(3, ChatColor.GOLD + "a " + ChatColor.GOLD + "Senior Admin", ChatColor.GOLD + "[SrA]"),
-    EXECUTIVE(4, ChatColor.RED + "an " + ChatColor.RED + "Executive", ChatColor.RED + "[Exec]");
+    NONOP(0, "a " + ChatColor.WHITE + "Non-Op", ChatColor.WHITE + ""),
+    OP(1, "an " + ChatColor.GREEN + "Operator", ChatColor.GREEN + "[OP]"),
+    ADMIN(2, "an " + ChatColor.DARK_GREEN + "Admin", ChatColor.DARK_GREEN + "[Admin]"),
+    SENIOR_ADMIN(3, "a " + ChatColor.GOLD + "Senior Admin", ChatColor.GOLD + "[SrA]"),
+    EXECUTIVE(4, "an " + ChatColor.RED + "Executive", ChatColor.RED + "[Exec]");
 
     private String loginMessage;
     private String prefix;

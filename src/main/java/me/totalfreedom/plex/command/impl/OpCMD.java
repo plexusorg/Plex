@@ -10,7 +10,6 @@ import me.totalfreedom.plex.command.source.CommandSource;
 import me.totalfreedom.plex.rank.enums.Rank;
 import me.totalfreedom.plex.util.PlexUtils;
 import org.bukkit.entity.Player;
-import static me.totalfreedom.plex.util.PlexUtils.tl;
 
 @CommandParameters(description = "Op a player on the server", usage = "/<command> <player>")
 @CommandPermissions(level = Rank.OP)

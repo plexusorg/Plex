@@ -9,7 +9,6 @@ import me.totalfreedom.plex.command.annotation.CommandPermissions;
 import me.totalfreedom.plex.command.source.CommandSource;
 import me.totalfreedom.plex.command.source.RequiredCommandSource;
 import me.totalfreedom.plex.rank.enums.Rank;
-import static me.totalfreedom.plex.util.PlexUtils.tl;
 
 @CommandPermissions(level = Rank.OP, source = RequiredCommandSource.ANY)
 @CommandParameters(aliases = "tst,tast", description = "HELLO")
@@ -35,5 +34,4 @@ public class TestCMD extends PlexCommand
         }
         return ImmutableList.of();
     }
-
 }

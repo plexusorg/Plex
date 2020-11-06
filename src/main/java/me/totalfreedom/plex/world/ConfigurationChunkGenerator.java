@@ -7,7 +7,7 @@ import org.bukkit.generator.BlockPopulator;
 
 public class ConfigurationChunkGenerator extends BlockMapChunkGenerator
 {
-    private static Plex plugin = Plex.get();
+    private static final Plex plugin = Plex.get();
 
     public ConfigurationChunkGenerator(String worldName, BlockPopulator... populators)
     {

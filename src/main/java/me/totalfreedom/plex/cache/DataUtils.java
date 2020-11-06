@@ -4,10 +4,10 @@ import java.util.UUID;
 import me.totalfreedom.plex.Plex;
 import me.totalfreedom.plex.player.PlexPlayer;
 import me.totalfreedom.plex.storage.StorageType;
+import org.bukkit.Bukkit;
 
 public class DataUtils
 {
-
     public static boolean hasPlayedBefore(UUID uuid)
     {
         if (Plex.get().getStorageType() == StorageType.MONGO)
@@ -35,6 +35,11 @@ public class DataUtils
         {
             return Plex.get().getSqlPlayerData().getByUUID(uuid);
         }
+    }
+
+    public static PlexPlayer getPlayer(String name)
+    {
+        return getPlayer(Bukkit.getPlayer(name).getUniqueId());
     }
 
     public static void update(PlexPlayer plexPlayer)

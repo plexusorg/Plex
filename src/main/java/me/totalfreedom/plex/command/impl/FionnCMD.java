@@ -27,7 +27,6 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Strider;
 import org.bukkit.scheduler.BukkitRunnable;
-import static me.totalfreedom.plex.util.PlexUtils.tl;
 
 @CommandParameters(description = "Subliminal message.")
 @CommandPermissions(source = RequiredCommandSource.IN_GAME)
