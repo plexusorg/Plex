@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import me.totalfreedom.plex.Plex;
 import me.totalfreedom.plex.config.Config;
@@ -224,5 +225,19 @@ public class PlexUtils
         }
         String uuidString = (String)profile.get("uuid");
         return UUID.fromString(uuidString);
+    }
+
+    public static int randomNum()
+    {
+        return ThreadLocalRandom.current().nextInt();
+    }
+
+    public static int randomNum(int limit)
+    {
+        return ThreadLocalRandom.current().nextInt(limit);
+    }
+    public static int randomNum(int start, int limit)
+    {
+        return ThreadLocalRandom.current().nextInt(start, limit);
     }
 }

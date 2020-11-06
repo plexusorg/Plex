@@ -2,6 +2,8 @@ package me.totalfreedom.plex.command.impl;
 
 import java.util.Collections;
 import java.util.List;
+
+import com.google.common.collect.ImmutableList;
 import me.totalfreedom.plex.command.PlexCommand;
 import me.totalfreedom.plex.command.annotation.CommandParameters;
 import me.totalfreedom.plex.command.annotation.CommandPermissions;
@@ -65,6 +67,6 @@ public class CreativeCMD extends PlexCommand
         {
             return PlexUtils.getPlayerNameList();
         }
-        return Collections.emptyList();
+        return ImmutableList.of();
     }
 }
