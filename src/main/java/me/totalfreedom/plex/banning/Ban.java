@@ -44,11 +44,12 @@ public class Ban
         this.active = true;
     }
 
-    public Ban(String id, UUID uuid, UUID banner, String reason, Date endDate)
+    public Ban(String id, UUID uuid, UUID banner, String ip, String reason, Date endDate)
     {
         this.uuid = uuid;
         this.id = id;
         this.banner = banner;
+        this.ip = ip;
         this.reason = reason;
         this.endDate = endDate;
         this.active = true;

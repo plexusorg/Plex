@@ -75,7 +75,7 @@ public class BanCMD extends PlexCommand
             punishment.setCustomTime(false);
             plugin.getPunishmentManager().doPunishment(punishedPlayer, punishment);
             Bukkit.broadcastMessage(sender.getName() + " - Banning " + plexPlayer.getName());
-            if (Bukkit.getOfflinePlayer(targetUUID).isOnline())
+            if (Bukkit.getPlayer(targetUUID) != null)
             {
                 Bukkit.getPlayer(targetUUID).kickPlayer("§cYou've been banned.");
             }

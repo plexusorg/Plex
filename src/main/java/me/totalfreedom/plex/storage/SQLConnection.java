@@ -56,6 +56,7 @@ public class SQLConnection extends PlexBase
                         "\t`banID` VARCHAR,\n" +
                         "\t`uuid` VARCHAR(46) NOT NULL,\n" +
                         "\t`banner` VARCHAR(46),\n" +
+                        "\t`ip` VARCHAR,\n" +
                         "\t`reason` VARCHAR,\n" +
                         "\t`enddate` BIGINT,\n" +
                         "\t`active` BOOLEAN,\n" +
