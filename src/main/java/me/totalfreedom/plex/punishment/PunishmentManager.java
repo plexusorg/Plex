@@ -32,22 +32,7 @@ public class PunishmentManager
 
     public void insertPunishment(PunishedPlayer player, Punishment punishment)
     {
-        File folder = new File(Plex.get().getDataFolder() + File.separator + "punishments");
-        if (!folder.exists())
-        {
-            folder.mkdir();
-        }
-
-        File file = new File(folder, player.getUuid() + ".json");
-        if (!file.exists())
-        {
-            try {
-                file.createNewFile();
-                PlexLog.log("Created new punishment file for " + player.getUuid() + " (" + DataUtils.getPlayer(punishment.getPunished()).getName() + ")");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+        File file = player.getPunishmentsFile();
 
         try {
             if (isNotEmpty(file))

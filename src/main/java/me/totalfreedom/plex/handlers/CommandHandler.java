@@ -26,6 +26,7 @@ public class CommandHandler
         commands.add(new SurvivalCMD());
         commands.add(new SpectatorCMD());
         commands.add(new BanCMD());
+        commands.add(new PunishmentsCMD());
         PlexLog.log(String.format("Registered %s commands!", commands.size()));
     }
 }

@@ -20,7 +20,7 @@ import java.util.UUID;
 public class BanManager
 {
     private final String SELECT = "SELECT * FROM `bans` WHERE uuid=?";
-    private final String INSERT = "INSERT INTO `bans` (`banID`, `uuid`, `banner`, `ip`, ``reason`, `enddate`, `active`) VALUES (?, ?, ?, ?, ?, ?, ?);";
+    private final String INSERT = "INSERT INTO `bans` (`banID`, `uuid`, `banner`, `ip`, `reason`, `enddate`, `active`) VALUES (?, ?, ?, ?, ?, ?, ?);";
 
     public void executeBan(Ban ban)
     {
