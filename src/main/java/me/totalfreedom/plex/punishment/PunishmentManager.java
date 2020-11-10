@@ -3,10 +3,16 @@ package me.totalfreedom.plex.punishment;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import me.totalfreedom.plex.Plex;
+import me.totalfreedom.plex.banning.Ban;
 import me.totalfreedom.plex.cache.DataUtils;
+import me.totalfreedom.plex.event.PunishedPlayerFreezeEvent;
 import me.totalfreedom.plex.player.PunishedPlayer;
 import me.totalfreedom.plex.util.PlexLog;
+import me.totalfreedom.plex.util.PlexUtils;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.time.DateUtils;
+import org.bukkit.Bukkit;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
@@ -15,8 +21,11 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 public class PunishmentManager
 {
@@ -79,6 +88,55 @@ public class PunishmentManager
             e.printStackTrace();
         }
         return false;
+    }
+
+    private void issuePunishment(PunishedPlayer player, Punishment punishment)
+    {
+        if (punishment.getType() == PunishmentType.BAN)
+        {
+            Ban ban = new Ban(punishment.getPunished(), (punishment.getPunisher() == null ? null : punishment.getPunisher()), "", punishment.getReason(), punishment.getEndDate());
+            Plex.get().getBanManager().executeBan(ban);
+        } else if (punishment.getType() == PunishmentType.FREEZE)
+        {
+            player.setFrozen(true);
+            Date now = new Date();
+            Date then = punishment.getEndDate();
+            long seconds =  TimeUnit.MILLISECONDS.toSeconds(then.getTime() - now.getTime());
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    if (!player.isFrozen())
+                    {
+                        this.cancel();
+                        return;
+                    }
+                    player.setFrozen(false);
+                    Bukkit.broadcastMessage(PlexUtils.tl("unfrozePlayer", "Plex", Bukkit.getOfflinePlayer(UUID.fromString(player.getUuid())).getName()));
+                    Bukkit.getLogger().info("Unfroze");
+                }
+            }.runTaskLater(Plex.get(), 20 * seconds);
+
+
+
+        } else if (punishment.getType() == PunishmentType.MUTE)
+        {
+            player.setMuted(true);
+            Date now = new Date();
+            Date then = punishment.getEndDate();
+            long seconds =  TimeUnit.MILLISECONDS.toSeconds(then.getTime() - now.getTime());
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    player.setMuted(false);
+                }
+            }.runTaskLater(Plex.get(), 20 * seconds);
+        }
+    }
+
+    public void doPunishment(PunishedPlayer player, Punishment punishment)
+    {
+        issuePunishment(player, punishment);
+        insertPunishment(player, punishment);
     }
 
 }

@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -23,7 +24,7 @@ public class Punishment
     private PunishmentType type;
     private String reason;
     private boolean customTime;
-    private long endDate;
+    private Date endDate;
 
     public Punishment(UUID punished, UUID punisher)
     {
@@ -35,7 +36,7 @@ public class Punishment
         this.type = null;
         this.reason = "";
         this.customTime = false;
-        this.endDate = 0;
+        this.endDate = null;
     }
 
     public String toJSON()

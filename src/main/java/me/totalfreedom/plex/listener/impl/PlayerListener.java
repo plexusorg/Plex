@@ -1,6 +1,8 @@
 package me.totalfreedom.plex.listener.impl;
 
+import java.time.Instant;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.UUID;
 import me.totalfreedom.plex.admin.Admin;
 import me.totalfreedom.plex.cache.DataUtils;
@@ -106,8 +108,10 @@ public class PlayerListener extends PlexListener
         /*Punishment test = new Punishment(player.getUniqueId(), player.getUniqueId());
         test.setPunishedUsername(player.getName());
         test.setReason("hii");
-        test.setType(PunishmentType.FREEZE);
-        plugin.getPunishmentManager().insertPunishment(PlayerCache.getPunishedPlayer(player.getUniqueId()), test);*/
+        test.setType(PunishmentType.BAN);
+        test.setEndDate(new Date(Instant.now().plusSeconds(10).getEpochSecond()));
+        plugin.getPunishmentManager().doPunishment(PlayerCache.getPunishedPlayer(player.getUniqueId()), test);*/
+
 
     }
 

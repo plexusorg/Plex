@@ -6,6 +6,7 @@ import dev.morphia.Datastore;
 import dev.morphia.Morphia;
 import dev.morphia.mapping.MapperOptions;
 import me.totalfreedom.plex.Plex;
+import me.totalfreedom.plex.banning.Ban;
 import me.totalfreedom.plex.player.PlexPlayer;
 
 public class MongoConnection
@@ -30,6 +31,7 @@ public class MongoConnection
         MongoClient client = MongoClients.create(connectionString);
         Datastore datastore = Morphia.createDatastore(client, database, MapperOptions.DEFAULT);
         datastore.getMapper().map(PlexPlayer.class);
+        datastore.getMapper().map(Ban.class);
         datastore.ensureIndexes();
         plugin.setStorageType(StorageType.MONGO);
         return datastore;

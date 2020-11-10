@@ -18,6 +18,7 @@ public class ListenerHandler
         listeners.add(new WorldListener());
         listeners.add(new FreezeListener());
         listeners.add(new AdminListener());
+        listeners.add(new LoginListener());
         PlexLog.log(String.format("Registered %s listeners!", listeners.size()));
     }
 }

@@ -48,7 +48,7 @@ public abstract class PlexCommand extends Command implements TabExecutor, IPlexC
         setName(name);
         setLabel(name);
         setDescription(params.description());
-        setUsage(params.usage());
+        setUsage(params.usage().replace("<command>", name));
         if (params.aliases().split(",").length > 0)
         {
             setAliases(Arrays.asList(params.aliases().split(",")));

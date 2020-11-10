@@ -52,6 +52,15 @@ public class SQLConnection extends PlexBase
                         "\t`vanished` BOOLEAN,\n" +
                         "\tPRIMARY KEY (`uuid`)\n" +
                         ");").execute();
+                connection.prepareStatement("CREATE TABLE IF NOT EXISTS `bans` (\n" +
+                        "\t`banID` VARCHAR,\n" +
+                        "\t`uuid` VARCHAR(46) NOT NULL,\n" +
+                        "\t`banner` VARCHAR(46),\n" +
+                        "\t`reason` VARCHAR,\n" +
+                        "\t`enddate` BIGINT,\n" +
+                        "\t`active` BOOLEAN,\n" +
+                        "\tPRIMARY KEY (`banID`)\n" +
+                        ");").execute();
             }
         }
         catch (SQLException throwables)

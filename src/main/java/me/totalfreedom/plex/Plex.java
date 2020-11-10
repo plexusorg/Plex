@@ -3,6 +3,7 @@ package me.totalfreedom.plex;
 import lombok.Getter;
 import lombok.Setter;
 import me.totalfreedom.plex.admin.AdminList;
+import me.totalfreedom.plex.banning.BanManager;
 import me.totalfreedom.plex.cache.MongoPlayerData;
 import me.totalfreedom.plex.cache.SQLPlayerData;
 import me.totalfreedom.plex.config.Config;
@@ -10,6 +11,7 @@ import me.totalfreedom.plex.handlers.CommandHandler;
 import me.totalfreedom.plex.handlers.ListenerHandler;
 import me.totalfreedom.plex.punishment.PunishmentManager;
 import me.totalfreedom.plex.rank.RankManager;
+import me.totalfreedom.plex.services.ServiceManager;
 import me.totalfreedom.plex.storage.MongoConnection;
 import me.totalfreedom.plex.storage.RedisConnection;
 import me.totalfreedom.plex.storage.SQLConnection;
@@ -36,8 +38,10 @@ public class Plex extends JavaPlugin
     private SQLPlayerData sqlPlayerData;
 
     private RankManager rankManager;
+    private ServiceManager serviceManager;
 
     private PunishmentManager punishmentManager;
+    private BanManager banManager;
 
     private AdminList adminList;
 
@@ -101,7 +105,14 @@ public class Plex extends JavaPlugin
         PlexLog.log("Rank Manager initialized");
 
         punishmentManager = new PunishmentManager();
-        PlexLog.log("Punishment Manager initialized");
+        banManager = new BanManager();
+        PlexLog.log("Punishment System initialized");
+
+        serviceManager = new ServiceManager();
+        PlexLog.log("Service Manager initialized");
+
+        serviceManager.startServices();
+        PlexLog.log("Started " + serviceManager.serviceCount() + " services.");
 
         adminList = new AdminList();
 

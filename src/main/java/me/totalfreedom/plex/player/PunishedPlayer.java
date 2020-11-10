@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import me.totalfreedom.plex.event.PunishedPlayerFreezeEvent;
+import me.totalfreedom.plex.event.PunishedPlayerMuteEvent;
 import org.bukkit.Bukkit;
 
 @Getter
@@ -31,6 +32,16 @@ public class PunishedPlayer
         if (!e.isCancelled())
         {
             this.frozen = frozen;
+        }
+    }
+
+    public void setMuted(boolean muted)
+    {
+        PunishedPlayerMuteEvent e = new PunishedPlayerMuteEvent(this, this.muted);
+        Bukkit.getServer().getPluginManager().callEvent(e);
+        if (!e.isCancelled())
+        {
+            this.muted = muted;
         }
     }
 }

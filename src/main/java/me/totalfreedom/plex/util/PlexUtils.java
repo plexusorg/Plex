@@ -6,13 +6,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import me.totalfreedom.plex.Plex;
@@ -239,5 +233,25 @@ public class PlexUtils
     public static int randomNum(int start, int limit)
     {
         return ThreadLocalRandom.current().nextInt(start, limit);
+    }
+
+    public static long getDateNow()
+    {
+        return new Date().getTime();
+    }
+
+    public static Date getDateFromLong(long epoch)
+    {
+        return new Date(epoch);
+    }
+
+    public static long hoursToSeconds(long hours)
+    {
+        return hours * 60 * 60;
+    }
+
+    public static long minutesToSeconds(long minutes)
+    {
+        return minutes * 60;
     }
 }
