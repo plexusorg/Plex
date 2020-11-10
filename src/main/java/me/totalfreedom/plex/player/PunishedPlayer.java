@@ -76,7 +76,6 @@ public class PunishedPlayer
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            PlexLog.log("Created new punishment file for " + getUuid() + " (" + DataUtils.getPlayer(getUuid()).getName() + ")");
         }
         return file;
 

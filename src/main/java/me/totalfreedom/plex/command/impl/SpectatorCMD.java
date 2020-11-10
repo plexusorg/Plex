@@ -31,7 +31,7 @@ public class SpectatorCMD extends PlexCommand
         if (args.length == 0)
         {
             // doesn't work
-            if (isConsole())
+            if (sender.isConsoleSender())
             {
                 throw new CommandFailException("You must define a player when using the console!");
             }

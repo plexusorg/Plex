@@ -41,26 +41,25 @@ public class SQLConnection extends PlexBase
         {
             if (connection != null)
             {
-                connection.prepareStatement("CREATE TABLE IF NOT EXISTS `players` (\n" +
-                        "\t`uuid` VARCHAR(46) NOT NULL,\n" +
-                        "\t`name` VARCHAR(18),\n" +
-                        "\t`login_msg` VARCHAR,\n" +
-                        "\t`prefix` VARCHAR,\n" +
-                        "\t`rank` VARCHAR,\n" +
-                        "\t`ips` VARCHAR,\n" +
-                        "\t`coins` BIGINT,\n" +
-                        "\t`vanished` BOOLEAN,\n" +
-                        "\tPRIMARY KEY (`uuid`)\n" +
-                        ");").execute();
-                connection.prepareStatement("CREATE TABLE IF NOT EXISTS `bans` (\n" +
-                        "\t`banID` VARCHAR,\n" +
-                        "\t`uuid` VARCHAR(46) NOT NULL,\n" +
-                        "\t`banner` VARCHAR(46),\n" +
-                        "\t`ip` VARCHAR,\n" +
-                        "\t`reason` VARCHAR,\n" +
-                        "\t`enddate` BIGINT,\n" +
-                        "\t`active` BOOLEAN,\n" +
-                        "\tPRIMARY KEY (`banID`)\n" +
+                connection.prepareStatement("CREATE TABLE IF NOT EXISTS `players` (" +
+                        "`uuid` VARCHAR(46) NOT NULL, " +
+                        "`name` VARCHAR(18), " +
+                        "`login_msg` VARCHAR(70), " +
+                        "`prefix` VARCHAR(45), " +
+                        "`rank` VARCHAR(20), " +
+                        "`ips` VARCHAR(2000), " +
+                        "`coins` BIGINT, " +
+                        "`vanished` BOOLEAN, " +
+                        "PRIMARY KEY (`uuid`));").execute();
+                connection.prepareStatement("CREATE TABLE IF NOT EXISTS `bans` (" +
+                        "`banID` VARCHAR(46)," +
+                        " `uuid` VARCHAR(46) NOT NULL," +
+                        " `banner` VARCHAR(46)," +
+                        "`ip` VARCHAR(2000)," +
+                        " `reason` VARCHAR(256)," +
+                        " `enddate` BIGINT," +
+                        " `active` BOOLEAN," +
+                        " PRIMARY KEY (`banID`)" +
                         ");").execute();
             }
         }
