@@ -1,5 +1,5 @@
 name: ${project.name}
 version: ${project.version}
-author: Telesphoreo
-main: me.totalfreedom.plex.Plex
+authors: [Telesphoreo, taahanis, super]
+main: dev.plex.Plex
 api-version: 1.16

@@ -1,19 +1,19 @@
 # Plex Configuration File
 
 server:
-  name: "TotalFreedom"
+  name: "ExampleFreedom"
   motd: "%servername% - Minecraft %mcversion%"
   colorize_motd: true
 
 data:
   central:
-    storage: sqlite # use mariadb, mongodb, or sqlite here
+    storage: sqlite # Use mariadb, mongodb, or sqlite here
     user: ""
     password: ""
     hostname: 127.0.0.1
     port: 27017
     db: "plex"
-  side: # This is redis, leave password blank if auth is false
+  side: # This is Redis, leave password blank if auth is false
     auth: true
     hostname: 127.0.0.1
     port: 6379

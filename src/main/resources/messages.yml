@@ -55,3 +55,6 @@ gameModeSetTo: Your gamemode has been set to <v>.
 setOtherPlayerGameModeTo: You set <v>'s gamemode to <v>.
 playerSetOtherGameMode: <v> set your gamemode to <v>.
 consoleMustDefinePlayer: You must define a player since you are running this command from console.
+newAdminAdded: <b><v> - Adding <v> to the admin list
+adminRemoved: <c><v> - Removing <v> from the admin list
+adminSetRank: <b><v> - Setting <v>'s rank to <v>

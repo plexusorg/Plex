@@ -1,2 +1,2 @@
 # Plex
-The long awaited rewrite of TotalFreedomMod begins here...
+A new freedom plugin.
