@@ -58,3 +58,10 @@ consoleMustDefinePlayer: You must define a player since you are running this com
 newAdminAdded: <b><v> - Adding <v> to the admin list
 adminRemoved: <c><v> - Removing <v> from the admin list
 adminSetRank: <b><v> - Setting <v>'s rank to <v>
+teleportedToWorld: <b>You have been teleported to the <v>.
+higherRankThanYou: <b>This player is an admin and a higher rank than you.
+playerNotAdmin: <b>That player is not an admin.
+playerIsAdmin: <b>That player is already an admin.
+rankNotFound: <b>The rank you entered was not found.
+rankMustBeHigherThanAdmin: <b>The rank you entered must be higher than Admin.
+consoleOnly: <b>This command can only be executed by the console.

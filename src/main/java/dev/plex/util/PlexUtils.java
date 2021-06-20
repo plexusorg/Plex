@@ -29,7 +29,7 @@ public class PlexUtils
 {
     public static Map<String, ChatColor> CHAT_COLOR_NAMES;
     public static List<ChatColor> CHAT_COLOR_POOL;
-    private static Random RANDOM;
+    private static final Random RANDOM;
 
     static
     {

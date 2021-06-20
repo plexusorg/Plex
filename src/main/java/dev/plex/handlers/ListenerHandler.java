@@ -14,9 +14,9 @@ import dev.plex.util.PlexLog;
 
 public class ListenerHandler
 {
-    List<PlexListener> listeners = Lists.newArrayList();
     public ListenerHandler()
     {
+        List<PlexListener> listeners = Lists.newArrayList();
         listeners.add(new ServerListener());
         listeners.add(new ChatListener());
         listeners.add(new PlayerListener());

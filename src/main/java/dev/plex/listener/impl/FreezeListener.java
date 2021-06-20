@@ -17,5 +17,4 @@ public class FreezeListener extends PlexListener
             e.setCancelled(true);
         }
     }
-
 }

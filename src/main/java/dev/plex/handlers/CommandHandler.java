@@ -2,11 +2,14 @@ package dev.plex.handlers;
 
 import com.google.common.collect.Lists;
 import dev.plex.command.impl.AdminCMD;
+import dev.plex.command.impl.AdminworldCMD;
 import dev.plex.command.impl.AdventureCMD;
 import dev.plex.command.impl.BanCMD;
 import dev.plex.command.impl.CreativeCMD;
 import dev.plex.command.impl.FionnCMD;
+import dev.plex.command.impl.FlatlandsCMD;
 import dev.plex.command.impl.FreezeCMD;
+import dev.plex.command.impl.MasterbuilderworldCMD;
 import dev.plex.command.impl.NameHistoryCMD;
 import dev.plex.command.impl.OpAllCMD;
 import dev.plex.command.impl.OpCMD;
@@ -22,10 +25,9 @@ import dev.plex.util.PlexLog;
 
 public class CommandHandler
 {
-    private List<PlexCommand> commands = Lists.newArrayList();
-
     public CommandHandler()
     {
+        List<PlexCommand> commands = Lists.newArrayList();
         commands.add(new TestCMD());
         commands.add(new PlexCMD());
         commands.add(new FionnCMD());
@@ -41,6 +43,9 @@ public class CommandHandler
         commands.add(new SpectatorCMD());
         commands.add(new BanCMD());
         commands.add(new PunishmentsCMD());
+        commands.add(new FlatlandsCMD());
+        commands.add(new AdminworldCMD());
+        commands.add(new MasterbuilderworldCMD());
         PlexLog.log(String.format("Registered %s commands!", commands.size()));
     }
 }

@@ -23,6 +23,9 @@ public class ChatListener extends PlexListener
         {
             event.setFormat(String.format("%s %s §7» %s", plexPlayer.getRankFromString().getPrefix(), ChatColor.RESET + plexPlayer.getName(), event.getMessage()));
         }
+        else
+        {
+            event.setFormat(String.format("%s §7» %s", ChatColor.RESET + plexPlayer.getName(), event.getMessage()));
+        }
     }
-
 }

@@ -57,7 +57,7 @@ public class BanCMD extends PlexCommand
                     PlexPlayer plexPlayer1 = sender.getPlexPlayer();
                     if (!plexPlayer1.getRankFromString().isAtLeast(plexPlayer.getRankFromString()))
                     {
-                        sender.send("This player is an admin and a higher rank than you.");
+                        sender.send(tl("higherRankThanYou"));
                         return;
                     }
                 }

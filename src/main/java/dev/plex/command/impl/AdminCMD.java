@@ -3,6 +3,7 @@ package dev.plex.command.impl;
 import com.google.common.collect.ImmutableList;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
+import dev.plex.command.exception.ConsoleOnlyException;
 import dev.plex.command.exception.PlayerNotFoundException;
 import dev.plex.command.source.CommandSource;
 import dev.plex.command.source.RequiredCommandSource;
@@ -50,8 +51,7 @@ public class AdminCMD extends PlexCommand
 
             if (!sender.isConsoleSender())
             {
-                sender.send("Console only");
-                return;
+                throw new ConsoleOnlyException();
             }
 
             UUID targetUUID = PlexUtils.getFromName(args[1]);
@@ -64,7 +64,7 @@ public class AdminCMD extends PlexCommand
 
             if (isAdmin(plexPlayer))
             {
-                sender.send("Player is an admin");
+                sender.send(tl("playerIsAdmin"));
                 return;
             }
 
@@ -83,8 +83,7 @@ public class AdminCMD extends PlexCommand
 
             if (!sender.isConsoleSender())
             {
-                sender.send("Console only");
-                return;
+                throw new ConsoleOnlyException();
             }
 
             UUID targetUUID = PlexUtils.getFromName(args[1]);
@@ -97,7 +96,7 @@ public class AdminCMD extends PlexCommand
 
             if (!isAdmin(plexPlayer))
             {
-                sender.send("Player is not an admin");
+                sender.send(tl("playerNotAdmin"));
                 return;
             }
 
@@ -117,8 +116,7 @@ public class AdminCMD extends PlexCommand
 
             if (!sender.isConsoleSender())
             {
-                sender.send("Console only");
-                return;
+                throw new ConsoleOnlyException();
             }
 
             UUID targetUUID = PlexUtils.getFromName(args[1]);
@@ -130,7 +128,7 @@ public class AdminCMD extends PlexCommand
 
             if (!rankExists(args[2]))
             {
-                sender.send("Rank not found");
+                sender.send(tl("rankNotFound"));
                 return;
             }
 
@@ -138,7 +136,7 @@ public class AdminCMD extends PlexCommand
 
             if (!rank.isAtLeast(Rank.ADMIN))
             {
-                sender.send("Must be admin+");
+                sender.send(tl("rankMustBeHigherThanAdmin"));
                 return;
             }
 
@@ -146,7 +144,7 @@ public class AdminCMD extends PlexCommand
 
             if (!isAdmin(plexPlayer))
             {
-                sender.send("Player is not an admin");
+                sender.send(tl("playerNotAdmin"));
                 return;
             }
 
