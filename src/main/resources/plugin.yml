@@ -1,5 +1,0 @@
-name: ${project.name}
-version: ${project.version}
-authors: [Telesphoreo, taahanis, super]
-main: dev.plex.Plex
-api-version: 1.17

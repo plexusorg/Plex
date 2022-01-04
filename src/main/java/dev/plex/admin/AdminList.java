@@ -19,7 +19,6 @@ import java.util.UUID;
 
 public class AdminList
 {
-
     private final Map<UUID, Admin> admins = Maps.newHashMap();
 
     public void addToCache(Admin admin)

@@ -1,6 +1,6 @@
-/.idea/*
+/.idea/
 *.iml
-/target/*
+/target/
 
 # OS
 .DS_Store
@@ -9,3 +9,7 @@
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# Gradle
+/build/
+/.gradle/
