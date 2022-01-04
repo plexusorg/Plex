@@ -1,24 +1,23 @@
 package dev.plex.command.impl;
 
 import com.google.common.collect.ImmutableList;
-
+import dev.plex.cache.PlayerCache;
+import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.exception.CommandArgumentException;
 import dev.plex.command.source.CommandSource;
+import dev.plex.player.PunishedPlayer;
 import dev.plex.punishment.Punishment;
 import dev.plex.punishment.PunishmentType;
+import dev.plex.rank.enums.Rank;
+import dev.plex.util.PlexUtils;
+import org.bukkit.entity.Player;
+
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
-
-import dev.plex.cache.PlayerCache;
-import dev.plex.command.PlexCommand;
-import dev.plex.player.PunishedPlayer;
-import dev.plex.rank.enums.Rank;
-import dev.plex.util.PlexUtils;
-import org.bukkit.entity.Player;
 
 @CommandParameters(description = "Freeze a player on the server", usage = "/<command> <player>")
 @CommandPermissions(level = Rank.ADMIN)

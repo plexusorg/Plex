@@ -3,8 +3,9 @@ package dev.plex.cache;
 import dev.plex.Plex;
 import dev.plex.player.PlexPlayer;
 import dev.plex.storage.StorageType;
-import java.util.UUID;
 import org.bukkit.Bukkit;
+
+import java.util.UUID;
 
 public class DataUtils
 {

@@ -1,14 +1,15 @@
 package dev.plex.command.impl;
 
 import com.google.common.collect.ImmutableList;
+import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.source.CommandSource;
 import dev.plex.command.source.RequiredCommandSource;
+import dev.plex.rank.enums.Rank;
+
 import java.util.Arrays;
 import java.util.List;
-import dev.plex.command.PlexCommand;
-import dev.plex.rank.enums.Rank;
 
 @CommandPermissions(level = Rank.OP, source = RequiredCommandSource.ANY)
 @CommandParameters(aliases = "tst,tast", description = "HELLO")

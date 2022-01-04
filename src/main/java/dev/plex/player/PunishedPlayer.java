@@ -1,7 +1,18 @@
 package dev.plex.player;
 
+import com.google.common.collect.Lists;
 import dev.plex.Plex;
+import dev.plex.event.PunishedPlayerFreezeEvent;
+import dev.plex.event.PunishedPlayerMuteEvent;
 import dev.plex.punishment.Punishment;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.commons.io.FileUtils;
+import org.bukkit.Bukkit;
+import org.json.JSONObject;
+import org.json.JSONTokener;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -9,17 +20,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.UUID;
-
-import com.google.common.collect.Lists;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.Setter;
-import dev.plex.event.PunishedPlayerFreezeEvent;
-import dev.plex.event.PunishedPlayerMuteEvent;
-import org.apache.commons.io.FileUtils;
-import org.bukkit.Bukkit;
-import org.json.JSONObject;
-import org.json.JSONTokener;
 
 @Getter
 public class PunishedPlayer

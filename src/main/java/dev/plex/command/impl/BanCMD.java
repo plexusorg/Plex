@@ -1,18 +1,18 @@
 package dev.plex.command.impl;
 
 import com.google.common.collect.ImmutableList;
+import dev.plex.cache.DataUtils;
+import dev.plex.cache.PlayerCache;
+import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.exception.PlayerNotFoundException;
 import dev.plex.command.source.CommandSource;
 import dev.plex.command.source.RequiredCommandSource;
-import dev.plex.punishment.Punishment;
-import dev.plex.punishment.PunishmentType;
-import dev.plex.cache.DataUtils;
-import dev.plex.cache.PlayerCache;
-import dev.plex.command.PlexCommand;
 import dev.plex.player.PlexPlayer;
 import dev.plex.player.PunishedPlayer;
+import dev.plex.punishment.Punishment;
+import dev.plex.punishment.PunishmentType;
 import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexUtils;
 import org.bukkit.Bukkit;

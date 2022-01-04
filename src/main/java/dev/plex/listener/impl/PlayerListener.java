@@ -1,7 +1,5 @@
 package dev.plex.listener.impl;
 
-import java.util.Arrays;
-import java.util.UUID;
 import dev.plex.admin.Admin;
 import dev.plex.cache.DataUtils;
 import dev.plex.cache.MongoPlayerData;
@@ -20,6 +18,9 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
+import java.util.Arrays;
+import java.util.UUID;
+
 public class PlayerListener extends PlexListener
 {
     private final MongoPlayerData mongoPlayerData = plugin.getMongoPlayerData() != null ? plugin.getMongoPlayerData() : null;
@@ -35,7 +36,7 @@ public class PlayerListener extends PlexListener
 
         if (!DataUtils.hasPlayedBefore(player.getUniqueId()))
         {
-            PlexLog.log("AYO THIS MAN DONT EXIST"); // funi msg
+            PlexLog.log("A player with this name has not joined the server before, creating new entry."); // funi msg
             plexPlayer = new PlexPlayer(player.getUniqueId()); //it doesn't! okay so now create the object
             plexPlayer.setName(player.getName()); //set the name of the player
             plexPlayer.setIps(Arrays.asList(player.getAddress().getAddress().getHostAddress().trim())); //set the arraylist of ips

@@ -3,16 +3,17 @@ package dev.plex.rank;
 import com.google.common.collect.Maps;
 import dev.plex.Plex;
 import dev.plex.player.PlexPlayer;
+import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexLog;
+import org.json.JSONObject;
+import org.json.JSONTokener;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Map;
 import java.util.stream.Collectors;
-import dev.plex.rank.enums.Rank;
-import org.json.JSONObject;
-import org.json.JSONTokener;
 
 public class RankManager
 {
@@ -98,5 +99,10 @@ public class RankManager
     public boolean isAdmin(PlexPlayer plexPlayer)
     {
         return !plexPlayer.getRank().isEmpty() && plexPlayer.getRankFromString().isAtLeast(Rank.ADMIN);
+    }
+
+    public boolean isSeniorAdmin(PlexPlayer plexPlayer)
+    {
+        return !plexPlayer.getRank().isEmpty() && plexPlayer.getRankFromString().isAtLeast(Rank.SENIOR_ADMIN);
     }
 }

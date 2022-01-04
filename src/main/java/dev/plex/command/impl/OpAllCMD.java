@@ -1,15 +1,16 @@
 package dev.plex.command.impl;
 
 import com.google.common.collect.ImmutableList;
+import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.source.CommandSource;
-import java.util.List;
-import dev.plex.command.PlexCommand;
 import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+
+import java.util.List;
 
 @CommandParameters(description = "Op everyone on the server", aliases = "opa")
 @CommandPermissions(level = Rank.ADMIN)

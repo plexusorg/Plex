@@ -1,8 +1,6 @@
 package dev.plex.world;
 
 import dev.plex.Plex;
-import java.io.File;
-import java.util.Objects;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
@@ -10,6 +8,9 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 import org.bukkit.generator.ChunkGenerator;
+
+import java.io.File;
+import java.util.Objects;
 
 public class CustomWorld extends WorldCreator
 {

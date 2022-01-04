@@ -1,10 +1,11 @@
 package dev.plex.admin;
 
-import java.util.UUID;
+import dev.plex.rank.enums.Rank;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
-import dev.plex.rank.enums.Rank;
+
+import java.util.UUID;
 
 @Getter
 @Setter

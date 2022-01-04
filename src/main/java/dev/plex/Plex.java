@@ -1,7 +1,5 @@
 package dev.plex;
 
-import lombok.Getter;
-import lombok.Setter;
 import dev.plex.admin.AdminList;
 import dev.plex.banning.BanManager;
 import dev.plex.cache.MongoPlayerData;
@@ -19,6 +17,8 @@ import dev.plex.storage.StorageType;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import dev.plex.world.CustomWorld;
+import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.plugin.java.JavaPlugin;
 
 @Getter

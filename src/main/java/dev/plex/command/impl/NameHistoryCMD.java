@@ -1,20 +1,21 @@
 package dev.plex.command.impl;
 
 import com.google.common.collect.ImmutableList;
+import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.exception.CommandArgumentException;
 import dev.plex.command.source.CommandSource;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Comparator;
-import java.util.List;
-import dev.plex.command.PlexCommand;
 import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
+
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Comparator;
+import java.util.List;
 
 @CommandParameters(description = "Get the name history of a player", usage = "/<command> <player>", aliases = "nh")
 @CommandPermissions(level = Rank.OP)

@@ -1,32 +1,25 @@
 package dev.plex.command.impl;
 
 import com.google.common.collect.ImmutableList;
+import dev.plex.cache.PlayerCache;
+import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.exception.CommandArgumentException;
 import dev.plex.command.exception.CommandFailException;
 import dev.plex.command.source.CommandSource;
 import dev.plex.command.source.RequiredCommandSource;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import dev.plex.cache.PlayerCache;
-import dev.plex.command.PlexCommand;
 import dev.plex.util.PlexUtils;
 import dev.plex.world.BlockMapChunkGenerator;
 import dev.plex.world.CustomWorld;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.entity.Enderman;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Strider;
 import org.bukkit.scheduler.BukkitRunnable;
+
+import java.util.*;
 
 @CommandParameters(description = "Subliminal message.")
 @CommandPermissions(source = RequiredCommandSource.IN_GAME)

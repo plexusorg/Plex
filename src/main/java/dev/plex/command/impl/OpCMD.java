@@ -1,15 +1,16 @@
 package dev.plex.command.impl;
 
 import com.google.common.collect.ImmutableList;
+import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.exception.CommandArgumentException;
 import dev.plex.command.source.CommandSource;
-import java.util.List;
-import dev.plex.command.PlexCommand;
 import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexUtils;
 import org.bukkit.entity.Player;
+
+import java.util.List;
 
 @CommandParameters(description = "Op a player on the server", usage = "/<command> <player>")
 @CommandPermissions(level = Rank.OP)

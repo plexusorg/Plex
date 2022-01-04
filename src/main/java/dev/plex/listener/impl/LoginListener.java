@@ -12,7 +12,7 @@ public class LoginListener extends PlexListener
     @EventHandler
     public void onPreLogin(AsyncPlayerPreLoginEvent event)
     {
-        PlexLog.log(String.valueOf(plugin.getBanManager().isBanned(event.getUniqueId())));
+        // PlexLog.log(String.valueOf(plugin.getBanManager().isBanned(event.getUniqueId())));
         if (plugin.getBanManager().isBanned(event.getUniqueId()))
         {
             event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED, "§cYou're currently banned from this server.\n§cPlease appeal at §6https://forum.telesphoreo.me");

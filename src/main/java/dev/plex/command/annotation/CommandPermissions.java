@@ -1,9 +1,10 @@
 package dev.plex.command.annotation;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.rank.enums.Rank;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 @Retention(RetentionPolicy.RUNTIME)
 public @interface CommandPermissions

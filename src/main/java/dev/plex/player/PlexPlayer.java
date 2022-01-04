@@ -4,15 +4,16 @@ import dev.morphia.annotations.Entity;
 import dev.morphia.annotations.Id;
 import dev.morphia.annotations.IndexOptions;
 import dev.morphia.annotations.Indexed;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import dev.plex.rank.enums.Rank;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
-import dev.plex.rank.enums.Rank;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter

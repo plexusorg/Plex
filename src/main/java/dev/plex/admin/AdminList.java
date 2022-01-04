@@ -6,7 +6,9 @@ import dev.morphia.Datastore;
 import dev.morphia.query.Query;
 import dev.plex.Plex;
 import dev.plex.player.PlexPlayer;
+import dev.plex.rank.enums.Rank;
 import dev.plex.storage.StorageType;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -14,7 +16,6 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import dev.plex.rank.enums.Rank;
 
 public class AdminList
 {
@@ -30,7 +31,6 @@ public class AdminList
     {
         admins.remove(uuid);
     }
-
 
     public List<String> getAllAdmins()
     {

@@ -1,6 +1,7 @@
 package dev.plex.command;
 
 import dev.plex.command.source.CommandSource;
+
 import java.util.List;
 
 public interface IPlexCommand

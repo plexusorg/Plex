@@ -2,6 +2,8 @@ package dev.plex.command;
 
 import com.google.common.collect.ImmutableList;
 import dev.plex.Plex;
+import dev.plex.cache.DataUtils;
+import dev.plex.cache.PlayerCache;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.exception.CommandArgumentException;
@@ -9,23 +11,18 @@ import dev.plex.command.exception.CommandFailException;
 import dev.plex.command.exception.PlayerNotFoundException;
 import dev.plex.command.source.CommandSource;
 import dev.plex.command.source.RequiredCommandSource;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
-import dev.plex.cache.DataUtils;
-import dev.plex.cache.PlayerCache;
 import dev.plex.player.PlexPlayer;
 import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandMap;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.ConsoleCommandSender;
-import org.bukkit.command.TabExecutor;
+import org.bukkit.command.*;
 import org.bukkit.entity.Player;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
 
 public abstract class PlexCommand extends Command implements TabExecutor, IPlexCommand
 {
@@ -55,7 +52,7 @@ public abstract class PlexCommand extends Command implements TabExecutor, IPlexC
         this.level = perms.level();
         this.commandSource = perms.source();
 
-        getMap().register("", this);
+        getMap().register("plex", this);
     }
 
 

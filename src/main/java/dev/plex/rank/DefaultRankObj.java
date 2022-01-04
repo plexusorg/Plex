@@ -2,8 +2,9 @@ package dev.plex.rank;
 
 import com.google.common.collect.Lists;
 import dev.plex.rank.enums.Rank;
-import java.util.List;
 import lombok.Getter;
+
+import java.util.List;
 
 @Getter
 public class DefaultRankObj

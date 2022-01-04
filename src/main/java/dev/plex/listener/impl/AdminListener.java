@@ -6,10 +6,10 @@ import dev.plex.event.AdminSetRankEvent;
 import dev.plex.listener.PlexListener;
 import dev.plex.player.PlexPlayer;
 import dev.plex.rank.enums.Rank;
-import static dev.plex.util.PlexUtils.tl;
 import dev.plex.util.PlexUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
+
+import static dev.plex.util.PlexUtils.tl;
 
 public class AdminListener extends PlexListener
 {

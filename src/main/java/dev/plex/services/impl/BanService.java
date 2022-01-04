@@ -1,8 +1,8 @@
 package dev.plex.services.impl;
 
 import dev.plex.Plex;
-import dev.plex.services.AbstractService;
 import dev.plex.banning.Ban;
+import dev.plex.services.AbstractService;
 import org.bukkit.Bukkit;
 
 import java.util.Date;
@@ -10,7 +10,7 @@ import java.util.Date;
 public class BanService extends AbstractService
 {
     public BanService() {
-        super(true);
+        super(true, true);
     }
 
     @Override

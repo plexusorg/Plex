@@ -1,17 +1,14 @@
 package dev.plex.command.impl;
 
 import com.google.common.collect.ImmutableList;
+import dev.plex.cache.DataUtils;
+import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.exception.ConsoleOnlyException;
 import dev.plex.command.exception.PlayerNotFoundException;
 import dev.plex.command.source.CommandSource;
 import dev.plex.command.source.RequiredCommandSource;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
-import dev.plex.cache.DataUtils;
-import dev.plex.command.PlexCommand;
 import dev.plex.event.AdminAddEvent;
 import dev.plex.event.AdminRemoveEvent;
 import dev.plex.event.AdminSetRankEvent;
@@ -20,6 +17,10 @@ import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexUtils;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
 
 @CommandPermissions(level = Rank.SENIOR_ADMIN, source = RequiredCommandSource.ANY)
 @CommandParameters(usage = "/<command> <add | remove | setrank | list> [player] [rank]", aliases = "saconfig,slconfig,adminconfig,adminmanage", description = "Manage all admins")
@@ -51,6 +52,7 @@ public class AdminCMD extends PlexCommand
 
             if (!sender.isConsoleSender())
             {
+                sender.send(tl("consoleOnly"));
                 throw new ConsoleOnlyException();
             }
 
@@ -165,7 +167,6 @@ public class AdminCMD extends PlexCommand
             }
 
             sender.send("Admins: " + StringUtils.join(plugin.getAdminList().getAllAdmins(), ", "));
-            return;
         }
     }
 

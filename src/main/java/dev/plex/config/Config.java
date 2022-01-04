@@ -1,8 +1,9 @@
 package dev.plex.config;
 
 import dev.plex.Plex;
-import java.io.File;
 import org.bukkit.configuration.file.YamlConfiguration;
+
+import java.io.File;
 
 public class Config extends YamlConfiguration
 {

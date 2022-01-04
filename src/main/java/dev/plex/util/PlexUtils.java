@@ -3,6 +3,15 @@ package dev.plex.util;
 import dev.plex.Plex;
 import dev.plex.config.Config;
 import dev.plex.storage.StorageType;
+import org.bukkit.*;
+import org.bukkit.command.Command;
+import org.bukkit.command.PluginCommandYamlParser;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -12,18 +21,6 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
-import org.bukkit.command.Command;
-import org.bukkit.command.PluginCommandYamlParser;
-import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 
 public class PlexUtils
 {
