@@ -1,0 +1,61 @@
+plugins {
+    id 'java'
+    id 'maven-publish'
+    id 'net.minecrell.plugin-yml.bukkit' version '0.5.1'
+}
+
+repositories {
+    mavenLocal()
+    maven {
+        url = uri('https://papermc.io/repo/repository/maven-public/')
+    }
+
+    maven {
+        url = uri('https://repository.apache.org/content/repositories/snapshots/')
+    }
+
+    maven {
+        url = uri('https://repo.maven.apache.org/maven2/')
+    }
+}
+
+dependencies {
+    library 'org.projectlombok:lombok:1.18.22'
+    annotationProcessor 'org.projectlombok:lombok:1.18.22'
+    library 'org.json:json:20211205'
+    library 'commons-io:commons-io:2.11.0'
+    library 'dev.morphia.morphia:morphia-core:2.2.3'
+    library 'redis.clients:jedis:4.0.1'
+    library 'org.mariadb.jdbc:mariadb-java-client:2.7.4'
+    compileOnly 'io.papermc.paper:paper-api:1.18.1-R0.1-SNAPSHOT'
+}
+
+group = 'dev.plex'
+version = '1.0'
+description = 'Plex'
+
+bukkit {
+    name = "Plex"
+    version = rootProject.version
+    description = "Plex provides a new experience for freedom servers."
+    main = "dev.plex.Plex"
+    website = "https://telesphoreo.me"
+    authors = ["Telesphoreo", "taahanis", "super"]
+    apiVersion = "1.18"
+}
+
+java {
+    toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from(components.java)
+        }
+    }
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
