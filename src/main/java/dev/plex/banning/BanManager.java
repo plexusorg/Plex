@@ -1,10 +1,10 @@
 package dev.plex.banning;
 
 import com.google.common.collect.Lists;
+import dev.morphia.query.MorphiaCursor;
 import dev.morphia.query.Query;
 import dev.morphia.query.experimental.filters.Filters;
 import dev.morphia.query.experimental.updates.UpdateOperators;
-import dev.morphia.query.internal.MorphiaCursor;
 import dev.plex.Plex;
 import dev.plex.storage.StorageType;
 
@@ -119,10 +119,8 @@ public class BanManager
         List<Ban> bans = Lists.newArrayList();
         if (Plex.get().getStorageType() == StorageType.MONGODB)
         {
-            MorphiaCursor<Ban> cursor = Plex.get().getMongoConnection().getDatastore().find(Ban.class).filter(Filters.eq("active", true)).iterator();
-            while (cursor.hasNext())
+            for (Ban ban : Plex.get().getMongoConnection().getDatastore().find(Ban.class).filter(Filters.eq("active", true)))
             {
-                Ban ban = cursor.next();
                 bans.add(ban);
             }
         } else {

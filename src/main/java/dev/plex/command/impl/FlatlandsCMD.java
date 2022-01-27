@@ -5,20 +5,19 @@ import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.rank.enums.Rank;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 import java.util.Collections;
 import java.util.List;
 
 @CommandPermissions(level = Rank.ADMIN, source = RequiredCommandSource.IN_GAME)
-@CommandParameters(description = "Teleport to the flatlands")
+@CommandParameters(name = "flatlands", description = "Teleport to the flatlands")
 public class FlatlandsCMD extends PlexCommand
 {
-    public FlatlandsCMD()
-    {
-        super("flatlands");
-    }
 
     @Override
     public Component execute(CommandSender sender, String[] args)
@@ -26,14 +25,9 @@ public class FlatlandsCMD extends PlexCommand
         if (args.length == 0)
         {
             Location loc = new Location(Bukkit.getWorld("flatlands"), 0, 50, 0);
-            sender.getPlayer().teleportAsync(loc);
-            send(tl("teleportedToWorld", "flatlands"));
+            ((Player)sender).teleportAsync(loc);
+            return tl("teleportedToWorld", "flatlands");
         }
-    }
-
-    @Override
-    public List<String> tabComplete(CommandSender sender, String[] args)
-    {
-        return Collections.emptyList();
+        return null;
     }
 }

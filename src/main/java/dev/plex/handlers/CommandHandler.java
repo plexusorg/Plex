@@ -17,9 +17,9 @@ public class CommandHandler
         commands.add(new AdventureCMD());
         commands.add(new BanCMD());
         commands.add(new CreativeCMD());
-        commands.add(new FionnCMD());
         commands.add(new FlatlandsCMD());
         commands.add(new FreezeCMD());
+        commands.add(new ListCMD());
         commands.add(new MasterbuilderworldCMD());
         commands.add(new NameHistoryCMD());
         commands.add(new OpAllCMD());
@@ -29,7 +29,6 @@ public class CommandHandler
         commands.add(new RankCMD());
         commands.add(new SpectatorCMD());
         commands.add(new SurvivalCMD());
-        commands.add(new TestCMD());
         commands.add(new WorldCMD());
         PlexLog.log(String.format("Registered %s commands!", commands.size()));
     }

@@ -6,19 +6,17 @@ import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexUtils;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.List;
 
-@CommandParameters(description = "Op everyone on the server", aliases = "opa")
+@CommandParameters(name = "opall", description = "Op everyone on the server", aliases = "opa")
 @CommandPermissions(level = Rank.ADMIN)
 public class OpAllCMD extends PlexCommand
 {
-    public OpAllCMD()
-    {
-        super("opall");
-    }
 
     @Override
     public Component execute(CommandSender sender, String[] args)
@@ -28,11 +26,7 @@ public class OpAllCMD extends PlexCommand
             player.setOp(true);
         }
         PlexUtils.broadcast(tl("oppedAllPlayers", sender.getName()));
+        return null;
     }
 
-    @Override
-    public List<String> tabComplete(CommandSender sender, String[] args)
-    {
-        return ImmutableList.of();
-    }
 }

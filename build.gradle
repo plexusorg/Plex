@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'maven-publish'
     id 'net.minecrell.plugin-yml.bukkit' version '0.5.1'
+    id "com.github.johnrengelman.shadow" version "7.1.2"
 }
 
 repositories {
@@ -27,12 +28,17 @@ dependencies {
     library 'dev.morphia.morphia:morphia-core:2.2.3'
     library 'redis.clients:jedis:4.0.1'
     library 'org.mariadb.jdbc:mariadb-java-client:2.7.4'
+    implementation 'org.apache.httpcomponents:httpclient:4.5.13'
     compileOnly 'io.papermc.paper:paper-api:1.18.1-R0.1-SNAPSHOT'
 }
 
 group = 'dev.plex'
 version = '1.0'
 description = 'Plex'
+
+shadowJar {
+    archiveClassifier.set("")
+}
 
 bukkit {
     name = "Plex"
@@ -58,4 +64,10 @@ publishing {
 
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
+}
+
+tasks {
+    build {
+        dependsOn(shadowJar)
+    }
 }

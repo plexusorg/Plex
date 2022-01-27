@@ -5,11 +5,11 @@ import dev.plex.cache.DataUtils;
 import dev.plex.cache.MongoPlayerData;
 import dev.plex.cache.PlayerCache;
 import dev.plex.cache.SQLPlayerData;
-import dev.plex.command.impl.FionnCMD;
 import dev.plex.listener.PlexListener;
 import dev.plex.player.PlexPlayer;
 import dev.plex.player.PunishedPlayer;
 import dev.plex.util.PlexLog;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -19,6 +19,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.UUID;
 
 public class PlayerListener extends PlexListener
@@ -39,46 +40,12 @@ public class PlayerListener extends PlexListener
             PlexLog.log("A player with this name has not joined the server before, creating new entry."); // funi msg
             plexPlayer = new PlexPlayer(player.getUniqueId()); //it doesn't! okay so now create the object
             plexPlayer.setName(player.getName()); //set the name of the player
-            plexPlayer.setIps(Arrays.asList(player.getAddress().getAddress().getHostAddress().trim())); //set the arraylist of ips
+            plexPlayer.setIps(Collections.singletonList(player.getAddress().getAddress().getHostAddress().trim())); //set the arraylist of ips
 
             DataUtils.insert(plexPlayer); // insert data in some wack db
         } else {
             plexPlayer = DataUtils.getPlayer(player.getUniqueId());
         }
-
-        /*if (mongoPlayerData != null) // Alright, check if we're saving with Mongo first
-        {
-            if (!mongoPlayerData.exists(player.getUniqueId())) //okay, we're saving with mongo! now check if the player's document exists
-            {
-                PlexLog.log("AYO THIS MAN DONT EXIST"); // funi msg
-                plexPlayer = new PlexPlayer(player.getUniqueId()); //it doesn't! okay so now create the object
-                plexPlayer.setName(player.getName()); //set the name of the player
-                plexPlayer.setIps(Arrays.asList(player.getAddress().getAddress().getHostAddress().trim())); //set the arraylist of ips
-
-                mongoPlayerData.save(plexPlayer); //and put their document in mongo collection
-            }
-            else
-            {
-                plexPlayer = mongoPlayerData.getByUUID(player.getUniqueId()); //oh they do exist!
-                plexPlayer.setName(plexPlayer.getName()); //set the name!
-            }
-        }
-        else if (sqlPlayerData != null)
-        {
-            if (!sqlPlayerData.exists(player.getUniqueId())) //okay, we're saving with sql! now check if the player's document exists
-            {
-                PlexLog.log("AYO THIS MAN DONT EXIST"); // funi msg
-                plexPlayer = new PlexPlayer(player.getUniqueId()); //it doesn't! okay so now create the object
-                plexPlayer.setName(player.getName()); //set the name of the player
-                plexPlayer.setIps(Arrays.asList(player.getAddress().getAddress().getHostAddress().trim())); //set the arraylist of ips
-                sqlPlayerData.insert(plexPlayer); //and put their row into the sql table
-            }
-            else
-            {
-                plexPlayer = sqlPlayerData.getByUUID(player.getUniqueId()); //oh they do exist!
-                plexPlayer.setName(plexPlayer.getName()); //set the name!
-            }
-        }*/
 
         PlayerCache.getPlexPlayerMap().put(player.getUniqueId(), plexPlayer); //put them into the cache
         PlayerCache.getPunishedPlayerMap().put(player.getUniqueId(), new PunishedPlayer(player.getUniqueId()));
@@ -94,22 +61,13 @@ public class PlayerListener extends PlexListener
 
             if (!plexPlayer.getLoginMSG().isEmpty())
             {
-                event.setJoinMessage(ChatColor.AQUA + player.getName() + " is " + plexPlayer.getLoginMSG());
+                event.joinMessage(LegacyComponentSerializer.legacyAmpersand().deserialize(ChatColor.AQUA + player.getName() + " is " + plexPlayer.getLoginMSG()));
             }
             else
             {
-                event.setJoinMessage(ChatColor.AQUA + player.getName() + " is " + plexPlayer.getRankFromString().getLoginMSG());
+                event.joinMessage(LegacyComponentSerializer.legacyAmpersand().deserialize(ChatColor.AQUA + player.getName() + " is " + plexPlayer.getRankFromString().getLoginMSG()));
             }
         }
-
-        /*Punishment test = new Punishment(player.getUniqueId(), player.getUniqueId());
-        test.setPunishedUsername(player.getName());
-        test.setReason("hii");
-        test.setType(PunishmentType.BAN);
-        test.setEndDate(new Date(Instant.now().plusSeconds(10).getEpochSecond()));
-        plugin.getPunishmentManager().doPunishment(PlayerCache.getPunishedPlayer(player.getUniqueId()), test);*/
-
-
     }
 
     // saving the player's data
@@ -132,30 +90,10 @@ public class PlayerListener extends PlexListener
             sqlPlayerData.update(plexPlayer);
         }
 
-        if (FionnCMD.ENABLED)
-        {
-            PlayerCache.getPunishedPlayer(event.getPlayer().getUniqueId()).setFrozen(false);
-        }
 
         PlayerCache.getPlexPlayerMap().remove(event.getPlayer().getUniqueId()); //remove them from cache
         PlayerCache.getPunishedPlayerMap().remove(event.getPlayer().getUniqueId());
 
     }
 
-    // unrelated player quitting
-    @EventHandler
-    public void onPlayerQuit(PlayerQuitEvent e)
-    {
-        Player player = e.getPlayer();
-
-        if (FionnCMD.ENABLED)
-        {
-            player.setInvisible(false);
-            Location location = FionnCMD.LOCATION_CACHE.get(player);
-            if (location != null)
-            {
-                player.teleport(location);
-            }
-        }
-    }
 }

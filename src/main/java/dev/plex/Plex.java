@@ -1,12 +1,17 @@
 package dev.plex;
 
+import dev.plex.admin.Admin;
 import dev.plex.admin.AdminList;
 import dev.plex.banning.BanManager;
+import dev.plex.cache.DataUtils;
 import dev.plex.cache.MongoPlayerData;
+import dev.plex.cache.PlayerCache;
 import dev.plex.cache.SQLPlayerData;
 import dev.plex.config.Config;
 import dev.plex.handlers.CommandHandler;
 import dev.plex.handlers.ListenerHandler;
+import dev.plex.player.PlexPlayer;
+import dev.plex.player.PunishedPlayer;
 import dev.plex.punishment.PunishmentManager;
 import dev.plex.rank.RankManager;
 import dev.plex.services.ServiceManager;
@@ -19,7 +24,12 @@ import dev.plex.util.PlexUtils;
 import dev.plex.world.CustomWorld;
 import lombok.Getter;
 import lombok.Setter;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -80,8 +90,7 @@ public class Plex extends JavaPlugin
         {
             PlexUtils.testConnections();
             PlexLog.log("Connected to " + storageType.name().toUpperCase());
-        }
-        catch (Exception e)
+        } catch (Exception e)
         {
             PlexLog.error("Failed to connect to " + storageType.name().toUpperCase());
             e.printStackTrace();
@@ -90,8 +99,7 @@ public class Plex extends JavaPlugin
         if (storageType == StorageType.MONGODB)
         {
             mongoPlayerData = new MongoPlayerData();
-        }
-        else
+        } else
         {
             sqlPlayerData = new SQLPlayerData();
         }
@@ -117,6 +125,8 @@ public class Plex extends JavaPlugin
         adminList = new AdminList();
 
         generateWorlds();
+
+        reloadPlayers();
     }
 
     @Override
@@ -137,5 +147,22 @@ public class Plex extends JavaPlugin
             CustomWorld.generateConfigFlatWorld(key);
         }
         PlexLog.log("Finished with world generation!");
+    }
+
+    private void reloadPlayers()
+    {
+        Bukkit.getOnlinePlayers().forEach(player ->
+        {
+            PlexPlayer plexPlayer = DataUtils.getPlayer(player.getUniqueId());
+            PlayerCache.getPlexPlayerMap().put(player.getUniqueId(), plexPlayer); //put them into the cache
+            PlayerCache.getPunishedPlayerMap().put(player.getUniqueId(), new PunishedPlayer(player.getUniqueId()));
+            if (plugin.getRankManager().isAdmin(plexPlayer))
+            {
+                Admin admin = new Admin(UUID.fromString(plexPlayer.getUuid()));
+                admin.setRank(plexPlayer.getRankFromString());
+
+                plugin.getAdminList().addToCache(admin);
+            }
+        });
     }
 }

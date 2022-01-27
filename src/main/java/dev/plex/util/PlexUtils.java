@@ -3,6 +3,8 @@ package dev.plex.util;
 import dev.plex.Plex;
 import dev.plex.config.Config;
 import dev.plex.storage.StorageType;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.PluginCommandYamlParser;
@@ -177,7 +179,12 @@ public class PlexUtils
 
     public static void broadcast(String s)
     {
-        Bukkit.broadcastMessage(s);
+        Bukkit.broadcast(LegacyComponentSerializer.legacyAmpersand().deserialize(s));
+    }
+
+    public static void broadcast(Component component)
+    {
+        Bukkit.broadcast(component);
     }
 
     public static Object simpleGET(String url) throws IOException, ParseException

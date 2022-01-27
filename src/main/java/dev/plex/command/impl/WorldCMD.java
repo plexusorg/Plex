@@ -7,21 +7,22 @@ import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.exception.CommandArgumentException;
 import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.rank.enums.Rank;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @CommandPermissions(level = Rank.OP, source = RequiredCommandSource.IN_GAME)
-@CommandParameters(description = "Teleport to a world.", usage = "/<command> <world>")
+@CommandParameters(name = "world", description = "Teleport to a world.", usage = "/<command> <world>")
 public class WorldCMD extends PlexCommand
 {
-    public WorldCMD()
-    {
-        super("world");
-    }
 
     @Override
     public Component execute(CommandSender sender, String[] args)
@@ -31,21 +32,16 @@ public class WorldCMD extends PlexCommand
             throw new CommandArgumentException();
         }
         World world = getNonNullWorld(args[0]);
-        sender.getPlayer().teleport(new Location(world, 0, world.getHighestBlockYAt(0, 0) + 1, 0, 0, 0));
-        send(tl("playerWorldTeleport", world.getName()));
+        ((Player)sender).teleportAsync(new Location(world, 0, world.getHighestBlockYAt(0, 0) + 1, 0, 0, 0));
+        return tl("playerWorldTeleport", world.getName());
     }
 
     @Override
-    public List<String> tabComplete(CommandSender sender, String[] args)
+    public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
     {
-        List<String> worlds = new ArrayList<>();
-        for (World world : Bukkit.getWorlds())
-        {
-            worlds.add(world.getName());
-        }
         if (args.length == 1)
         {
-            return worlds;
+            return Bukkit.getWorlds().stream().map(World::getName).collect(Collectors.toList());
         }
         return ImmutableList.of();
     }

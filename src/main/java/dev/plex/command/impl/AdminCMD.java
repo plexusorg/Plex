@@ -47,7 +47,6 @@ public class AdminCMD extends PlexCommand
 
             if (!isConsole(sender))
             {
-                send(sender, tl("consoleOnly"));
                 throw new ConsoleOnlyException();
             }
 
@@ -153,7 +152,7 @@ public class AdminCMD extends PlexCommand
                 return usage("/admin list");
             }
 
-            return fromString("Admins: " + StringUtils.join(plugin.getAdminList().getAllAdmins(), ", "));
+            return componentFromString("Admins: " + StringUtils.join(plugin.getAdminList().getAllAdmins(), ", "));
         }
         return null;
     }

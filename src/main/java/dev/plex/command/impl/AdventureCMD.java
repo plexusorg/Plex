@@ -13,6 +13,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -26,18 +27,16 @@ public class AdventureCMD extends PlexCommand
     {
         if (args.length == 0)
         {
-            // doesn't work
-            if (sender.isConsoleSender())
+            if (isConsole(sender))
             {
                 throw new CommandFailException("You must define a player when using the console!");
             }
-
-            sender.getPlayer().setGameMode(GameMode.ADVENTURE);
-            send(tl("gameModeSetTo", "adventure"));
-            return;
+            Player player = (Player) sender;
+            player.setGameMode(GameMode.ADVENTURE);
+            return tl("gameModeSetTo", "adventure");
         }
 
-        if (isAdmin(sender.getPlexPlayer()))
+        if (isAdmin(sender))
         {
             if (args[0].equals("-a"))
             {
@@ -45,25 +44,26 @@ public class AdventureCMD extends PlexCommand
                 {
                     targetPlayer.setGameMode(GameMode.ADVENTURE);
                 }
-                send(tl("gameModeSetTo", "adventure"));
-                return;
+                return tl("gameModeSetTo", "adventure");
             }
 
             Player player = getNonNullPlayer(args[0]);
-            send(tl("setOtherPlayerGameModeTo", player.getName(), "adventure"));
             // use send
-            player.sendMessage(tl("playerSetOtherGameMode", sender.getName(), "adventure"));
+            send(player, tl("playerSetOtherGameMode", sender.getName(), "adventure"));
             player.setGameMode(GameMode.ADVENTURE);
+            return tl("setOtherPlayerGameModeTo", player.getName(), "adventure");
         }
+        return null;
     }
 
     @Override
-    public List<String> tabComplete(CommandSender sender, String[] args)
+    public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
     {
-        if (isAdmin(sender.getPlexPlayer()))
+        if (isAdmin(sender))
         {
             return PlexUtils.getPlayerNameList();
         }
         return ImmutableList.of();
     }
+
 }

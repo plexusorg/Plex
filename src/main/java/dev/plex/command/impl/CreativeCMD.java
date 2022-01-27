@@ -8,38 +8,34 @@ import dev.plex.command.exception.CommandFailException;
 import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexUtils;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
 @CommandPermissions(level = Rank.OP, source = RequiredCommandSource.ANY)
-@CommandParameters(aliases = "gmc", description = "Set your own or another player's gamemode to creative mode")
+@CommandParameters(name = "creative", aliases = "gmc", description = "Set your own or another player's gamemode to creative mode")
 public class CreativeCMD extends PlexCommand
 {
-    public CreativeCMD()
-    {
-        super("creative");
-    }
-
     @Override
     public Component execute(CommandSender sender, String[] args)
     {
         if (args.length == 0)
         {
-            // doesn't work
-            if (sender.isConsoleSender())
+            if (isConsole(sender))
             {
                 throw new CommandFailException("You must define a player when using the console!");
             }
-
-            sender.getPlayer().setGameMode(GameMode.CREATIVE);
-            send(tl("gameModeSetTo", "creative"));
-            return;
+            Player player = (Player) sender;
+            player.setGameMode(GameMode.CREATIVE);
+            return tl("gameModeSetTo", "creative");
         }
 
-        if (isAdmin(sender.getPlexPlayer()))
+        if (isAdmin(sender))
         {
             if (args[0].equals("-a"))
             {
@@ -47,21 +43,22 @@ public class CreativeCMD extends PlexCommand
                 {
                     targetPlayer.setGameMode(GameMode.CREATIVE);
                 }
-                send(tl("gameModeSetTo", "creative"));
-                return;
+                return tl("gameModeSetTo", "creative");
             }
 
             Player player = getNonNullPlayer(args[0]);
-            send(tl("setOtherPlayerGameModeTo", player.getName(), "creative"));
-            player.sendMessage(tl("playerSetOtherGameMode", sender.getName(), "creative"));
+            // use send
+            send(player, tl("playerSetOtherGameMode", sender.getName(), "creative"));
             player.setGameMode(GameMode.CREATIVE);
+            return tl("setOtherPlayerGameModeTo", player.getName(), "creative");
         }
+        return null;
     }
 
     @Override
-    public List<String> tabComplete(CommandSender sender, String[] args)
+    public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
     {
-        if (isAdmin(sender.getPlexPlayer()))
+        if (isAdmin(sender))
         {
             return PlexUtils.getPlayerNameList();
         }

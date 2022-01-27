@@ -1,5 +1,6 @@
 package dev.plex.command.impl;
 
+import com.google.common.collect.ImmutableList;
 import dev.plex.Plex;
 import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
@@ -7,45 +8,46 @@ import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.exception.CommandArgumentException;
 import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.rank.enums.Rank;
+import net.kyori.adventure.text.Component;
 import org.bukkit.ChatColor;
+import org.bukkit.command.CommandSender;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
 @CommandPermissions(level = Rank.OP, source = RequiredCommandSource.ANY)
-@CommandParameters(usage = "/<command> [reload]", aliases = "plexhelp", description = "Show information about Plex or reload it")
+@CommandParameters(name = "plex", usage = "/<command> [reload]", aliases = "plexhelp", description = "Show information about Plex or reload it")
 public class PlexCMD extends PlexCommand {
-    public PlexCMD() {
-        super("plex");
-    }
 
     @Override
     public Component execute(CommandSender sender, String[] args) {
         if (args.length == 0) {
-            send(ChatColor.LIGHT_PURPLE + "Plex. The long awaited TotalFreedomMod rewrite starts here...");
-            send(ChatColor.LIGHT_PURPLE + "Plugin version: " + ChatColor.GOLD + "1.0");
-            return;
+            send(sender, ChatColor.LIGHT_PURPLE + "Plex. The long awaited TotalFreedomMod rewrite starts here...");
+            return componentFromString(ChatColor.LIGHT_PURPLE + "Plugin version: " + ChatColor.GOLD + "1.0");
         }
         if (args[0].equals("reload"))
         {
-            if (!plugin.getRankManager().isSeniorAdmin(sender.getPlexPlayer()))
+            if (!isSeniorAdmin(sender))
             {
-                send(tl("noPermission"));
-                return;
+                return tl("noPermission");
             }
             Plex.get().config.load();
-            send("Reloaded config file");
+            send(sender, "Reloaded config file");
             Plex.get().messages.load();
-            send("Reloaded messages file");
+            send(sender, "Reloaded messages file");
             Plex.get().getRankManager().importDefaultRanks();
-            send("Imported ranks");
-            send("Plex successfully reloaded.");
+            send(sender, "Imported ranks");
+            send(sender, "Plex successfully reloaded.");
         } else {
             throw new CommandArgumentException();
         }
+        return null;
     }
 
     @Override
-    public List<String> tabComplete(CommandSender sender, String[] args) {
-        return List.of("reload");
+    public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
+    {
+        return ImmutableList.of("reload");
     }
+    
 }

@@ -8,57 +8,57 @@ import dev.plex.command.exception.CommandFailException;
 import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexUtils;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
 @CommandPermissions(level = Rank.ADMIN, source = RequiredCommandSource.ANY)
-@CommandParameters(aliases = "gmsp", description = "Set your own or another player's gamemode to spectator mode")
+@CommandParameters(name = "spectator", aliases = "gmsp", description = "Set your own or another player's gamemode to spectator mode")
 public class SpectatorCMD extends PlexCommand
 {
-    public SpectatorCMD()
-    {
-        super("spectator");
-    }
-
     @Override
     public Component execute(CommandSender sender, String[] args)
     {
         if (args.length == 0)
         {
-            // doesn't work
-            if (sender.isConsoleSender())
+            if (isConsole(sender))
             {
                 throw new CommandFailException("You must define a player when using the console!");
             }
-
-            sender.getPlayer().setGameMode(GameMode.SPECTATOR);
-            send(tl("gameModeSetTo", "spectator"));
-            return;
+            Player player = (Player) sender;
+            player.setGameMode(GameMode.SPECTATOR);
+            return tl("gameModeSetTo", "spectator");
         }
 
-        if (args[0].equals("-a"))
+        if (isAdmin(sender))
         {
-            for (Player targetPlayer : Bukkit.getServer().getOnlinePlayers())
+            if (args[0].equals("-a"))
             {
-                targetPlayer.setGameMode(GameMode.SPECTATOR);
+                for (Player targetPlayer : Bukkit.getServer().getOnlinePlayers())
+                {
+                    targetPlayer.setGameMode(GameMode.SPECTATOR);
+                }
+                return tl("gameModeSetTo", "spectator");
             }
-            send(tl("gameModeSetTo", "spectator"));
-            return;
-        }
 
-        Player player = getNonNullPlayer(args[0]);
-        send(tl("setOtherPlayerGameModeTo", player.getName(), "spectator"));
-        player.sendMessage(tl("playerSetOtherGameMode", sender.getName(), "spectator"));
-        player.setGameMode(GameMode.SPECTATOR);
+            Player player = getNonNullPlayer(args[0]);
+            // use send
+            send(player, tl("playerSetOtherGameMode", sender.getName(), "spectator"));
+            player.setGameMode(GameMode.SPECTATOR);
+            return tl("setOtherPlayerGameModeTo", player.getName(), "spectator");
+        }
+        return null;
     }
 
     @Override
-    public List<String> tabComplete(CommandSender sender, String[] args)
+    public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
     {
-        if (isAdmin(sender.getPlexPlayer()))
+        if (isAdmin(sender))
         {
             return PlexUtils.getPlayerNameList();
         }
