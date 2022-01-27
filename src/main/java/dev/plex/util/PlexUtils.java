@@ -1,6 +1,7 @@
 package dev.plex.util;
 
 import dev.plex.Plex;
+import dev.plex.PlexBase;
 import dev.plex.config.Config;
 import dev.plex.storage.StorageType;
 import java.io.BufferedReader;
@@ -33,7 +34,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-public class PlexUtils
+public class PlexUtils extends PlexBase
 {
     public static Map<String, ChatColor> CHAT_COLOR_NAMES;
     public static List<ChatColor> CHAT_COLOR_POOL;
@@ -114,7 +115,6 @@ public class PlexUtils
     // if you think the name of this method is dumb feel free to change it i just thought it'd be cool
     public static String tl(String s, Object... objects)
     {
-        Plex plugin = Plex.get();
         if (s.equals("baseColor") || s.equals("errorColor") || s.equals("broadcastColor"))
         {
             return getChatColorFromConfig(plugin.messages, ChatColor.WHITE, s).toString();

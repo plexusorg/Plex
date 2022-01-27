@@ -1,12 +1,12 @@
 package dev.plex.util;
 
-import dev.plex.Plex;
+import dev.plex.PlexBase;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 
-public class PlexLog
+public class PlexLog extends PlexBase
 {
-    private static final boolean debugEnabled = Plex.get().config.getBoolean("debug");
+    private static final boolean debugEnabled = plugin.config.getBoolean("debug");
 
     public static void log(String message)
     {
