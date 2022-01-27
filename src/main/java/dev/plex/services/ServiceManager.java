@@ -3,7 +3,7 @@ package dev.plex.services;
 import com.google.common.collect.Lists;
 import dev.plex.Plex;
 import dev.plex.services.impl.BanService;
-import dev.plex.services.impl.GameruleService;
+import dev.plex.services.impl.GameRuleService;
 import org.bukkit.Bukkit;
 
 import java.util.List;
@@ -13,7 +13,7 @@ public class ServiceManager {
 
     public ServiceManager() {
         registerService(new BanService());
-        registerService(new GameruleService());
+        registerService(new GameRuleService());
     }
 
     public void startServices() {

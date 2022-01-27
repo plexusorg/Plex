@@ -17,15 +17,15 @@ public class ChatListener extends PlexListener
         PlexPlayer plexPlayer = PlayerCache.getPlexPlayerMap().get(event.getPlayer().getUniqueId());
         if (!plexPlayer.getPrefix().isEmpty())
         {
-            event.setFormat(String.format("%s %s §7» %s", plexPlayer.getPrefix(), ChatColor.RESET + plexPlayer.getName(), event.getMessage()));
+            event.setFormat(String.format("%s %s §7» %s", plexPlayer.getPrefix(), ChatColor.RESET + plexPlayer.displayName(), event.getMessage()));
         }
         else if (Plex.get().getRankManager().isAdmin(plexPlayer))
         {
-            event.setFormat(String.format("%s %s §7» %s", plexPlayer.getRankFromString().getPrefix(), ChatColor.RESET + plexPlayer.getName(), event.getMessage()));
+            event.setFormat(String.format("%s %s §7» %s", plexPlayer.getRankFromString().getPrefix(), ChatColor.RESET + plexPlayer.displayName(), event.getMessage()));
         }
         else
         {
-            event.setFormat(String.format("%s §7» %s", ChatColor.RESET + plexPlayer.getName(), event.getMessage()));
+            event.setFormat(String.format("%s §7» %s", ChatColor.RESET + plexPlayer.displayName(), event.getMessage()));
         }
     }
 }
