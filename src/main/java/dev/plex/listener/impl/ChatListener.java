@@ -18,11 +18,12 @@ import org.jetbrains.annotations.NotNull;
 public class ChatListener extends PlexListener
 {
 
+    private final PlexChatRenderer renderer = new PlexChatRenderer();
+
     @EventHandler
     public void onChat(AsyncChatEvent event)
     {
         PlexPlayer plexPlayer = PlayerCache.getPlexPlayerMap().get(event.getPlayer().getUniqueId());
-        PlexChatRenderer renderer = new PlexChatRenderer();
 
         if (!plexPlayer.getPrefix().isEmpty())
         {
