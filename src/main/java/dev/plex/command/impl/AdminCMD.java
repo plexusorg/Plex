@@ -7,7 +7,6 @@ import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.exception.ConsoleOnlyException;
 import dev.plex.command.exception.PlayerNotFoundException;
-import dev.plex.command.source.CommandSource;
 import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.event.AdminAddEvent;
 import dev.plex.event.AdminRemoveEvent;
@@ -15,44 +14,40 @@ import dev.plex.event.AdminSetRankEvent;
 import dev.plex.player.PlexPlayer;
 import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexUtils;
+import net.kyori.adventure.text.Component;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.command.CommandSender;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
 @CommandPermissions(level = Rank.SENIOR_ADMIN, source = RequiredCommandSource.ANY)
-@CommandParameters(usage = "/<command> <add | remove | setrank | list> [player] [rank]", aliases = "saconfig,slconfig,adminconfig,adminmanage", description = "Manage all admins")
+@CommandParameters(name = "admin", usage = "/<command> <add | remove | setrank | list> [player] [rank]", aliases = "saconfig,slconfig,adminconfig,adminmanage", description = "Manage all admins")
 public class AdminCMD extends PlexCommand
 {
     //TODO: Better return messages
 
-    public AdminCMD()
-    {
-        super("admin");
-    }
-
     @Override
-    public void execute(CommandSource sender, String[] args)
+    public Component execute(CommandSender sender, String[] args)
     {
         if (args.length == 0)
         {
-            sender.send(usage(getUsage()));
-            return;
+            return usage(getUsage());
         }
 
         if (args[0].equalsIgnoreCase("add"))
         {
             if (args.length != 2)
             {
-                sender.send(usage("/admin add <player>"));
-                return;
+                return usage("/admin add <player>");
             }
 
-            if (!sender.isConsoleSender())
+            if (!isConsole(sender))
             {
-                sender.send(tl("consoleOnly"));
+                send(sender, tl("consoleOnly"));
                 throw new ConsoleOnlyException();
             }
 
@@ -66,24 +61,22 @@ public class AdminCMD extends PlexCommand
 
             if (isAdmin(plexPlayer))
             {
-                sender.send(tl("playerIsAdmin"));
-                return;
+                return tl("playerIsAdmin");
             }
 
             plexPlayer.setRank(Rank.ADMIN.name());
             DataUtils.update(plexPlayer);
             Bukkit.getServer().getPluginManager().callEvent(new AdminAddEvent(sender, plexPlayer));
-            return;
+            return null;
         }
         if (args[0].equalsIgnoreCase("remove"))
         {
             if (args.length != 2)
             {
-                sender.send(usage("/admin remove <player>"));
-                return;
+                return usage("/admin remove <player>");
             }
 
-            if (!sender.isConsoleSender())
+            if (!isConsole(sender))
             {
                 throw new ConsoleOnlyException();
             }
@@ -98,25 +91,23 @@ public class AdminCMD extends PlexCommand
 
             if (!isAdmin(plexPlayer))
             {
-                sender.send(tl("playerNotAdmin"));
-                return;
+                return tl("playerNotAdmin");
             }
 
             plexPlayer.setRank("");
             DataUtils.update(plexPlayer);
             Bukkit.getServer().getPluginManager().callEvent(new AdminRemoveEvent(sender, plexPlayer));
-            return;
+            return null;
         }
 
         if (args[0].equalsIgnoreCase("setrank"))
         {
             if (args.length != 3)
             {
-                sender.send(usage("/admin setrank <player> <rank>"));
-                return;
+                return usage("/admin setrank <player> <rank>");
             }
 
-            if (!sender.isConsoleSender())
+            if (!isConsole(sender))
             {
                 throw new ConsoleOnlyException();
             }
@@ -130,24 +121,21 @@ public class AdminCMD extends PlexCommand
 
             if (!rankExists(args[2]))
             {
-                sender.send(tl("rankNotFound"));
-                return;
+                return tl("rankNotFound");
             }
 
             Rank rank = Rank.valueOf(args[2].toUpperCase());
 
             if (!rank.isAtLeast(Rank.ADMIN))
             {
-                sender.send(tl("rankMustBeHigherThanAdmin"));
-                return;
+                return tl("rankMustBeHigherThanAdmin");
             }
 
             PlexPlayer plexPlayer = DataUtils.getPlayer(targetUUID);
 
             if (!isAdmin(plexPlayer))
             {
-                sender.send(tl("playerNotAdmin"));
-                return;
+                return tl("playerNotAdmin");
             }
 
             plexPlayer.setRank(rank.name().toLowerCase());
@@ -155,23 +143,23 @@ public class AdminCMD extends PlexCommand
 
             Bukkit.getServer().getPluginManager().callEvent(new AdminSetRankEvent(sender, plexPlayer, rank));
 
-            return;
+            return null;
         }
 
         if (args[0].equalsIgnoreCase("list"))
         {
             if (args.length != 1)
             {
-                sender.send(usage("/admin list"));
-                return;
+                return usage("/admin list");
             }
 
-            sender.send("Admins: " + StringUtils.join(plugin.getAdminList().getAllAdmins(), ", "));
+            return fromString("Admins: " + StringUtils.join(plugin.getAdminList().getAllAdmins(), ", "));
         }
+        return null;
     }
 
     @Override
-    public List<String> onTabComplete(CommandSource sender, String[] args)
+    public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
     {
         if (args.length == 1)
         {
@@ -183,6 +171,7 @@ public class AdminCMD extends PlexCommand
         }
         return ImmutableList.of();
     }
+
 
     private boolean rankExists(String rank)
     {

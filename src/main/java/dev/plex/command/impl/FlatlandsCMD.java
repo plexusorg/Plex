@@ -3,7 +3,6 @@ package dev.plex.command.impl;
 import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
-import dev.plex.command.source.CommandSource;
 import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.rank.enums.Rank;
 import org.bukkit.Bukkit;
@@ -22,7 +21,7 @@ public class FlatlandsCMD extends PlexCommand
     }
 
     @Override
-    public void execute(CommandSource sender, String[] args)
+    public Component execute(CommandSender sender, String[] args)
     {
         if (args.length == 0)
         {
@@ -33,7 +32,7 @@ public class FlatlandsCMD extends PlexCommand
     }
 
     @Override
-    public List<String> onTabComplete(CommandSource sender, String[] args)
+    public List<String> tabComplete(CommandSender sender, String[] args)
     {
         return Collections.emptyList();
     }

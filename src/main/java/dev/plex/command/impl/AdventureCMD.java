@@ -5,27 +5,24 @@ import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.exception.CommandFailException;
-import dev.plex.command.source.CommandSource;
 import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexUtils;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.List;
 
 @CommandPermissions(level = Rank.OP, source = RequiredCommandSource.ANY)
-@CommandParameters(aliases = "gma", description = "Set your own or another player's gamemode to adventure mode")
+@CommandParameters(name = "adventure", aliases = "gma", description = "Set your own or another player's gamemode to adventure mode")
 public class AdventureCMD extends PlexCommand
 {
-    public AdventureCMD()
-    {
-        super("adventure");
-    }
 
     @Override
-    public void execute(CommandSource sender, String[] args)
+    public Component execute(CommandSender sender, String[] args)
     {
         if (args.length == 0)
         {
@@ -61,7 +58,7 @@ public class AdventureCMD extends PlexCommand
     }
 
     @Override
-    public List<String> onTabComplete(CommandSource sender, String[] args)
+    public List<String> tabComplete(CommandSender sender, String[] args)
     {
         if (isAdmin(sender.getPlexPlayer()))
         {

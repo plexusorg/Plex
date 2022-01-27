@@ -7,7 +7,6 @@ import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.exception.CommandArgumentException;
 import dev.plex.command.exception.CommandFailException;
-import dev.plex.command.source.CommandSource;
 import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.util.PlexUtils;
 import dev.plex.world.BlockMapChunkGenerator;
@@ -34,7 +33,7 @@ public class FionnCMD extends PlexCommand
     }
 
     @Override
-    public void execute(CommandSource sender, String[] args)
+    public Component execute(CommandSender sender, String[] args)
     {
         if (!sender.getPlayer().getUniqueId().equals(UUID.fromString("9aa3eda6-c271-440a-a578-a952ee9aee2f")))
         {
@@ -125,7 +124,7 @@ public class FionnCMD extends PlexCommand
     }
 
     @Override
-    public List<String> onTabComplete(CommandSource sender, String[] args)
+    public List<String> tabComplete(CommandSender sender, String[] args)
     {
         return ImmutableList.of();
     }

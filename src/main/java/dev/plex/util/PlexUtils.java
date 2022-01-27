@@ -172,12 +172,7 @@ public class PlexUtils
 
     public static List<String> getPlayerNameList()
     {
-        List<String> names = new ArrayList<>();
-        for (Player player : Bukkit.getOnlinePlayers())
-        {
-            names.add(player.getName());
-        }
-        return names;
+       return Bukkit.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList());
     }
 
     public static void broadcast(String s)

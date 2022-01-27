@@ -1,22 +1,18 @@
 package dev.plex.event;
 
-import dev.plex.command.source.CommandSource;
 import dev.plex.player.PlexPlayer;
+import lombok.Data;
+import org.bukkit.command.CommandSender;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
+@Data
 public class AdminAddEvent extends Event
 {
     private static final HandlerList handlers = new HandlerList();
 
-    private CommandSource sender;
-    private PlexPlayer plexPlayer;
-
-    public AdminAddEvent(CommandSource sender, PlexPlayer plexPlayer)
-    {
-        this.sender = sender;
-        this.plexPlayer = plexPlayer;
-    }
+    private final CommandSender sender;
+    private final PlexPlayer plexPlayer;
 
     @Override
     public HandlerList getHandlers()
@@ -29,12 +25,4 @@ public class AdminAddEvent extends Event
         return handlers;
     }
 
-    public PlexPlayer getPlexPlayer()
-    {
-        return plexPlayer;
-    }
-
-    public CommandSource getSender() {
-        return sender;
-    }
 }
