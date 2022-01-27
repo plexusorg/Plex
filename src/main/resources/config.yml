@@ -41,3 +41,6 @@ worlds:
       dirt: 32
       stone: 16
       bedrock: 1
+
+# Additional logging for debugging
+debug: false
