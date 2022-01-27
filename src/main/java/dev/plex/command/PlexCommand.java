@@ -1,5 +1,6 @@
 package dev.plex.command;
 
+import com.google.common.collect.ImmutableList;
 import dev.plex.Plex;
 import dev.plex.cache.DataUtils;
 import dev.plex.cache.PlayerCache;
@@ -7,26 +8,25 @@ import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.exception.CommandArgumentException;
 import dev.plex.command.exception.CommandFailException;
+import dev.plex.command.exception.ConsoleMustDefinePlayerException;
+import dev.plex.command.exception.ConsoleOnlyException;
 import dev.plex.command.exception.PlayerNotFoundException;
+import dev.plex.command.source.CommandSource;
 import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.player.PlexPlayer;
 import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexUtils;
-import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
-public abstract class PlexCommand extends Command
+public abstract class PlexCommand extends Command implements TabExecutor, IPlexCommand
 {
     protected static Plex plugin = Plex.get();
 
@@ -34,18 +34,19 @@ public abstract class PlexCommand extends Command
     private final CommandPermissions perms;
 
     private final Rank level;
+    private CommandSource sender;
     private final RequiredCommandSource commandSource;
 
-    public PlexCommand()
+    public PlexCommand(String name)
     {
-        super("");
+        super(name);
         this.params = getClass().getAnnotation(CommandParameters.class);
         this.perms = getClass().getAnnotation(CommandPermissions.class);
 
-        setName(this.params.name());
-        setLabel(this.params.name());
+        setName(name);
+        setLabel(name);
         setDescription(params.description());
-        setUsage(params.usage().replace("<command>", this.params.name()));
+        setUsage(params.usage().replace("<command>", name));
         if (params.aliases().split(",").length > 0)
         {
             setAliases(Arrays.asList(params.aliases().split(",")));
@@ -56,11 +57,16 @@ public abstract class PlexCommand extends Command
         getMap().register("plex", this);
     }
 
-    protected abstract Component execute(CommandSender sender, String[] args);
-
 
     @Override
-    public boolean execute(@NotNull CommandSender sender, @NotNull String label, String[] args)
+    public boolean execute(CommandSender sender, String label, String[] args)
+    {
+        onCommand(sender, this, label, args);
+        return true;
+    }
+
+    @Override
+    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
     {
         if (!matches(label))
         {
@@ -81,6 +87,7 @@ public abstract class PlexCommand extends Command
             }
             Player player = (Player)sender;
 
+            this.sender = new CommandSource(player);
             PlexPlayer plexPlayer = PlayerCache.getPlexPlayerMap().get(player.getUniqueId());
             if (!plexPlayer.getRankFromString().isAtLeast(getLevel()))
             {
@@ -90,23 +97,62 @@ public abstract class PlexCommand extends Command
         }
         try
         {
-            Component component = this.execute(sender, args);
-            if (component != null)
-            {
-                sender.sendMessage(component);
-            }
+            this.sender = new CommandSource(sender);
+            execute(this.sender, args);
         }
         catch (CommandArgumentException ex)
         {
-            send(sender, getUsage().replace("<command>", getLabel()));
+            send(getUsage().replace("<command>", getLabel()));
         }
         catch (PlayerNotFoundException | CommandFailException ex)
         {
-            send(sender, ex.getMessage());
+            send(ex.getMessage());
+        }
+        catch (ConsoleMustDefinePlayerException ex)
+        {
+            send(tl("consoleMustDefinePlayer"));
+        }
+        catch (ConsoleOnlyException ex)
+        {
+            send(tl("consoleOnly"));
         }
         return true;
     }
 
+    @Override
+    public List<String> tabComplete(CommandSender sender, String alias, String[] args)
+    {
+        if (!matches(alias))
+        {
+            return ImmutableList.of();
+        }
+        if (sender instanceof Player player)
+        {
+
+            this.sender = new CommandSource(player);
+
+            PlexPlayer plexPlayer = PlayerCache.getPlexPlayerMap().get(player.getUniqueId());
+            if (plexPlayer.getRankFromString().isAtLeast(getLevel()))
+            {
+                return onTabComplete(this.sender, args);
+            }
+            else
+            {
+                return ImmutableList.of();
+            }
+        }
+        else
+        {
+            this.sender = new CommandSource(sender);
+            return onTabComplete(this.sender, args);
+        }
+    }
+
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command cmd, String label, String[] args)
+    {
+        return tabComplete(sender, label, args);
+    }
 
     private boolean matches(String label)
     {
@@ -127,6 +173,11 @@ public abstract class PlexCommand extends Command
         return false;
     }
 
+    protected void send(String s, CommandSource sender)
+    {
+        sender.send(s);
+    }
+
     protected void send(String s, Player player)
     {
         player.sendMessage(s);
@@ -143,35 +194,28 @@ public abstract class PlexCommand extends Command
         return Plex.get().getRankManager().isAdmin(plexPlayer);
     }
 
-    protected boolean isConsole(CommandSender sender)
+    protected boolean isConsole()
     {
         return !(sender instanceof Player);
     }
 
-    protected Component tl(String s, Object... objects)
+    protected String tl(String s, Object... objects)
     {
-        return LegacyComponentSerializer.legacyAmpersand().deserialize(PlexUtils.tl(s, objects));
+        return PlexUtils.tl(s, objects);
     }
 
-    protected Component usage(String s)
+    protected String usage(String s)
     {
-        return Component.text("Correct Usage: ").color(NamedTextColor.YELLOW)
-                .append(Component.text(s).color(NamedTextColor.GRAY));
+        return ChatColor.YELLOW + "Correct Usage: " + ChatColor.GRAY + s;
     }
 
-    protected void send(Audience audience, String s)
+    protected void send(String s)
     {
-        audience.sendMessage(LegacyComponentSerializer.legacyAmpersand().deserialize(s));
-    }
-
-    protected void send(Audience audience, Component component)
-    {
-        audience.sendMessage(component);
-    }
-
-    protected Component fromString(String s)
-    {
-        return LegacyComponentSerializer.legacyAmpersand().deserialize(s);
+        if (sender == null)
+        {
+            return;
+        }
+        send(s, sender);
     }
 
     protected Player getNonNullPlayer(String name)
@@ -210,7 +254,7 @@ public abstract class PlexCommand extends Command
         World world = Bukkit.getWorld(name);
         if (world == null)
         {
-            throw new CommandFailException(PlexUtils.tl("worldNotFound"));
+            throw new CommandFailException(tl("worldNotFound"));
         }
         return world;
     }
