@@ -8,6 +8,8 @@ import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.exception.CommandArgumentException;
 import dev.plex.command.exception.CommandFailException;
+import dev.plex.command.exception.ConsoleMustDefinePlayerException;
+import dev.plex.command.exception.ConsoleOnlyException;
 import dev.plex.command.exception.PlayerNotFoundException;
 import dev.plex.command.source.CommandSource;
 import dev.plex.command.source.RequiredCommandSource;
@@ -106,6 +108,14 @@ public abstract class PlexCommand extends Command implements TabExecutor, IPlexC
         {
             send(ex.getMessage());
         }
+        catch (ConsoleMustDefinePlayerException ex)
+        {
+            send(tl("consoleMustDefinePlayer"));
+        }
+        catch (ConsoleOnlyException ex)
+        {
+            send(tl("consoleOnly"));
+        }
         return true;
     }
 
@@ -116,9 +126,8 @@ public abstract class PlexCommand extends Command implements TabExecutor, IPlexC
         {
             return ImmutableList.of();
         }
-        if (sender instanceof Player)
+        if (sender instanceof Player player)
         {
-            Player player = (Player)sender;
 
             this.sender = new CommandSource(player);
 
