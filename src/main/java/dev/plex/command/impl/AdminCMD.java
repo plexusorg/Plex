@@ -14,15 +14,14 @@ import dev.plex.event.AdminSetRankEvent;
 import dev.plex.player.PlexPlayer;
 import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexUtils;
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
 import net.kyori.adventure.text.Component;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
 
 @CommandPermissions(level = Rank.SENIOR_ADMIN, source = RequiredCommandSource.ANY)
 @CommandParameters(name = "admin", usage = "/<command> <add | remove | setrank | list> [player] [rank]", aliases = "saconfig,slconfig,adminconfig,adminmanage", description = "Manage all admins")

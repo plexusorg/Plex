@@ -11,15 +11,14 @@ import dev.plex.punishment.Punishment;
 import dev.plex.punishment.PunishmentType;
 import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexUtils;
-import net.kyori.adventure.text.Component;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
-
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import net.kyori.adventure.text.Component;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 @CommandParameters(name = "freeze", description = "Freeze a player on the server", usage = "/<command> <player>")
 @CommandPermissions(level = Rank.ADMIN)

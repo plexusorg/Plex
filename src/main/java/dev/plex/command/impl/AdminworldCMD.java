@@ -11,9 +11,6 @@ import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.util.Collections;
-import java.util.List;
-
 @CommandPermissions(level = Rank.ADMIN, source = RequiredCommandSource.IN_GAME)
 @CommandParameters(name = "adminworld", aliases = "aw", description = "Teleport to the adminworld")
 public class AdminworldCMD extends PlexCommand

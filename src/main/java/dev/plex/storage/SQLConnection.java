@@ -2,7 +2,6 @@ package dev.plex.storage;
 
 import dev.plex.Plex;
 import dev.plex.PlexBase;
-
 import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;

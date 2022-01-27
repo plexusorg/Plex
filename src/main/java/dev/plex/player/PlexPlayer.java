@@ -5,19 +5,16 @@ import dev.morphia.annotations.Id;
 import dev.morphia.annotations.IndexOptions;
 import dev.morphia.annotations.Indexed;
 import dev.plex.rank.enums.Rank;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.Setter;
-import net.kyori.adventure.text.serializer.ComponentSerializer;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
-import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
 
 @Getter
 @Setter

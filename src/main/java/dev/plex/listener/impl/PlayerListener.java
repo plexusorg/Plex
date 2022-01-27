@@ -9,18 +9,15 @@ import dev.plex.listener.PlexListener;
 import dev.plex.player.PlexPlayer;
 import dev.plex.player.PunishedPlayer;
 import dev.plex.util.PlexLog;
+import java.util.Collections;
+import java.util.UUID;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.UUID;
 
 public class PlayerListener extends PlexListener
 {

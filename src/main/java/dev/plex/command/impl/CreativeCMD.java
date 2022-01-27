@@ -8,14 +8,13 @@ import dev.plex.command.exception.CommandFailException;
 import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexUtils;
+import java.util.List;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.List;
 
 @CommandPermissions(level = Rank.OP, source = RequiredCommandSource.ANY)
 @CommandParameters(name = "creative", aliases = "gmc", description = "Set your own or another player's gamemode to creative mode")

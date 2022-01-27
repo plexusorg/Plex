@@ -5,6 +5,8 @@ import dev.plex.cache.PlayerCache;
 import dev.plex.player.PunishedPlayer;
 import dev.plex.punishment.Punishment;
 import dev.plex.util.menu.AbstractMenu;
+import java.util.Arrays;
+import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -16,9 +18,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
-
-import java.util.Arrays;
-import java.util.List;
 
 public class PunishedPlayerMenu extends AbstractMenu
 {

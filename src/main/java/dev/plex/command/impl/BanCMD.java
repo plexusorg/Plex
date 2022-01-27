@@ -14,16 +14,15 @@ import dev.plex.punishment.Punishment;
 import dev.plex.punishment.PunishmentType;
 import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexUtils;
+import java.time.Instant;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-
-import java.time.Instant;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
 
 @CommandParameters(name = "ban", usage = "/<command> <player> [reason]", aliases = "offlineban,gtfo", description = "Bans a player, offline or online")
 @CommandPermissions(level = Rank.ADMIN, source = RequiredCommandSource.ANY)

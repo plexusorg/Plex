@@ -4,13 +4,12 @@ import dev.morphia.annotations.Entity;
 import dev.morphia.annotations.Id;
 import dev.morphia.annotations.IndexOptions;
 import dev.morphia.annotations.Indexed;
+import java.util.Date;
+import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang.RandomStringUtils;
-
-import java.util.Date;
-import java.util.UUID;
 
 @Getter
 @Setter

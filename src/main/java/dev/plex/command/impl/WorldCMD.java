@@ -7,6 +7,8 @@ import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.exception.CommandArgumentException;
 import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.rank.enums.Rank;
+import java.util.List;
+import java.util.stream.Collectors;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -14,10 +16,6 @@ import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @CommandPermissions(level = Rank.OP, source = RequiredCommandSource.IN_GAME)
 @CommandParameters(name = "world", description = "Teleport to a world.", usage = "/<command> <world>")

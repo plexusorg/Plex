@@ -5,15 +5,14 @@ import dev.plex.Plex;
 import dev.plex.player.PlexPlayer;
 import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexLog;
-import org.json.JSONObject;
-import org.json.JSONTokener;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.json.JSONObject;
+import org.json.JSONTokener;
 
 public class RankManager
 {

@@ -10,6 +10,11 @@ import dev.plex.rank.enums.Rank;
 import dev.plex.util.MojangUtils;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -17,12 +22,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
-
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 @CommandParameters(name = "namehistory", description = "Get the name history of a player", usage = "/<command> <player>", aliases = "nh")
 @CommandPermissions(level = Rank.OP)

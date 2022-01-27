@@ -2,9 +2,25 @@ package dev.plex.handlers;
 
 import com.google.common.collect.Lists;
 import dev.plex.command.PlexCommand;
-import dev.plex.command.impl.*;
+import dev.plex.command.impl.AdminCMD;
+import dev.plex.command.impl.AdminworldCMD;
+import dev.plex.command.impl.AdventureCMD;
+import dev.plex.command.impl.BanCMD;
+import dev.plex.command.impl.CreativeCMD;
+import dev.plex.command.impl.FlatlandsCMD;
+import dev.plex.command.impl.FreezeCMD;
+import dev.plex.command.impl.ListCMD;
+import dev.plex.command.impl.MasterbuilderworldCMD;
+import dev.plex.command.impl.NameHistoryCMD;
+import dev.plex.command.impl.OpAllCMD;
+import dev.plex.command.impl.OpCMD;
+import dev.plex.command.impl.PlexCMD;
+import dev.plex.command.impl.PunishmentsCMD;
+import dev.plex.command.impl.RankCMD;
+import dev.plex.command.impl.SpectatorCMD;
+import dev.plex.command.impl.SurvivalCMD;
+import dev.plex.command.impl.WorldCMD;
 import dev.plex.util.PlexLog;
-
 import java.util.List;
 
 public class CommandHandler

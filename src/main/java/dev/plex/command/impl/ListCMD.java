@@ -5,14 +5,12 @@ import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.rank.enums.Rank;
-import net.bytebuddy.description.NamedElement;
+import java.util.List;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-
-import java.util.List;
 
 @CommandParameters(name = "list", description = "Freeze a player on the server", usage = "/<command> <player>")
 @CommandPermissions(level = Rank.OP)

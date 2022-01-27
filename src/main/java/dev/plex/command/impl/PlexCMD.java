@@ -8,12 +8,11 @@ import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.exception.CommandArgumentException;
 import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.rank.enums.Rank;
+import java.util.List;
 import net.kyori.adventure.text.Component;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.List;
 
 @CommandPermissions(level = Rank.OP, source = RequiredCommandSource.ANY)
 @CommandParameters(name = "plex", usage = "/<command> [reload]", aliases = "plexhelp", description = "Show information about Plex or reload it")

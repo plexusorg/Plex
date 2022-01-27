@@ -1,9 +1,8 @@
 package dev.plex.rank.enums;
 
 import com.google.common.collect.Lists;
-import org.bukkit.ChatColor;
-
 import java.util.List;
+import org.bukkit.ChatColor;
 
 public enum Rank
 {

@@ -4,7 +4,6 @@ import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import dev.plex.Plex;
 import dev.plex.player.PlexPlayer;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

@@ -8,12 +8,11 @@ import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.menu.PunishmentMenu;
 import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexUtils;
+import java.util.List;
 import net.kyori.adventure.text.Component;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.List;
 
 @CommandParameters(name = "punishments", usage = "/<command> [player]", description = "Opens the Punishments GUI", aliases = "punishlist,punishes")
 @CommandPermissions(level = Rank.ADMIN, source = RequiredCommandSource.IN_GAME)

@@ -9,8 +9,6 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.util.List;
-
 // TODO: See ranks of other players
 
 @CommandPermissions(level = Rank.OP, source = RequiredCommandSource.IN_GAME)

@@ -1,7 +1,6 @@
 package dev.plex.listener.impl;
 
 import dev.plex.listener.PlexListener;
-import dev.plex.util.PlexLog;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 

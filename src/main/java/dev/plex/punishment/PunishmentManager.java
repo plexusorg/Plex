@@ -6,12 +6,6 @@ import dev.plex.Plex;
 import dev.plex.banning.Ban;
 import dev.plex.player.PunishedPlayer;
 import dev.plex.util.PlexUtils;
-import org.apache.commons.io.FileUtils;
-import org.bukkit.Bukkit;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.json.JSONObject;
-import org.json.JSONTokener;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
@@ -22,6 +16,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import org.apache.commons.io.FileUtils;
+import org.bukkit.Bukkit;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.json.JSONObject;
+import org.json.JSONTokener;
 
 public class PunishmentManager
 {

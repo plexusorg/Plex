@@ -22,14 +22,11 @@ import dev.plex.storage.StorageType;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import dev.plex.world.CustomWorld;
+import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import java.util.UUID;
 
 @Getter
 @Setter
