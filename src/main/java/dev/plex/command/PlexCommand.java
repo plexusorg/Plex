@@ -1,6 +1,5 @@
 package dev.plex.command;
 
-import com.google.common.collect.ImmutableList;
 import dev.plex.Plex;
 import dev.plex.cache.DataUtils;
 import dev.plex.cache.PlayerCache;
@@ -15,19 +14,20 @@ import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.player.PlexPlayer;
 import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexUtils;
+import java.util.Arrays;
+import java.util.UUID;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
-import org.bukkit.command.*;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandMap;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
 
 public abstract class PlexCommand extends Command
 {
@@ -103,17 +103,10 @@ public abstract class PlexCommand extends Command
         {
             send(sender, getUsage().replace("<command>", getLabel()));
         }
-        catch (PlayerNotFoundException | CommandFailException ex)
+        catch (PlayerNotFoundException | CommandFailException
+                | ConsoleOnlyException | ConsoleMustDefinePlayerException ex)
         {
             send(sender, ex.getMessage());
-        }
-        catch (ConsoleMustDefinePlayerException ex)
-        {
-            send(sender, tl("consoleMustDefinePlayer"));
-        }
-        catch (ConsoleOnlyException ex)
-        {
-            send(sender, tl("consoleOnly"));
         }
         return true;
     }
@@ -161,7 +154,10 @@ public abstract class PlexCommand extends Command
 
     protected boolean isAdmin(CommandSender sender)
     {
-        if (!(sender instanceof Player player)) return true;
+        if (!(sender instanceof Player player))
+        {
+            return true;
+        }
         PlexPlayer plexPlayer = getPlexPlayer(player);
         return Plex.get().getRankManager().isAdmin(plexPlayer);
     }
@@ -174,14 +170,20 @@ public abstract class PlexCommand extends Command
 
     protected boolean isSeniorAdmin(CommandSender sender)
     {
-        if (!(sender instanceof Player player)) return true;
+        if (!(sender instanceof Player player))
+        {
+            return true;
+        }
         PlexPlayer plexPlayer = getPlexPlayer(player);
         return Plex.get().getRankManager().isSeniorAdmin(plexPlayer);
     }
 
     protected UUID getUUID(CommandSender sender)
     {
-        if (!(sender instanceof Player player)) return null;
+        if (!(sender instanceof Player player))
+        {
+            return null;
+        }
         return player.getUniqueId();
     }
 
