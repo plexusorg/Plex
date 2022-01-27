@@ -28,7 +28,7 @@ dependencies {
     library 'dev.morphia.morphia:morphia-core:2.2.3'
     library 'redis.clients:jedis:4.0.1'
     library 'org.mariadb.jdbc:mariadb-java-client:2.7.4'
-    implementation 'org.apache.httpcomponents:httpclient:4.5.13'
+    library 'org.apache.httpcomponents:httpclient:4.5.13'
     compileOnly 'io.papermc.paper:paper-api:1.18.1-R0.1-SNAPSHOT'
 }
 
