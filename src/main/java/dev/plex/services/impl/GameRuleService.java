@@ -19,7 +19,7 @@ public class GameRuleService extends AbstractService
         for (World world : Bukkit.getWorlds())
         {
             commitGameRules(world);
-            PlexLog.log("Set gamerules for world: " + world);
+            PlexLog.debug("Set gamerules for world: " + world.getName());
         }
     }
 
