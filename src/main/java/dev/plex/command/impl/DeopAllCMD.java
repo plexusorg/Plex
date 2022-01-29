@@ -10,18 +10,18 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-@CommandParameters(name = "opall", description = "Op everyone on the server", aliases = "opa")
+@CommandParameters(name = "deopall", description = "Deop everyone on the server", aliases = "deopa")
 @CommandPermissions(level = Rank.ADMIN)
-public class OpAllCMD extends PlexCommand
+public class DeopAllCMD extends PlexCommand
 {
     @Override
     public Component execute(CommandSender sender, String[] args)
     {
         for (Player player : Bukkit.getOnlinePlayers())
         {
-            player.setOp(true);
+            player.setOp(false);
         }
-        PlexUtils.broadcast(tl("oppedAllPlayers", sender.getName()));
+        PlexUtils.broadcast(tl("deoppedAllPlayers", sender.getName()));
         return null;
     }
 

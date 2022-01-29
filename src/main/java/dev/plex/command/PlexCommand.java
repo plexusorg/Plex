@@ -13,6 +13,7 @@ import dev.plex.command.exception.PlayerNotFoundException;
 import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.player.PlexPlayer;
 import dev.plex.rank.enums.Rank;
+import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import java.util.Arrays;
 import java.util.UUID;
@@ -85,9 +86,27 @@ public abstract class PlexCommand extends Command
             Player player = (Player)sender;
 
             PlexPlayer plexPlayer = PlayerCache.getPlexPlayerMap().get(player.getUniqueId());
-            if (!plexPlayer.getRankFromString().isAtLeast(getLevel()))
+
+            if (plugin.getRanksOrPermissions().equalsIgnoreCase("ranks"))
             {
-                send(sender, tl("noPermissionRank", ChatColor.stripColor(getLevel().getLoginMSG())));
+                if (!plexPlayer.getRankFromString().isAtLeast(getLevel()))
+                {
+                    send(sender, tl("noPermissionRank", ChatColor.stripColor(getLevel().getLoginMSG())));
+                    return true;
+                }
+            }
+            else if (plugin.getRanksOrPermissions().equalsIgnoreCase("permissions"))
+            {
+                if (!player.hasPermission(perms.permission()))
+                {
+                    send(sender, tl("noPermissionNode", perms.permission()));
+                    return true;
+                }
+            }
+            else
+            {
+                PlexLog.error("Neither permissions or ranks were selected to be used in the configuration file!");
+                send(sender, "There is a server misconfiguration. Please alert a developer or the owner");
                 return true;
             }
         }
@@ -146,6 +165,21 @@ public abstract class PlexCommand extends Command
         audience.sendMessage(component);
     }
 
+    protected void checkRank(Player player, Rank rank, String permission)
+    {
+        PlexPlayer plexPlayer = getPlexPlayer(player);
+        if (plugin.getRanksOrPermissions().equalsIgnoreCase("ranks"))
+        {
+            send(player, "test ranks");
+        }
+        else if (plugin.getRanksOrPermissions().equalsIgnoreCase("permissions"))
+        {
+            if (!player.hasPermission(permission))
+            {
+                send(player, "test permissions");
+            }
+        }
+    }
 
     protected boolean isAdmin(PlexPlayer plexPlayer)
     {
@@ -159,13 +193,13 @@ public abstract class PlexCommand extends Command
             return true;
         }
         PlexPlayer plexPlayer = getPlexPlayer(player);
-        return Plex.get().getRankManager().isAdmin(plexPlayer);
+        return plugin.getRankManager().isAdmin(plexPlayer);
     }
 
     protected boolean isAdmin(String name)
     {
         PlexPlayer plexPlayer = DataUtils.getPlayer(name);
-        return Plex.get().getRankManager().isAdmin(plexPlayer);
+        return plugin.getRankManager().isAdmin(plexPlayer);
     }
 
     protected boolean isSeniorAdmin(CommandSender sender)
@@ -175,7 +209,7 @@ public abstract class PlexCommand extends Command
             return true;
         }
         PlexPlayer plexPlayer = getPlexPlayer(player);
-        return Plex.get().getRankManager().isSeniorAdmin(plexPlayer);
+        return plugin.getRankManager().isSeniorAdmin(plexPlayer);
     }
 
     protected UUID getUUID(CommandSender sender)

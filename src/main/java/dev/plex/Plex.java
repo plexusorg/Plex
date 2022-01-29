@@ -52,6 +52,8 @@ public class Plex extends JavaPlugin
 
     private AdminList adminList;
 
+    private String ranksOrPermissions;
+
     public static Plex get()
     {
         return plugin;
@@ -87,7 +89,8 @@ public class Plex extends JavaPlugin
         {
             PlexUtils.testConnections();
             PlexLog.log("Connected to " + storageType.name().toUpperCase());
-        } catch (Exception e)
+        }
+        catch (Exception e)
         {
             PlexLog.error("Failed to connect to " + storageType.name().toUpperCase());
             e.printStackTrace();
@@ -96,7 +99,8 @@ public class Plex extends JavaPlugin
         if (storageType == StorageType.MONGODB)
         {
             mongoPlayerData = new MongoPlayerData();
-        } else
+        }
+        else
         {
             sqlPlayerData = new SQLPlayerData();
         }
@@ -104,10 +108,13 @@ public class Plex extends JavaPlugin
         new ListenerHandler(); // this doesn't need a variable.
         new CommandHandler();
 
-        rankManager = new RankManager();
-        rankManager.generateDefaultRanks();
-        rankManager.importDefaultRanks();
-        PlexLog.log("Rank Manager initialized");
+        ranksOrPermissions = config.getString("commands.permissions");
+
+            rankManager = new RankManager();
+            rankManager.generateDefaultRanks();
+            rankManager.importDefaultRanks();
+            adminList = new AdminList();
+            PlexLog.log("Rank Manager initialized");
 
         punishmentManager = new PunishmentManager();
         banManager = new BanManager();
@@ -118,8 +125,6 @@ public class Plex extends JavaPlugin
 
         serviceManager.startServices();
         PlexLog.log("Started " + serviceManager.serviceCount() + " services.");
-
-        adminList = new AdminList();
 
         generateWorlds();
 

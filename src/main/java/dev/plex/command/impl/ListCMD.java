@@ -12,7 +12,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-@CommandParameters(name = "list", description = "Freeze a player on the server", usage = "/<command> <player>")
+@CommandParameters(name = "list", description = "Show a list of all online players", usage = "/<command> <player>")
 @CommandPermissions(level = Rank.OP)
 public class ListCMD extends PlexCommand
 {

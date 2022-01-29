@@ -63,6 +63,11 @@ public class RankManager
         }
     }
 
+    public Rank getRankFromString(String rank)
+    {
+        return Rank.valueOf(rank.toUpperCase());
+    }
+
     public void importDefaultRanks()
     {
         if (!defaultRanks.exists())

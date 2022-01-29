@@ -5,6 +5,11 @@ server:
   motd: "%servername% - Minecraft %mcversion%"
   colorize_motd: true
 
+# Settings for commands relating to Plex
+commands:
+  # Should Plex use a "true op" system with ranks or only permission nodes
+  permissions: ranks
+
 data:
   central:
     storage: sqlite # Use mariadb, mongodb, or sqlite here

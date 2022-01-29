@@ -34,13 +34,15 @@ public class PlayerListener extends PlexListener
 
         if (!DataUtils.hasPlayedBefore(player.getUniqueId()))
         {
-            PlexLog.log("A player with this name has not joined the server before, creating new entry."); // funi msg
+            PlexLog.log("A player with this name has not joined the server before, creating new entry.");
             plexPlayer = new PlexPlayer(player.getUniqueId()); //it doesn't! okay so now create the object
             plexPlayer.setName(player.getName()); //set the name of the player
             plexPlayer.setIps(Collections.singletonList(player.getAddress().getAddress().getHostAddress().trim())); //set the arraylist of ips
 
             DataUtils.insert(plexPlayer); // insert data in some wack db
-        } else {
+        }
+        else
+        {
             plexPlayer = DataUtils.getPlayer(player.getUniqueId());
         }
 
@@ -87,10 +89,7 @@ public class PlayerListener extends PlexListener
             sqlPlayerData.update(plexPlayer);
         }
 
-
         PlayerCache.getPlexPlayerMap().remove(event.getPlayer().getUniqueId()); //remove them from cache
         PlayerCache.getPunishedPlayerMap().remove(event.getPlayer().getUniqueId());
-
     }
-
 }

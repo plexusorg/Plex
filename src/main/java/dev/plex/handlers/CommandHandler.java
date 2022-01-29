@@ -7,6 +7,7 @@ import dev.plex.command.impl.AdminworldCMD;
 import dev.plex.command.impl.AdventureCMD;
 import dev.plex.command.impl.BanCMD;
 import dev.plex.command.impl.CreativeCMD;
+import dev.plex.command.impl.DeopAllCMD;
 import dev.plex.command.impl.FlatlandsCMD;
 import dev.plex.command.impl.FreezeCMD;
 import dev.plex.command.impl.ListCMD;
@@ -33,6 +34,7 @@ public class CommandHandler
         commands.add(new AdventureCMD());
         commands.add(new BanCMD());
         commands.add(new CreativeCMD());
+        commands.add(new DeopAllCMD());
         commands.add(new FlatlandsCMD());
         commands.add(new FreezeCMD());
         commands.add(new ListCMD());

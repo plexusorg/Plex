@@ -13,11 +13,11 @@ import org.bukkit.entity.Player;
 
 @CommandPermissions(level = Rank.OP, source = RequiredCommandSource.IN_GAME)
 @CommandParameters(name = "rank", description = "Displays your rank")
-public class RankCMD extends PlexCommand {
-
+public class RankCMD extends PlexCommand
+{
     @Override
-    public Component execute(CommandSender sender, String[] args) {
-        return tl("yourRank", getPlexPlayer((Player) sender).getRank());
+    public Component execute(CommandSender sender, String[] args)
+    {
+        return tl("yourRank", getPlexPlayer((Player)sender).getRank());
     }
-
 }
