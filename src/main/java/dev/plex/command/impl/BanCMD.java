@@ -25,11 +25,10 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 @CommandParameters(name = "ban", usage = "/<command> <player> [reason]", aliases = "offlineban,gtfo", description = "Bans a player, offline or online")
-@CommandPermissions(level = Rank.ADMIN, source = RequiredCommandSource.ANY)
+@CommandPermissions(level = Rank.ADMIN, permission = "plex.ban", source = RequiredCommandSource.ANY)
 
 public class BanCMD extends PlexCommand
 {
-
     @Override
     public Component execute(CommandSender sender, String[] args)
     {
@@ -69,7 +68,7 @@ public class BanCMD extends PlexCommand
             punishment.setEndDate(new Date(Instant.now().plusSeconds(10/*PlexUtils.secondsToHours(24)*/).getEpochSecond()));
             punishment.setCustomTime(false);
             plugin.getPunishmentManager().doPunishment(punishedPlayer, punishment);
-            Bukkit.broadcast(componentFromString(sender.getName() + " - Banning " + plexPlayer.getName()));
+            PlexUtils.broadcast(tl("unbanningPlayer", sender.getName(), plexPlayer.getName()));
             if (Bukkit.getPlayer(targetUUID) != null)
             {
                 Bukkit.getPlayer(targetUUID).kick(componentFromString("&cYou've been banned."));

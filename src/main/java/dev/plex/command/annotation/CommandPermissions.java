@@ -13,5 +13,5 @@ public @interface CommandPermissions
 
     RequiredCommandSource source() default RequiredCommandSource.ANY;
 
-    String permission() default "plex.donotgivethispermission"; // No idea what to put here
+    String permission() default ""; // No idea what to put here
 }

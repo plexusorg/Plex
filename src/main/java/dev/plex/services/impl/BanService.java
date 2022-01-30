@@ -1,6 +1,7 @@
 package dev.plex.services.impl;
 
 import dev.plex.Plex;
+import dev.plex.PlexBase;
 import dev.plex.banning.Ban;
 import dev.plex.services.AbstractService;
 import java.util.Date;

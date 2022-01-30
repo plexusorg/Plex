@@ -17,7 +17,6 @@ import org.jetbrains.annotations.NotNull;
 @CommandPermissions(level = Rank.OP)
 public class OpCMD extends PlexCommand
 {
-
     @Override
     public Component execute(CommandSender sender, String[] args)
     {

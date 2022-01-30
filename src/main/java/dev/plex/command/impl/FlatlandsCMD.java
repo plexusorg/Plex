@@ -11,7 +11,7 @@ import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-@CommandPermissions(level = Rank.ADMIN, source = RequiredCommandSource.IN_GAME)
+@CommandPermissions(level = Rank.OP, permission = "plex.flatlands", source = RequiredCommandSource.IN_GAME)
 @CommandParameters(name = "flatlands", description = "Teleport to the flatlands")
 public class FlatlandsCMD extends PlexCommand
 {

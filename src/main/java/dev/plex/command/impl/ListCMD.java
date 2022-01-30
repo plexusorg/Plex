@@ -13,7 +13,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 @CommandParameters(name = "list", description = "Show a list of all online players", usage = "/<command> <player>")
-@CommandPermissions(level = Rank.OP)
+@CommandPermissions(level = Rank.OP, permission = "plex.list")
 public class ListCMD extends PlexCommand
 {
     @Override

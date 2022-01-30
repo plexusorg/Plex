@@ -4,8 +4,7 @@ import com.google.common.collect.ImmutableList;
 import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
-import dev.plex.command.source.RequiredCommandSource;
-import dev.plex.menu.PunishmentMenu;
+import dev.plex.command.exception.CommandArgumentException;
 import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexUtils;
 import java.util.List;
@@ -14,14 +13,20 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-@CommandParameters(name = "punishments", usage = "/<command> [player]", description = "Opens the Punishments GUI", aliases = "punishlist,punishes")
-@CommandPermissions(level = Rank.ADMIN, permission = "plex.punishments", source = RequiredCommandSource.IN_GAME)
-public class PunishmentsCMD extends PlexCommand
+@CommandParameters(name = "deop", description = "Deop a player on the server", usage = "/<command> <player>")
+@CommandPermissions(level = Rank.ADMIN, permission = "plex.deop")
+public class DeopCMD extends PlexCommand
 {
     @Override
     public Component execute(CommandSender sender, String[] args)
     {
-        new PunishmentMenu().openInv(((Player) sender), 0);
+        if (args.length != 1)
+        {
+            throw new CommandArgumentException();
+        }
+        Player player = getNonNullPlayer(args[0]);
+        player.setOp(false);
+        PlexUtils.broadcast(tl("oppedPlayer", sender.getName(), player.getName()));
         return null;
     }
 

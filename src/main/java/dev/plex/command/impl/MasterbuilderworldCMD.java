@@ -11,7 +11,7 @@ import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-@CommandPermissions(level = Rank.ADMIN, source = RequiredCommandSource.IN_GAME)
+@CommandPermissions(level = Rank.OP, permission = "plex.masterbuilderworld", source = RequiredCommandSource.IN_GAME)
 @CommandParameters(name = "masterbuilderworld", aliases = "mbw", description = "Teleport to the Master Builder world")
 public class MasterbuilderworldCMD extends PlexCommand
 {

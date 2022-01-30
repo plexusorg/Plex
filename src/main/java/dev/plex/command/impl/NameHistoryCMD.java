@@ -24,7 +24,7 @@ import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
 @CommandParameters(name = "namehistory", description = "Get the name history of a player", usage = "/<command> <player>", aliases = "nh")
-@CommandPermissions(level = Rank.OP)
+@CommandPermissions(level = Rank.OP, permission = "plex.namehistory")
 public class NameHistoryCMD extends PlexCommand
 {
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("MM/dd/yyyy 'at' HH:mm:ss");

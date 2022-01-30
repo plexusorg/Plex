@@ -11,7 +11,7 @@ import org.bukkit.entity.Player;
 
 // TODO: See ranks of other players
 
-@CommandPermissions(level = Rank.OP, source = RequiredCommandSource.IN_GAME)
+@CommandPermissions(level = Rank.OP, permission = "plex.rank", source = RequiredCommandSource.IN_GAME)
 @CommandParameters(name = "rank", description = "Displays your rank")
 public class RankCMD extends PlexCommand
 {
