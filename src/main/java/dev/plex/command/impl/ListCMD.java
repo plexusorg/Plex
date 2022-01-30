@@ -27,6 +27,8 @@ public class ListCMD extends PlexCommand
                 .append(Component.text(players.size() > 1 ? "players " : "player " + "online out of").color(NamedTextColor.GRAY))
                 .append(Component.space())
                 .append(Component.text(Bukkit.getMaxPlayers()).color(NamedTextColor.YELLOW))
+                .append(Component.newline())
+                .append(Component.text("players").color(NamedTextColor.GRAY))
                 .append(Component.newline());
         for (int i = 0; i < players.size(); i++)
         {

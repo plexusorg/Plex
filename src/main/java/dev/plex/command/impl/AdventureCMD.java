@@ -16,7 +16,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-@CommandPermissions(level = Rank.OP, source = RequiredCommandSource.ANY)
+@CommandPermissions(level = Rank.OP, permission = "plex.gamemode.adventure", source = RequiredCommandSource.ANY)
 @CommandParameters(name = "adventure", aliases = "gma", description = "Set your own or another player's gamemode to adventure mode")
 public class AdventureCMD extends PlexCommand
 {
@@ -24,18 +24,18 @@ public class AdventureCMD extends PlexCommand
     @Override
     public Component execute(CommandSender sender, String[] args)
     {
+        Player player = (Player) sender;
         if (args.length == 0)
         {
             if (isConsole(sender))
             {
                 throw new CommandFailException("You must define a player when using the console!");
             }
-            Player player = (Player) sender;
             player.setGameMode(GameMode.ADVENTURE);
             return tl("gameModeSetTo", "adventure");
         }
 
-        if (isAdmin(sender))
+        if (checkRank(player, Rank.ADMIN, "plex.gamemode.adventure.others"))
         {
             if (args[0].equals("-a"))
             {
@@ -46,11 +46,11 @@ public class AdventureCMD extends PlexCommand
                 return tl("gameModeSetTo", "adventure");
             }
 
-            Player player = getNonNullPlayer(args[0]);
+            Player nPlayer = getNonNullPlayer(args[0]);
             // use send
-            send(player, tl("playerSetOtherGameMode", sender.getName(), "adventure"));
-            player.setGameMode(GameMode.ADVENTURE);
-            return tl("setOtherPlayerGameModeTo", player.getName(), "adventure");
+            send(nPlayer, tl("playerSetOtherGameMode", sender.getName(), "adventure"));
+            nPlayer.setGameMode(GameMode.ADVENTURE);
+            return tl("setOtherPlayerGameModeTo", nPlayer.getName(), "adventure");
         }
         return null;
     }
@@ -64,5 +64,4 @@ public class AdventureCMD extends PlexCommand
         }
         return ImmutableList.of();
     }
-
 }
