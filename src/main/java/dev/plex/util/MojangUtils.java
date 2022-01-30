@@ -35,7 +35,8 @@ public class MojangUtils
                     .insert(13, "-")
                     .insert(18, "-")
                     .insert(23, "-").toString());
-        } catch (IOException e)
+        }
+        catch (IOException e)
         {
             e.printStackTrace();
             return null;
@@ -63,12 +64,14 @@ public class MojangUtils
                     Instant instant = Instant.ofEpochMilli(dateTime);
                     LocalDateTime time = LocalDateTime.ofInstant(instant, ZoneId.of("America/Los_Angeles"));
                     names.put(name, time);
-                } else
+                }
+                else
                 {
                     names.put(name, null);
                 }
             });
-        } catch (IOException e)
+        }
+        catch (IOException e)
         {
             e.printStackTrace();
         }

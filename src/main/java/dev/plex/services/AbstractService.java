@@ -11,11 +11,13 @@ public abstract class AbstractService implements IService
         this.asynchronous = async;
     }
 
-    public boolean isRepeating() {
+    public boolean isRepeating()
+    {
         return repeating;
     }
 
-    public boolean isAsynchronous() {
+    public boolean isAsynchronous()
+    {
         return asynchronous;
     }
 }

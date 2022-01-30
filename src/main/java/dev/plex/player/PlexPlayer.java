@@ -69,7 +69,8 @@ public class PlexPlayer
         this.rank = "";
     }
 
-    public String displayName() {
+    public String displayName()
+    {
         return PlainTextComponentSerializer.plainText().serialize(player.displayName());
     }
 

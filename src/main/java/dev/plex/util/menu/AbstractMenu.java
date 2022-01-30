@@ -14,7 +14,8 @@ public abstract class AbstractMenu implements Listener
         Plex.get().getServer().getPluginManager().registerEvents(this, Plex.get());
     }
 
-    public String getName() {
+    public String getName()
+    {
         return name;
     }
 }

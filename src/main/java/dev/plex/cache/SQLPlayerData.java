@@ -54,7 +54,9 @@ public class SQLPlayerData
                 String rankName = set.getString("rank").toUpperCase();
                 long coins = set.getLong("coins");
                 boolean vanished = set.getBoolean("vanished");
-                List<String> ips = new Gson().fromJson(set.getString("ips"), new TypeToken<List<String>>(){}.getType());
+                List<String> ips = new Gson().fromJson(set.getString("ips"), new TypeToken<List<String>>()
+                {
+                }.getType());
                 plexPlayer.setName(name);
                 plexPlayer.setLoginMSG(loginMSG);
                 plexPlayer.setPrefix(prefix);

@@ -51,7 +51,7 @@ public class BanCMD extends PlexCommand
             {
                 if (!isConsole(sender))
                 {
-                    PlexPlayer plexPlayer1 = getPlexPlayer((Player) sender);
+                    PlexPlayer plexPlayer1 = getPlexPlayer((Player)sender);
                     if (!plexPlayer1.getRankFromString().isAtLeast(plexPlayer.getRankFromString()))
                     {
                         return tl("higherRankThanYou");

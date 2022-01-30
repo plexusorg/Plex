@@ -24,7 +24,7 @@ public class AdventureCMD extends PlexCommand
     @Override
     public Component execute(CommandSender sender, String[] args)
     {
-        Player player = (Player) sender;
+        Player player = (Player)sender;
         if (args.length == 0)
         {
             if (isConsole(sender))

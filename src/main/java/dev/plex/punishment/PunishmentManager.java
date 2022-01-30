@@ -29,7 +29,8 @@ public class PunishmentManager
     {
         File file = player.getPunishmentsFile();
 
-        try {
+        try
+        {
             if (isNotEmpty(file))
             {
                 JSONTokener tokener = new JSONTokener(new FileInputStream(file));
@@ -40,7 +41,9 @@ public class PunishmentManager
                 writer.append(object.toString(8));
                 writer.flush();
                 writer.close();
-            } else {
+            }
+            else
+            {
                 JSONObject object = new JSONObject();
                 Map<String, List<String>> punishments = Maps.newHashMap();
 
@@ -56,15 +59,21 @@ public class PunishmentManager
                 writer.close();
             }
 
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             e.printStackTrace();
         }
     }
 
-    private boolean isNotEmpty(File file) {
-        try {
+    private boolean isNotEmpty(File file)
+    {
+        try
+        {
             return !FileUtils.readFileToString(file, StandardCharsets.UTF_8).trim().isEmpty();
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             e.printStackTrace();
         }
         return false;
@@ -76,15 +85,18 @@ public class PunishmentManager
         {
             Ban ban = new Ban(punishment.getPunished(), (punishment.getPunisher() == null ? null : punishment.getPunisher()), "", punishment.getReason(), punishment.getEndDate());
             Plex.get().getBanManager().executeBan(ban);
-        } else if (punishment.getType() == PunishmentType.FREEZE)
+        }
+        else if (punishment.getType() == PunishmentType.FREEZE)
         {
             player.setFrozen(true);
             Date now = new Date();
             Date then = punishment.getEndDate();
-            long seconds =  TimeUnit.MILLISECONDS.toSeconds(then.getTime() - now.getTime());
-            new BukkitRunnable() {
+            long seconds = TimeUnit.MILLISECONDS.toSeconds(then.getTime() - now.getTime());
+            new BukkitRunnable()
+            {
                 @Override
-                public void run() {
+                public void run()
+                {
                     if (!player.isFrozen())
                     {
                         this.cancel();
@@ -97,16 +109,18 @@ public class PunishmentManager
             }.runTaskLater(Plex.get(), 20 * seconds);
 
 
-
-        } else if (punishment.getType() == PunishmentType.MUTE)
+        }
+        else if (punishment.getType() == PunishmentType.MUTE)
         {
             player.setMuted(true);
             Date now = new Date();
             Date then = punishment.getEndDate();
-            long seconds =  TimeUnit.MILLISECONDS.toSeconds(then.getTime() - now.getTime());
-            new BukkitRunnable() {
+            long seconds = TimeUnit.MILLISECONDS.toSeconds(then.getTime() - now.getTime());
+            new BukkitRunnable()
+            {
                 @Override
-                public void run() {
+                public void run()
+                {
                     player.setMuted(false);
                 }
             }.runTaskLater(Plex.get(), 20 * seconds);

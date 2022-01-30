@@ -44,7 +44,8 @@ public class NameHistoryCMD extends PlexCommand
         if (offlinePlayer != null)
         {
             uuid = offlinePlayer.getUniqueId();
-        } else
+        }
+        else
         {
             uuid = MojangUtils.getUUID(username);
         }
@@ -68,7 +69,8 @@ public class NameHistoryCMD extends PlexCommand
                                 .append(Component.text("-").color(NamedTextColor.DARK_GRAY))
                                 .append(Component.space())
                                 .append(Component.text(DATE_FORMAT.format(entry.getValue())).color(NamedTextColor.GOLD)));
-            } else
+            }
+            else
             {
                 historyList.add(
                         Component.text(entry.getKey()).color(NamedTextColor.GOLD)

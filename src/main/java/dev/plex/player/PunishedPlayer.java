@@ -68,9 +68,12 @@ public class PunishedPlayer
         File file = new File(folder, getUuid() + ".json");
         if (!file.exists())
         {
-            try {
+            try
+            {
                 file.createNewFile();
-            } catch (IOException e) {
+            }
+            catch (IOException e)
+            {
                 e.printStackTrace();
             }
         }
@@ -86,24 +89,32 @@ public class PunishedPlayer
 
         if (isNotEmpty(file))
         {
-            try {
+            try
+            {
                 JSONTokener tokener = new JSONTokener(new FileInputStream(file));
                 JSONObject object = new JSONObject(tokener);
-                object.getJSONObject(getUuid()).getJSONArray("punishments").forEach(obj -> {
+                object.getJSONObject(getUuid()).getJSONArray("punishments").forEach(obj ->
+                {
                     Punishment punishment = Punishment.fromJson(obj.toString());
                     punishments.add(punishment);
                 });
-            } catch (FileNotFoundException e) {
+            }
+            catch (FileNotFoundException e)
+            {
                 e.printStackTrace();
             }
         }
         return punishments;
     }
 
-    private boolean isNotEmpty(File file) {
-        try {
+    private boolean isNotEmpty(File file)
+    {
+        try
+        {
             return !FileUtils.readFileToString(file, StandardCharsets.UTF_8).trim().isEmpty();
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             e.printStackTrace();
         }
         return false;

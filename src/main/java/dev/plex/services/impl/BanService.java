@@ -8,12 +8,14 @@ import org.bukkit.Bukkit;
 
 public class BanService extends AbstractService
 {
-    public BanService() {
+    public BanService()
+    {
         super(true, true);
     }
 
     @Override
-    public void run() {
+    public void run()
+    {
         for (Ban ban : Plex.get().getBanManager().getActiveBans())
         {
             if (new Date().after(ban.getEndDate()))
@@ -25,7 +27,8 @@ public class BanService extends AbstractService
     }
 
     @Override
-    public int repeatInSeconds() {
+    public int repeatInSeconds()
+    {
         return 10;
     }
 }
