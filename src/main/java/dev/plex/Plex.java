@@ -105,7 +105,7 @@ public class Plex extends JavaPlugin
             sqlPlayerData = new SQLPlayerData();
         }
 
-        new ListenerHandler(); // this doesn't need a variable.
+        new ListenerHandler();
         new CommandHandler();
 
 
@@ -119,13 +119,13 @@ public class Plex extends JavaPlugin
         banManager = new BanManager();
         PlexLog.log("Punishment System initialized");
 
+        generateWorlds();
+
         serviceManager = new ServiceManager();
         PlexLog.log("Service Manager initialized");
 
         serviceManager.startServices();
         PlexLog.log("Started " + serviceManager.serviceCount() + " services.");
-
-        generateWorlds();
 
         reloadPlayers();
     }

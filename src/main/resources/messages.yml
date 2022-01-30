@@ -42,7 +42,7 @@ frozePlayer: "<b><v> - Froze <v>"
 unfrozePlayer: "<b><v> - Unfroze <v>"
 noPermission: "<e>You cannot use this command!"
 # 1: the login message (uncolored) of the rank required to use the command
-noPermissionRank: "<e>You must be at least <v> rank to use this command!"
+noPermissionRank: "<e>You must be at least <v> to use this command!"
 noPermissionNode: "<e>You must have the permission: <v> to use this command!"
 noPermissionInGame: "<e>You must be in console to use this command!"
 noPermissionConsole: "<e>You must be in-game to use this command!"

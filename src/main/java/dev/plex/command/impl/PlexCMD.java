@@ -17,17 +17,20 @@ import org.jetbrains.annotations.NotNull;
 
 @CommandPermissions(level = Rank.OP, permission = "plex.plex", source = RequiredCommandSource.ANY)
 @CommandParameters(name = "plex", usage = "/<command> [reload]", aliases = "plexhelp", description = "Show information about Plex or reload it")
-public class PlexCMD extends PlexCommand {
+public class PlexCMD extends PlexCommand
+{
 
     @Override
-    public Component execute(CommandSender sender, String[] args) {
-        if (args.length == 0) {
+    public Component execute(CommandSender sender, String[] args)
+    {
+        if (args.length == 0)
+        {
             send(sender, ChatColor.LIGHT_PURPLE + "Plex. The long awaited TotalFreedomMod rewrite starts here...");
             return componentFromString(ChatColor.LIGHT_PURPLE + "Plugin version: " + ChatColor.GOLD + "1.0");
         }
         if (args[0].equals("reload"))
         {
-            checkRank((Player)sender, Rank.SENIOR_ADMIN, "plex.reload");
+            checkRank(sender, Rank.SENIOR_ADMIN, "plex.reload");
             Plex.get().config.load();
             send(sender, "Reloaded config file");
             Plex.get().messages.load();
@@ -35,7 +38,9 @@ public class PlexCMD extends PlexCommand {
             Plex.get().getRankManager().importDefaultRanks();
             send(sender, "Imported ranks");
             send(sender, "Plex successfully reloaded.");
-        } else {
+        }
+        else
+        {
             throw new CommandArgumentException();
         }
         return null;
@@ -46,5 +51,4 @@ public class PlexCMD extends PlexCommand {
     {
         return ImmutableList.of("reload");
     }
-    
 }

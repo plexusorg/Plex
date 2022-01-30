@@ -28,22 +28,13 @@ public class ChatListener extends PlexListener
         {
             renderer.hasPrefix = true;
             renderer.prefix = plexPlayer.getPrefix();
-        } else if (Plex.get().getRankManager().isAdmin(plexPlayer))
+        }
+        else if (Plex.get().getRankManager().isAdmin(plexPlayer))
         {
             renderer.hasPrefix = true;
             renderer.prefix = plexPlayer.getRankFromString().getPrefix();
         }
         event.renderer(renderer);
-        /*if (!plexPlayer.getPrefix().isEmpty())
-        {
-            event.setFormat(String.format("%s %s §7» %s", plexPlayer.getPrefix(), ChatColor.RESET + plexPlayer.displayName(), event.getMessage()));
-        } else if (Plex.get().getRankManager().isAdmin(plexPlayer))
-        {
-            event.setFormat(String.format("%s %s §7» %s", plexPlayer.getRankFromString().getPrefix(), ChatColor.RESET + plexPlayer.displayName(), event.getMessage()));
-        } else
-        {
-            event.setFormat(String.format("%s §7» %s", ChatColor.RESET + plexPlayer.displayName(), event.getMessage()));
-        }*/
     }
 
     public static class PlexChatRenderer implements ChatRenderer

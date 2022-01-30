@@ -1,9 +1,14 @@
 # Plex Configuration File
 
 server:
-  name: "ExampleFreedom"
+  name: "Plexus"
   motd: "%servername% - Minecraft %mcversion%"
   colorize_motd: true
+
+# Ban message is customized here. Additional messages can be configured in messages.yml
+banning:
+  message: "&cYou are banned! Please appeal on the forums at https://forum.plex.us.org/"
+
 
 # Settings for commands relating to Plex
 commands:

@@ -64,11 +64,10 @@ public class BanCMD extends PlexCommand
             punishment.setType(PunishmentType.BAN);
             punishment.setReason("");
             punishment.setPunishedUsername(plexPlayer.getName());
-            //TODO: Debug End date
-            punishment.setEndDate(new Date(Instant.now().plusSeconds(10/*PlexUtils.secondsToHours(24)*/).getEpochSecond()));
+            punishment.setEndDate(new Date(Instant.now().plusSeconds(PlexUtils.hoursToSeconds(24)).getEpochSecond()));
             punishment.setCustomTime(false);
             plugin.getPunishmentManager().doPunishment(punishedPlayer, punishment);
-            PlexUtils.broadcast(tl("unbanningPlayer", sender.getName(), plexPlayer.getName()));
+            PlexUtils.broadcast(tl("banningPlayer", sender.getName(), plexPlayer.getName()));
             if (Bukkit.getPlayer(targetUUID) != null)
             {
                 Bukkit.getPlayer(targetUUID).kick(componentFromString("&cYou've been banned."));
@@ -82,5 +81,4 @@ public class BanCMD extends PlexCommand
     {
         return args.length == 1 && isAdmin(sender) ? PlexUtils.getPlayerNameList() : ImmutableList.of();
     }
-
 }

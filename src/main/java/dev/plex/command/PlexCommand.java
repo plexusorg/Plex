@@ -167,6 +167,16 @@ public abstract class PlexCommand extends Command
         audience.sendMessage(component);
     }
 
+    protected boolean checkRank(CommandSender sender, Rank rank, String permission)
+    {
+        if (!isConsole(sender))
+        {
+            checkRank((Player)sender, rank, permission);
+            return true;
+        }
+        return true;
+    }
+
     protected boolean checkRank(Player player, Rank rank, String permission)
     {
         PlexPlayer plexPlayer = getPlexPlayer(player);
@@ -174,16 +184,14 @@ public abstract class PlexCommand extends Command
         {
             if (!plexPlayer.getRank().equals(rank.toString()))
             {
-                send(player, tl("noPermissionRank", rank.toString()));
-                return true;
+                throw new CommandFailException(PlexUtils.tl("noPermissionRank", ChatColor.stripColor(rank.getLoginMSG())));
             }
         }
         else if (plugin.getRanksOrPermissions().equalsIgnoreCase("permissions"))
         {
             if (!player.hasPermission(permission))
             {
-                send(player, tl("noPermissionNode", permission));
-                return true;
+                throw new CommandFailException(PlexUtils.tl("noPermissionNode", permission));
             }
         }
         return true;
@@ -268,7 +276,7 @@ public abstract class PlexCommand extends Command
 
     protected PlexPlayer getOfflinePlexPlayer(UUID uuid)
     {
-        PlexPlayer plexPlayer = PlayerCache.getPlexPlayer(uuid);
+        PlexPlayer plexPlayer = DataUtils.getPlayer(uuid);
         if (plexPlayer == null)
         {
             throw new PlayerNotFoundException();

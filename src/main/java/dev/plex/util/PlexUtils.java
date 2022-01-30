@@ -251,7 +251,7 @@ public class PlexUtils extends PlexBase
 
     public static long hoursToSeconds(long hours)
     {
-        return hours * 60 * 60;
+        return hours * 3600;
     }
 
     public static long minutesToSeconds(long minutes)

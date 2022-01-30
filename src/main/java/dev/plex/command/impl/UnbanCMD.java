@@ -8,11 +8,14 @@ import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.exception.PlayerNotBannedException;
 import dev.plex.command.exception.PlayerNotFoundException;
 import dev.plex.command.source.RequiredCommandSource;
+import dev.plex.player.PlexPlayer;
 import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexUtils;
 import java.util.List;
 import java.util.UUID;
 import net.kyori.adventure.text.Component;
+import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -33,9 +36,9 @@ public class UnbanCMD extends PlexCommand
         if (args.length == 1)
         {
             UUID targetUUID = PlexUtils.getFromName(args[0]);
-            Player player = getNonNullPlayer(args[0]);
+            PlexPlayer plexPlayer = getOfflinePlexPlayer(targetUUID);
 
-            if (targetUUID == null || !DataUtils.hasPlayedBefore(targetUUID))
+            if (!DataUtils.hasPlayedBefore(targetUUID))
             {
                 throw new PlayerNotFoundException();
             }
@@ -46,7 +49,7 @@ public class UnbanCMD extends PlexCommand
             }
 
             plugin.getBanManager().unban(targetUUID);
-            PlexUtils.broadcast(tl("unbanningPlayer", sender.getName(), player.getName()));
+            PlexUtils.broadcast(tl("unbanningPlayer", sender.getName(), plexPlayer.getName()));
         }
         return null;
     }
