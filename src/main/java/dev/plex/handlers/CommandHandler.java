@@ -34,6 +34,7 @@ public class CommandHandler extends PlexBase
         commands.add(new RankCMD());
         commands.add(new SpectatorCMD());
         commands.add(new SurvivalCMD());
+        commands.add(new UnbanCMD());
         commands.add(new WorldCMD());
         PlexLog.log(String.format("Registered %s commands!", commands.size()));
     }
