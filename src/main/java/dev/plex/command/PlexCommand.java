@@ -165,20 +165,26 @@ public abstract class PlexCommand extends Command
         audience.sendMessage(component);
     }
 
-    protected void checkRank(Player player, Rank rank, String permission)
+    protected boolean checkRank(Player player, Rank rank, String permission)
     {
         PlexPlayer plexPlayer = getPlexPlayer(player);
         if (plugin.getRanksOrPermissions().equalsIgnoreCase("ranks"))
         {
-            send(player, "test ranks");
+            if (!plexPlayer.getRank().equals(rank.toString()))
+            {
+                send(player, tl("noPermissionRank", rank.toString()));
+                return true;
+            }
         }
         else if (plugin.getRanksOrPermissions().equalsIgnoreCase("permissions"))
         {
             if (!player.hasPermission(permission))
             {
-                send(player, "test permissions");
+                send(player, tl("noPermissionNode", permission));
+                return true;
             }
         }
+        return true;
     }
 
     protected boolean isAdmin(PlexPlayer plexPlayer)

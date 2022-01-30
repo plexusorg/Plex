@@ -12,6 +12,7 @@ import java.util.List;
 import net.kyori.adventure.text.Component;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 @CommandPermissions(level = Rank.OP, source = RequiredCommandSource.ANY)
@@ -26,10 +27,7 @@ public class PlexCMD extends PlexCommand {
         }
         if (args[0].equals("reload"))
         {
-            if (!isSeniorAdmin(sender))
-            {
-                return tl("noPermission");
-            }
+            checkRank((Player)sender, Rank.SENIOR_ADMIN, "plex.reload");
             Plex.get().config.load();
             send(sender, "Reloaded config file");
             Plex.get().messages.load();
