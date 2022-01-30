@@ -65,7 +65,6 @@ public class Plex extends JavaPlugin
         plugin = this;
         config = new Config(this, "config.yml");
         messages = new Config(this, "messages.yml");
-        saveResource("database.db", false);
 
         sqlConnection = new SQLConnection();
         mongoConnection = new MongoConnection();
