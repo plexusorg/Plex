@@ -2,24 +2,17 @@ package dev.plex.command.impl;
 
 import com.google.common.collect.ImmutableList;
 import dev.plex.cache.DataUtils;
-import dev.plex.cache.PlayerCache;
 import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
+import dev.plex.command.exception.PlayerNotBannedException;
 import dev.plex.command.exception.PlayerNotFoundException;
 import dev.plex.command.source.RequiredCommandSource;
-import dev.plex.player.PlexPlayer;
-import dev.plex.player.PunishedPlayer;
-import dev.plex.punishment.Punishment;
-import dev.plex.punishment.PunishmentType;
 import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexUtils;
-import java.time.Instant;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -40,15 +33,20 @@ public class UnbanCMD extends PlexCommand
         if (args.length == 1)
         {
             UUID targetUUID = PlexUtils.getFromName(args[0]);
-            PlexPlayer plexPlayer = DataUtils.getPlayer(targetUUID);
+            Player player = getNonNullPlayer(args[0]);
 
             if (targetUUID == null || !DataUtils.hasPlayedBefore(targetUUID))
             {
                 throw new PlayerNotFoundException();
             }
 
+            if (!plugin.getBanManager().isBanned(targetUUID))
+            {
+                throw new PlayerNotBannedException();
+            }
+
             plugin.getBanManager().unban(targetUUID);
-            PlexUtils.broadcast(tl("unbanningPlayer", sender.getName(), plexPlayer.getName()));
+            PlexUtils.broadcast(tl("unbanningPlayer", sender.getName(), player.getName()));
         }
         return null;
     }

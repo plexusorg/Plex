@@ -84,6 +84,7 @@ public class Plex extends JavaPlugin
     {
         config.load();
         messages.load();
+        ranksOrPermissions = config.getString("commands.permissions");
 
         try
         {
@@ -108,13 +109,12 @@ public class Plex extends JavaPlugin
         new ListenerHandler(); // this doesn't need a variable.
         new CommandHandler();
 
-        ranksOrPermissions = config.getString("commands.permissions");
 
-            rankManager = new RankManager();
-            rankManager.generateDefaultRanks();
-            rankManager.importDefaultRanks();
-            adminList = new AdminList();
-            PlexLog.log("Rank Manager initialized");
+        rankManager = new RankManager();
+        rankManager.generateDefaultRanks();
+        rankManager.importDefaultRanks();
+        adminList = new AdminList();
+        PlexLog.log("Rank Manager initialized");
 
         punishmentManager = new PunishmentManager();
         banManager = new BanManager();

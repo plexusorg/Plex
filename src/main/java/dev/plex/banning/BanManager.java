@@ -24,10 +24,11 @@ public class BanManager
         if (Plex.get().getStorageType() == StorageType.MONGODB)
         {
             Plex.get().getMongoConnection().getDatastore().save(ban);
-        } else {
+        }
+        else
+        {
             try (Connection con = Plex.get().getSqlConnection().getCon())
             {
-
                 PreparedStatement statement = con.prepareStatement(INSERT);
                 statement.setString(1, ban.getId());
                 statement.setString(2, ban.getUuid().toString());
@@ -38,7 +39,9 @@ public class BanManager
                 statement.setBoolean(7, ban.isActive());
                 statement.execute();
 
-            } catch (SQLException throwables) {
+            }
+            catch (SQLException throwables)
+            {
                 throwables.printStackTrace();
             }
         }
@@ -50,18 +53,28 @@ public class BanManager
         {
             return Plex.get().getMongoConnection().getDatastore().find(Ban.class)
                     .filter(Filters.eq("uuid", uuid.toString())).filter(Filters.eq("active", true)).first() != null;
-        } else {
+        }
+        else
+        {
             try (Connection con = Plex.get().getSqlConnection().getCon())
             {
                 PreparedStatement statement = con.prepareStatement(SELECT);
                 statement.setString(1, uuid.toString());
                 ResultSet set = statement.executeQuery();
-                if (!set.next()) return false;
+                if (!set.next())
+                {
+                    return false;
+                }
                 while (set.next())
                 {
-                    if (set.getBoolean("active")) return true;
+                    if (set.getBoolean("active"))
+                    {
+                        return true;
+                    }
                 }
-            } catch (SQLException throwables) {
+            }
+            catch (SQLException throwables)
+            {
                 throwables.printStackTrace();
             }
         }
@@ -77,14 +90,18 @@ public class BanManager
             {
                 query.update(UpdateOperators.set("active", false)).execute();
             }
-        } else {
+        }
+        else
+        {
             try (Connection con = Plex.get().getSqlConnection().getCon())
             {
                 PreparedStatement statement = con.prepareStatement("UPDATE `bans` SET active=? WHERE uuid=?");
                 statement.setBoolean(1, false);
                 statement.setString(2, uuid.toString());
                 statement.executeUpdate();
-            } catch (SQLException throwables) {
+            }
+            catch (SQLException throwables)
+            {
                 throwables.printStackTrace();
             }
         }
@@ -99,14 +116,18 @@ public class BanManager
             {
                 query.update(UpdateOperators.set("active", false)).execute();
             }
-        } else {
+        }
+        else
+        {
             try (Connection con = Plex.get().getSqlConnection().getCon())
             {
                 PreparedStatement statement = con.prepareStatement("UPDATE `bans` SET active=? WHERE banID=?");
                 statement.setBoolean(1, false);
                 statement.setString(2, id);
                 statement.executeUpdate();
-            } catch (SQLException throwables) {
+            }
+            catch (SQLException throwables)
+            {
                 throwables.printStackTrace();
             }
         }
@@ -121,7 +142,9 @@ public class BanManager
             {
                 bans.add(ban);
             }
-        } else {
+        }
+        else
+        {
             try (Connection con = Plex.get().getSqlConnection().getCon())
             {
                 PreparedStatement statement = con.prepareStatement("SELECT * FROM `bans`");
@@ -140,12 +163,12 @@ public class BanManager
                         bans.add(ban);
                     }
                 }
-            } catch (SQLException throwables) {
+            }
+            catch (SQLException throwables)
+            {
                 throwables.printStackTrace();
             }
         }
         return bans;
     }
-
-
 }

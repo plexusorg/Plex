@@ -4,7 +4,6 @@ import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.rank.enums.Rank;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import org.bukkit.permissions.Permission;
 
 @Retention(RetentionPolicy.RUNTIME)
 public @interface CommandPermissions

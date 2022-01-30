@@ -9,6 +9,7 @@ import dev.plex.command.exception.CommandArgumentException;
 import dev.plex.command.exception.CommandFailException;
 import dev.plex.command.exception.ConsoleMustDefinePlayerException;
 import dev.plex.command.exception.ConsoleOnlyException;
+import dev.plex.command.exception.PlayerNotBannedException;
 import dev.plex.command.exception.PlayerNotFoundException;
 import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.player.PlexPlayer;
@@ -123,7 +124,8 @@ public abstract class PlexCommand extends Command
             send(sender, getUsage().replace("<command>", getLabel()));
         }
         catch (PlayerNotFoundException | CommandFailException
-                | ConsoleOnlyException | ConsoleMustDefinePlayerException ex)
+                | ConsoleOnlyException | ConsoleMustDefinePlayerException
+                | PlayerNotBannedException ex)
         {
             send(sender, ex.getMessage());
         }

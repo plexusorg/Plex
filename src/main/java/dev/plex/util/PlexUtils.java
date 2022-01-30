@@ -162,12 +162,7 @@ public class PlexUtils extends PlexBase
         {
             return;
         }
-        int sy = Math.min(c1.getBlockY(), c2.getBlockY()),
-                ey = Math.max(c1.getBlockY(), c2.getBlockY()),
-                sx = Math.min(c1.getBlockX(), c2.getBlockX()),
-                ex = Math.max(c1.getBlockX(), c2.getBlockX()),
-                sz = Math.min(c1.getBlockZ(), c2.getBlockZ()),
-                ez = Math.max(c1.getBlockZ(), c2.getBlockZ());
+        int sy = Math.min(c1.getBlockY(), c2.getBlockY()), ey = Math.max(c1.getBlockY(), c2.getBlockY()), sx = Math.min(c1.getBlockX(), c2.getBlockX()), ex = Math.max(c1.getBlockX(), c2.getBlockX()), sz = Math.min(c1.getBlockZ(), c2.getBlockZ()), ez = Math.max(c1.getBlockZ(), c2.getBlockZ());
         World world = c1.getWorld();
         for (int y = sy; y <= ey; y++)
         {
@@ -183,7 +178,7 @@ public class PlexUtils extends PlexBase
 
     public static List<String> getPlayerNameList()
     {
-       return Bukkit.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList());
+        return Bukkit.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList());
     }
 
     public static void broadcast(String s)
@@ -238,6 +233,7 @@ public class PlexUtils extends PlexBase
     {
         return ThreadLocalRandom.current().nextInt(limit);
     }
+
     public static int randomNum(int start, int limit)
     {
         return ThreadLocalRandom.current().nextInt(start, limit);
