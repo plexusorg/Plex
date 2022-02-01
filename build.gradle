@@ -30,6 +30,8 @@ dependencies {
     library 'org.mariadb.jdbc:mariadb-java-client:2.7.4'
     library 'org.apache.httpcomponents:httpclient:4.5.13'
     compileOnly 'io.papermc.paper:paper-api:1.18.1-R0.1-SNAPSHOT'
+    implementation 'org.bstats:bstats-base:3.0.0'
+    implementation 'org.bstats:bstats-bukkit:3.0.0'
 }
 
 group = 'dev.plex'
@@ -38,6 +40,7 @@ description = 'Plex'
 
 shadowJar {
     archiveClassifier.set("")
+    relocate 'org.bstats', 'dev.plex'
 }
 
 bukkit {

@@ -88,7 +88,7 @@ public abstract class PlexCommand extends Command
 
             PlexPlayer plexPlayer = PlayerCache.getPlexPlayerMap().get(player.getUniqueId());
 
-            if (plugin.getRanksOrPermissions().equalsIgnoreCase("ranks"))
+            if (plugin.getSystem().equalsIgnoreCase("ranks"))
             {
                 if (!plexPlayer.getRankFromString().isAtLeast(getLevel()))
                 {
@@ -96,7 +96,7 @@ public abstract class PlexCommand extends Command
                     return true;
                 }
             }
-            else if (plugin.getRanksOrPermissions().equalsIgnoreCase("permissions"))
+            else if (plugin.getSystem().equalsIgnoreCase("permissions"))
             {
                 if (!player.hasPermission(perms.permission()))
                 {
@@ -180,14 +180,14 @@ public abstract class PlexCommand extends Command
     protected boolean checkRank(Player player, Rank rank, String permission)
     {
         PlexPlayer plexPlayer = getPlexPlayer(player);
-        if (plugin.getRanksOrPermissions().equalsIgnoreCase("ranks"))
+        if (plugin.getSystem().equalsIgnoreCase("ranks"))
         {
             if (!plexPlayer.getRank().equals(rank.toString()))
             {
                 throw new CommandFailException(PlexUtils.tl("noPermissionRank", ChatColor.stripColor(rank.getLoginMSG())));
             }
         }
-        else if (plugin.getRanksOrPermissions().equalsIgnoreCase("permissions"))
+        else if (plugin.getSystem().equalsIgnoreCase("permissions"))
         {
             if (!player.hasPermission(permission))
             {

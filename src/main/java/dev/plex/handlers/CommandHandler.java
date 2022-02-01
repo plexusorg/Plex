@@ -12,7 +12,7 @@ public class CommandHandler extends PlexBase
     public CommandHandler()
     {
         List<PlexCommand> commands = Lists.newArrayList();
-        if (plugin.getRanksOrPermissions().equalsIgnoreCase("ranks"))
+        if (plugin.getSystem().equalsIgnoreCase("ranks"))
         {
             commands.add(new AdminCMD());
             commands.add(new DeopAllCMD());

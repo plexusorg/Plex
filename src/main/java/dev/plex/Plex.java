@@ -25,6 +25,7 @@ import dev.plex.world.CustomWorld;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
+import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -52,7 +53,7 @@ public class Plex extends JavaPlugin
 
     private AdminList adminList;
 
-    private String ranksOrPermissions;
+    private String system;
 
     public static Plex get()
     {
@@ -83,7 +84,7 @@ public class Plex extends JavaPlugin
     {
         config.load();
         messages.load();
-        ranksOrPermissions = config.getString("commands.permissions");
+        system = config.getString("commands.permissions");
 
         try
         {
@@ -95,6 +96,11 @@ public class Plex extends JavaPlugin
             PlexLog.error("Failed to connect to " + storageType.name().toUpperCase());
             e.printStackTrace();
         }
+
+        // https://bstats.org/plugin/bukkit/Plex/14143
+        Metrics metrics = new Metrics(this, 14143);
+        PlexLog.log("Enabled Metrics");
+
 
         if (storageType == StorageType.MONGODB)
         {
