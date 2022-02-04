@@ -21,6 +21,7 @@ import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 @CommandParameters(name = "namehistory", description = "Get the name history of a player", usage = "/<command> <player>", aliases = "nh")
@@ -30,14 +31,13 @@ public class NameHistoryCMD extends PlexCommand
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("MM/dd/yyyy 'at' HH:mm:ss");
 
     @Override
-    public Component execute(CommandSender sender, String[] args)
+    public Component execute(CommandSender sender, Player playerSender, String[] args)
     {
         if (args.length != 1)
         {
             throw new CommandArgumentException();
         }
         String username = args[0];
-
 
         UUID uuid;
         OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayerIfCached(username);

@@ -21,6 +21,7 @@ import net.kyori.adventure.text.Component;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 @CommandPermissions(level = Rank.SENIOR_ADMIN, source = RequiredCommandSource.ANY)
@@ -30,7 +31,7 @@ public class AdminCMD extends PlexCommand
     //TODO: Better return messages
 
     @Override
-    public Component execute(CommandSender sender, String[] args)
+    public Component execute(CommandSender sender, Player playerSender, String[] args)
     {
         if (args.length == 0)
         {

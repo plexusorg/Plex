@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.UUID;
 import net.kyori.adventure.text.Component;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 @CommandParameters(name = "unban", usage = "/<command> <player>", description = "Unbans a player, offline or online")
@@ -23,7 +24,7 @@ import org.jetbrains.annotations.NotNull;
 public class UnbanCMD extends PlexCommand
 {
     @Override
-    public Component execute(CommandSender sender, String[] args)
+    public Component execute(CommandSender sender, Player playerSender, String[] args)
     {
         if (args.length == 0)
         {

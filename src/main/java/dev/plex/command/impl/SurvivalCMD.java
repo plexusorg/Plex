@@ -21,20 +21,19 @@ import org.jetbrains.annotations.NotNull;
 public class SurvivalCMD extends PlexCommand
 {
     @Override
-    public Component execute(CommandSender sender, String[] args)
+    public Component execute(CommandSender sender, Player playerSender, String[] args)
     {
-        Player player = (Player)sender;
         if (args.length == 0)
         {
             if (isConsole(sender))
             {
                 throw new CommandFailException("You must define a player when using the console!");
             }
-            player.setGameMode(GameMode.SURVIVAL);
+            playerSender.setGameMode(GameMode.SURVIVAL);
             return tl("gameModeSetTo", "survival");
         }
 
-        if (checkRank(player, Rank.ADMIN, "plex.gamemode.survival.others"))
+        if (checkRank(playerSender, Rank.ADMIN, "plex.gamemode.survival.others"))
         {
             if (args[0].equals("-a"))
             {

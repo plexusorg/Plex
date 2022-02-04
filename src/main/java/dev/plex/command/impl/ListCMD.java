@@ -12,23 +12,25 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-@CommandParameters(name = "list", description = "Show a list of all online players", usage = "/<command> <player>")
+@CommandParameters(name = "list", description = "Show a list of all online players")
 @CommandPermissions(level = Rank.OP, permission = "plex.list")
 public class ListCMD extends PlexCommand
 {
     @Override
-    protected Component execute(CommandSender sender, String[] args)
+    protected Component execute(CommandSender sender, Player playerSender, String[] args)
     {
         List<Player> players = Lists.newArrayList(Bukkit.getOnlinePlayers());
-        Component component = Component.text("There " + (players.size() > 1 ? "are" : "is") + " currently").color(NamedTextColor.GRAY)
+        Component component = Component.text("There " + (players.size() == 1 ? "is" : "are") + " currently").color(NamedTextColor.GRAY)
                 .append(Component.space())
                 .append(Component.text(players.size()).color(NamedTextColor.YELLOW))
                 .append(Component.space())
-                .append(Component.text(players.size() > 1 ? "players " : "player " + "online out of").color(NamedTextColor.GRAY))
+                .append(Component.text(players.size() == 1 ? "player" : "players").color(NamedTextColor.GRAY))
+                .append(Component.space())
+                .append(Component.text("online out of").color(NamedTextColor.GRAY))
                 .append(Component.space())
                 .append(Component.text(Bukkit.getMaxPlayers()).color(NamedTextColor.YELLOW))
-                .append(Component.newline())
-                .append(Component.text("players").color(NamedTextColor.GRAY))
+                .append(Component.space())
+                .append(Component.text(Bukkit.getMaxPlayers() == 1 ? "player." : "players.").color(NamedTextColor.GRAY))
                 .append(Component.newline());
         for (int i = 0; i < players.size(); i++)
         {

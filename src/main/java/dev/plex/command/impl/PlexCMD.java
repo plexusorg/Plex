@@ -12,6 +12,7 @@ import java.util.List;
 import net.kyori.adventure.text.Component;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 @CommandPermissions(level = Rank.OP, permission = "plex.plex", source = RequiredCommandSource.ANY)
@@ -20,7 +21,7 @@ public class PlexCMD extends PlexCommand
 {
 
     @Override
-    public Component execute(CommandSender sender, String[] args)
+    public Component execute(CommandSender sender, Player playerSender,  String[] args)
     {
         if (args.length == 0)
         {

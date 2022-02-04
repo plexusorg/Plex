@@ -18,7 +18,7 @@ import org.jetbrains.annotations.NotNull;
 public class DeopCMD extends PlexCommand
 {
     @Override
-    public Component execute(CommandSender sender, String[] args)
+    public Component execute(CommandSender sender, Player playerSender, String[] args)
     {
         if (args.length != 1)
         {

@@ -21,20 +21,19 @@ import org.jetbrains.annotations.NotNull;
 public class CreativeCMD extends PlexCommand
 {
     @Override
-    public Component execute(CommandSender sender, String[] args)
+    public Component execute(CommandSender sender, Player playerSender, String[] args)
     {
-        Player player = (Player)sender;
         if (args.length == 0)
         {
             if (isConsole(sender))
             {
                 throw new CommandFailException("You must define a player when using the console!");
             }
-            player.setGameMode(GameMode.CREATIVE);
+            playerSender.setGameMode(GameMode.CREATIVE);
             return tl("gameModeSetTo", "creative");
         }
 
-        if (checkRank(player, Rank.ADMIN, "plex.gamemode.creative.others"))
+        if (checkRank(playerSender, Rank.ADMIN, "plex.gamemode.creative.others"))
         {
             if (args[0].equals("-a"))
             {

@@ -17,12 +17,12 @@ public class FlatlandsCMD extends PlexCommand
 {
 
     @Override
-    public Component execute(CommandSender sender, String[] args)
+    public Component execute(CommandSender sender, Player playerSender, String[] args)
     {
         if (args.length == 0)
         {
             Location loc = new Location(Bukkit.getWorld("flatlands"), 0, 50, 0);
-            ((Player)sender).teleportAsync(loc);
+            playerSender.teleportAsync(loc);
             return tl("teleportedToWorld", "flatlands");
         }
         return null;

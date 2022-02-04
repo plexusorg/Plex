@@ -15,7 +15,7 @@ import org.bukkit.entity.Player;
 public class OpAllCMD extends PlexCommand
 {
     @Override
-    public Component execute(CommandSender sender, String[] args)
+    public Component execute(CommandSender sender, Player playerSender, String[] args)
     {
         for (Player player : Bukkit.getOnlinePlayers())
         {

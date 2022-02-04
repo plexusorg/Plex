@@ -16,8 +16,8 @@ import org.bukkit.entity.Player;
 public class RankCMD extends PlexCommand
 {
     @Override
-    public Component execute(CommandSender sender, String[] args)
+    public Component execute(CommandSender sender, Player playerSender, String[] args)
     {
-        return tl("yourRank", getPlexPlayer((Player)sender).getRank());
+        return tl("yourRank", getPlexPlayer(playerSender).getLoginMSG());
     }
 }

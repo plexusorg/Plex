@@ -22,20 +22,19 @@ public class AdventureCMD extends PlexCommand
 {
 
     @Override
-    public Component execute(CommandSender sender, String[] args)
+    public Component execute(CommandSender sender, Player playerSender, String[] args)
     {
-        Player player = (Player)sender;
         if (args.length == 0)
         {
             if (isConsole(sender))
             {
                 throw new CommandFailException("You must define a player when using the console!");
             }
-            player.setGameMode(GameMode.ADVENTURE);
+            playerSender.setGameMode(GameMode.ADVENTURE);
             return tl("gameModeSetTo", "adventure");
         }
 
-        if (checkRank(player, Rank.ADMIN, "plex.gamemode.adventure.others"))
+        if (checkRank(playerSender, Rank.ADMIN, "plex.gamemode.adventure.others"))
         {
             if (args[0].equals("-a"))
             {

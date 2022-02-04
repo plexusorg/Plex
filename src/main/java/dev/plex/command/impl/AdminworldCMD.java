@@ -16,13 +16,13 @@ import org.bukkit.entity.Player;
 public class AdminworldCMD extends PlexCommand
 {
     @Override
-    public Component execute(CommandSender sender, String[] args)
+    public Component execute(CommandSender sender, Player playerSender, String[] args)
     {
         // TODO: Add adminworld settings
         if (args.length == 0)
         {
             Location loc = new Location(Bukkit.getWorld("adminworld"), 0, 50, 0);
-            ((Player)sender).teleportAsync(loc);
+            playerSender.teleportAsync(loc);
             return tl("teleportedToWorld", "adminworld");
         }
         return null;

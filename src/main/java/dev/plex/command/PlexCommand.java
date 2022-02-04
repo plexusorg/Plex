@@ -28,10 +28,13 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandMap;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
+import org.bukkit.command.PluginIdentifiableCommand;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public abstract class PlexCommand extends Command
+public abstract class PlexCommand extends Command implements PluginIdentifiableCommand
 {
     protected static Plex plugin = Plex.get();
 
@@ -61,7 +64,7 @@ public abstract class PlexCommand extends Command
         getMap().register("plex", this);
     }
 
-    protected abstract Component execute(CommandSender sender, String[] args);
+    protected abstract Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, @NotNull String[] args);
 
 
     @Override
@@ -113,7 +116,7 @@ public abstract class PlexCommand extends Command
         }
         try
         {
-            Component component = this.execute(sender, args);
+            Component component = this.execute(sender, isConsole(sender) ? null : (Player)sender, args);
             if (component != null)
             {
                 send(sender, component);
@@ -235,6 +238,12 @@ public abstract class PlexCommand extends Command
             return null;
         }
         return player.getUniqueId();
+    }
+
+    @Override
+    public @NotNull Plugin getPlugin()
+    {
+        return plugin;
     }
 
 
