@@ -12,7 +12,6 @@ import lombok.Setter;
 @Setter
 public class Punishment
 {
-
     private final UUID punished;
     private final UUID punisher;
 
@@ -47,5 +46,4 @@ public class Punishment
     {
         return new Gson().fromJson(json, Punishment.class);
     }
-
 }

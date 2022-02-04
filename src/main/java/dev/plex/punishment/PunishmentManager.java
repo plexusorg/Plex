@@ -3,8 +3,10 @@ package dev.plex.punishment;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import dev.plex.Plex;
+import dev.plex.PlexBase;
 import dev.plex.banning.Ban;
 import dev.plex.player.PunishedPlayer;
+import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import java.io.File;
 import java.io.FileInputStream;
@@ -22,9 +24,8 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
-public class PunishmentManager
+public class PunishmentManager extends PlexBase
 {
-
     public void insertPunishment(PunishedPlayer player, Punishment punishment)
     {
         File file = player.getPunishmentsFile();
@@ -36,6 +37,11 @@ public class PunishmentManager
                 JSONTokener tokener = new JSONTokener(new FileInputStream(file));
                 JSONObject object = new JSONObject(tokener);
                 object.getJSONObject(punishment.getPunished().toString()).getJSONArray("punishments").put(punishment.toJSON());
+                if (plugin.getRedisConnection().isEnabled())
+                {
+                    plugin.getRedisConnection().getJedis().set(player.getUuid(), object.toString());
+                    PlexLog.debug("Added " + player.getUuid() + "'s punishment to the Redis database.");
+                }
 
                 FileWriter writer = new FileWriter(file);
                 writer.append(object.toString(8));
@@ -52,13 +58,17 @@ public class PunishmentManager
 
                 punishments.put("punishments", punishmentList);
                 object.put(punishment.getPunished().toString(), punishments);
+                if (plugin.getRedisConnection().isEnabled())
+                {
+                    plugin.getRedisConnection().getJedis().set(player.getUuid(), object.toString());
+                    PlexLog.debug("Added " + player.getUuid() + "'s punishment to the Redis database.");
+                }
 
                 FileWriter writer = new FileWriter(file);
                 writer.append(object.toString(8));
                 writer.flush();
                 writer.close();
             }
-
         }
         catch (IOException e)
         {
@@ -107,8 +117,6 @@ public class PunishmentManager
                     Bukkit.getLogger().info("Unfroze");
                 }
             }.runTaskLater(Plex.get(), 20 * seconds);
-
-
         }
         else if (punishment.getType() == PunishmentType.MUTE)
         {
@@ -132,5 +140,4 @@ public class PunishmentManager
         issuePunishment(player, punishment);
         insertPunishment(player, punishment);
     }
-
 }

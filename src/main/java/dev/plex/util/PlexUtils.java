@@ -1,6 +1,5 @@
 package dev.plex.util;
 
-import com.google.common.collect.Lists;
 import dev.plex.Plex;
 import dev.plex.PlexBase;
 import dev.plex.config.Config;

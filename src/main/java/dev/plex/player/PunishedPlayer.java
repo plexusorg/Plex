@@ -2,9 +2,11 @@ package dev.plex.player;
 
 import com.google.common.collect.Lists;
 import dev.plex.Plex;
+import dev.plex.PlexBase;
 import dev.plex.event.PunishedPlayerFreezeEvent;
 import dev.plex.event.PunishedPlayerMuteEvent;
 import dev.plex.punishment.Punishment;
+import dev.plex.util.PlexLog;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -21,7 +23,7 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 
 @Getter
-public class PunishedPlayer
+public class PunishedPlayer extends PlexBase
 {
     //everything in here will be stored in redis
     @Setter(AccessLevel.NONE)
@@ -85,12 +87,27 @@ public class PunishedPlayer
     {
         List<Punishment> punishments = Lists.newArrayList();
 
+        if (plugin.getRedisConnection().isEnabled())
+        {
+            PlexLog.debug("Getting punishments from Redis...");
+            String strObj = plugin.getRedisConnection().getJedis().get(uuid);
+            JSONTokener tokener = new JSONTokener(strObj);
+            JSONObject object = new JSONObject(tokener);
+            object.getJSONObject(getUuid()).getJSONArray("punishments").forEach(obj ->
+            {
+                Punishment punishment = Punishment.fromJson(obj.toString());
+                punishments.add(punishment);
+            });
+            return punishments;
+        }
+
         File file = getPunishmentsFile();
 
         if (isNotEmpty(file))
         {
             try
             {
+                PlexLog.debug("Getting punishments from locally stored JSON files...");
                 JSONTokener tokener = new JSONTokener(new FileInputStream(file));
                 JSONObject object = new JSONObject(tokener);
                 object.getJSONObject(getUuid()).getJSONArray("punishments").forEach(obj ->

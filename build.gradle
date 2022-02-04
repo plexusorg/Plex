@@ -18,6 +18,7 @@ repositories {
     maven {
         url = uri('https://repo.maven.apache.org/maven2/')
     }
+    mavenCentral()
 }
 
 dependencies {
@@ -26,7 +27,7 @@ dependencies {
     library 'org.json:json:20211205'
     library 'commons-io:commons-io:2.11.0'
     library 'dev.morphia.morphia:morphia-core:2.2.3'
-    library 'redis.clients:jedis:4.0.1'
+    library 'redis.clients:jedis:4.1.0'
     library 'org.mariadb.jdbc:mariadb-java-client:2.7.4'
     library 'org.apache.httpcomponents:httpclient:4.5.13'
     compileOnly 'io.papermc.paper:paper-api:1.18.1-R0.1-SNAPSHOT'

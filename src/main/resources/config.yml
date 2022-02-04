@@ -1,4 +1,5 @@
 # Plex Configuration File
+# For documentation, please visit: https://docs.plex.us.org
 
 server:
   name: "Plexus"
@@ -24,6 +25,7 @@ data:
     port: 27017
     db: "plex"
   side: # This is Redis, leave password blank if auth is false
+    enabled: false
     auth: true
     hostname: 127.0.0.1
     port: 6379

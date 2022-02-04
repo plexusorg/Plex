@@ -101,6 +101,14 @@ public class Plex extends JavaPlugin
         Metrics metrics = new Metrics(this, 14143);
         PlexLog.log("Enabled Metrics");
 
+        if (redisConnection.isEnabled())
+        {
+            redisConnection.openPool();
+        }
+        else
+        {
+            PlexLog.log("Redis is disabled in the configuration file, not connecting.");
+        }
 
         if (storageType == StorageType.MONGODB)
         {
@@ -139,11 +147,11 @@ public class Plex extends JavaPlugin
     @Override
     public void onDisable()
     {
-        /*if (redisConnection.getJedis().isConnected())
+        if (redisConnection.isEnabled() && redisConnection.getJedis().isConnected())
         {
-            PlexLog.log("Disabling Redis/Jedis. No memory leaks in this Anarchy server !");
+            PlexLog.log("Disabling Redis/Jedis. No memory leaks in this Anarchy server!");
             redisConnection.getJedis().close();
-        }*/
+        }
     }
 
     private void generateWorlds()
