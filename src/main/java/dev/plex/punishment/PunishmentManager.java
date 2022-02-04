@@ -41,6 +41,7 @@ public class PunishmentManager extends PlexBase
                 {
                     plugin.getRedisConnection().getJedis().set(player.getUuid(), object.toString());
                     PlexLog.debug("Added " + player.getUuid() + "'s punishment to the Redis database.");
+                    plugin.getRedisConnection().getJedis().close();
                 }
 
                 FileWriter writer = new FileWriter(file);
@@ -62,6 +63,7 @@ public class PunishmentManager extends PlexBase
                 {
                     plugin.getRedisConnection().getJedis().set(player.getUuid(), object.toString());
                     PlexLog.debug("Added " + player.getUuid() + "'s punishment to the Redis database.");
+                    plugin.getRedisConnection().getJedis().close();
                 }
 
                 FileWriter writer = new FileWriter(file);

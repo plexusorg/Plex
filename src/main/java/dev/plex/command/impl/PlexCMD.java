@@ -50,6 +50,7 @@ public class PlexCMD extends PlexCommand
             plugin.getRedisConnection().getJedis().set("test", "123");
             send(sender, "Set test to 123. Now outputting key test...");
             send(sender, plugin.getRedisConnection().getJedis().get("test"));
+            plugin.getRedisConnection().getJedis().close();
         }
         else
         {

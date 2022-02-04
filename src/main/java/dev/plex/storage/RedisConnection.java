@@ -1,22 +1,22 @@
 package dev.plex.storage;
 
-import dev.plex.Plex;
 import dev.plex.PlexBase;
 import dev.plex.util.PlexLog;
 import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
-import redis.clients.jedis.JedisPoolConfig;
 
 public class RedisConnection extends PlexBase
 {
-    private JedisPool pool;
     private Jedis jedis;
 
-    public JedisPool openPool()
+    /*public JedisPool openPool()
     {
+        JedisPoolConfig jedisConfig = new JedisPoolConfig();
+        //jedisConfig.setMaxIdle(10);
+        //jedisConfig.setMaxTotal(100);
         ClassLoader previous = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(RedisConnection.class.getClassLoader());
-        this.pool = new JedisPool(new JedisPoolConfig(), plugin.config.getString("data.side.hostname"), Plex.get().getConfig().getInt("data.side.port"));
+        this.pool = new JedisPool(jedisConfig, plugin.config.getString("data.side.hostname"),
+                plugin.config.getInt("data.side.port"));
         Thread.currentThread().setContextClassLoader(previous);
         PlexLog.log("Connected to Redis!");
         return pool;
@@ -24,10 +24,39 @@ public class RedisConnection extends PlexBase
 
     public Jedis getJedis()
     {
-        this.jedis = pool.getResource();
+        try
+        {
+            this.jedis = pool.getResource();
+        }
+        catch (Exception ex)
+        {
+            PlexLog.error("An error occurred with Redis.");
+            ex.printStackTrace();
+        }
         if (plugin.config.getBoolean("data.side.auth"))
         {
             jedis.auth(plugin.config.getString("data.side.password"));
+        }
+        return jedis;
+    }*/
+
+    public Jedis getJedis()
+    {
+        try
+        {
+            jedis = new Jedis(plugin.config.getString("data.side.hostname"),
+                    plugin.config.getInt("data.side.port"));
+            if (plugin.config.getBoolean("data.side.auth"))
+            {
+                jedis.auth(plugin.config.getString("data.side.password"));
+            }
+            PlexLog.log("Connected to Redis!");
+            return jedis;
+        }
+        catch (Exception ex)
+        {
+            PlexLog.error("An error occurred with Redis.");
+            ex.printStackTrace();
         }
         return jedis;
     }

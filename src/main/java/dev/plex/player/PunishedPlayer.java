@@ -98,6 +98,7 @@ public class PunishedPlayer extends PlexBase
                 Punishment punishment = Punishment.fromJson(obj.toString());
                 punishments.add(punishment);
             });
+            plugin.getRedisConnection().getJedis().close();
             return punishments;
         }
 
