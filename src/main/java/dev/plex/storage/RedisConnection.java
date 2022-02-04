@@ -5,6 +5,7 @@ import dev.plex.PlexBase;
 import dev.plex.util.PlexLog;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPoolConfig;
 
 public class RedisConnection extends PlexBase
 {
@@ -15,7 +16,7 @@ public class RedisConnection extends PlexBase
     {
         ClassLoader previous = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(RedisConnection.class.getClassLoader());
-        this.pool = new JedisPool(plugin.config.getString("data.side.hostname"), Plex.get().getConfig().getInt("data.side.port"));
+        this.pool = new JedisPool(new JedisPoolConfig(), plugin.config.getString("data.side.hostname"), Plex.get().getConfig().getInt("data.side.port"));
         Thread.currentThread().setContextClassLoader(previous);
         PlexLog.log("Connected to Redis!");
         return pool;
