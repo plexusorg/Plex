@@ -50,7 +50,6 @@ public class RedisConnection extends PlexBase
             {
                 jedis.auth(plugin.config.getString("data.side.password"));
             }
-            PlexLog.log("Connected to Redis!");
             return jedis;
         }
         catch (Exception ex)

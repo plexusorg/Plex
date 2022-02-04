@@ -6,9 +6,9 @@ server:
   motd: "%servername% - Minecraft %mcversion%"
   colorize_motd: true
 
-# Ban message is customized here. Additional messages can be configured in messages.yml
+# Ban message is customized in the messages.yml file. The URL to appeal at is below.
 banning:
-  message: "&cYou are banned! Please appeal on the forums at https://forum.plex.us.org/"
+  ban_url: "https://forum.plex.us.org"
 
 
 # Settings for commands relating to Plex

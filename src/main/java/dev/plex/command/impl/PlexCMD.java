@@ -18,7 +18,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @CommandPermissions(level = Rank.OP, permission = "plex.plex", source = RequiredCommandSource.ANY)
-@CommandParameters(name = "plex", usage = "/<command> [reload]", aliases = "plexhelp", description = "Show information about Plex or reload it")
+@CommandParameters(name = "plex", usage = "/<command> [reload | redis]", aliases = "plexhelp", description = "Show information about Plex or reload it")
 public class PlexCMD extends PlexCommand
 {
     @Override
@@ -26,8 +26,8 @@ public class PlexCMD extends PlexCommand
     {
         if (args.length == 0)
         {
-            send(sender, ChatColor.LIGHT_PURPLE + "Plex. The long awaited TotalFreedomMod rewrite starts here...");
-            return componentFromString(ChatColor.LIGHT_PURPLE + "Plugin version: " + ChatColor.GOLD + "1.0");
+            send(sender, ChatColor.LIGHT_PURPLE + "Plex - A new freedom plugin.");
+            return componentFromString(ChatColor.LIGHT_PURPLE + "Plugin version: " + ChatColor.GOLD + plugin.getDescription().getVersion());
         }
         if (args[0].equalsIgnoreCase("reload"))
         {

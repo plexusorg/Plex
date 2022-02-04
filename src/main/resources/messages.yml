@@ -19,6 +19,11 @@ errorColor: "c"
 # Broadcast color <b> - this will make the color of the message the broadcast color defined above.
 # Error color <e> - this will make the color of the message the error color defined above.
 
+# 1: Appeal URL
+# 2: Reason
+# 3: Expiry
+# 4: Punisher
+banMessage: "&cYou have been banned! You may appeal at &6<v>.\n&cReason: &6<v>\n&cEnd date: &6<v>\n&cBanned by: &6<v>"
 test: "this is a test message!"
 # 1: the command sender's username
 variableTest: "variable test with <v>!"

@@ -97,6 +97,7 @@ public class Plex extends JavaPlugin
         if (redisConnection.isEnabled())
         {
             redisConnection.getJedis();
+            PlexLog.log("Connected to Redis!");
         }
         else
         {
