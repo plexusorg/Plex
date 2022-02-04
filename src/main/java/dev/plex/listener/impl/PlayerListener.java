@@ -32,6 +32,17 @@ public class PlayerListener extends PlexListener
 
         PlexPlayer plexPlayer;
 
+        if (plugin.getSystem().equalsIgnoreCase("ranks"))
+        {
+            player.setOp(true);
+            PlexLog.debug("Automatically opped " + player.getName() + " since ranks are enabled.");
+        }
+        else if (plugin.getSystem().equalsIgnoreCase("permissions"))
+        {
+            player.setOp(false);
+            PlexLog.debug("Automatically deopped " + player.getName() + " since ranks are disabled.");
+        }
+
         if (!DataUtils.hasPlayedBefore(player.getUniqueId()))
         {
             PlexLog.log("A player with this name has not joined the server before, creating new entry.");

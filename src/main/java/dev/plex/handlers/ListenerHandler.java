@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import dev.plex.listener.PlexListener;
 import dev.plex.listener.impl.AdminListener;
 import dev.plex.listener.impl.ChatListener;
+import dev.plex.listener.impl.CommandListener;
 import dev.plex.listener.impl.FreezeListener;
 import dev.plex.listener.impl.LoginListener;
 import dev.plex.listener.impl.PlayerListener;
@@ -19,6 +20,7 @@ public class ListenerHandler
         List<PlexListener> listeners = Lists.newArrayList();
         listeners.add(new ServerListener());
         listeners.add(new ChatListener());
+        listeners.add(new CommandListener());
         listeners.add(new PlayerListener());
         listeners.add(new WorldListener());
         listeners.add(new FreezeListener());

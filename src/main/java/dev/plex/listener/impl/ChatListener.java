@@ -16,7 +16,6 @@ import org.jetbrains.annotations.NotNull;
 
 public class ChatListener extends PlexListener
 {
-
     private final PlexChatRenderer renderer = new PlexChatRenderer();
 
     @EventHandler

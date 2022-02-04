@@ -37,6 +37,7 @@ public class PlexPlayer
     private String prefix;
 
     private boolean vanished;
+    private boolean commandSpy;
 
     private long coins;
 
@@ -61,6 +62,7 @@ public class PlexPlayer
         this.prefix = "";
 
         this.vanished = false;
+        this.commandSpy = false;
 
         this.coins = 0;
 
