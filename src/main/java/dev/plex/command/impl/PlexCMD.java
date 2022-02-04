@@ -14,14 +14,14 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 @CommandPermissions(level = Rank.OP, permission = "plex.plex", source = RequiredCommandSource.ANY)
 @CommandParameters(name = "plex", usage = "/<command> [reload]", aliases = "plexhelp", description = "Show information about Plex or reload it")
 public class PlexCMD extends PlexCommand
 {
-
     @Override
-    public Component execute(CommandSender sender, Player playerSender,  String[] args)
+    protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
     {
         if (args.length == 0)
         {

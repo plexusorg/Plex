@@ -15,6 +15,7 @@ import org.bukkit.GameMode;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 @CommandPermissions(level = Rank.OP, permission = "plex.gamemode.adventure", source = RequiredCommandSource.ANY)
 @CommandParameters(name = "adventure", aliases = "gma", description = "Set your own or another player's gamemode to adventure mode")
@@ -22,7 +23,7 @@ public class AdventureCMD extends PlexCommand
 {
 
     @Override
-    public Component execute(CommandSender sender, Player playerSender, String[] args)
+    protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
     {
         if (args.length == 0)
         {

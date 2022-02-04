@@ -24,7 +24,7 @@ import org.jetbrains.annotations.NotNull;
 public class UnbanCMD extends PlexCommand
 {
     @Override
-    public Component execute(CommandSender sender, Player playerSender, String[] args)
+    public Component execute(@NotNull CommandSender sender, @NotNull Player playerSender, String[] args)
     {
         if (args.length == 0)
         {

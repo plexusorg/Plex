@@ -23,6 +23,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 @CommandParameters(name = "ban", usage = "/<command> <player> [reason]", aliases = "offlineban,gtfo", description = "Bans a player, offline or online")
 @CommandPermissions(level = Rank.ADMIN, permission = "plex.ban", source = RequiredCommandSource.ANY)
@@ -30,7 +31,7 @@ import org.jetbrains.annotations.NotNull;
 public class BanCMD extends PlexCommand
 {
     @Override
-    public Component execute(CommandSender sender, Player playerSender, String[] args)
+    protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
     {
         if (args.length == 0)
         {

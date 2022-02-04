@@ -15,13 +15,14 @@ import org.bukkit.GameMode;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 @CommandPermissions(level = Rank.ADMIN, permission = "plex.gamemode.spectator", source = RequiredCommandSource.ANY)
 @CommandParameters(name = "spectator", aliases = "gmsp", description = "Set your own or another player's gamemode to spectator mode")
 public class SpectatorCMD extends PlexCommand
 {
     @Override
-    public Component execute(CommandSender sender, Player playerSender, String[] args)
+    protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
     {
         if (args.length == 0)
         {

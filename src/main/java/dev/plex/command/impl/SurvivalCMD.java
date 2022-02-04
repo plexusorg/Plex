@@ -15,13 +15,14 @@ import org.bukkit.GameMode;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 @CommandPermissions(level = Rank.OP, permission = "plex.gamemode.survival", source = RequiredCommandSource.ANY)
 @CommandParameters(name = "survival", aliases = "gms", description = "Set your own or another player's gamemode to survival mode")
 public class SurvivalCMD extends PlexCommand
 {
     @Override
-    public Component execute(CommandSender sender, Player playerSender, String[] args)
+    protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
     {
         if (args.length == 0)
         {

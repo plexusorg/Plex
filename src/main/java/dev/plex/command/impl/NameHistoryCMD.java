@@ -23,6 +23,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 @CommandParameters(name = "namehistory", description = "Get the name history of a player", usage = "/<command> <player>", aliases = "nh")
 @CommandPermissions(level = Rank.OP, permission = "plex.namehistory")
@@ -31,7 +32,7 @@ public class NameHistoryCMD extends PlexCommand
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("MM/dd/yyyy 'at' HH:mm:ss");
 
     @Override
-    public Component execute(CommandSender sender, Player playerSender, String[] args)
+    protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
     {
         if (args.length != 1)
         {

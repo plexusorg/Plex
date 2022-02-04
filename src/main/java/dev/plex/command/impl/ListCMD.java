@@ -11,13 +11,15 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 @CommandParameters(name = "list", description = "Show a list of all online players")
 @CommandPermissions(level = Rank.OP, permission = "plex.list")
 public class ListCMD extends PlexCommand
 {
     @Override
-    protected Component execute(CommandSender sender, Player playerSender, String[] args)
+    protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
     {
         List<Player> players = Lists.newArrayList(Bukkit.getOnlinePlayers());
         Component component = Component.text("There " + (players.size() == 1 ? "is" : "are") + " currently").color(NamedTextColor.GRAY)

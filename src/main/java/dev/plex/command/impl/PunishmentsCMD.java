@@ -13,13 +13,14 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 @CommandParameters(name = "punishments", usage = "/<command> [player]", description = "Opens the Punishments GUI", aliases = "punishlist,punishes")
 @CommandPermissions(level = Rank.ADMIN, permission = "plex.punishments", source = RequiredCommandSource.IN_GAME)
 public class PunishmentsCMD extends PlexCommand
 {
     @Override
-    public Component execute(CommandSender sender, Player playerSender, String[] args)
+    protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
     {
         new PunishmentMenu().openInv(((Player)sender), 0);
         return null;

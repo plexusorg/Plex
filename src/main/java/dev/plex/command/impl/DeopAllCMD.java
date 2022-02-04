@@ -9,13 +9,15 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 @CommandParameters(name = "deopall", description = "Deop everyone on the server", aliases = "deopa")
 @CommandPermissions(level = Rank.ADMIN)
 public class DeopAllCMD extends PlexCommand
 {
     @Override
-    public Component execute(CommandSender sender, Player playerSender, String[] args)
+    protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
     {
         for (Player player : Bukkit.getOnlinePlayers())
         {

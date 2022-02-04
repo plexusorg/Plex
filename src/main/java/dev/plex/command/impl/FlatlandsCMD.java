@@ -10,6 +10,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 @CommandPermissions(level = Rank.OP, permission = "plex.flatlands", source = RequiredCommandSource.IN_GAME)
 @CommandParameters(name = "flatlands", description = "Teleport to the flatlands")
@@ -17,7 +19,7 @@ public class FlatlandsCMD extends PlexCommand
 {
 
     @Override
-    public Component execute(CommandSender sender, Player playerSender, String[] args)
+    protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
     {
         if (args.length == 0)
         {

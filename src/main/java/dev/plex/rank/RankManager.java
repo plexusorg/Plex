@@ -89,8 +89,8 @@ public class RankManager
                 }
                 rank.setLoginMessage(rankObj.getJSONObject(rank.name().toUpperCase()).getString("loginMSG"));
                 rank.setPrefix(rankObj.getJSONObject(rank.name().toUpperCase()).getString("prefix")); //should i even be doing this
+                rank.setHumanReadableString(rankObj.getJSONObject(rank.name().toUpperCase()).getString("readableName")); // i dont know
                 rank.setPermissions(rankObj.getJSONObject(rank.name().toUpperCase()).getJSONArray("permissions").toList().stream().map(Object::toString).collect(Collectors.toList()));
-
             }
         }
         catch (IOException e)

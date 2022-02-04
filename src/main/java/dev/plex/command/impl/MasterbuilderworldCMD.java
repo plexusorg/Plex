@@ -10,6 +10,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 @CommandPermissions(level = Rank.OP, permission = "plex.masterbuilderworld", source = RequiredCommandSource.IN_GAME)
 @CommandParameters(name = "masterbuilderworld", aliases = "mbw", description = "Teleport to the Master Builder world")
@@ -17,7 +19,7 @@ public class MasterbuilderworldCMD extends PlexCommand
 {
 
     @Override
-    public Component execute(CommandSender sender, Player playerSender, String[] args)
+    protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
     {
         // TODO: Add adminworld settings
         if (args.length == 0)

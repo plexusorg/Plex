@@ -4,10 +4,13 @@ import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.source.RequiredCommandSource;
+import dev.plex.player.PlexPlayer;
 import dev.plex.rank.enums.Rank;
 import net.kyori.adventure.text.Component;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 // TODO: See ranks of other players
 
@@ -16,8 +19,10 @@ import org.bukkit.entity.Player;
 public class RankCMD extends PlexCommand
 {
     @Override
-    public Component execute(CommandSender sender, Player playerSender, String[] args)
+    protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
     {
-        return tl("yourRank", getPlexPlayer(playerSender).getLoginMSG());
+        PlexPlayer plexPlayer = getPlexPlayer(playerSender);
+        Rank rank = plugin.getRankManager().getRankFromString(plexPlayer.getRank());
+        return tl("yourRank", rank.getReadableString());
     }
 }

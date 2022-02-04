@@ -10,13 +10,15 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 @CommandPermissions(level = Rank.ADMIN, permission = "plex.adminworld", source = RequiredCommandSource.IN_GAME)
 @CommandParameters(name = "adminworld", aliases = "aw", description = "Teleport to the adminworld")
 public class AdminworldCMD extends PlexCommand
 {
     @Override
-    public Component execute(CommandSender sender, Player playerSender, String[] args)
+    protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
     {
         // TODO: Add adminworld settings
         if (args.length == 0)
