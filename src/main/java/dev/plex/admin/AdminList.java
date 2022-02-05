@@ -15,21 +15,43 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
+
+/**
+ * Cached storage for Admin objects
+ * @see Admin
+ */
 
 public class AdminList
 {
+    /**
+     * Key/Value storage, where the key is the unique ID of the admin
+     */
     private final Map<UUID, Admin> admins = Maps.newHashMap();
 
+    /**
+     * Adds the admin to cache
+     * @param admin The admin object
+     */
     public void addToCache(Admin admin)
     {
         admins.put(admin.getUuid(), admin);
     }
 
+    /**
+     * Removes an admin from the cache
+     * @param uuid The unique ID of the admin
+     * @see UUID
+     */
     public void removeFromCache(UUID uuid)
     {
         admins.remove(uuid);
     }
 
+    /**
+     * Gathers every admin's username (cached and databsed)
+     * @return An array list of the names of every admin
+     */
     public List<String> getAllAdmins()
     {
         List<String> admins = Lists.newArrayList();
@@ -37,13 +59,7 @@ public class AdminList
         {
             Datastore store = Plex.get().getMongoConnection().getDatastore();
             Query<PlexPlayer> query = store.find(PlexPlayer.class);
-            for (PlexPlayer player : query)
-            {
-                if (player.getRankFromString().isAtLeast(Rank.ADMIN))
-                {
-                    admins.add(player.getName());
-                }
-            }
+            admins.addAll(query.stream().filter(plexPlayer -> plexPlayer.getRankFromString().isAtLeast(Rank.ADMIN)).map(PlexPlayer::getName).collect(Collectors.toList()));
         }
         else
         {

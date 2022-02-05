@@ -13,6 +13,10 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -101,9 +105,9 @@ public class PunishmentManager extends PlexBase
         else if (punishment.getType() == PunishmentType.FREEZE)
         {
             player.setFrozen(true);
-            Date now = new Date();
-            Date then = punishment.getEndDate();
-            long seconds = TimeUnit.MILLISECONDS.toSeconds(then.getTime() - now.getTime());
+            LocalDateTime now = LocalDateTime.now();
+            LocalDateTime then = punishment.getEndDate();
+            long seconds = ChronoUnit.SECONDS.between(now, then);
             new BukkitRunnable()
             {
                 @Override
@@ -123,9 +127,9 @@ public class PunishmentManager extends PlexBase
         else if (punishment.getType() == PunishmentType.MUTE)
         {
             player.setMuted(true);
-            Date now = new Date();
-            Date then = punishment.getEndDate();
-            long seconds = TimeUnit.MILLISECONDS.toSeconds(then.getTime() - now.getTime());
+            LocalDateTime now = LocalDateTime.now();
+            LocalDateTime then = punishment.getEndDate();
+            long seconds = ChronoUnit.SECONDS.between(now, then);
             new BukkitRunnable()
             {
                 @Override

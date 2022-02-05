@@ -11,12 +11,20 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * SQL fetching utilities for players
+ */
 public class SQLPlayerData
 {
     private final String SELECT = "SELECT * FROM `players` WHERE uuid=?";
     private final String UPDATE = "UPDATE `players` SET name=?, login_msg=?, prefix=?, rank=?, ips=?, coins=?, vanished=? WHERE uuid=?";
     private final String INSERT = "INSERT INTO `players` (`uuid`, `name`, `login_msg`, `prefix`, `rank`, `ips`, `coins`, `vanished`) VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
 
+    /**
+     * Checks if a player exists in the SQL database
+     * @param uuid The unique ID of the player
+     * @return true if the player was found in the database
+     */
     public boolean exists(UUID uuid)
     {
         try (Connection con = Plex.get().getSqlConnection().getCon())
@@ -33,6 +41,12 @@ public class SQLPlayerData
         return false;
     }
 
+    /**
+     * Gets the player from cache or from the SQL database
+     * @param uuid The unique ID of the player
+     * @return a PlexPlayer object
+     * @see PlexPlayer
+     */
     public PlexPlayer getByUUID(UUID uuid)
     {
         if (PlayerCache.getPlexPlayerMap().containsKey(uuid))
@@ -74,6 +88,11 @@ public class SQLPlayerData
         return null;
     }
 
+    /**
+     * Updates a player's information in the SQL database
+     * @param player The PlexPlayer object
+     * @see PlexPlayer
+     */
     public void update(PlexPlayer player)
     {
         try (Connection con = Plex.get().getSqlConnection().getCon())
@@ -95,6 +114,11 @@ public class SQLPlayerData
         }
     }
 
+    /**
+     * Inserts the player's information in the database
+     * @param player The PlexPlayer object
+     * @see PlexPlayer
+     */
     public void insert(PlexPlayer player)
     {
         try (Connection con = Plex.get().getSqlConnection().getCon())

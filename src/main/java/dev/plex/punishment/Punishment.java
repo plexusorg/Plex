@@ -2,6 +2,8 @@ package dev.plex.punishment;
 
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
+
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -22,7 +24,7 @@ public class Punishment
     private PunishmentType type;
     private String reason;
     private boolean customTime;
-    private Date endDate;
+    private LocalDateTime endDate;
 
     public Punishment(UUID punished, UUID punisher)
     {

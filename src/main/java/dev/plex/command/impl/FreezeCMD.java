@@ -11,6 +11,8 @@ import dev.plex.punishment.Punishment;
 import dev.plex.punishment.PunishmentType;
 import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexUtils;
+
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -36,8 +38,8 @@ public class FreezeCMD extends PlexCommand
         PunishedPlayer punishedPlayer = PlayerCache.getPunishedPlayer(player.getUniqueId());
         Punishment punishment = new Punishment(UUID.fromString(punishedPlayer.getUuid()), getUUID(sender));
         punishment.setCustomTime(false);
-        Date date = new Date();
-        punishment.setEndDate(DateUtils.addMinutes(date, 5));
+        LocalDateTime date = LocalDateTime.now();
+        punishment.setEndDate(date.plusMinutes(5));
         punishment.setType(PunishmentType.FREEZE);
         punishment.setPunishedUsername(player.getName());
         punishment.setReason("");
