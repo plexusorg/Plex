@@ -116,7 +116,6 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
 
                 if (plugin.getSystem().equalsIgnoreCase("ranks"))
                 {
-                    PlexLog.debug(String.format("%s >= %s && comparing %s with %s", plexPlayer.getRankFromString().getLevel(), getLevel().getLevel(), plexPlayer.getRankFromString().name(), getLevel().name()));
                     if (!plexPlayer.getRankFromString().isAtLeast(getLevel()))
                     {
                         send(sender, tl("noPermissionRank", ChatColor.stripColor(getLevel().getLoginMSG())));
