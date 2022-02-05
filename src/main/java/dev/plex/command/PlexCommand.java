@@ -5,34 +5,26 @@ import dev.plex.cache.DataUtils;
 import dev.plex.cache.PlayerCache;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
-import dev.plex.command.exception.CommandArgumentException;
-import dev.plex.command.exception.CommandFailException;
-import dev.plex.command.exception.ConsoleMustDefinePlayerException;
-import dev.plex.command.exception.ConsoleOnlyException;
-import dev.plex.command.exception.PlayerNotBannedException;
-import dev.plex.command.exception.PlayerNotFoundException;
+import dev.plex.command.exception.*;
 import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.player.PlexPlayer;
 import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
-import java.util.Arrays;
-import java.util.UUID;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandMap;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.ConsoleCommandSender;
-import org.bukkit.command.PluginIdentifiableCommand;
+import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Arrays;
+import java.util.UUID;
 
 public abstract class PlexCommand extends Command implements PluginIdentifiableCommand
 {
@@ -87,44 +79,77 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
                 send(sender, tl("noPermissionConsole"));
                 return true;
             }
-            Player player = (Player)sender;
+            Player player = (Player) sender;
 
             PlexPlayer plexPlayer = PlayerCache.getPlexPlayerMap().get(player.getUniqueId());
 
             if (plugin.getSystem().equalsIgnoreCase("ranks"))
             {
+                PlexLog.debug(String.format("%s >= %s && comparing %s with %s", plexPlayer.getRankFromString().getLevel(), getLevel().getLevel(), plexPlayer.getRankFromString().name(), getLevel().name()));
                 if (!plexPlayer.getRankFromString().isAtLeast(getLevel()))
                 {
-                    throw new CommandFailException(PlexUtils.tl("noPermissionRank", ChatColor.stripColor(getLevel().getLoginMSG())));
+                    send(sender, tl("noPermissionRank", ChatColor.stripColor(getLevel().getLoginMSG())));
+                    return true;
+//                    throw new CommandFailException(PlexUtils.tl("noPermissionRank", ChatColor.stripColor(getLevel().getLoginMSG())));
                 }
-            }
-            else if (plugin.getSystem().equalsIgnoreCase("permissions"))
+            } else if (plugin.getSystem().equalsIgnoreCase("permissions"))
             {
                 if (!player.hasPermission(perms.permission()))
                 {
-                   throw new CommandFailException(PlexUtils.tl("noPermissionNode", perms.permission()));
+                    send(sender, tl("noPermissionNode", perms.permission()));
+                    return true;
+//                   throw new CommandFailException(PlexUtils.tl("noPermissionNode", perms.permission()));
                 }
-            }
-            else
+            } else
             {
                 PlexLog.error("Neither permissions or ranks were selected to be used in the configuration file!");
                 send(sender, "There is a server misconfiguration. Please alert a developer or the owner");
                 return true;
             }
         }
+
+        if (commandSource == RequiredCommandSource.ANY)
+        {
+            if (sender instanceof Player player)
+            {
+                PlexPlayer plexPlayer = PlayerCache.getPlexPlayerMap().get(player.getUniqueId());
+
+                if (plugin.getSystem().equalsIgnoreCase("ranks"))
+                {
+                    PlexLog.debug(String.format("%s >= %s && comparing %s with %s", plexPlayer.getRankFromString().getLevel(), getLevel().getLevel(), plexPlayer.getRankFromString().name(), getLevel().name()));
+                    if (!plexPlayer.getRankFromString().isAtLeast(getLevel()))
+                    {
+                        send(sender, tl("noPermissionRank", ChatColor.stripColor(getLevel().getLoginMSG())));
+                        return true;
+//                    throw new CommandFailException(PlexUtils.tl("noPermissionRank", ChatColor.stripColor(getLevel().getLoginMSG())));
+                    }
+                } else if (plugin.getSystem().equalsIgnoreCase("permissions"))
+                {
+                    if (!player.hasPermission(perms.permission()))
+                    {
+                        send(sender, tl("noPermissionNode", perms.permission()));
+                        return true;
+//                   throw new CommandFailException(PlexUtils.tl("noPermissionNode", perms.permission()));
+                    }
+                } else
+                {
+                    PlexLog.error("Neither permissions or ranks were selected to be used in the configuration file!");
+                    send(sender, "There is a server misconfiguration. Please alert a developer or the owner");
+                    return true;
+                }
+            }
+        }
         try
         {
-            Component component = this.execute(sender, isConsole(sender) ? null : (Player)sender, args);
+            Component component = this.execute(sender, isConsole(sender) ? null : (Player) sender, args);
             if (component != null)
             {
                 send(sender, component);
             }
-        }
-        catch (CommandArgumentException ex)
+        } catch (CommandArgumentException ex)
         {
-            send(sender, getUsage().replace("<command>", getLabel()));
-        }
-        catch (PlayerNotFoundException | CommandFailException
+            send(sender, getUsage());
+        } catch (PlayerNotFoundException | CommandFailException
                 | ConsoleOnlyException | ConsoleMustDefinePlayerException
                 | PlayerNotBannedException ex)
         {
@@ -145,8 +170,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
                     return true;
                 }
             }
-        }
-        else if (params.aliases().split(",").length < 1)
+        } else if (params.aliases().split(",").length < 1)
         {
             return getName().equalsIgnoreCase(label);
         }
@@ -172,7 +196,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
     {
         if (!isConsole(sender))
         {
-            checkRank((Player)sender, rank, permission);
+            checkRank((Player) sender, rank, permission);
             return true;
         }
         return true;
@@ -187,8 +211,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
             {
                 throw new CommandFailException(PlexUtils.tl("noPermissionRank", ChatColor.stripColor(rank.getLoginMSG())));
             }
-        }
-        else if (plugin.getSystem().equalsIgnoreCase("permissions"))
+        } else if (plugin.getSystem().equalsIgnoreCase("permissions"))
         {
             if (!player.hasPermission(permission))
             {
