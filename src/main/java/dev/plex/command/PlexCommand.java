@@ -95,16 +95,14 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
             {
                 if (!plexPlayer.getRankFromString().isAtLeast(getLevel()))
                 {
-                    send(sender, tl("noPermissionRank", ChatColor.stripColor(getLevel().getLoginMSG())));
-                    return true;
+                    throw new CommandFailException(PlexUtils.tl("noPermissionRank", ChatColor.stripColor(getLevel().getLoginMSG())));
                 }
             }
             else if (plugin.getSystem().equalsIgnoreCase("permissions"))
             {
                 if (!player.hasPermission(perms.permission()))
                 {
-                    send(sender, tl("noPermissionNode", perms.permission()));
-                    return true;
+                   throw new CommandFailException(PlexUtils.tl("noPermissionNode", perms.permission()));
                 }
             }
             else

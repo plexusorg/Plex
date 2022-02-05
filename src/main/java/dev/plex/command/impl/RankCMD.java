@@ -21,8 +21,11 @@ public class RankCMD extends PlexCommand
     @Override
     protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
     {
-        PlexPlayer plexPlayer = getPlexPlayer(playerSender);
-        Rank rank = plugin.getRankManager().getRankFromString(plexPlayer.getRank());
-        return tl("yourRank", rank.getReadableString());
+        if (!(playerSender == null))
+        {
+            Rank rank = getPlexPlayer(playerSender).getRankFromString();
+            return tl("yourRank", rank.getReadableString());
+        }
+        return null;
     }
 }

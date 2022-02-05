@@ -37,7 +37,7 @@ public class FreezeCMD extends PlexCommand
         Punishment punishment = new Punishment(UUID.fromString(punishedPlayer.getUuid()), getUUID(sender));
         punishment.setCustomTime(false);
         Date date = new Date();
-        punishment.setEndDate(DateUtils.addDays(date, 1));
+        punishment.setEndDate(DateUtils.addMinutes(date, 5));
         punishment.setType(PunishmentType.FREEZE);
         punishment.setPunishedUsername(player.getName());
         punishment.setReason("");

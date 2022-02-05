@@ -8,6 +8,7 @@ import dev.plex.cache.SQLPlayerData;
 import dev.plex.listener.PlexListener;
 import dev.plex.player.PlexPlayer;
 import dev.plex.player.PunishedPlayer;
+import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexLog;
 import java.util.Collections;
 import java.util.UUID;
@@ -49,7 +50,6 @@ public class PlayerListener extends PlexListener
             plexPlayer = new PlexPlayer(player.getUniqueId()); //it doesn't! okay so now create the object
             plexPlayer.setName(player.getName()); //set the name of the player
             plexPlayer.setIps(Collections.singletonList(player.getAddress().getAddress().getHostAddress().trim())); //set the arraylist of ips
-
             DataUtils.insert(plexPlayer); // insert data in some wack db
         }
         else
