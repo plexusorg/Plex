@@ -58,7 +58,10 @@ public class PlayerListener extends PlexListener
         }
 
         PlayerCache.getPlexPlayerMap().put(player.getUniqueId(), plexPlayer); //put them into the cache
-        PlayerCache.getPunishedPlayerMap().put(player.getUniqueId(), new PunishedPlayer(player.getUniqueId()));
+        if (!PlayerCache.getPunishedPlayerMap().containsKey(player.getUniqueId()))
+        {
+            PlayerCache.getPunishedPlayerMap().put(player.getUniqueId(), new PunishedPlayer(player.getUniqueId()));
+        }
 
         assert plexPlayer != null;
 
@@ -101,6 +104,5 @@ public class PlayerListener extends PlexListener
         }
 
         PlayerCache.getPlexPlayerMap().remove(event.getPlayer().getUniqueId()); //remove them from cache
-        PlayerCache.getPunishedPlayerMap().remove(event.getPlayer().getUniqueId());
     }
 }
