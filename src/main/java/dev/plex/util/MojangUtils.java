@@ -75,6 +75,12 @@ public class MojangUtils
         {
             e.printStackTrace();
         }
-        return names.entrySet().stream().sorted(Map.Entry.comparingByValue()).collect(Collectors.toList());
+        return names.entrySet().stream().sorted(Map.Entry.comparingByValue((o1, o2) -> {
+            if (o1 == null || o2 == null)
+            {
+                return 1;
+            }
+            return o1.compareTo(o2);
+        })).collect(Collectors.toList());
     }
 }

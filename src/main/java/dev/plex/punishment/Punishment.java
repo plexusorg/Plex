@@ -7,6 +7,9 @@ import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+
+import com.google.gson.GsonBuilder;
+import dev.plex.util.adapter.LocalDateTimeAdapter;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -41,11 +44,11 @@ public class Punishment
 
     public String toJSON()
     {
-        return new Gson().toJson(this);
+        return new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter()).create().toJson(this);
     }
 
     public static Punishment fromJson(String json)
     {
-        return new Gson().fromJson(json, Punishment.class);
+        return new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter()).create().fromJson(json, Punishment.class);
     }
 }
