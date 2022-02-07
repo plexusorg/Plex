@@ -22,9 +22,8 @@ public class BanListener extends PlexListener
         {
             for (Ban ban : plugin.getBanManager().getActiveBans())
             {
-                PlexPlayer player = DataUtils.getPlayer(ban.getBanner());
                 String banMessage = PlexUtils.tl("banMessage", banUrl, ban.getReason(),
-                        DATE_FORMAT.format(ban.getEndDate()), ban.getBanner() == null ? "CONSOLE" : player.getName());
+                        DATE_FORMAT.format(ban.getEndDate()), ban.getBanner() == null ? "CONSOLE" : ban.getBanner());
                 event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED,
                         LegacyComponentSerializer.legacyAmpersand().deserialize(banMessage));
             }

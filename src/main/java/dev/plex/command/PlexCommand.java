@@ -87,9 +87,10 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
 
     /**
      * Executes the command
-     * @param sender The sender of the command
+     *
+     * @param sender       The sender of the command
      * @param playerSender The player who executed the command (null if command source is console or if command source is any but console executed)
-     * @param args A Kyori Component to send to the sender (can be null)
+     * @param args         A Kyori Component to send to the sender (can be null)
      * @return
      */
     protected abstract Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, @NotNull String[] args);
@@ -118,28 +119,27 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
                 send(sender, tl("noPermissionConsole"));
                 return true;
             }
-            Player player = (Player) sender;
+            Player player = (Player)sender;
 
             PlexPlayer plexPlayer = PlayerCache.getPlexPlayerMap().get(player.getUniqueId());
 
             if (plugin.getSystem().equalsIgnoreCase("ranks"))
             {
-                PlexLog.debug(String.format("%s >= %s && comparing %s with %s", plexPlayer.getRankFromString().getLevel(), getLevel().getLevel(), plexPlayer.getRankFromString().name(), getLevel().name()));
                 if (!plexPlayer.getRankFromString().isAtLeast(getLevel()))
                 {
                     send(sender, tl("noPermissionRank", ChatColor.stripColor(getLevel().getLoginMSG())));
                     return true;
-//                    throw new CommandFailException(PlexUtils.tl("noPermissionRank", ChatColor.stripColor(getLevel().getLoginMSG())));
                 }
-            } else if (plugin.getSystem().equalsIgnoreCase("permissions"))
+            }
+            else if (plugin.getSystem().equalsIgnoreCase("permissions"))
             {
                 if (!player.hasPermission(perms.permission()))
                 {
                     send(sender, tl("noPermissionNode", perms.permission()));
                     return true;
-//                   throw new CommandFailException(PlexUtils.tl("noPermissionNode", perms.permission()));
                 }
-            } else
+            }
+            else
             {
                 PlexLog.error("Neither permissions or ranks were selected to be used in the configuration file!");
                 send(sender, "There is a server misconfiguration. Please alert a developer or the owner");
@@ -159,17 +159,17 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
                     {
                         send(sender, tl("noPermissionRank", ChatColor.stripColor(getLevel().getLoginMSG())));
                         return true;
-//                    throw new CommandFailException(PlexUtils.tl("noPermissionRank", ChatColor.stripColor(getLevel().getLoginMSG())));
                     }
-                } else if (plugin.getSystem().equalsIgnoreCase("permissions"))
+                }
+                else if (plugin.getSystem().equalsIgnoreCase("permissions"))
                 {
                     if (!player.hasPermission(perms.permission()))
                     {
                         send(sender, tl("noPermissionNode", perms.permission()));
                         return true;
-//                   throw new CommandFailException(PlexUtils.tl("noPermissionNode", perms.permission()));
                     }
-                } else
+                }
+                else
                 {
                     PlexLog.error("Neither permissions or ranks were selected to be used in the configuration file!");
                     send(sender, "There is a server misconfiguration. Please alert a developer or the owner");
@@ -179,7 +179,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
         }
         try
         {
-            Component component = this.execute(sender, isConsole(sender) ? null : (Player) sender, args);
+            Component component = this.execute(sender, isConsole(sender) ? null : (Player)sender, args);
             if (component != null)
             {
                 send(sender, component);
@@ -197,6 +197,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
 
     /**
      * Checks if the string given is a command string
+     *
      * @param label The string to check
      * @return true if the string is a command name or alias
      */
@@ -211,7 +212,8 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
                     return true;
                 }
             }
-        } else if (params.aliases().split(",").length < 1)
+        }
+        else if (params.aliases().split(",").length < 1)
         {
             return getName().equalsIgnoreCase(label);
         }
@@ -220,8 +222,9 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
 
     /**
      * Gets a PlexPlayer from Player object
+     *
      * @param player The player object
-     * @return  PlexPlayer Object
+     * @return PlexPlayer Object
      * @see PlexPlayer
      */
     protected PlexPlayer getPlexPlayer(@NotNull Player player)
@@ -231,8 +234,9 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
 
     /**
      * Sends a message to an audience
+     *
      * @param audience The audience to send the message to
-     * @param s The message to send
+     * @param s        The message to send
      */
     protected void send(Audience audience, String s)
     {
@@ -241,7 +245,8 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
 
     /**
      * Sends a message to an audience
-     * @param audience The audience to send the message to
+     *
+     * @param audience  The audience to send the message to
      * @param component The component to send
      */
     protected void send(Audience audience, Component component)
@@ -251,8 +256,9 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
 
     /**
      * Checks whether a sender has enough permissions or is high enough a rank
-     * @param sender A command sender
-     * @param rank The rank to check (if the server is using ranks)
+     *
+     * @param sender     A command sender
+     * @param rank       The rank to check (if the server is using ranks)
      * @param permission The permission to check (if the server is using permissions)
      * @return true if the sender has enough permissions
      * @see Rank
@@ -261,7 +267,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
     {
         if (!isConsole(sender))
         {
-            return checkRank((Player) sender, rank, permission);
+            return checkRank((Player)sender, rank, permission);
 //            return true;
         }
         return true;
@@ -269,8 +275,9 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
 
     /**
      * Checks whether a player has enough permissions or is high enough a rank
-     * @param player The player object
-     * @param rank The rank to check (if the server is using ranks)
+     *
+     * @param player     The player object
+     * @param rank       The rank to check (if the server is using ranks)
      * @param permission The permission to check (if the server is using permissions)
      * @return true if the sender has enough permissions
      * @see Rank
@@ -284,7 +291,8 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
             {
                 throw new CommandFailException(PlexUtils.tl("noPermissionRank", ChatColor.stripColor(rank.getLoginMSG())));
             }
-        } else if (plugin.getSystem().equalsIgnoreCase("permissions"))
+        }
+        else if (plugin.getSystem().equalsIgnoreCase("permissions"))
         {
             if (!player.hasPermission(permission))
             {
@@ -296,6 +304,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
 
     /**
      * Checks if a player is an admin
+     *
      * @param plexPlayer The PlexPlayer object
      * @return true if the player is an admin
      * @see PlexPlayer
@@ -307,6 +316,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
 
     /**
      * Checks if a sender is an admin
+     *
      * @param sender A command sender
      * @return true if the sender is an admin or if console
      */
@@ -322,6 +332,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
 
     /**
      * Checks if a username is an admin
+     *
      * @param name The username
      * @return true if the username is an admin
      */
@@ -333,6 +344,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
 
     /**
      * Checks if a sender is a senior admin
+     *
      * @param sender A command sender
      * @return true if the sender is a senior admin or if console
      */
@@ -348,6 +360,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
 
     /**
      * Gets the UUID of the sender
+     *
      * @param sender A command sender
      * @return A unique ID or null if the sender is console
      * @see UUID
@@ -363,6 +376,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
 
     /**
      * The plugin
+     *
      * @return The instance of the plugin
      * @see Plex
      */
@@ -374,6 +388,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
 
     /**
      * Checks whether a sender is console
+     *
      * @param sender A command sender
      * @return true if the sender is console
      */
@@ -384,7 +399,8 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
 
     /**
      * Converts a message entry from the "messages.yml" to a component
-     * @param s The message entry
+     *
+     * @param s       The message entry
      * @param objects Any objects to replace in order
      * @return A kyori component
      */
@@ -395,6 +411,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
 
     /**
      * Converts usage to a component
+     *
      * @param s The usage to convert
      * @return A kyori component stating the usage
      */
@@ -446,6 +463,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
 
     /**
      * Converts a string to a legacy kyori component
+     *
      * @param s The string to convert
      * @return A kyori component
      */
