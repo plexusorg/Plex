@@ -17,8 +17,8 @@ import java.util.UUID;
 public class SQLPlayerData
 {
     private final String SELECT = "SELECT * FROM `players` WHERE uuid=?";
-    private final String UPDATE = "UPDATE `players` SET name=?, login_msg=?, prefix=?, rank=?, ips=?, coins=?, vanished=? WHERE uuid=?";
-    private final String INSERT = "INSERT INTO `players` (`uuid`, `name`, `login_msg`, `prefix`, `rank`, `ips`, `coins`, `vanished`) VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
+    private final String UPDATE = "UPDATE `players` SET name=?, login_msg=?, prefix=?, rank=?, ips=?, coins=?, vanished=?, commandspy=? WHERE uuid=?";
+    private final String INSERT = "INSERT INTO `players` (`uuid`, `name`, `login_msg`, `prefix`, `rank`, `ips`, `coins`, `vanished`, `commandspy`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);";
 
     /**
      * Checks if a player exists in the SQL database
@@ -68,6 +68,7 @@ public class SQLPlayerData
                 String rankName = set.getString("rank").toUpperCase();
                 long coins = set.getLong("coins");
                 boolean vanished = set.getBoolean("vanished");
+                boolean commandspy = set.getBoolean("commandspy");
                 List<String> ips = new Gson().fromJson(set.getString("ips"), new TypeToken<List<String>>()
                 {
                 }.getType());
@@ -78,6 +79,7 @@ public class SQLPlayerData
                 plexPlayer.setIps(ips);
                 plexPlayer.setCoins(coins);
                 plexPlayer.setVanished(vanished);
+                plexPlayer.setCommandSpy(commandspy);
             }
             return plexPlayer;
         }
@@ -105,7 +107,8 @@ public class SQLPlayerData
             statement.setString(5, new Gson().toJson(player.getIps()));
             statement.setLong(6, player.getCoins());
             statement.setBoolean(7, player.isVanished());
-            statement.setString(8, player.getUuid());
+            statement.setBoolean(8, player.isCommandSpy());
+            statement.setString(9, player.getUuid());
             statement.executeUpdate();
         }
         catch (SQLException throwables)
@@ -132,6 +135,7 @@ public class SQLPlayerData
             statement.setString(6, new Gson().toJson(player.getIps()));
             statement.setLong(7, player.getCoins());
             statement.setBoolean(8, player.isVanished());
+            statement.setBoolean(9, player.isCommandSpy());
             statement.execute();
         }
         catch (SQLException throwables)
@@ -139,5 +143,4 @@ public class SQLPlayerData
             throwables.printStackTrace();
         }
     }
-
 }

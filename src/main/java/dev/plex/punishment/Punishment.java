@@ -4,12 +4,11 @@ import com.google.common.collect.Lists;
 import com.google.gson.GsonBuilder;
 import dev.plex.util.adapter.LocalDateTimeDeserializer;
 import dev.plex.util.adapter.LocalDateTimeSerializer;
-import lombok.Getter;
-import lombok.Setter;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter

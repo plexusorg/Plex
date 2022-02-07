@@ -50,7 +50,7 @@ public class SQLConnection extends PlexBase
                         "`ips` VARCHAR(2000), " +
                         "`coins` BIGINT, " +
                         "`vanished` BOOLEAN, " +
-                        "`commandSpy` BOOLEAN, " +
+                        "`commandspy` BOOLEAN, " +
                         "PRIMARY KEY (`uuid`));").execute();
                 connection.prepareStatement("CREATE TABLE IF NOT EXISTS `bans` (" +
                         "`banID` VARCHAR(46), " +

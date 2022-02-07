@@ -75,7 +75,8 @@ public class MongoPlayerData
                         UpdateOperators.set("rank", player.getRank().toLowerCase()),
                         UpdateOperators.set("ips", player.getIps()),
                         UpdateOperators.set("coins", player.getCoins()),
-                        UpdateOperators.set("vanished", player.isVanished()));
+                        UpdateOperators.set("vanished", player.isVanished()),
+                        UpdateOperators.set("commandspy", player.isCommandSpy()));
 
         updateOps.execute();
     }
@@ -90,5 +91,4 @@ public class MongoPlayerData
     {
         datastore.save(plexPlayer);
     }
-
 }

@@ -3,9 +3,7 @@ package dev.plex.services.impl;
 import dev.plex.Plex;
 import dev.plex.banning.Ban;
 import dev.plex.services.AbstractService;
-
 import java.time.LocalDateTime;
-import java.util.Date;
 import org.bukkit.Bukkit;
 
 public class BanService extends AbstractService

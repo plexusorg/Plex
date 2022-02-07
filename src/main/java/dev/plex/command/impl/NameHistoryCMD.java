@@ -10,17 +10,12 @@ import dev.plex.util.AshconInfo;
 import dev.plex.util.MojangUtils;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
-import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -30,7 +25,7 @@ import org.jetbrains.annotations.Nullable;
 @CommandPermissions(level = Rank.OP, permission = "plex.namehistory")
 public class NameHistoryCMD extends PlexCommand
 {
-    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("MM/dd/yyyy 'at' HH:mm:ss");
+    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("MM/dd/yyyy 'at' hh:mm:ss a");
 
     @Override
     protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
@@ -44,7 +39,7 @@ public class NameHistoryCMD extends PlexCommand
         AshconInfo info = MojangUtils.getInfo(username);
         if (info == null)
         {
-            return Component.text("Couldn't find this user! Please check if your spelling was correct and this player exists").color(NamedTextColor.RED);
+            return tl("nameHistoryDoesntExist");
         }
         PlexLog.debug("NameHistory UUID: " + info.getUuid());
         PlexLog.debug("NameHistory Size: " + info.getUsernameHistories().length);

@@ -8,7 +8,6 @@ import dev.plex.cache.SQLPlayerData;
 import dev.plex.listener.PlexListener;
 import dev.plex.player.PlexPlayer;
 import dev.plex.player.PunishedPlayer;
-import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexLog;
 import java.util.Collections;
 import java.util.UUID;

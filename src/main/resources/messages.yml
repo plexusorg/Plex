@@ -58,6 +58,7 @@ nameHistoryTitle: "Name History of <v>"
 nameHistoryBody: " - <v> (<v>)"
 # 1: the username that failed
 nameHistoryFail: "<e>Something went wrong while trying to retrieve name history of <v>! Try again later!"
+nameHistoryDoesntExist: "<e>Couldn't find this user! Please check if your spelling was correct and this player exists"
 gameModeSetTo: "Your gamemode has been set to <v>."
 setOtherPlayerGameModeTo: "You set <v>'s gamemode to <v>."
 playerSetOtherGameMode: "<v> set your gamemode to <v>."

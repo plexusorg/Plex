@@ -1,29 +1,19 @@
 package dev.plex.util;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Maps;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializer;
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.TemporalAccessor;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import com.google.common.collect.Multimap;
-import com.google.gson.*;
-import dev.plex.util.adapter.LocalDateTimeDeserializer;
-import dev.plex.util.adapter.LocalDateTimeSerializer;
+import java.util.Arrays;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class MojangUtils

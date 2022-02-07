@@ -1,5 +1,6 @@
 package dev.plex.command.impl;
 
+import dev.plex.cache.DataUtils;
 import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
@@ -20,11 +21,15 @@ public class CommandSpyCMD extends PlexCommand
     @Override
     protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, @NotNull String[] args)
     {
-        PlexPlayer plexPlayer = getPlexPlayer(playerSender);
-        plexPlayer.setCommandSpy(!plexPlayer.isCommandSpy());
-        Component component = Component.text("CommandSpy has been").color(NamedTextColor.GRAY)
-                .append(Component.space())
-                .append(Component.text(plexPlayer.isCommandSpy() ? "enabled." : "disabled.").color(NamedTextColor.GRAY));
-        return component;
+        if (playerSender != null)
+        {
+            PlexPlayer plexPlayer = DataUtils.getPlayer(playerSender.getUniqueId());
+            plexPlayer.setCommandSpy(!plexPlayer.isCommandSpy());
+            DataUtils.update(plexPlayer);
+            return Component.text("CommandSpy has been").color(NamedTextColor.GRAY)
+                    .append(Component.space())
+                    .append(Component.text(plexPlayer.isCommandSpy() ? "enabled." : "disabled.").color(NamedTextColor.GRAY));
+        }
+        return null;
     }
 }

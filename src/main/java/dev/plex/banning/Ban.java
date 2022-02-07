@@ -4,9 +4,7 @@ import dev.morphia.annotations.Entity;
 import dev.morphia.annotations.Id;
 import dev.morphia.annotations.IndexOptions;
 import dev.morphia.annotations.Indexed;
-
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Getter;

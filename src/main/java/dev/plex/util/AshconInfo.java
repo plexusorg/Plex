@@ -1,13 +1,10 @@
 package dev.plex.util;
 
-import com.google.common.collect.Lists;
 import com.google.gson.annotations.SerializedName;
+import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Getter
 @Setter
