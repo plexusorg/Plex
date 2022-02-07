@@ -5,7 +5,6 @@ import dev.plex.cache.PlayerCache;
 import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
-import dev.plex.command.exception.CommandArgumentException;
 import dev.plex.player.PunishedPlayer;
 import dev.plex.punishment.Punishment;
 import dev.plex.punishment.PunishmentType;
@@ -13,11 +12,9 @@ import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexUtils;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import net.kyori.adventure.text.Component;
-import org.apache.commons.lang.time.DateUtils;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -32,7 +29,7 @@ public class FreezeCMD extends PlexCommand
     {
         if (args.length != 1)
         {
-            throw new CommandArgumentException();
+            return usage(getUsage());
         }
         Player player = getNonNullPlayer(args[0]);
         PunishedPlayer punishedPlayer = PlayerCache.getPunishedPlayer(player.getUniqueId());

@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableList;
 import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
-import dev.plex.command.exception.CommandArgumentException;
 import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexUtils;
 import java.util.List;
@@ -23,7 +22,7 @@ public class OpCMD extends PlexCommand
     {
         if (args.length != 1)
         {
-            throw new CommandArgumentException();
+            return usage(getUsage());
         }
         Player player = getNonNullPlayer(args[0]);
         player.setOp(true);

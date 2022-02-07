@@ -178,10 +178,8 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
             {
                 send(sender, component);
             }
-        } catch (CommandArgumentException ex)
-        {
-            send(sender, getUsage());
-        } catch (PlayerNotFoundException | CommandFailException
+        }
+        catch (PlayerNotFoundException | CommandFailException
                 | ConsoleOnlyException | ConsoleMustDefinePlayerException
                 | PlayerNotBannedException ex)
         {

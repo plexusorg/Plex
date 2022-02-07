@@ -5,7 +5,6 @@ import dev.plex.Plex;
 import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
-import dev.plex.command.exception.CommandArgumentException;
 import dev.plex.command.exception.CommandFailException;
 import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.rank.enums.Rank;
@@ -54,7 +53,7 @@ public class PlexCMD extends PlexCommand
         }
         else
         {
-            throw new CommandArgumentException();
+            return usage(getUsage());
         }
         return null;
     }

@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableList;
 import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
-import dev.plex.command.exception.CommandArgumentException;
 import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.rank.enums.Rank;
 import java.util.List;
@@ -27,7 +26,7 @@ public class WorldCMD extends PlexCommand
     {
         if (args.length != 1)
         {
-            throw new CommandArgumentException();
+            return usage(getUsage());
         }
         World world = getNonNullWorld(args[0]);
         playerSender.teleportAsync(new Location(world, 0, world.getHighestBlockYAt(0, 0) + 1, 0, 0, 0));
