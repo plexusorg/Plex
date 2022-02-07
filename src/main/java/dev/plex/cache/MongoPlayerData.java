@@ -29,6 +29,7 @@ public class MongoPlayerData
 
     /**
      * Checks whether the player exists in mongo's database
+     *
      * @param uuid The unique ID of the player
      * @return true if the player was found
      */
@@ -42,6 +43,7 @@ public class MongoPlayerData
 
     /**
      * Gets the player from cache or from mongo's database
+     *
      * @param uuid The unique ID of the player
      * @return a PlexPlayer object
      * @see PlexPlayer
@@ -59,6 +61,7 @@ public class MongoPlayerData
 
     /**
      * Updates a player's information in the mongo database
+     *
      * @param player The PlexPlayer object
      * @see PlexPlayer
      */
@@ -84,6 +87,7 @@ public class MongoPlayerData
 
     /**
      * Saves the player's information in the database
+     *
      * @param plexPlayer The PlexPlayer object
      * @see PlexPlayer
      */

@@ -1,9 +1,7 @@
 package dev.plex.listener.impl;
 
 import dev.plex.banning.Ban;
-import dev.plex.cache.DataUtils;
 import dev.plex.listener.PlexListener;
-import dev.plex.player.PlexPlayer;
 import dev.plex.util.PlexUtils;
 import java.time.format.DateTimeFormatter;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;

@@ -13,6 +13,7 @@ public @interface CommandPermissions
 {
     /**
      * Minimum rank required
+     *
      * @return Minimum rank required for the command
      * @see Rank
      */
@@ -20,6 +21,7 @@ public @interface CommandPermissions
 
     /**
      * Required command source
+     *
      * @return The required command source of the command
      * @see RequiredCommandSource
      */
@@ -27,6 +29,7 @@ public @interface CommandPermissions
 
     /**
      * The permission
+     *
      * @return Permission of the command
      */
     String permission() default ""; // No idea what to put here

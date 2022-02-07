@@ -13,6 +13,7 @@ import org.apache.commons.lang.RandomStringUtils;
 
 /**
  * The ban object
+ *
  * @see BanManager
  */
 @Getter
@@ -69,10 +70,11 @@ public class Ban
 
     /**
      * Creates a ban object
-     * @param uuid The unique ID of the player being banned
-     * @param banner The unique ID of the sender banning the player
-     * @param ip The IP of the player being banned
-     * @param reason The reason for the ban
+     *
+     * @param uuid    The unique ID of the player being banned
+     * @param banner  The unique ID of the sender banning the player
+     * @param ip      The IP of the player being banned
+     * @param reason  The reason for the ban
      * @param endDate When the ban will expire
      */
     public Ban(UUID uuid, UUID banner, String ip, String reason, LocalDateTime endDate)
@@ -87,11 +89,12 @@ public class Ban
 
     /**
      * Creates a ban object
-     * @param id The custom ID of the ban
-     * @param uuid The unique ID of the player being banned
-     * @param banner The unique ID of the sender banning the player
-     * @param ip The IP of the player being banned
-     * @param reason The reason for the ban
+     *
+     * @param id      The custom ID of the ban
+     * @param uuid    The unique ID of the player being banned
+     * @param banner  The unique ID of the sender banning the player
+     * @param ip      The IP of the player being banned
+     * @param reason  The reason for the ban
      * @param endDate When the ban will expire
      */
     public Ban(String id, UUID uuid, UUID banner, String ip, String reason, LocalDateTime endDate)

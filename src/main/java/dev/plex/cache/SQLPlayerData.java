@@ -22,6 +22,7 @@ public class SQLPlayerData
 
     /**
      * Checks if a player exists in the SQL database
+     *
      * @param uuid The unique ID of the player
      * @return true if the player was found in the database
      */
@@ -43,6 +44,7 @@ public class SQLPlayerData
 
     /**
      * Gets the player from cache or from the SQL database
+     *
      * @param uuid The unique ID of the player
      * @return a PlexPlayer object
      * @see PlexPlayer
@@ -92,6 +94,7 @@ public class SQLPlayerData
 
     /**
      * Updates a player's information in the SQL database
+     *
      * @param player The PlexPlayer object
      * @see PlexPlayer
      */
@@ -119,6 +122,7 @@ public class SQLPlayerData
 
     /**
      * Inserts the player's information in the database
+     *
      * @param player The PlexPlayer object
      * @see PlexPlayer
      */

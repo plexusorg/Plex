@@ -37,10 +37,11 @@ public class MojangUtils
                 return null;
             }
             client.close();
-            AshconInfo ashconInfo = new GsonBuilder().registerTypeAdapter(LocalDateTime.class, (JsonDeserializer<LocalDateTime>) (json1, typeOfT, context) ->
+            AshconInfo ashconInfo = new GsonBuilder().registerTypeAdapter(LocalDateTime.class, (JsonDeserializer<LocalDateTime>)(json1, typeOfT, context) ->
                     LocalDateTime.ofInstant(Instant.from(DateTimeFormatter.ISO_INSTANT.parse(json1.getAsJsonPrimitive().getAsString())), ZoneId.systemDefault())).create().fromJson(json, AshconInfo.class);
 
-            Arrays.sort(ashconInfo.getUsernameHistories(), (o1, o2) -> {
+            Arrays.sort(ashconInfo.getUsernameHistories(), (o1, o2) ->
+            {
                 if (o1.getLocalDateTime() == null || o2.getLocalDateTime() == null)
                 {
                     return 1;

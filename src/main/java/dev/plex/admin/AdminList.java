@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 
 /**
  * Cached storage for Admin objects
+ *
  * @see Admin
  */
 
@@ -31,6 +32,7 @@ public class AdminList
 
     /**
      * Adds the admin to cache
+     *
      * @param admin The admin object
      */
     public void addToCache(Admin admin)
@@ -40,6 +42,7 @@ public class AdminList
 
     /**
      * Removes an admin from the cache
+     *
      * @param uuid The unique ID of the admin
      * @see UUID
      */
@@ -50,6 +53,7 @@ public class AdminList
 
     /**
      * Gathers every admin's username (cached and databsed)
+     *
      * @return An array list of the names of every admin
      */
     public List<String> getAllAdmins()

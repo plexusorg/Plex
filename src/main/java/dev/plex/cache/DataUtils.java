@@ -13,6 +13,7 @@ public class DataUtils
 {
     /**
      * Checks if the player has been on the server before
+     *
      * @param uuid The unique ID of the player
      * @return true if the player is registered in the database
      */
@@ -30,6 +31,7 @@ public class DataUtils
 
     /**
      * Gets a player from cache or from the database
+     *
      * @param uuid The unique ID of the player
      * @return a PlexPlayer object
      * @see PlexPlayer
@@ -53,6 +55,7 @@ public class DataUtils
 
     /**
      * Gets a player from cache or from the database
+     *
      * @param name Username of the player
      * @return a PlexPlayer object
      * @see PlexPlayer
@@ -64,6 +67,7 @@ public class DataUtils
 
     /**
      * Updates a player's information in the database
+     *
      * @param plexPlayer The PlexPlayer to update
      * @see PlexPlayer
      */
@@ -81,6 +85,7 @@ public class DataUtils
 
     /**
      * Inserts a player's information in the database
+     *
      * @param plexPlayer The PlexPlayer to insert
      * @see PlexPlayer
      */

@@ -23,6 +23,7 @@ public class BanManager
 
     /**
      * Adds the ban to the database
+     *
      * @param ban The ban object
      */
     public void executeBan(Ban ban)
@@ -55,6 +56,7 @@ public class BanManager
 
     /**
      * Checks if the unique ID has an active ban in the database
+     *
      * @param uuid The unique ID of the player
      * @return true if the unique ID is banned
      */
@@ -94,6 +96,7 @@ public class BanManager
 
     /**
      * Unbans a player if they have an active ban on record
+     *
      * @param uuid The unique ID of the player
      */
     public void unban(UUID uuid)
@@ -125,6 +128,7 @@ public class BanManager
 
     /**
      * Unbans a player if they have an active ban on record
+     *
      * @param id Custom ID of the ban
      */
     public void unban(String id)
@@ -155,6 +159,7 @@ public class BanManager
 
     /**
      * Gets a list of all the current bans active
+     *
      * @return An arraylist of bans
      */
     public List<Ban> getActiveBans()

@@ -42,6 +42,7 @@ public class Admin
 
     /**
      * Creates an admin with the startig ADMIN rank
+     *
      * @param uuid
      * @see UUID
      * @see Rank
