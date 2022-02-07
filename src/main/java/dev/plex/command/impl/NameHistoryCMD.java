@@ -6,11 +6,13 @@ import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.rank.enums.Rank;
+import dev.plex.util.AshconInfo;
 import dev.plex.util.MojangUtils;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -39,41 +41,29 @@ public class NameHistoryCMD extends PlexCommand
         }
         String username = args[0];
 
-        UUID uuid;
-        OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayerIfCached(username);
-        if (offlinePlayer != null)
-        {
-            uuid = offlinePlayer.getUniqueId();
-        }
-        else
-        {
-            uuid = MojangUtils.getUUID(username);
-        }
-
-        if (uuid == null)
+        AshconInfo info = MojangUtils.getInfo(username);
+        if (info == null)
         {
             return Component.text("Couldn't find this user! Please check if your spelling was correct and this player exists").color(NamedTextColor.RED);
         }
-        PlexLog.debug("NameHistory UUID: " + uuid);
-
-        List<Map.Entry<String, LocalDateTime>> history = MojangUtils.getNameHistory(uuid);
-        PlexLog.debug("NameHistory Size: " + history.size());
+        PlexLog.debug("NameHistory UUID: " + info.getUuid());
+        PlexLog.debug("NameHistory Size: " + info.getUsernameHistories().length);
         List<Component> historyList = Lists.newArrayList();
-        history.forEach(entry ->
+        Arrays.stream(info.getUsernameHistories()).forEach(history ->
         {
-            if (entry.getValue() != null)
+            if (history.getLocalDateTime() != null)
             {
                 historyList.add(
-                        Component.text(entry.getKey()).color(NamedTextColor.GOLD)
+                        Component.text(history.getUsername()).color(NamedTextColor.GOLD)
                                 .append(Component.space())
                                 .append(Component.text("-").color(NamedTextColor.DARK_GRAY))
                                 .append(Component.space())
-                                .append(Component.text(DATE_FORMAT.format(entry.getValue())).color(NamedTextColor.GOLD)));
+                                .append(Component.text(DATE_FORMAT.format(history.getLocalDateTime())).color(NamedTextColor.GOLD)));
             }
             else
             {
                 historyList.add(
-                        Component.text(entry.getKey()).color(NamedTextColor.GOLD)
+                        Component.text(history.getUsername()).color(NamedTextColor.GOLD)
                                 .append(Component.space()));
             }
         });

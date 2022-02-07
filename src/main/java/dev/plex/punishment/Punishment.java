@@ -1,17 +1,15 @@
 package dev.plex.punishment;
 
 import com.google.common.collect.Lists;
-import com.google.gson.Gson;
-
-import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
-
 import com.google.gson.GsonBuilder;
-import dev.plex.util.adapter.LocalDateTimeAdapter;
+import dev.plex.util.adapter.LocalDateTimeDeserializer;
+import dev.plex.util.adapter.LocalDateTimeSerializer;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -44,11 +42,11 @@ public class Punishment
 
     public String toJSON()
     {
-        return new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter()).create().toJson(this);
+        return new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new LocalDateTimeSerializer()).create().toJson(this);
     }
 
     public static Punishment fromJson(String json)
     {
-        return new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter()).create().fromJson(json, Punishment.class);
+        return new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new LocalDateTimeDeserializer()).create().fromJson(json, Punishment.class);
     }
 }

@@ -43,7 +43,7 @@ public class BanManager
                 statement.setString(3, ban.getBanner() == null ? "" : ban.getBanner().toString());
                 statement.setString(4, ban.getIp());
                 statement.setString(5, ban.getReason());
-                statement.setLong(6, ban.getEndDate().toInstant(ZoneOffset.of(ZoneId.systemDefault().getId())).toEpochMilli());
+                statement.setLong(6, ban.getEndDate().toInstant(ZoneId.systemDefault().getRules().getOffset(Instant.now())).toEpochMilli());
                 statement.setBoolean(7, ban.isActive());
                 statement.execute();
 

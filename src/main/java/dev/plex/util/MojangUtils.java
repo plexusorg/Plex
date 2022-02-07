@@ -1,15 +1,23 @@
 package dev.plex.util;
 
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Maps;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAccessor;
+import java.util.*;
 import java.util.stream.Collectors;
+
+import com.google.common.collect.Multimap;
+import com.google.gson.*;
+import dev.plex.util.adapter.LocalDateTimeDeserializer;
+import dev.plex.util.adapter.LocalDateTimeSerializer;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -20,67 +28,42 @@ import org.json.JSONObject;
 
 public class MojangUtils
 {
-    public static UUID getUUID(String name)
+
+    public static AshconInfo getInfo(String name)
     {
         CloseableHttpClient client = HttpClients.createDefault();
-        HttpGet get = new HttpGet("https://api.mojang.com/users/profiles/minecraft/" + name);
+        HttpGet get = new HttpGet("https://api.ashcon.app/mojang/v2/user/" + name);
         try
         {
             HttpResponse response = client.execute(get);
+            if (response == null || response.getEntity() == null)
+            {
+                return null;
+            }
             String json = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
             JSONObject object = new JSONObject(json);
+            if (!object.isNull("code") && object.getInt("code") == 404)
+            {
+                return null;
+            }
             client.close();
-            return UUID.fromString(new StringBuilder(object.getString("id"))
-                    .insert(8, "-")
-                    .insert(13, "-")
-                    .insert(18, "-")
-                    .insert(23, "-").toString());
+            AshconInfo ashconInfo = new GsonBuilder().registerTypeAdapter(LocalDateTime.class, (JsonDeserializer<LocalDateTime>) (json1, typeOfT, context) ->
+                    LocalDateTime.ofInstant(Instant.from(DateTimeFormatter.ISO_INSTANT.parse(json1.getAsJsonPrimitive().getAsString())), ZoneId.systemDefault())).create().fromJson(json, AshconInfo.class);
+
+            Arrays.sort(ashconInfo.getUsernameHistories(), (o1, o2) -> {
+                if (o1.getLocalDateTime() == null || o2.getLocalDateTime() == null)
+                {
+                    return 1;
+                }
+                return o1.getLocalDateTime().compareTo(o2.getLocalDateTime());
+            });
+
+            return ashconInfo;
         }
         catch (IOException e)
         {
             e.printStackTrace();
             return null;
         }
-    }
-
-    public static List<Map.Entry<String, LocalDateTime>> getNameHistory(UUID uuid)
-    {
-        Map<String, LocalDateTime> names = Maps.newHashMap();
-        String uuidString = uuid.toString().replace("-", "");
-        CloseableHttpClient httpClient = HttpClients.createDefault();
-        HttpGet get = new HttpGet("https://api.mojang.com/user/profiles/" + uuidString + "/names");
-        try
-        {
-            HttpResponse response = httpClient.execute(get);
-            String json = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
-            JSONArray array = new JSONArray(json);
-            array.forEach(object ->
-            {
-                JSONObject obj = new JSONObject(object.toString());
-                String name = obj.getString("name");
-                if (!obj.isNull("changedToAt"))
-                {
-                    long dateTime = obj.getLong("changedToAt");
-                    Instant instant = Instant.ofEpochMilli(dateTime);
-                    LocalDateTime time = LocalDateTime.ofInstant(instant, ZoneId.of("America/Los_Angeles"));
-                    names.put(name, time);
-                }
-                else
-                {
-                    names.put(name, null);
-                }
-            });
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
-        return names.entrySet().stream().sorted(Map.Entry.comparingByValue((o1, o2) -> {
-            if (o1 == null || o2 == null)
-            {
-                return 1;
-            }
-            return o1.compareTo(o2);
-        })).collect(Collectors.toList());
     }
 }
