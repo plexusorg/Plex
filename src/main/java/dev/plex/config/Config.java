@@ -4,12 +4,30 @@ import dev.plex.Plex;
 import java.io.File;
 import org.bukkit.configuration.file.YamlConfiguration;
 
+/**
+ * Creates a custom Config object
+ */
 public class Config extends YamlConfiguration
 {
+    /**
+     * The plugin instance
+     */
     private Plex plugin;
+    /**
+     * The File instance
+     */
     private File file;
+
+    /**
+     * The file name
+     */
     private String name;
 
+    /**
+     * Creates a config object
+     * @param plugin The plugin instance
+     * @param name The file name
+     */
     public Config(Plex plugin, String name)
     {
         this.plugin = plugin;
@@ -22,6 +40,9 @@ public class Config extends YamlConfiguration
         }
     }
 
+    /**
+     * Loads the configuration file
+     */
     public void load()
     {
         try
@@ -34,6 +55,9 @@ public class Config extends YamlConfiguration
         }
     }
 
+    /**
+     * Saves the configuration file
+     */
     public void save()
     {
         try
@@ -46,6 +70,9 @@ public class Config extends YamlConfiguration
         }
     }
 
+    /**
+     * Moves the configuration file from the plugin's resources folder to the data folder (plugins/Plex/)
+     */
     private void saveDefault()
     {
         plugin.saveResource(name, false);

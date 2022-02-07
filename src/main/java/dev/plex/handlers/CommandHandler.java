@@ -7,6 +7,7 @@ import dev.plex.command.impl.*;
 import dev.plex.util.PlexLog;
 import java.util.List;
 
+//TODO: Switch to Reflections API
 public class CommandHandler extends PlexBase
 {
     public CommandHandler()
