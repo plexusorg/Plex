@@ -1,5 +1,6 @@
 package dev.plex.listener.impl;
 
+import dev.plex.cache.DataUtils;
 import dev.plex.event.AdminAddEvent;
 import dev.plex.event.AdminRemoveEvent;
 import dev.plex.event.AdminSetRankEvent;
@@ -17,7 +18,8 @@ public class AdminListener extends PlexListener
     {
         String userSender = event.getSender().getName();
         PlexPlayer target = event.getPlexPlayer();
-
+        target.setRank(Rank.ADMIN.name());
+        DataUtils.update(target);
         PlexUtils.broadcast(tl("newAdminAdded", userSender, target.getName()));
     }
 
@@ -26,7 +28,8 @@ public class AdminListener extends PlexListener
     {
         String userSender = event.getSender().getName();
         PlexPlayer target = event.getPlexPlayer();
-
+        target.setRank("");
+        DataUtils.update(target);
         PlexUtils.broadcast(tl("adminRemoved", userSender, target.getName()));
     }
 
@@ -36,7 +39,8 @@ public class AdminListener extends PlexListener
         String userSender = event.getSender().getName();
         PlexPlayer target = event.getPlexPlayer();
         Rank newRank = event.getRank();
-
-        PlexUtils.broadcast(tl("adminSetRank", userSender, target.getName(), newRank.name().toUpperCase()));
+        target.setRank(newRank.name().toLowerCase());
+        DataUtils.update(target);
+        PlexUtils.broadcast(tl("adminSetRank", userSender, target.getName(), newRank.getReadableString()));
     }
 }

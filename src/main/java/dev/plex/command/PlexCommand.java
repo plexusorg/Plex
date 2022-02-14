@@ -95,7 +95,6 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
      */
     protected abstract Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, @NotNull String[] args);
 
-
     /**
      * @hidden
      */
@@ -112,6 +111,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
             sender.sendMessage(tl("noPermissionInGame"));
             return true;
         }
+
         if (commandSource == RequiredCommandSource.IN_GAME)
         {
             if (sender instanceof ConsoleCommandSender)
@@ -119,8 +119,10 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
                 send(sender, tl("noPermissionConsole"));
                 return true;
             }
-            Player player = (Player)sender;
+        }
 
+        if (sender instanceof Player player)
+        {
             PlexPlayer plexPlayer = PlayerCache.getPlexPlayerMap().get(player.getUniqueId());
 
             if (plugin.getSystem().equalsIgnoreCase("ranks"))
@@ -146,37 +148,6 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
                 return true;
             }
         }
-
-        if (commandSource == RequiredCommandSource.ANY)
-        {
-            if (sender instanceof Player player)
-            {
-                PlexPlayer plexPlayer = PlayerCache.getPlexPlayerMap().get(player.getUniqueId());
-
-                if (plugin.getSystem().equalsIgnoreCase("ranks"))
-                {
-                    if (!plexPlayer.getRankFromString().isAtLeast(getLevel()))
-                    {
-                        send(sender, tl("noPermissionRank", ChatColor.stripColor(getLevel().getLoginMSG())));
-                        return true;
-                    }
-                }
-                else if (plugin.getSystem().equalsIgnoreCase("permissions"))
-                {
-                    if (!player.hasPermission(perms.permission()))
-                    {
-                        send(sender, tl("noPermissionNode", perms.permission()));
-                        return true;
-                    }
-                }
-                else
-                {
-                    PlexLog.error("Neither permissions or ranks were selected to be used in the configuration file!");
-                    send(sender, "There is a server misconfiguration. Please alert a developer or the owner");
-                    return true;
-                }
-            }
-        }
         try
         {
             Component component = this.execute(sender, isConsole(sender) ? null : (Player)sender, args);
@@ -193,7 +164,6 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
         }
         return true;
     }
-
 
     /**
      * Checks if the string given is a command string
@@ -268,7 +238,6 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
         if (!isConsole(sender))
         {
             return checkRank((Player)sender, rank, permission);
-//            return true;
         }
         return true;
     }
@@ -284,10 +253,14 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
      */
     protected boolean checkRank(Player player, Rank rank, String permission)
     {
+        if (player instanceof ConsoleCommandSender)
+        {
+            return true;
+        }
         PlexPlayer plexPlayer = getPlexPlayer(player);
         if (plugin.getSystem().equalsIgnoreCase("ranks"))
         {
-            if (!plexPlayer.getRank().equals(rank.toString()))
+            if (!plexPlayer.getRankFromString().isAtLeast(getLevel()))
             {
                 throw new CommandFailException(PlexUtils.tl("noPermissionRank", ChatColor.stripColor(rank.getLoginMSG())));
             }
@@ -298,6 +271,48 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
             {
                 throw new CommandFailException(PlexUtils.tl("noPermissionNode", permission));
             }
+        }
+        return true;
+    }
+
+    /**
+     * Checks whether a sender has enough permissions or is high enough a rank
+     *
+     * @param sender     The player object
+     * @param rank       The rank to check (if the server is using ranks)
+     * @param permission The permission to check (if the server is using permissions)
+     * @return true if the sender has enough permissions
+     * @see Rank
+     */
+    protected boolean checkTab(CommandSender sender, Rank rank, String permission)
+    {
+        if (!isConsole(sender))
+        {
+            return checkTab((Player)sender, rank, permission);
+        }
+        return true;
+    }
+
+
+    /**
+     * Checks whether a player has enough permissions or is high enough a rank
+     *
+     * @param player     The player object
+     * @param rank       The rank to check (if the server is using ranks)
+     * @param permission The permission to check (if the server is using permissions)
+     * @return true if the sender has enough permissions
+     * @see Rank
+     */
+    protected boolean checkTab(Player player, Rank rank, String permission)
+    {
+        PlexPlayer plexPlayer = getPlexPlayer(player);
+        if (plugin.getSystem().equalsIgnoreCase("ranks"))
+        {
+            return rank.isAtLeast(plexPlayer.getRankFromString());
+        }
+        else if (plugin.getSystem().equalsIgnoreCase("permissions"))
+        {
+            return player.hasPermission(permission);
         }
         return true;
     }
@@ -412,12 +427,22 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
     /**
      * Converts usage to a component
      *
-     * @param s The usage to convert
-     * @return A kyori component stating the usage
+     * @return A Kyori component stating the usage
+     */
+    protected Component usage()
+    {
+        return componentFromString(ChatColor.YELLOW + "Correct Usage: " + ChatColor.GRAY + this.getUsage());
+    }
+
+    /**
+     * Converts usage to a component
+     *
+     * s The usage to convert
+     * @return A Kyori component stating the usage
      */
     protected Component usage(String s)
     {
-        return componentFromString(ChatColor.YELLOW + "Correct Usage: " + ChatColor.GRAY + s);
+        return componentFromString(ChatColor.YELLOW + "Correct Usage: " + ChatColor.GRAY + this.getUsage());
     }
 
     protected Player getNonNullPlayer(String name)

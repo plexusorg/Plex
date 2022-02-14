@@ -62,6 +62,7 @@ nameHistoryDoesntExist: "<e>Couldn't find this user! Please check if your spelli
 gameModeSetTo: "Your gamemode has been set to <v>."
 setOtherPlayerGameModeTo: "You set <v>'s gamemode to <v>."
 playerSetOtherGameMode: "<v> set your gamemode to <v>."
+setEveryoneGameMode: "<b><v> - Changing everyone's gamemode to <v>"
 consoleMustDefinePlayer: "You must define a player since you are running this command from console."
 newAdminAdded: "<b><v> - Adding <v> to the admin list"
 adminRemoved: "<e><v> - Removing <v> from the admin list"

@@ -26,7 +26,7 @@ public class WorldCMD extends PlexCommand
     {
         if (args.length != 1)
         {
-            return usage(getUsage());
+            return usage();
         }
         World world = getNonNullWorld(args[0]);
         playerSender.teleportAsync(new Location(world, 0, world.getHighestBlockYAt(0, 0) + 1, 0, 0, 0));

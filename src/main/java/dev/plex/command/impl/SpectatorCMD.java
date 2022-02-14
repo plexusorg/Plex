@@ -6,6 +6,7 @@ import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.exception.CommandFailException;
 import dev.plex.command.source.RequiredCommandSource;
+import dev.plex.event.GameModeUpdateEvent;
 import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexUtils;
 import java.util.List;
@@ -28,28 +29,27 @@ public class SpectatorCMD extends PlexCommand
         {
             if (isConsole(sender))
             {
-                throw new CommandFailException("You must define a player when using the console!");
+                throw new CommandFailException(PlexUtils.tl("consoleMustDefinePlayer"));
             }
-            playerSender.setGameMode(GameMode.SPECTATOR);
-            return tl("gameModeSetTo", "spectator");
+            Bukkit.getServer().getPluginManager().callEvent(new GameModeUpdateEvent(sender, playerSender, GameMode.SPECTATOR));
+            return null;
         }
 
-        if (checkRank(playerSender, Rank.ADMIN, "plex.gamemode.spectator.others"))
+        if (checkRank(sender, Rank.ADMIN, "plex.gamemode.spectator.others"))
         {
             if (args[0].equals("-a"))
             {
                 for (Player targetPlayer : Bukkit.getServer().getOnlinePlayers())
                 {
                     targetPlayer.setGameMode(GameMode.SPECTATOR);
+                    tl("gameModeSetTo", "spectator");
                 }
-                return tl("gameModeSetTo", "spectator");
+                PlexUtils.broadcast(tl("setEveryoneGameMode", sender.getName(), "spectator"));
+                return null;
             }
 
             Player nPlayer = getNonNullPlayer(args[0]);
-            // use send
-            send(nPlayer, tl("playerSetOtherGameMode", sender.getName(), "spectator"));
-            nPlayer.setGameMode(GameMode.SPECTATOR);
-            return tl("setOtherPlayerGameModeTo", nPlayer.getName(), "spectator");
+            Bukkit.getServer().getPluginManager().callEvent(new GameModeUpdateEvent(sender, nPlayer, GameMode.SPECTATOR));
         }
         return null;
     }
@@ -57,7 +57,7 @@ public class SpectatorCMD extends PlexCommand
     @Override
     public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
     {
-        if (isAdmin(sender))
+        if (checkTab(sender, Rank.ADMIN, "plex.gamemode.spectator.others"))
         {
             return PlexUtils.getPlayerNameList();
         }

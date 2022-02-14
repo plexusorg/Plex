@@ -6,6 +6,7 @@ import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.exception.CommandFailException;
 import dev.plex.command.source.RequiredCommandSource;
+import dev.plex.event.GameModeUpdateEvent;
 import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexUtils;
 import java.util.List;
@@ -21,7 +22,6 @@ import org.jetbrains.annotations.Nullable;
 @CommandParameters(name = "adventure", aliases = "gma", description = "Set your own or another player's gamemode to adventure mode")
 public class AdventureCMD extends PlexCommand
 {
-
     @Override
     protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
     {
@@ -29,28 +29,27 @@ public class AdventureCMD extends PlexCommand
         {
             if (isConsole(sender))
             {
-                throw new CommandFailException("You must define a player when using the console!");
+                throw new CommandFailException(PlexUtils.tl("consoleMustDefinePlayer"));
             }
-            playerSender.setGameMode(GameMode.ADVENTURE);
-            return tl("gameModeSetTo", "adventure");
+            Bukkit.getServer().getPluginManager().callEvent(new GameModeUpdateEvent(sender, playerSender, GameMode.ADVENTURE));
+            return null;
         }
 
-        if (checkRank(playerSender, Rank.ADMIN, "plex.gamemode.adventure.others"))
+        if (checkRank(sender, Rank.ADMIN, "plex.gamemode.adventure.others"))
         {
             if (args[0].equals("-a"))
             {
                 for (Player targetPlayer : Bukkit.getServer().getOnlinePlayers())
                 {
                     targetPlayer.setGameMode(GameMode.ADVENTURE);
+                    tl("gameModeSetTo", "adventure");
                 }
-                return tl("gameModeSetTo", "adventure");
+                PlexUtils.broadcast(tl("setEveryoneGameMode", sender.getName(), "adventure"));
+                return null;
             }
 
             Player nPlayer = getNonNullPlayer(args[0]);
-            // use send
-            send(nPlayer, tl("playerSetOtherGameMode", sender.getName(), "adventure"));
-            nPlayer.setGameMode(GameMode.ADVENTURE);
-            return tl("setOtherPlayerGameModeTo", nPlayer.getName(), "adventure");
+            Bukkit.getServer().getPluginManager().callEvent(new GameModeUpdateEvent(sender, nPlayer, GameMode.ADVENTURE));
         }
         return null;
     }
@@ -58,7 +57,7 @@ public class AdventureCMD extends PlexCommand
     @Override
     public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
     {
-        if (isAdmin(sender))
+        if (checkTab(sender, Rank.ADMIN, "plex.gamemode.adventure.others"))
         {
             return PlexUtils.getPlayerNameList();
         }

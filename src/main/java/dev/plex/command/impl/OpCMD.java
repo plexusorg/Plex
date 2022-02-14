@@ -22,7 +22,7 @@ public class OpCMD extends PlexCommand
     {
         if (args.length != 1)
         {
-            return usage(getUsage());
+            return usage();
         }
         Player player = getNonNullPlayer(args[0]);
         player.setOp(true);

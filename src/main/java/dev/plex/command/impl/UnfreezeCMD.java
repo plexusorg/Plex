@@ -25,7 +25,7 @@ public class UnfreezeCMD extends PlexCommand
     {
         if (args.length != 1)
         {
-            return usage(getUsage());
+            return usage();
         }
         Player player = getNonNullPlayer(args[0]);
         PunishedPlayer punishedPlayer = PlayerCache.getPunishedPlayer(player.getUniqueId());
@@ -40,6 +40,6 @@ public class UnfreezeCMD extends PlexCommand
     @Override
     public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
     {
-        return args.length == 1 && isAdmin(sender) ? PlexUtils.getPlayerNameList() : ImmutableList.of();
+        return args.length == 1 && checkTab(sender, Rank.ADMIN, "plex.unfreeze") ? PlexUtils.getPlayerNameList() : ImmutableList.of();
     }
 }

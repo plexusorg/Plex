@@ -32,7 +32,7 @@ public class NameHistoryCMD extends PlexCommand
     {
         if (args.length != 1)
         {
-            return usage(getUsage());
+            return usage();
         }
         String username = args[0];
 

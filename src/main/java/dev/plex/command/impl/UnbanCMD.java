@@ -28,7 +28,7 @@ public class UnbanCMD extends PlexCommand
     {
         if (args.length == 0)
         {
-            return usage(getUsage());
+            return usage();
         }
 
         if (args.length == 1)

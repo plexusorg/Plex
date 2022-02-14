@@ -36,7 +36,7 @@ public class BanCMD extends PlexCommand
     {
         if (args.length == 0)
         {
-            return usage(getUsage());
+            return usage();
         }
 
         UUID targetUUID = PlexUtils.getFromName(args[0]);

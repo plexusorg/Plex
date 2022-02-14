@@ -36,7 +36,7 @@ public class AdminCMD extends PlexCommand
     {
         if (args.length == 0)
         {
-            return usage(getUsage());
+            return usage();
         }
 
         if (args[0].equalsIgnoreCase("add"))
@@ -64,8 +64,6 @@ public class AdminCMD extends PlexCommand
                 return tl("playerIsAdmin");
             }
 
-            plexPlayer.setRank(Rank.ADMIN.name());
-            DataUtils.update(plexPlayer);
             Bukkit.getServer().getPluginManager().callEvent(new AdminAddEvent(sender, plexPlayer));
             return null;
         }
@@ -94,8 +92,6 @@ public class AdminCMD extends PlexCommand
                 return tl("playerNotAdmin");
             }
 
-            plexPlayer.setRank("");
-            DataUtils.update(plexPlayer);
             Bukkit.getServer().getPluginManager().callEvent(new AdminRemoveEvent(sender, plexPlayer));
             return null;
         }
@@ -137,9 +133,6 @@ public class AdminCMD extends PlexCommand
             {
                 return tl("playerNotAdmin");
             }
-
-            plexPlayer.setRank(rank.name().toLowerCase());
-            DataUtils.update(plexPlayer);
 
             Bukkit.getServer().getPluginManager().callEvent(new AdminSetRankEvent(sender, plexPlayer, rank));
 

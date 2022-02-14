@@ -6,6 +6,7 @@ import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.exception.CommandFailException;
 import dev.plex.command.source.RequiredCommandSource;
+import dev.plex.event.GameModeUpdateEvent;
 import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexUtils;
 import java.util.List;
@@ -28,28 +29,31 @@ public class CreativeCMD extends PlexCommand
         {
             if (isConsole(sender))
             {
-                throw new CommandFailException("You must define a player when using the console!");
+                throw new CommandFailException(PlexUtils.tl("consoleMustDefinePlayer"));
             }
-            playerSender.setGameMode(GameMode.CREATIVE);
-            return tl("gameModeSetTo", "creative");
+            if (!(playerSender == null))
+            {
+                Bukkit.getServer().getPluginManager().callEvent(new GameModeUpdateEvent(sender, playerSender.getPlayer(), GameMode.CREATIVE));
+            }
+            return null;
         }
 
-        if (checkRank(playerSender, Rank.ADMIN, "plex.gamemode.creative.others"))
+        if (checkRank(sender, Rank.ADMIN, "plex.gamemode.creative.others"))
         {
             if (args[0].equals("-a"))
             {
                 for (Player targetPlayer : Bukkit.getServer().getOnlinePlayers())
                 {
                     targetPlayer.setGameMode(GameMode.CREATIVE);
+                    tl("gameModeSetTo", "creative");
                 }
-                return tl("gameModeSetTo", "creative");
+                PlexUtils.broadcast(tl("setEveryoneGameMode", sender.getName(), "creative"));
+                return null;
             }
 
             Player nPlayer = getNonNullPlayer(args[0]);
-            // use send
-            send(nPlayer, tl("playerSetOtherGameMode", sender.getName(), "creative"));
-            nPlayer.setGameMode(GameMode.CREATIVE);
-            return tl("setOtherPlayerGameModeTo", nPlayer.getName(), "creative");
+            Bukkit.getServer().getPluginManager().callEvent(new GameModeUpdateEvent(sender, nPlayer, GameMode.CREATIVE));
+            return null;
         }
         return null;
     }
@@ -57,7 +61,7 @@ public class CreativeCMD extends PlexCommand
     @Override
     public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
     {
-        if (isAdmin(sender))
+        if (checkTab(sender, Rank.ADMIN, "plex.gamemode.creative.others"))
         {
             return PlexUtils.getPlayerNameList();
         }

@@ -53,7 +53,7 @@ public class PlexCMD extends PlexCommand
         }
         else
         {
-            return usage(getUsage());
+            return usage();
         }
         return null;
     }

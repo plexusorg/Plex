@@ -28,7 +28,7 @@ public class FreezeCMD extends PlexCommand
     {
         if (args.length != 1)
         {
-            return usage(getUsage());
+            return usage();
         }
         Player player = getNonNullPlayer(args[0]);
         PunishedPlayer punishedPlayer = PlayerCache.getPunishedPlayer(player.getUniqueId());

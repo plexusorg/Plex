@@ -30,7 +30,6 @@ public class AdminSetRankEvent extends Event
      */
     private final Rank rank;
 
-
     @Override
     public HandlerList getHandlers()
     {
