@@ -308,7 +308,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
         PlexPlayer plexPlayer = getPlexPlayer(player);
         if (plugin.getSystem().equalsIgnoreCase("ranks"))
         {
-            return rank.isAtLeast(plexPlayer.getRankFromString());
+            return plexPlayer.getRankFromString().isAtLeast(rank);
         }
         else if (plugin.getSystem().equalsIgnoreCase("permissions"))
         {
