@@ -48,7 +48,7 @@ public class TagCMD extends PlexCommand
             String prefix = StringUtils.join(args, " ", 1, args.length);
             if (ChatColor.stripColor(prefix).length() > plugin.config.getInt("chat.max-tag-length", 16))
             {
-                return componentFromString("The max length for a tag may only be " + plugin.config.getInt("chat.max-tag-length", 16));
+                return componentFromString("The maximum length for a tag may only be " + plugin.config.getInt("chat.max-tag-length", 16));
             }
             player.setPrefix(prefix);
             return Component.text("Your prefix has been set to ").color(NamedTextColor.AQUA).append(componentFromString(prefix));
@@ -68,7 +68,7 @@ public class TagCMD extends PlexCommand
                 return Component.text("Your prefix has been cleared.").color(NamedTextColor.AQUA);
             }
 
-            checkRank(sender, Rank.ADMIN, "plex.tag.clearother");
+            checkRank(sender, Rank.ADMIN, "plex.tag.clear.others");
 
             Player target = getNonNullPlayer(args[1]);
             PlexPlayer plexTarget = DataUtils.getPlayer(target.getUniqueId());

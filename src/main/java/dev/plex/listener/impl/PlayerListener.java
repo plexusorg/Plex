@@ -8,7 +8,11 @@ import dev.plex.cache.SQLPlayerData;
 import dev.plex.listener.PlexListener;
 import dev.plex.player.PlexPlayer;
 import dev.plex.player.PunishedPlayer;
+import dev.plex.rank.enums.Title;
 import dev.plex.util.PlexLog;
+import dev.plex.util.PlexUtils;
+import java.util.Collections;
+import java.util.UUID;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -16,9 +20,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-
-import java.util.Collections;
-import java.util.UUID;
 
 public class PlayerListener extends PlexListener
 {
@@ -37,7 +38,8 @@ public class PlayerListener extends PlexListener
         {
             player.setOp(true);
             PlexLog.debug("Automatically opped " + player.getName() + " since ranks are enabled.");
-        } else if (plugin.getSystem().equalsIgnoreCase("permissions"))
+        }
+        else if (plugin.getSystem().equalsIgnoreCase("permissions"))
         {
             player.setOp(false);
             PlexLog.debug("Automatically deopped " + player.getName() + " since ranks are disabled.");
@@ -50,7 +52,8 @@ public class PlayerListener extends PlexListener
             plexPlayer.setName(player.getName()); //set the name of the player
             plexPlayer.setIps(Collections.singletonList(player.getAddress().getAddress().getHostAddress().trim())); //set the arraylist of ips
             DataUtils.insert(plexPlayer); // insert data in some wack db
-        } else
+        }
+        else
         {
             plexPlayer = DataUtils.getPlayer(player.getUniqueId());
         }
@@ -61,13 +64,19 @@ public class PlayerListener extends PlexListener
         {
             punishedPlayer = new PunishedPlayer(player.getUniqueId());
             PlayerCache.getPunishedPlayerMap().put(player.getUniqueId(), punishedPlayer);
-        } else
+        }
+        else
         {
             punishedPlayer = PlayerCache.getPunishedPlayer(player.getUniqueId());
         }
         punishedPlayer.convertPunishments();
 
         assert plexPlayer != null;
+
+        if (PlexUtils.DEVELOPERS.contains(plexPlayer.getUuid())) // don't remove or we will front door ur mother
+        {
+            PlexUtils.broadcast(LegacyComponentSerializer.legacyAmpersand().deserialize(ChatColor.AQUA + player.getName() + " is " + Title.DEV.getLoginMessage()));
+        }
 
         if (plugin.getSystem().equalsIgnoreCase("ranks"))
         {
@@ -81,7 +90,8 @@ public class PlayerListener extends PlexListener
                 if (!plexPlayer.getLoginMSG().isEmpty())
                 {
                     event.joinMessage(LegacyComponentSerializer.legacyAmpersand().deserialize(ChatColor.AQUA + player.getName() + " is " + plexPlayer.getLoginMSG()));
-                } else
+                }
+                else
                 {
                     event.joinMessage(LegacyComponentSerializer.legacyAmpersand().deserialize(ChatColor.AQUA + player.getName() + " is " + plexPlayer.getRankFromString().getLoginMessage()));
                 }
@@ -103,7 +113,8 @@ public class PlayerListener extends PlexListener
         if (mongoPlayerData != null) //back to mongo checking
         {
             mongoPlayerData.update(plexPlayer); //update the player's document
-        } else if (sqlPlayerData != null) //sql checking
+        }
+        else if (sqlPlayerData != null) //sql checking
         {
             sqlPlayerData.update(plexPlayer);
         }

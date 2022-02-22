@@ -10,7 +10,8 @@ server:
 
 titles:
   masterbuilders: []
-  owners: []
+  owners:
+    - Telesphoreo
 
 # Ban message is customized in the messages.yml file. The URL to appeal at is below.
 banning:

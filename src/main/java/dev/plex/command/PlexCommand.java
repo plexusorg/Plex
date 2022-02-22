@@ -442,7 +442,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
      */
     protected Component usage(String s)
     {
-        return componentFromString(ChatColor.YELLOW + "Correct Usage: " + ChatColor.GRAY + this.getUsage());
+        return componentFromString(ChatColor.YELLOW + "Correct Usage: " + ChatColor.GRAY + s);
     }
 
     protected Player getNonNullPlayer(String name)

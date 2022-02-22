@@ -98,7 +98,7 @@ public class PunishedPlayer extends PlexBase
         //Converting from File to Redis
         if (isNotEmpty(file))
         {
-            PlexLog.debug("Starting converting punishments from file to redis for " + uuid + "...");
+            PlexLog.debug("Starting converting punishments from file to Redis for " + uuid + "...");
             JSONTokener tokener = new JSONTokener(new FileInputStream(file));
             JSONObject object = new JSONObject(tokener);
             JSONArray array = object.getJSONObject(getUuid()).getJSONArray("punishments");
