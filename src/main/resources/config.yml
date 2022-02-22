@@ -9,7 +9,7 @@ server:
     - "&cForums: https://forum.plex.us.org"
 
 titles:
-  masterbuilders: []
+  masterbuilders: [ ]
   owners:
     - Telesphoreo
 

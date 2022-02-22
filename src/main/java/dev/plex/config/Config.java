@@ -25,8 +25,9 @@ public class Config extends YamlConfiguration
 
     /**
      * Creates a config object
+     *
      * @param plugin The plugin instance
-     * @param name The file name
+     * @param name   The file name
      */
     public Config(Plex plugin, String name)
     {

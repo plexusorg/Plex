@@ -436,8 +436,9 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
 
     /**
      * Converts usage to a component
-     *
+     * <p>
      * s The usage to convert
+     *
      * @return A Kyori component stating the usage
      */
     protected Component usage(String s)

@@ -6,6 +6,7 @@ import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
 
 //TODO: Event doesn't look like it is called
+
 /**
  * Event that is called when a player is frozen or unfrozen
  */
@@ -21,8 +22,9 @@ public class PunishedPlayerMuteEvent extends PunishedPlayerEvent implements Canc
 
     /**
      * Creates a new event instance
+     *
      * @param punishedPlayer The player who was punished
-     * @param muted The new muted status
+     * @param muted          The new muted status
      */
     public PunishedPlayerMuteEvent(PunishedPlayer punishedPlayer, boolean muted)
     {

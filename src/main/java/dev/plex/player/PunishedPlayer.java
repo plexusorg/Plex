@@ -8,16 +8,6 @@ import dev.plex.event.PunishedPlayerFreezeEvent;
 import dev.plex.event.PunishedPlayerMuteEvent;
 import dev.plex.punishment.Punishment;
 import dev.plex.util.PlexLog;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.SneakyThrows;
-import org.apache.commons.io.FileUtils;
-import org.bukkit.Bukkit;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.json.JSONTokener;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -27,6 +17,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.SneakyThrows;
+import org.apache.commons.io.FileUtils;
+import org.bukkit.Bukkit;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.json.JSONTokener;
 
 @Getter
 public class PunishedPlayer extends PlexBase
@@ -79,7 +78,8 @@ public class PunishedPlayer extends PlexBase
             try
             {
                 file.createNewFile();
-            } catch (IOException e)
+            }
+            catch (IOException e)
             {
                 e.printStackTrace();
             }
@@ -91,7 +91,10 @@ public class PunishedPlayer extends PlexBase
     @SneakyThrows
     public void convertPunishments()
     {
-        if (!plugin.getRedisConnection().isEnabled()) return;
+        if (!plugin.getRedisConnection().isEnabled())
+        {
+            return;
+        }
         List<Punishment> punishments = Lists.newArrayList();
 
         File file = getPunishmentsFile();
@@ -121,7 +124,8 @@ public class PunishedPlayer extends PlexBase
                         plugin.getRedisConnection().getJedis().set(uuid, obj.toString());
                         PlexLog.debug("Updated Redis Punishments to match with file");
                     }
-                } else
+                }
+                else
                 {
                     plugin.getRedisConnection().getJedis().set(uuid, obj.toString());
                 }
@@ -137,9 +141,15 @@ public class PunishedPlayer extends PlexBase
         if (plugin.getRedisConnection().isEnabled())
         {
             PlexLog.debug("Getting punishments from Redis...");
-            if (!plugin.getRedisConnection().getJedis().exists(uuid)) return punishments;
+            if (!plugin.getRedisConnection().getJedis().exists(uuid))
+            {
+                return punishments;
+            }
             String strObj = plugin.getRedisConnection().getJedis().get(uuid);
-            if (strObj.isEmpty() || !strObj.startsWith("{")) return punishments;
+            if (strObj.isEmpty() || !strObj.startsWith("{"))
+            {
+                return punishments;
+            }
             JSONObject object = new JSONObject(strObj);
             object.getJSONObject(uuid).getJSONArray("punishments").forEach(obj ->
             {
@@ -169,7 +179,8 @@ public class PunishedPlayer extends PlexBase
                     Punishment punishment = Punishment.fromJson(obj.toString());
                     punishments.add(punishment);
                 });
-            } catch (FileNotFoundException e)
+            }
+            catch (FileNotFoundException e)
             {
                 e.printStackTrace();
             }
@@ -182,7 +193,8 @@ public class PunishedPlayer extends PlexBase
         try
         {
             return !FileUtils.readFileToString(file, StandardCharsets.UTF_8).trim().isEmpty();
-        } catch (IOException e)
+        }
+        catch (IOException e)
         {
             e.printStackTrace();
         }

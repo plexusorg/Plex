@@ -1,11 +1,5 @@
 package dev.plex.rank.enums;
 
-import com.google.common.collect.Lists;
-
-import java.util.Arrays;
-import java.util.List;
-
-import com.google.gson.Gson;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.ChatColor;

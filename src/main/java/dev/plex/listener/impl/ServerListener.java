@@ -3,12 +3,11 @@ package dev.plex.listener.impl;
 import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
 import dev.plex.listener.PlexListener;
 import dev.plex.util.PlexUtils;
+import java.util.List;
+import java.util.stream.Collectors;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class ServerListener extends PlexListener
 {
@@ -27,7 +26,8 @@ public class ServerListener extends PlexListener
                 motd.append(PlexUtils.randomChatColor()).append(word).append(" ");
             }
             event.motd(LegacyComponentSerializer.legacyAmpersand().deserialize(motd.toString().trim()));
-        } else
+        }
+        else
         {
             event.motd(LegacyComponentSerializer.legacyAmpersand().deserialize(baseMotd.trim()));
         }

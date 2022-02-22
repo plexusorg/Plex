@@ -5,17 +5,16 @@ import dev.plex.player.PlexPlayer;
 import dev.plex.rank.enums.Rank;
 import dev.plex.rank.enums.Title;
 import dev.plex.util.PlexUtils;
-import lombok.SneakyThrows;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.json.JSONTokener;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.stream.Collectors;
+import lombok.SneakyThrows;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.json.JSONTokener;
 
 public class RankManager
 {
@@ -82,7 +81,8 @@ public class RankManager
                 Title.valueOf(key).setLoginMessage(title.getJSONObject(key).getString("loginMessage"));
                 Title.valueOf(key).setPrefix(title.getJSONObject(key).getString("prefix"));
             });
-        } catch (IOException e)
+        }
+        catch (IOException e)
         {
             e.printStackTrace();
         }

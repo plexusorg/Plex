@@ -8,6 +8,9 @@ import dev.plex.rank.enums.Rank;
 import dev.plex.rank.enums.Title;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.World;
 import org.bukkit.entity.EntityType;
@@ -17,10 +20,6 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
 
 public class WorldListener extends PlexListener
 {
@@ -34,15 +33,27 @@ public class WorldListener extends PlexListener
         if (plugin.getSystem().equalsIgnoreCase("permissions"))
         {
             String permission = plugin.config.getString("worlds." + world.getName().toLowerCase() + ".permission");
-            if (permission == null) return;
-            if (player.hasPermission(permission)) return;
-        } else if (plugin.getSystem().equalsIgnoreCase("ranks"))
+            if (permission == null)
+            {
+                return;
+            }
+            if (player.hasPermission(permission))
+            {
+                return;
+            }
+        }
+        else if (plugin.getSystem().equalsIgnoreCase("ranks"))
         {
             if (plugin.config.contains("worlds." + world.getName().toLowerCase() + ".requiredLevels"))
             {
                 @NotNull List<String> requiredLevel = plugin.config.getStringList("worlds." + world.getName().toLowerCase() + ".requiredLevels");
-                if (checkLevel(plexPlayer, requiredLevel.toArray(String[]::new))) return;
-            } else {
+                if (checkLevel(plexPlayer, requiredLevel.toArray(String[]::new)))
+                {
+                    return;
+                }
+            }
+            else
+            {
                 return;
             }
         }
@@ -64,15 +75,27 @@ public class WorldListener extends PlexListener
         if (plugin.getSystem().equalsIgnoreCase("permissions"))
         {
             String permission = plugin.config.getString("worlds." + world.getName().toLowerCase() + ".permission");
-            if (permission == null) return;
-            if (player.hasPermission(permission)) return;
-        } else if (plugin.getSystem().equalsIgnoreCase("ranks"))
+            if (permission == null)
+            {
+                return;
+            }
+            if (player.hasPermission(permission))
+            {
+                return;
+            }
+        }
+        else if (plugin.getSystem().equalsIgnoreCase("ranks"))
         {
             if (plugin.config.contains("worlds." + world.getName().toLowerCase() + ".requiredLevels"))
             {
                 @NotNull List<String> requiredLevel = plugin.config.getStringList("worlds." + world.getName().toLowerCase() + ".requiredLevels");
-                if (checkLevel(plexPlayer, requiredLevel.toArray(String[]::new))) return;
-            } else {
+                if (checkLevel(plexPlayer, requiredLevel.toArray(String[]::new)))
+                {
+                    return;
+                }
+            }
+            else
+            {
                 return;
             }
         }
@@ -121,7 +144,8 @@ public class WorldListener extends PlexListener
                         return false;
                     }
                 }
-            } else if (required.startsWith("Rank"))
+            }
+            else if (required.startsWith("Rank"))
             {
                 String rankString = required.split("\\.")[1];
                 Rank rank = Rank.valueOf(rankString.toUpperCase(Locale.ROOT));

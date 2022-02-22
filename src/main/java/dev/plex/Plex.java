@@ -21,13 +21,12 @@ import dev.plex.storage.StorageType;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import dev.plex.world.CustomWorld;
+import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import java.util.UUID;
 
 @Getter
 @Setter
@@ -82,7 +81,8 @@ public class Plex extends JavaPlugin
         {
             PlexUtils.testConnections();
             PlexLog.log("Connected to " + storageType.name().toUpperCase());
-        } catch (Exception e)
+        }
+        catch (Exception e)
         {
             PlexLog.error("Failed to connect to " + storageType.name().toUpperCase());
             e.printStackTrace();
@@ -96,7 +96,8 @@ public class Plex extends JavaPlugin
         {
             redisConnection.getJedis();
             PlexLog.log("Connected to Redis!");
-        } else
+        }
+        else
         {
             PlexLog.log("Redis is disabled in the configuration file, not connecting.");
         }
@@ -104,7 +105,8 @@ public class Plex extends JavaPlugin
         if (storageType == StorageType.MONGODB)
         {
             mongoPlayerData = new MongoPlayerData();
-        } else
+        }
+        else
         {
             sqlPlayerData = new SQLPlayerData();
         }
@@ -149,7 +151,8 @@ public class Plex extends JavaPlugin
             if (mongoPlayerData != null) //back to mongo checking
             {
                 mongoPlayerData.update(plexPlayer); //update the player's document
-            } else if (sqlPlayerData != null) //sql checking
+            }
+            else if (sqlPlayerData != null) //sql checking
             {
                 sqlPlayerData.update(plexPlayer);
             }

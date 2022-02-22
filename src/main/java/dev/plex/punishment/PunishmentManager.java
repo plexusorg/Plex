@@ -8,13 +8,6 @@ import dev.plex.cache.PlayerCache;
 import dev.plex.player.PunishedPlayer;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
-import org.apache.commons.io.FileUtils;
-import org.bukkit.Bukkit;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.json.JSONObject;
-import org.json.JSONTokener;
-import redis.clients.jedis.Jedis;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
@@ -26,6 +19,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import org.apache.commons.io.FileUtils;
+import org.bukkit.Bukkit;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.json.JSONObject;
+import org.json.JSONTokener;
+import redis.clients.jedis.Jedis;
 
 public class PunishmentManager extends PlexBase
 {
@@ -51,7 +50,8 @@ public class PunishmentManager extends PlexBase
                 writer.append(object.toString(8));
                 writer.flush();
                 writer.close();
-            } else
+            }
+            else
             {
                 JSONObject object = new JSONObject();
                 Map<String, List<String>> punishments = Maps.newHashMap();
@@ -73,7 +73,8 @@ public class PunishmentManager extends PlexBase
                 writer.flush();
                 writer.close();
             }
-        } catch (IOException e)
+        }
+        catch (IOException e)
         {
             e.printStackTrace();
         }
@@ -84,7 +85,8 @@ public class PunishmentManager extends PlexBase
         try
         {
             return !FileUtils.readFileToString(file, StandardCharsets.UTF_8).trim().isEmpty();
-        } catch (IOException e)
+        }
+        catch (IOException e)
         {
             e.printStackTrace();
         }
@@ -120,7 +122,8 @@ public class PunishmentManager extends PlexBase
                         punishments.add(punishment);
                     }
                 });
-            } catch (IllegalArgumentException e)
+            }
+            catch (IllegalArgumentException e)
             {
 
             }
@@ -161,7 +164,8 @@ public class PunishmentManager extends PlexBase
         if (PlayerCache.getPunishedPlayerMap().containsKey(uuid))
         {
             player = PlayerCache.getPunishedPlayer(uuid);
-        } else
+        }
+        else
         {
             player = new PunishedPlayer(uuid);
         }
@@ -188,7 +192,8 @@ public class PunishmentManager extends PlexBase
                 writer.append(object.toString());
                 writer.flush();
                 writer.close();
-            } catch (IOException e)
+            }
+            catch (IOException e)
             {
                 e.printStackTrace();
             }
@@ -224,7 +229,8 @@ public class PunishmentManager extends PlexBase
                     Bukkit.getLogger().info("Unfroze");
                 }
             }.runTaskLater(Plex.get(), 20 * seconds);
-        } else if (punishment.getType() == PunishmentType.MUTE)
+        }
+        else if (punishment.getType() == PunishmentType.MUTE)
         {
             player.setMuted(true);
             LocalDateTime now = LocalDateTime.now();

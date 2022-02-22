@@ -27,6 +27,7 @@ public abstract class PunishedPlayerEvent extends PlayerEvent implements Cancell
 
     /**
      * Creates an event object
+     *
      * @param punishedPlayer The player who was punished
      * @see PunishedPlayer
      */
