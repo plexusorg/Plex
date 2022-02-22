@@ -67,10 +67,12 @@ publishing {
             from(components.java)
             repositories {
                 maven {
-                    url("https://nexus.telesphoreo.me/repository/plex-releases/")
-                    credentials {
-                        username = System.getenv("plex_repo_user")
-                        password = System.getenv("plex_repo_pass")
+                    if (System.getenv("plex_repo_user") != null && System.getenv("plex_repo_pass") != null) {
+                        url("https://nexus.telesphoreo.me/repository/plex-releases/")
+                        credentials {
+                            username = System.getenv("plex_repo_user")
+                            password = System.getenv("plex_repo_pass")
+                        }
                     }
                 }
             }
@@ -79,10 +81,12 @@ publishing {
             from(components.java)
             repositories {
                 maven {
-                    url("https://nexus.telesphoreo.me/repository/plex-snapshots/")
-                    credentials {
-                        username = System.getenv("plex_repo_user")
-                        password = System.getenv("plex_repo_pass")
+                    if (System.getenv("plex_repo_user") != null && System.getenv("plex_repo_pass") != null) {
+                        url("https://nexus.telesphoreo.me/repository/plex-snapshots/")
+                        credentials {
+                            username = System.getenv("plex_repo_user")
+                            password = System.getenv("plex_repo_pass")
+                        }
                     }
                 }
             }
@@ -97,8 +101,7 @@ tasks.withType(JavaCompile) {
 tasks {
     build {
         dependsOn(shadowJar)
-        if (getVersion().toString().toLowerCase().endsWith("-snapshot"))
-        {
+        if (getVersion().toString().toLowerCase().endsWith("-snapshot")) {
             dependsOn(publishPlexSnapshotsPublicationToMaven2Repository)
         }
     }
