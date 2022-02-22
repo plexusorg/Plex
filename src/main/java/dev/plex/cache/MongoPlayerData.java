@@ -73,7 +73,7 @@ public class MongoPlayerData
         Update<PlexPlayer> updateOps = filter
                 .update(
                         UpdateOperators.set("name", player.getName()),
-                        UpdateOperators.set("loginMSG", player.getLoginMSG()),
+                        UpdateOperators.set("loginMSG", player.getLoginMessage()),
                         UpdateOperators.set("prefix", player.getPrefix()),
                         UpdateOperators.set("rank", player.getRank().toLowerCase()),
                         UpdateOperators.set("ips", player.getIps()),

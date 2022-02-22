@@ -75,7 +75,7 @@ public class SQLPlayerData
                 {
                 }.getType());
                 plexPlayer.setName(name);
-                plexPlayer.setLoginMSG(loginMSG);
+                plexPlayer.setLoginMessage(loginMSG);
                 plexPlayer.setPrefix(prefix);
                 plexPlayer.setRank(rankName);
                 plexPlayer.setIps(ips);
@@ -104,7 +104,7 @@ public class SQLPlayerData
         {
             PreparedStatement statement = con.prepareStatement(UPDATE);
             statement.setString(1, player.getName());
-            statement.setString(2, player.getLoginMSG());
+            statement.setString(2, player.getLoginMessage());
             statement.setString(3, player.getPrefix());
             statement.setString(4, player.getRank().toLowerCase());
             statement.setString(5, new Gson().toJson(player.getIps()));
@@ -133,7 +133,7 @@ public class SQLPlayerData
             PreparedStatement statement = con.prepareStatement(INSERT);
             statement.setString(1, player.getUuid());
             statement.setString(2, player.getName());
-            statement.setString(3, player.getLoginMSG());
+            statement.setString(3, player.getLoginMessage());
             statement.setString(4, player.getPrefix());
             statement.setString(5, player.getRank().toLowerCase());
             statement.setString(6, new Gson().toJson(player.getIps()));

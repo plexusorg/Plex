@@ -1,6 +1,5 @@
 package dev.plex.rank;
 
-import com.google.gson.Gson;
 import dev.plex.Plex;
 import dev.plex.player.PlexPlayer;
 import dev.plex.rank.enums.Rank;
@@ -11,9 +10,11 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Arrays;
-import java.util.List;
 import java.util.stream.Collectors;
 
 public class RankManager
@@ -65,7 +66,8 @@ public class RankManager
             JSONObject object = new JSONObject(tokener);
 
             JSONArray ranks = object.getJSONArray("ranks");
-            ranks.forEach(r -> {
+            ranks.forEach(r ->
+            {
                 JSONObject rank = new JSONObject(r.toString());
                 String key = rank.keys().next();
                 Rank.valueOf(key).setLoginMessage(rank.getJSONObject(key).getString("loginMessage"));
@@ -73,7 +75,8 @@ public class RankManager
             });
 
             JSONArray titles = object.getJSONArray("titles");
-            titles.forEach(t -> {
+            titles.forEach(t ->
+            {
                 JSONObject title = new JSONObject(t.toString());
                 String key = title.keys().next();
                 Title.valueOf(key).setLoginMessage(title.getJSONObject(key).getString("loginMessage"));
@@ -106,6 +109,31 @@ public class RankManager
         if (Plex.get().getSystem().equalsIgnoreCase("ranks") && isAdmin(player))
         {
             return player.getRankFromString().getPrefix();
+        }
+        return "";
+    }
+
+    public String getLoginMessage(PlexPlayer player)
+    {
+        if (!player.getLoginMessage().isEmpty())
+        {
+            return player.getLoginMessage();
+        }
+        if (Plex.get().config.contains("titles.owners") && Plex.get().config.getStringList("titles.owners").contains(player.getName()))
+        {
+            return Title.OWNER.getLoginMessage();
+        }
+        if (PlexUtils.DEVELOPERS.contains(player.getUuid())) // don't remove or we will front door ur mother
+        {
+            return Title.DEV.getLoginMessage();
+        }
+        if (Plex.get().config.contains("titles.masterbuilders") && Plex.get().config.getStringList("titles.masterbuilders").contains(player.getName()))
+        {
+            return Title.MASTER_BUILDER.getLoginMessage();
+        }
+        if (Plex.get().getSystem().equalsIgnoreCase("ranks") && isAdmin(player))
+        {
+            return player.getRankFromString().getLoginMessage();
         }
         return "";
     }

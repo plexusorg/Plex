@@ -33,7 +33,7 @@ public class PlexPlayer
     private String name;
     private Player player;
 
-    private String loginMSG;
+    private String loginMessage;
     private String prefix;
 
     private boolean vanished;
@@ -58,7 +58,7 @@ public class PlexPlayer
         this.name = "";
         this.player = Bukkit.getPlayer(name);
 
-        this.loginMSG = "";
+        this.loginMessage = "";
         this.prefix = "";
 
         this.vanished = false;
