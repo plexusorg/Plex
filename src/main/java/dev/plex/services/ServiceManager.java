@@ -2,6 +2,7 @@ package dev.plex.services;
 
 import com.google.common.collect.Lists;
 import dev.plex.Plex;
+import dev.plex.services.impl.BanService;
 import dev.plex.services.impl.GameRuleService;
 import java.util.List;
 import org.bukkit.Bukkit;
@@ -12,7 +13,7 @@ public class ServiceManager
 
     public ServiceManager()
     {
-        //registerService(new BanService());
+        registerService(new BanService());
         registerService(new GameRuleService());
     }
 
@@ -26,11 +27,11 @@ public class ServiceManager
             }
             else if (service.isRepeating() && service.isAsynchronous())
             {
-                Bukkit.getScheduler().runTaskTimerAsynchronously(Plex.get(), service::run, 0, 20 * service.repeatInSeconds());
+                Bukkit.getScheduler().runTaskTimerAsynchronously(Plex.get(), service::run, 0, 20L * service.repeatInSeconds());
             }
             else if (service.isRepeating() && !service.isAsynchronous())
             {
-                Bukkit.getScheduler().runTaskTimer(Plex.get(), service::run, 0, 20 * service.repeatInSeconds());
+                Bukkit.getScheduler().runTaskTimer(Plex.get(), service::run, 0, 20L * service.repeatInSeconds());
             }
         }
     }
