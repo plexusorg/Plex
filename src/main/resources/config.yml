@@ -16,6 +16,9 @@ titles:
 banning:
   ban_url: "https://forum.plex.us.org"
 
+chat:
+  max-tag-length: 16
+  name-color: 'f' #Color code for name color
 
 # Settings for commands relating to Plex
 commands:

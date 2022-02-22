@@ -8,6 +8,7 @@ import dev.plex.rank.enums.Rank;
 import java.util.List;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -37,7 +38,7 @@ public class ListCMD extends PlexCommand
         for (int i = 0; i < players.size(); i++)
         {
             Player player = players.get(i);
-            component = component.append(Component.text(getPlexPlayer(player).getRankFromString().getPrefix())).append(Component.space()).append(Component.text(player.getName()).color(NamedTextColor.WHITE));
+            component = component.append(LegacyComponentSerializer.legacyAmpersand().deserialize(getPlexPlayer(player).getRankFromString().getPrefix())).append(Component.space()).append(Component.text(player.getName()).color(NamedTextColor.WHITE));
             if (i != players.size() - 1)
             {
                 component = component.append(Component.text(",")).append(Component.space());

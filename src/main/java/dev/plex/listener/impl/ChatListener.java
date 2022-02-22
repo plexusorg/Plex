@@ -41,7 +41,7 @@ public class ChatListener extends PlexListener
         {
             if (hasPrefix)
             {
-                return LegacyComponentSerializer.legacyAmpersand().deserialize(prefix)
+                return Component.empty().append(LegacyComponentSerializer.legacyAmpersand().deserialize(prefix))
                         .append(Component.space())
                         .append(sourceDisplayName)
                         .append(Component.space())

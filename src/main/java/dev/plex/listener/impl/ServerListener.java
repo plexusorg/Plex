@@ -36,6 +36,7 @@ public class ServerListener extends PlexListener
             List<String> samples = plugin.config.getStringList("server.sample");
             if (!samples.isEmpty())
             {
+                event.getPlayerSample().clear();
                 event.getPlayerSample().addAll(samples.stream().map(string -> string.replace("&", "§")).map(Bukkit::createProfile).collect(Collectors.toList()));
             }
         }
