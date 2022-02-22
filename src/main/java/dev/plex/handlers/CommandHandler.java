@@ -22,11 +22,17 @@ public class CommandHandler extends PlexBase
             commands.add(new OpCMD());
             commands.add(new RankCMD());
         }
+        if (plugin.config.getBoolean("debug"))
+        {
+            commands.add(new DebugCMD());
+        }
+
         commands.add(new AdminworldCMD());
         commands.add(new AdventureCMD());
         commands.add(new BanCMD());
         commands.add(new CommandSpyCMD());
         commands.add(new CreativeCMD());
+
         commands.add(new FlatlandsCMD());
         commands.add(new FreezeCMD());
         commands.add(new ListCMD());

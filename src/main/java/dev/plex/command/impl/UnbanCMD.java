@@ -41,12 +41,12 @@ public class UnbanCMD extends PlexCommand
                 throw new PlayerNotFoundException();
             }
 
-            if (!plugin.getBanManager().isBanned(targetUUID))
+            if (!plugin.getPunishmentManager().isBanned(targetUUID))
             {
                 throw new PlayerNotBannedException();
             }
 
-            plugin.getBanManager().unban(targetUUID);
+            plugin.getPunishmentManager().unban(targetUUID);
             PlexUtils.broadcast(tl("unbanningPlayer", sender.getName(), plexPlayer.getName()));
         }
         return null;

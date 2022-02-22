@@ -77,6 +77,7 @@ public class BanCMD extends PlexCommand
         LocalDateTime date = LocalDateTime.now();
         punishment.setEndDate(date.plusDays(1));
         punishment.setCustomTime(false);
+        punishment.setActive(true);
         plugin.getPunishmentManager().doPunishment(punishedPlayer, punishment);
         PlexUtils.broadcast(tl("banningPlayer", sender.getName(), plexPlayer.getName()));
         if (player != null)

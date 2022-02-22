@@ -2,7 +2,6 @@ package dev.plex;
 
 import dev.plex.admin.Admin;
 import dev.plex.admin.AdminList;
-import dev.plex.banning.BanManager;
 import dev.plex.cache.DataUtils;
 import dev.plex.cache.MongoPlayerData;
 import dev.plex.cache.PlayerCache;
@@ -49,7 +48,6 @@ public class Plex extends JavaPlugin
     private ServiceManager serviceManager;
 
     private PunishmentManager punishmentManager;
-    private BanManager banManager;
 
     private AdminList adminList;
 
@@ -124,7 +122,7 @@ public class Plex extends JavaPlugin
         PlexLog.log("Rank Manager initialized");
 
         punishmentManager = new PunishmentManager();
-        banManager = new BanManager();
+//        banManager = new BanManager();
         PlexLog.log("Punishment System initialized");
 
         generateWorlds();

@@ -2,13 +2,6 @@ package dev.plex.util;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializer;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -16,13 +9,21 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+
 public class MojangUtils
 {
 
-    public static AshconInfo getInfo(String name)
+    public static AshconInfo getInfo(String nameOrUuid)
     {
         CloseableHttpClient client = HttpClients.createDefault();
-        HttpGet get = new HttpGet("https://api.ashcon.app/mojang/v2/user/" + name);
+        HttpGet get = new HttpGet("https://api.ashcon.app/mojang/v2/user/" + nameOrUuid);
         try
         {
             HttpResponse response = client.execute(get);

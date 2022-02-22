@@ -23,7 +23,10 @@ public class Punishment
 
     private PunishmentType type;
     private String reason;
+
     private boolean customTime;
+    private boolean active; //Field is only for bans
+
     private LocalDateTime endDate;
 
     public Punishment(UUID punished, UUID punisher)

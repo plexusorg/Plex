@@ -56,11 +56,16 @@ public class PlayerListener extends PlexListener
             plexPlayer = DataUtils.getPlayer(player.getUniqueId());
         }
 
+        PunishedPlayer punishedPlayer;
         PlayerCache.getPlexPlayerMap().put(player.getUniqueId(), plexPlayer); //put them into the cache
         if (!PlayerCache.getPunishedPlayerMap().containsKey(player.getUniqueId()))
         {
-            PlayerCache.getPunishedPlayerMap().put(player.getUniqueId(), new PunishedPlayer(player.getUniqueId()));
+            punishedPlayer = new PunishedPlayer(player.getUniqueId());
+            PlayerCache.getPunishedPlayerMap().put(player.getUniqueId(), punishedPlayer);
+        } else {
+            punishedPlayer = PlayerCache.getPunishedPlayer(player.getUniqueId());
         }
+        punishedPlayer.convertPunishments();
 
         assert plexPlayer != null;
 
