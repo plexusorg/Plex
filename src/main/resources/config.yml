@@ -36,6 +36,7 @@ data:
 worlds:
   flatlands:
     name: "Flatlands"
+    permission: "plex.world.flatlands"
     parameters:
       grass_block: 1
       dirt: 32
@@ -43,6 +44,7 @@ worlds:
       bedrock: 1
   adminworld:
     name: "Admin World"
+    permission: "plex.world.adminworld"
     parameters:
       grass_block: 1
       dirt: 32
@@ -50,6 +52,7 @@ worlds:
       bedrock: 1
   masterbuilderworld:
     name: "MasterBuilder World"
+    permission: "plex.world.masterbuilderworld"
     parameters:
       grass_block: 1
       dirt: 32

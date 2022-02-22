@@ -10,11 +10,13 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
-
 import static dev.plex.util.PlexUtils.tl;
 
 public class WorldListener extends PlexListener
 {
+    // TODO: Actually implement permissions for every world properly
+    private final String permission = plugin.config.getString("plex.adminworld.permission");
+
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent e)
     {
@@ -30,9 +32,10 @@ public class WorldListener extends PlexListener
                     {
                         return;
                     }
-                } else if (plugin.getSystem().equalsIgnoreCase("permissions"))
+                }
+                else if (plugin.getSystem().equalsIgnoreCase("permissions"))
                 {
-                    if (player.hasPermission("plex.adminworld"))
+                    if (player.hasPermission(permission));
                     {
                         return;
                     }
@@ -47,10 +50,6 @@ public class WorldListener extends PlexListener
     @EventHandler
     public void onEntitySpawn(EntitySpawnEvent e)
     {
-        if (!e.getLocation().getWorld().getName().equals("fionn"))
-        {
-            return;
-        }
         if (e.getEntityType() != EntityType.SLIME)
         {
             return;
