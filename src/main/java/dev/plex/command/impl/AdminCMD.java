@@ -25,7 +25,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-@CommandPermissions(level = Rank.SENIOR_ADMIN, source = RequiredCommandSource.ANY)
+@CommandPermissions(level = Rank.OP, source = RequiredCommandSource.ANY)
 @CommandParameters(name = "admin", usage = "/<command> <add | remove | setrank | list> [player] [rank]", aliases = "saconfig,slconfig,adminconfig,adminmanage", description = "Manage all admins")
 public class AdminCMD extends PlexCommand
 {
