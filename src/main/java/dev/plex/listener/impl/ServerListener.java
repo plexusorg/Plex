@@ -1,15 +1,19 @@
 package dev.plex.listener.impl;
 
+import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
 import dev.plex.listener.PlexListener;
 import dev.plex.util.PlexUtils;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.server.ServerListPingEvent;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class ServerListener extends PlexListener
 {
     @EventHandler
-    public void onServerPing(ServerListPingEvent event)
+    public void onServerPing(PaperServerListPingEvent event)
     {
         String baseMotd = plugin.config.getString("server.motd");
         baseMotd = baseMotd.replace("\\n", "\n");
@@ -22,11 +26,18 @@ public class ServerListener extends PlexListener
             {
                 motd.append(PlexUtils.randomChatColor()).append(word).append(" ");
             }
-            event.setMotd(motd.toString().trim());
-        }
-        else
+            event.motd(LegacyComponentSerializer.legacyAmpersand().deserialize(motd.toString().trim()));
+        } else
         {
-            event.setMotd(baseMotd.trim());
+            event.motd(LegacyComponentSerializer.legacyAmpersand().deserialize(baseMotd.trim()));
+        }
+        if (plugin.config.contains("server.sample"))
+        {
+            List<String> samples = plugin.config.getStringList("server.sample");
+            if (!samples.isEmpty())
+            {
+                event.getPlayerSample().addAll(samples.stream().map(string -> string.replace("&", "§")).map(Bukkit::createProfile).collect(Collectors.toList()));
+            }
         }
     }
 }

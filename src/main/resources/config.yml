@@ -5,6 +5,8 @@ server:
   name: "Plexus"
   motd: "%servername% - Minecraft %mcversion%"
   colorize_motd: true
+  sample:
+    - "&cForums: https://forum.plex.us.org"
 
 # Ban message is customized in the messages.yml file. The URL to appeal at is below.
 banning:
