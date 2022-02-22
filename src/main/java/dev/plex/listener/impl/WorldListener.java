@@ -10,6 +10,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
+
 import static dev.plex.util.PlexUtils.tl;
 
 public class WorldListener extends PlexListener
@@ -22,11 +23,19 @@ public class WorldListener extends PlexListener
         World world = player.getWorld();
         switch (world.getName().toLowerCase())
         {
-            case "adminworld":
-            {
-                if (plexPlayer.getRankFromString().isAtLeast(Rank.ADMIN))
+            case "adminworld" -> {
+                if (plugin.getSystem().equalsIgnoreCase("ranks"))
                 {
-                    return;
+                    if (plexPlayer.getRankFromString().isAtLeast(Rank.ADMIN))
+                    {
+                        return;
+                    }
+                } else if (plugin.getSystem().equalsIgnoreCase("permissions"))
+                {
+                    if (player.hasPermission("plex.adminworld"))
+                    {
+                        return;
+                    }
                 }
                 e.setCancelled(true);
                 player.sendMessage(tl("noAdminWorldBlockPlace"));
