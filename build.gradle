@@ -100,6 +100,8 @@ tasks {
         if (System.getenv("plex_repo_user") != null && System.getenv("plex_repo_pass") != null) {
             if (getVersion().toString().toLowerCase().endsWith("-snapshot")) {
                 dependsOn(publishPlexSnapshotsPublicationToMaven2Repository)
+            } else {
+                dependsOn(publishPlexReleasesPublicationToMavenRepository)
             }
         }
     }
