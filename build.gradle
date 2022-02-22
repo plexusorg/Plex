@@ -97,6 +97,10 @@ tasks.withType(JavaCompile) {
 tasks {
     build {
         dependsOn(shadowJar)
+        if (getVersion().toString().toLowerCase().endsWith("-snapshot"))
+        {
+            dependsOn(publishPlexSnapshotsPublicationToMaven2Repository)
+        }
     }
 
     javadoc {
