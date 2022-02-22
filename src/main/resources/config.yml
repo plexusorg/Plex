@@ -41,7 +41,7 @@ data:
     port: 6379
     password: ""
 
-# requiredLevel if permissions are ranks, else permissions
+# See https://docs.plex.us.org/docs/customization/config#worlds for documentation
 worlds:
   flatlands:
     name: "Flatlands"
