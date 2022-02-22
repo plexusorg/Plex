@@ -29,8 +29,7 @@ test: "this is a test message!"
 variableTest: "variable test with <v>!"
 playerNotFound: "Player not found!"
 worldNotFound: "World not found!"
-noAdminWorldBlockPlace: "<e>You are not allowed to place blocks in the admin world!"
-noAdminWorldBlockBreak: "<e>You are not allowed to break blocks in the admin world!"
+
 # 1: the world you have been teleported to
 playerWorldTeleport: "You have been teleported to <v>."
 # 1: the command sender who opped everyone

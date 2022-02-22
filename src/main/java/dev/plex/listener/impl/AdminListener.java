@@ -41,6 +41,6 @@ public class AdminListener extends PlexListener
         Rank newRank = event.getRank();
         target.setRank(newRank.name().toLowerCase());
         DataUtils.update(target);
-        PlexUtils.broadcast(tl("adminSetRank", userSender, target.getName(), newRank.getReadableString()));
+        PlexUtils.broadcast(tl("adminSetRank", userSender, target.getName(), newRank.getReadable()));
     }
 }

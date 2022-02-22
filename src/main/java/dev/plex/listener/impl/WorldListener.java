@@ -1,21 +1,29 @@
 package dev.plex.listener.impl;
 
+import dev.plex.Plex;
 import dev.plex.cache.PlayerCache;
 import dev.plex.listener.PlexListener;
 import dev.plex.player.PlexPlayer;
 import dev.plex.rank.enums.Rank;
+import dev.plex.rank.enums.Title;
+import dev.plex.util.PlexLog;
+import dev.plex.util.PlexUtils;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.World;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
-import static dev.plex.util.PlexUtils.tl;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
 
 public class WorldListener extends PlexListener
 {
-    // TODO: Actually implement permissions for every world properly
-    private final String permission = plugin.config.getString("plex.adminworld.permission");
 
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent e)
@@ -23,27 +31,57 @@ public class WorldListener extends PlexListener
         Player player = e.getPlayer();
         PlexPlayer plexPlayer = PlayerCache.getPlexPlayerMap().get(player.getUniqueId());
         World world = player.getWorld();
-        switch (world.getName().toLowerCase())
+        if (plugin.getSystem().equalsIgnoreCase("permissions"))
         {
-            case "adminworld" -> {
-                if (plugin.getSystem().equalsIgnoreCase("ranks"))
-                {
-                    if (plexPlayer.getRankFromString().isAtLeast(Rank.ADMIN))
-                    {
-                        return;
-                    }
-                }
-                else if (plugin.getSystem().equalsIgnoreCase("permissions"))
-                {
-                    if (player.hasPermission(permission));
-                    {
-                        return;
-                    }
-                }
-                e.setCancelled(true);
-                player.sendMessage(tl("noAdminWorldBlockPlace"));
-                break;
+            String permission = plugin.config.getString("worlds." + world.getName().toLowerCase() + ".permission");
+            if (permission == null) return;
+            if (player.hasPermission(permission)) return;
+        } else if (plugin.getSystem().equalsIgnoreCase("ranks"))
+        {
+            if (plugin.config.contains("worlds." + world.getName().toLowerCase() + ".requiredLevels"))
+            {
+                @NotNull List<String> requiredLevel = plugin.config.getStringList("worlds." + world.getName().toLowerCase() + ".requiredLevels");
+                if (checkLevel(plexPlayer, requiredLevel.toArray(String[]::new))) return;
+            } else {
+                return;
             }
+        }
+
+        e.setCancelled(true);
+        String noEdit = plugin.config.getString("worlds." + world.getName().toLowerCase() + ".noEdit");
+        if (noEdit != null)
+        {
+            player.sendMessage(LegacyComponentSerializer.legacyAmpersand().deserialize(noEdit));
+        }
+    }
+
+    @EventHandler
+    public void onBlockBreak(BlockBreakEvent e)
+    {
+        Player player = e.getPlayer();
+        PlexPlayer plexPlayer = PlayerCache.getPlexPlayerMap().get(player.getUniqueId());
+        World world = player.getWorld();
+        if (plugin.getSystem().equalsIgnoreCase("permissions"))
+        {
+            String permission = plugin.config.getString("worlds." + world.getName().toLowerCase() + ".permission");
+            if (permission == null) return;
+            if (player.hasPermission(permission)) return;
+        } else if (plugin.getSystem().equalsIgnoreCase("ranks"))
+        {
+            if (plugin.config.contains("worlds." + world.getName().toLowerCase() + ".requiredLevels"))
+            {
+                @NotNull List<String> requiredLevel = plugin.config.getStringList("worlds." + world.getName().toLowerCase() + ".requiredLevels");
+                if (checkLevel(plexPlayer, requiredLevel.toArray(String[]::new))) return;
+            } else {
+                return;
+            }
+        }
+
+        e.setCancelled(true);
+        String noEdit = plugin.config.getString("worlds." + world.getName().toLowerCase() + ".noEdit");
+        if (noEdit != null)
+        {
+            player.sendMessage(LegacyComponentSerializer.legacyAmpersand().deserialize(noEdit));
         }
     }
 
@@ -55,5 +93,41 @@ public class WorldListener extends PlexListener
             return;
         }
         e.setCancelled(true);
+    }
+
+    private boolean checkLevel(PlexPlayer player, String[] requiredList)
+    {
+        PlexLog.debug("Checking world required levels " + Arrays.toString(requiredList));
+        boolean hasAccess = false;
+        for (String required : requiredList)
+        {
+            PlexLog.debug("Checking if player has " + required);
+            if (required.startsWith("Title"))
+            {
+                String titleString = required.split("\\.")[1];
+                Title title = Title.valueOf(titleString.toUpperCase(Locale.ROOT));
+                switch (title)
+                {
+                    case DEV -> {
+                        hasAccess = PlexUtils.DEVELOPERS.contains(player.getUuid());
+                    }
+                    case MASTER_BUILDER -> {
+                        hasAccess = Plex.get().config.contains("titles.masterbuilders") && Plex.get().config.getStringList("titles.masterbuilders").contains(player.getName());
+                    }
+                    case OWNER -> {
+                        hasAccess = Plex.get().config.contains("titles.owners") && Plex.get().config.getStringList("titles.owners").contains(player.getName());
+                    }
+                    default -> {
+                        return false;
+                    }
+                }
+            } else if (required.startsWith("Rank"))
+            {
+                String rankString = required.split("\\.")[1];
+                Rank rank = Rank.valueOf(rankString.toUpperCase(Locale.ROOT));
+                hasAccess = player.getRankFromString().isAtLeast(rank);
+            }
+        }
+        return hasAccess;
     }
 }

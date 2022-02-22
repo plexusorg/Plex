@@ -1,22 +1,24 @@
 package dev.plex.rank;
 
-import com.google.common.collect.Maps;
+import com.google.gson.Gson;
 import dev.plex.Plex;
 import dev.plex.player.PlexPlayer;
 import dev.plex.rank.enums.Rank;
-import dev.plex.util.PlexLog;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.Map;
-import java.util.stream.Collectors;
+import dev.plex.rank.enums.Title;
+import dev.plex.util.PlexUtils;
+import lombok.SneakyThrows;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
+import java.io.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 public class RankManager
 {
-    private final File defaultRanks;
+    private final File options;
 
     public RankManager()
     {
@@ -26,41 +28,23 @@ public class RankManager
             ranksFolder.mkdir();
         }
 
-        defaultRanks = new File(ranksFolder, "default-ranks.json");
+        options = new File(ranksFolder, "options.json");
     }
 
+    @SneakyThrows
     public void generateDefaultRanks()
     {
-        if (defaultRanks.exists())
+        if (options.exists())
         {
             return;
         }
-        try
-        {
-            defaultRanks.createNewFile();
-
-            Map<String, DefaultRankObj> rankMap = Maps.newHashMap();
-            for (Rank rank : Rank.values())
-            {
-                rankMap.put(rank.name().toUpperCase(), new DefaultRankObj(rank));
-            }
-
-            JSONObject obj = new JSONObject();
-            if (obj.length() == 0)
-            {
-                obj.put("ranks", rankMap);
-
-                FileWriter writer = new FileWriter(defaultRanks);
-                writer.append(obj.toString(4));
-                writer.flush();
-                writer.close();
-                PlexLog.log("Generating default-ranks.json");
-            }
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
+        JSONObject object = new JSONObject();
+        object.put("ranks", new JSONArray().putAll(Arrays.stream(Rank.values()).map(Rank::toJSON).collect(Collectors.toList())));
+        object.put("titles", new JSONArray().putAll(Arrays.stream(Title.values()).map(Title::toJSON).collect(Collectors.toList())));
+        FileWriter writer = new FileWriter(options);
+        writer.append(object.toString(4));
+        writer.flush();
+        writer.close();
     }
 
     public Rank getRankFromString(String rank)
@@ -70,34 +54,60 @@ public class RankManager
 
     public void importDefaultRanks()
     {
-        if (!defaultRanks.exists())
+        if (!options.exists())
         {
             return;
         }
 
-        try
+        try (FileInputStream fis = new FileInputStream(options))
         {
-            FileInputStream stream = new FileInputStream(defaultRanks);
-            JSONTokener tokener = new JSONTokener(stream);
+            JSONTokener tokener = new JSONTokener(fis);
             JSONObject object = new JSONObject(tokener);
-            JSONObject rankObj = object.getJSONObject("ranks");
-            for (Rank rank : Rank.values())
-            {
-                if (rankObj.isNull(rank.name().toUpperCase()))
-                {
-                    continue;
-                }
-                rank.setLoginMessage(rankObj.getJSONObject(rank.name().toUpperCase()).getString("loginMSG"));
-                rank.setPrefix(rankObj.getJSONObject(rank.name().toUpperCase()).getString("prefix")); //should i even be doing this
-                rank.setHumanReadableString(rankObj.getJSONObject(rank.name().toUpperCase()).getString("readableName")); // i dont know
-                rank.setPermissions(rankObj.getJSONObject(rank.name().toUpperCase()).getJSONArray("permissions").toList().stream().map(Object::toString).collect(Collectors.toList()));
-            }
-        }
-        catch (IOException e)
+
+            JSONArray ranks = object.getJSONArray("ranks");
+            ranks.forEach(r -> {
+                JSONObject rank = new JSONObject(r.toString());
+                String key = rank.keys().next();
+                Rank.valueOf(key).setLoginMessage(rank.getJSONObject(key).getString("loginMessage"));
+                Rank.valueOf(key).setPrefix(rank.getJSONObject(key).getString("prefix"));
+            });
+
+            JSONArray titles = object.getJSONArray("titles");
+            titles.forEach(t -> {
+                JSONObject title = new JSONObject(t.toString());
+                String key = title.keys().next();
+                Title.valueOf(key).setLoginMessage(title.getJSONObject(key).getString("loginMessage"));
+                Title.valueOf(key).setPrefix(title.getJSONObject(key).getString("prefix"));
+            });
+        } catch (IOException e)
         {
             e.printStackTrace();
         }
+    }
 
+    public String getPrefix(PlexPlayer player)
+    {
+        if (!player.getPrefix().isEmpty())
+        {
+            return player.getPrefix();
+        }
+        if (Plex.get().config.contains("titles.owners") && Plex.get().config.getStringList("titles.owners").contains(player.getName()))
+        {
+            return Title.OWNER.getPrefix();
+        }
+        if (PlexUtils.DEVELOPERS.contains(player.getUuid())) // don't remove or we will front door ur mother
+        {
+            return Title.DEV.getPrefix();
+        }
+        if (Plex.get().config.contains("titles.masterbuilders") && Plex.get().config.getStringList("titles.masterbuilders").contains(player.getName()))
+        {
+            return Title.MASTER_BUILDER.getPrefix();
+        }
+        if (Plex.get().getSystem().equalsIgnoreCase("ranks") && isAdmin(player))
+        {
+            return player.getRankFromString().getPrefix();
+        }
+        return "";
     }
 
     public boolean isAdmin(PlexPlayer plexPlayer)

@@ -129,7 +129,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
             {
                 if (!plexPlayer.getRankFromString().isAtLeast(getLevel()))
                 {
-                    send(sender, tl("noPermissionRank", ChatColor.stripColor(getLevel().getLoginMSG())));
+                    send(sender, tl("noPermissionRank", ChatColor.stripColor(getLevel().getLoginMessage())));
                     return true;
                 }
             }
@@ -262,7 +262,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
         {
             if (!plexPlayer.getRankFromString().isAtLeast(getLevel()))
             {
-                throw new CommandFailException(PlexUtils.tl("noPermissionRank", ChatColor.stripColor(rank.getLoginMSG())));
+                throw new CommandFailException(PlexUtils.tl("noPermissionRank", ChatColor.stripColor(rank.getLoginMessage())));
             }
         }
         else if (plugin.getSystem().equalsIgnoreCase("permissions"))

@@ -8,6 +8,10 @@ server:
   sample:
     - "&cForums: https://forum.plex.us.org"
 
+titles:
+  masterbuilders: []
+  owners: []
+
 # Ban message is customized in the messages.yml file. The URL to appeal at is below.
 banning:
   ban_url: "https://forum.plex.us.org"
@@ -33,10 +37,12 @@ data:
     port: 6379
     password: ""
 
+# requiredLevel if permissions are ranks, else permissions
 worlds:
   flatlands:
     name: "Flatlands"
     permission: "plex.world.flatlands"
+    noEdit: "&cYou can't edit this world!"
     parameters:
       grass_block: 1
       dirt: 32
@@ -45,6 +51,9 @@ worlds:
   adminworld:
     name: "Admin World"
     permission: "plex.world.adminworld"
+    requiredLevels:
+      - "Rank.ADMIN" # Minimum rank requirement
+    noEdit: "&cYou can't edit this world!"
     parameters:
       grass_block: 1
       dirt: 32
@@ -53,6 +62,9 @@ worlds:
   masterbuilderworld:
     name: "MasterBuilder World"
     permission: "plex.world.masterbuilderworld"
+    requiredLevels:
+      - "Title.MASTER_BUILDER" # Title has no "minimum", so this will have to be their title
+    noEdit: "&cYou can't edit this world!"
     parameters:
       grass_block: 1
       dirt: 32

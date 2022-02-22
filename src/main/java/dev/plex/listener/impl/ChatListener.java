@@ -1,6 +1,5 @@
 package dev.plex.listener.impl;
 
-import dev.plex.Plex;
 import dev.plex.cache.PlayerCache;
 import dev.plex.listener.PlexListener;
 import dev.plex.player.PlexPlayer;
@@ -23,15 +22,11 @@ public class ChatListener extends PlexListener
     {
         PlexPlayer plexPlayer = PlayerCache.getPlexPlayerMap().get(event.getPlayer().getUniqueId());
 
-        if (!plexPlayer.getPrefix().isEmpty())
+        String prefix = plugin.getRankManager().getPrefix(plexPlayer);
+        if (!prefix.isEmpty())
         {
             renderer.hasPrefix = true;
-            renderer.prefix = plexPlayer.getPrefix();
-        }
-        else if (Plex.get().getRankManager().isAdmin(plexPlayer))
-        {
-            renderer.hasPrefix = true;
-            renderer.prefix = plexPlayer.getRankFromString().getPrefix();
+            renderer.prefix = prefix;
         }
         event.renderer(renderer);
     }

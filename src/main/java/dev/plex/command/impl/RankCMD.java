@@ -23,7 +23,7 @@ public class RankCMD extends PlexCommand
         if (!(playerSender == null))
         {
             Rank rank = getPlexPlayer(playerSender).getRankFromString();
-            return tl("yourRank", rank.getReadableString());
+            return tl("yourRank", rank.getReadable());
         }
         return null;
     }
