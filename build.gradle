@@ -36,7 +36,7 @@ dependencies {
 }
 
 group = 'dev.plex'
-version = '1.0 Beta 4'
+version = '0.4-SNAPSHOT'
 description = 'Plex'
 
 shadowJar {
@@ -77,5 +77,41 @@ tasks {
 
     javadoc {
         options.memberLevel = JavadocMemberLevel.PRIVATE
+    }
+}
+
+task snapshotPublish {
+    if (System.getenv("plex-repo-user") != null && System.getenv("plex-repo-pass") != null) {
+        System.out.println("Publishing")
+        publishing {
+            repositories {
+                maven {
+                    url = "https://nexus.telesphoreo.me/repository/plex-snapshots/"
+                    credentials {
+                        username = System.getenv("plex-repo-user")
+                        password = System.getenv("plex-repo-pass")
+                    }
+                }
+            }
+        }
+        dependsOn(publish)
+    }
+}
+
+task releasePublish {
+    if (System.getenv("plex-repo-user") != null && System.getenv("plex-repo-pass") != null) {
+        System.out.println("Publishing")
+        publishing {
+            repositories {
+                maven {
+                    url = "https://nexus.telesphoreo.me/repository/plex-releases/"
+                    credentials {
+                        username = System.getenv("plex-repo-user")
+                        password = System.getenv("plex-repo-pass")
+                    }
+                }
+            }
+        }
+        dependsOn(publish)
     }
 }
