@@ -21,7 +21,7 @@ public class MasterbuilderworldCMD extends PlexCommand
     @Override
     protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
     {
-        // TODO: Add adminworld settings
+        // TODO: Add masterbuilderworld settings
         if (args.length == 0)
         {
             Location loc = new Location(Bukkit.getWorld("masterbuilderworld"), 0, 50, 0);
