@@ -1,7 +1,10 @@
 package dev.plex.config;
 
 import dev.plex.Plex;
+import dev.plex.util.PlexLog;
 import java.io.File;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 /**
@@ -13,6 +16,7 @@ public class Config extends YamlConfiguration
      * The plugin instance
      */
     private Plex plugin;
+
     /**
      * The File instance
      */
@@ -22,6 +26,11 @@ public class Config extends YamlConfiguration
      * The file name
      */
     private String name;
+
+    /**
+     * Whether new entries were added to the file automatically
+     */
+    private boolean added = false;
 
     /**
      * Creates a config object
@@ -48,6 +57,27 @@ public class Config extends YamlConfiguration
     {
         try
         {
+            YamlConfiguration externalYamlConfig = YamlConfiguration.loadConfiguration(file);
+            InputStreamReader internalConfigFileStream = new InputStreamReader(Plex.get().getResource(name), StandardCharsets.UTF_8);
+            YamlConfiguration internalYamlConfig = YamlConfiguration.loadConfiguration(internalConfigFileStream);
+
+            // Gets all the keys inside the internal file and iterates through all of it's key pairs
+            for (String string : internalYamlConfig.getKeys(true))
+            {
+                // Checks if the external file contains the key already.
+                if (!externalYamlConfig.contains(string))
+                {
+                    // If it doesn't contain the key, we set the key based off what was found inside the plugin jar
+                    externalYamlConfig.set(string, internalYamlConfig.get(string));
+                    PlexLog.log("Setting key: " + string + " to the default value(s) since it does not exist!");
+                    added = true;
+                }
+            }
+            if (added)
+            {
+                externalYamlConfig.save(file);
+                PlexLog.log("Saving new configuration file...");
+            }
             super.load(file);
         }
         catch (Exception ex)
