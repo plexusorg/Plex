@@ -8,6 +8,7 @@ import dev.plex.listener.PlexListener;
 import dev.plex.player.PlexPlayer;
 import dev.plex.player.PunishedPlayer;
 import dev.plex.util.PlexLog;
+import dev.plex.util.PlexUtils;
 import java.util.Collections;
 import java.util.UUID;
 import net.kyori.adventure.text.Component;
@@ -30,7 +31,6 @@ public class PlayerListener extends PlexListener
     public void onPlayerSetup(PlayerJoinEvent event)
     {
         Player player = event.getPlayer();
-
         PlexPlayer plexPlayer;
 
         if (plugin.getSystem().equalsIgnoreCase("ranks"))
@@ -76,11 +76,9 @@ public class PlayerListener extends PlexListener
 
         if (!loginMessage.isEmpty())
         {
-            event.joinMessage(
-                    Component.text(ChatColor.AQUA + player.getName() + " is ").color(NamedTextColor.AQUA).append(LegacyComponentSerializer.legacyAmpersand().deserialize(loginMessage))
-                            .append(Component.newline())
-                            .append(Component.text(player.getName() + " joined the game").color(NamedTextColor.YELLOW))
-            );
+            PlexUtils.broadcast(
+                    Component.text(ChatColor.AQUA + player.getName() + " is ").color(NamedTextColor.AQUA)
+                    .append(LegacyComponentSerializer.legacyAmpersand().deserialize(loginMessage)));
         }
     }
 
