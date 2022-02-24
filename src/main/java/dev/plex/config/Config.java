@@ -69,14 +69,14 @@ public class Config extends YamlConfiguration
                 {
                     // If it doesn't contain the key, we set the key based off what was found inside the plugin jar
                     externalYamlConfig.set(string, internalYamlConfig.get(string));
-                    PlexLog.log("Setting key: " + string + " to the default value(s) since it does not exist!");
+                    PlexLog.log("Setting key: " + string + " in " + this.name + " to the default value(s) since it does not exist!");
                     added = true;
                 }
             }
             if (added)
             {
                 externalYamlConfig.save(file);
-                PlexLog.log("Saving new configuration file...");
+                PlexLog.log("Saving new file...");
             }
             super.load(file);
         }
