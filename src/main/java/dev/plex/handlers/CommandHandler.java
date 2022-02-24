@@ -40,6 +40,7 @@ public class CommandHandler extends PlexBase
         commands.add(new NameHistoryCMD());
         commands.add(new PlexCMD());
         commands.add(new PunishmentsCMD());
+        commands.add(new RawSayCMD());
         commands.add(new SpectatorCMD());
         commands.add(new SurvivalCMD());
         commands.add(new TagCMD());

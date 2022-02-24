@@ -5,33 +5,27 @@ import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.rank.enums.Rank;
+import dev.plex.util.PlexUtils;
 import net.kyori.adventure.text.Component;
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-@CommandPermissions(level = Rank.OP, permission = "plex.rank", source = RequiredCommandSource.IN_GAME)
-@CommandParameters(name = "rank", description = "Displays your rank")
-public class RankCMD extends PlexCommand
+@CommandPermissions(level = Rank.SENIOR_ADMIN, permission = "plex.rawsay", source = RequiredCommandSource.ANY)
+@CommandParameters(name = "rawsay", usage = "/<command> <message>", description = "Displays a message to everyone")
+public class RawSayCMD extends PlexCommand
 {
     @Override
     protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
     {
         if (args.length == 0)
         {
-            if (!(playerSender == null))
-            {
-                Rank rank = getPlexPlayer(playerSender).getRankFromString();
-                return tl("yourRank", rank.getReadable());
-            }
+            return usage();
         }
-        else
-        {
-            Player player = getNonNullPlayer(args[0]);
-            Rank rank = getPlexPlayer(player).getRankFromString();
-            return tl("otherRank", player.getName(), rank.getReadable());
-        }
+
+        PlexUtils.broadcast(StringUtils.join(args, " "));
         return null;
     }
 }
