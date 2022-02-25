@@ -11,7 +11,7 @@ import org.bukkit.event.HandlerList;
 /**
  * Event that is ran when an admin's rank is set
  */
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = false)
 @Data
 public class AdminSetRankEvent extends Event
 {

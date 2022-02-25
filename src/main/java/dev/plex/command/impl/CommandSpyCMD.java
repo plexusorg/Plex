@@ -7,6 +7,7 @@ import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.player.PlexPlayer;
 import dev.plex.rank.enums.Rank;
+import dev.plex.util.PlexUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.CommandSender;
@@ -26,9 +27,9 @@ public class CommandSpyCMD extends PlexCommand
             PlexPlayer plexPlayer = DataUtils.getPlayer(playerSender.getUniqueId());
             plexPlayer.setCommandSpy(!plexPlayer.isCommandSpy());
             DataUtils.update(plexPlayer);
-            return Component.text("CommandSpy has been").color(NamedTextColor.GRAY)
+            return Component.text(PlexUtils.messageString("toggleCommandSpy")).color(NamedTextColor.GRAY)
                     .append(Component.space())
-                    .append(Component.text(plexPlayer.isCommandSpy() ? "enabled." : "disabled.").color(NamedTextColor.GRAY));
+                    .append(Component.text(plexPlayer.isCommandSpy() ? PlexUtils.messageString("enabled") : PlexUtils.messageString("disabled")).color(NamedTextColor.GRAY));
         }
         return null;
     }

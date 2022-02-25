@@ -10,7 +10,7 @@ import org.bukkit.event.HandlerList;
 /**
  * Event that is ran when a player is removed from the admin list
  */
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = false)
 @Data
 public class AdminRemoveEvent extends Event
 {
