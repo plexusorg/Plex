@@ -44,6 +44,14 @@ frozePlayer: "<aqua><v> - Froze <v>"
 # 1. The person who is unfreezing
 # 2. The person who has been unfrozen
 unfrozePlayer: "<aqua><v> - Unfroze <v>"
+
+# 1. The person who is freezing
+# 2. The person who has been frozen
+mutedPlayer: "<aqua><v> - Muted <v>"
+# 1. The person who is unfreezing
+# 2. The person who has been unfrozen
+unmutedPlayer: "<aqua><v> - Unmuted <v>"
+
 noPermission: "<red>You cannot use this command!"
 # 1. The rank required to use the command
 noPermissionRank: "<red>You must be at least <v> to use this command!"
@@ -99,7 +107,17 @@ banningPlayer: "<red><v> - Banning <v>"
 # 1. The command sender
 # 2. The player
 unbanningPlayer: "<aqua><v> - Unbanning <v>"
+
 playerNotBanned: "<red>That player is not banned!"
+playerNotFrozen: "<red>That player is not frozen!"
+playerNotMuted: "<red>That player is not muted!"
+
+playerBanned: "<red>That player is already banned!"
+playerFrozen: "<red>That player is already frozen!"
+playerMuted: "<red>That player is already muted!"
+
+muted: "<red>You are currently muted!"
+
 teleportedToWorldSpawn: "<aqua>Teleporting to the local spawn"
 toggleCommandSpy: "CommandSpy has been"
 enabled: "enabled."

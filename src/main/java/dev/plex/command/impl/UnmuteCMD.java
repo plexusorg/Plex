@@ -9,16 +9,17 @@ import dev.plex.command.exception.CommandFailException;
 import dev.plex.player.PunishedPlayer;
 import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexUtils;
-import java.util.List;
 import net.kyori.adventure.text.Component;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-@CommandPermissions(level = Rank.ADMIN, permission = "plex.unfreeze")
-@CommandParameters(name = "unfreeze", description = "Unfreeze a player", usage = "/<command> <player>")
-public class UnfreezeCMD extends PlexCommand
+import java.util.List;
+
+@CommandPermissions(level = Rank.ADMIN, permission = "plex.unmute")
+@CommandParameters(name = "unmute", description = "Unmute a player", usage = "/<command> <player>")
+public class UnmuteCMD extends PlexCommand
 {
     @Override
     protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
@@ -29,12 +30,12 @@ public class UnfreezeCMD extends PlexCommand
         }
         Player player = getNonNullPlayer(args[0]);
         PunishedPlayer punishedPlayer = PlayerCache.getPunishedPlayer(player.getUniqueId());
-        if (!punishedPlayer.isFrozen())
+        if (!punishedPlayer.isMuted())
         {
-            throw new CommandFailException(PlexUtils.messageString("playerNotFrozen"));
+            throw new CommandFailException(PlexUtils.messageString("playerNotMuted"));
         }
-        punishedPlayer.setFrozen(false);
-        PlexUtils.broadcast(messageComponent("unfrozePlayer", sender.getName(), player.getName()));
+        punishedPlayer.setMuted(false);
+        PlexUtils.broadcast(messageComponent("unmutedPlayer", sender.getName(), player.getName()));
         return null;
     }
 

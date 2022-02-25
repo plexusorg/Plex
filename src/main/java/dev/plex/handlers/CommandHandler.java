@@ -38,6 +38,7 @@ public class CommandHandler extends PlexBase
         commands.add(new ListCMD());
         commands.add(new LocalSpawnCMD());
         commands.add(new MasterbuilderworldCMD());
+        commands.add(new MuteCMD());
         commands.add(new NameHistoryCMD());
         commands.add(new PlexCMD());
         commands.add(new PunishmentsCMD());
@@ -47,6 +48,7 @@ public class CommandHandler extends PlexBase
         commands.add(new TagCMD());
         commands.add(new UnbanCMD());
         commands.add(new UnfreezeCMD());
+        commands.add(new UnmuteCMD());
         commands.add(new WorldCMD());
         PlexLog.log(String.format("Registered %s commands!", commands.size()));
     }

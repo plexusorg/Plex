@@ -62,6 +62,11 @@ public class BanCMD extends PlexCommand
             }
         }
 
+        if (plugin.getPunishmentManager().isBanned(targetUUID))
+        {
+            return messageComponent("playerBanned");
+        }
+
         PunishedPlayer punishedPlayer = PlayerCache.getPunishedPlayer(targetUUID) == null ? new PunishedPlayer(targetUUID) : PlayerCache.getPunishedPlayer(targetUUID);
         Punishment punishment = new Punishment(targetUUID, getUUID(sender));
         punishment.setType(PunishmentType.BAN);
@@ -78,7 +83,7 @@ public class BanCMD extends PlexCommand
         LocalDateTime date = LocalDateTime.now();
         punishment.setEndDate(date.plusDays(1));
         punishment.setCustomTime(false);
-        punishment.setActive(true);
+        punishment.setActive(!isAdmin(plexPlayer));
         plugin.getPunishmentManager().doPunishment(punishedPlayer, punishment);
         PlexUtils.broadcast(messageComponent("banningPlayer", sender.getName(), plexPlayer.getName()));
         if (player != null)

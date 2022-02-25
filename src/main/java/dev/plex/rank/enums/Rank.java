@@ -2,6 +2,8 @@ package dev.plex.rank.enums;
 
 import lombok.Getter;
 import lombok.Setter;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.ChatColor;
 import org.json.JSONObject;
 
@@ -37,6 +39,11 @@ public enum Rank
     public boolean isAtLeast(Rank rank)
     {
         return this.level >= rank.getLevel();
+    }
+
+    public String getPrefix()
+    {
+        return MiniMessage.miniMessage().serialize(LegacyComponentSerializer.legacyAmpersand().deserialize(this.prefix));
     }
 
     public JSONObject toJSON()

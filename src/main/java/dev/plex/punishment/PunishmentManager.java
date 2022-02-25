@@ -219,7 +219,6 @@ public class PunishmentManager extends PlexBase
                     }
                     player.setFrozen(false);
                     Bukkit.broadcast(PlexUtils.messageComponent("unfrozePlayer", "Plex", Bukkit.getOfflinePlayer(UUID.fromString(player.getUuid())).getName()));
-                    Bukkit.getLogger().info("Unfroze");
                 }
             }.runTaskLater(Plex.get(), 20 * seconds);
         }
@@ -234,7 +233,13 @@ public class PunishmentManager extends PlexBase
                 @Override
                 public void run()
                 {
+                    if (!player.isMuted())
+                    {
+                        this.cancel();
+                        return;
+                    }
                     player.setMuted(false);
+                    Bukkit.broadcast(PlexUtils.messageComponent("unmutedPlayer", "Plex", Bukkit.getOfflinePlayer(UUID.fromString(player.getUuid())).getName()));
                 }
             }.runTaskLater(Plex.get(), 20 * seconds);
         }

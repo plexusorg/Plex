@@ -11,18 +11,19 @@ import dev.plex.punishment.Punishment;
 import dev.plex.punishment.PunishmentType;
 import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexUtils;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
 import net.kyori.adventure.text.Component;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-@CommandParameters(name = "freeze", description = "Freeze a player on the server", usage = "/<command> <player>", aliases = "fr")
-@CommandPermissions(level = Rank.ADMIN, permission = "plex.freeze")
-public class FreezeCMD extends PlexCommand
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
+
+@CommandParameters(name = "mute", description = "Mute a player on the server", usage = "/<command> <player>", aliases = "stfu")
+@CommandPermissions(level = Rank.ADMIN, permission = "plex.mute")
+public class MuteCMD extends PlexCommand
 {
     @Override
     protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
@@ -34,9 +35,9 @@ public class FreezeCMD extends PlexCommand
         Player player = getNonNullPlayer(args[0]);
         PunishedPlayer punishedPlayer = PlayerCache.getPunishedPlayer(player.getUniqueId());
 
-        if (punishedPlayer.isFrozen())
+        if (punishedPlayer.isMuted())
         {
-            return messageComponent("playerFrozen");
+            return messageComponent("playerMuted");
         }
 
         if (isAdmin(getPlexPlayer(player)))
@@ -56,18 +57,18 @@ public class FreezeCMD extends PlexCommand
         punishment.setCustomTime(false);
         LocalDateTime date = LocalDateTime.now();
         punishment.setEndDate(date.plusMinutes(5));
-        punishment.setType(PunishmentType.FREEZE);
+        punishment.setType(PunishmentType.MUTE);
         punishment.setPunishedUsername(player.getName());
         punishment.setReason("");
 
         plugin.getPunishmentManager().doPunishment(punishedPlayer, punishment);
-        PlexUtils.broadcast(messageComponent("frozePlayer", sender.getName(), player.getName()));
+        PlexUtils.broadcast(messageComponent("mutedPlayer", sender.getName(), player.getName()));
         return null;
     }
 
     @Override
     public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
     {
-        return args.length == 1 && checkTab(sender, Rank.ADMIN, "plex.freeze") ? PlexUtils.getPlayerNameList() : ImmutableList.of();
+        return args.length == 1 && checkTab(sender, Rank.ADMIN, "plex.mute") ? PlexUtils.getPlayerNameList() : ImmutableList.of();
     }
 }
