@@ -35,6 +35,9 @@ deoppedAllPlayers: "<aqua><v> - De-opped all players on the server"
 # 1. The person who is opping
 # 2. The person who has been opped
 oppedPlayer: "<aqua><v> - Opped <v>"
+# 1. The person who is deopped
+# 2. The person who has been deopped
+deoppedPlayer: "<red><v> - Deopped <v>"
 # 1. The person who is freezing
 # 2. The person who has been frozen
 frozePlayer: "<aqua><v> - Froze <v>"
