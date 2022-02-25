@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -106,11 +105,6 @@ public class PlexUtils extends PlexBase
             }
         }
         return false;
-    }
-
-    public static String color(String s)
-    {
-        return ChatColor.translateAlternateColorCodes('&', s);
     }
 
     public static String colorize(final String string)

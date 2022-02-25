@@ -7,6 +7,7 @@ import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.player.PlexPlayer;
 import dev.plex.rank.enums.Rank;
+import dev.plex.util.PlexUtils;
 import net.kyori.adventure.text.Component;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.ChatColor;
@@ -50,7 +51,7 @@ public class TagCMD extends PlexCommand
                 return messageComponent("maximumPrefixLength", plugin.config.getInt("chat.max-tag-length", 16));
             }
             player.setPrefix(prefix);
-            return messageComponent("prefixSetTo", prefix);
+            return messageComponent("prefixSetTo", PlexUtils.colorize(prefix));
         }
 
         if (args[0].equalsIgnoreCase("clear"))

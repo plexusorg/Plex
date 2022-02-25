@@ -7,9 +7,7 @@ import dev.plex.punishment.PunishmentType;
 import dev.plex.util.MojangUtils;
 import dev.plex.util.PlexUtils;
 import java.time.format.DateTimeFormatter;
-
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 

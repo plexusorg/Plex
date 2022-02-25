@@ -8,8 +8,6 @@ import dev.plex.listener.impl.ChatListener;
 import dev.plex.rank.enums.Rank;
 import net.kyori.adventure.text.Component;
 import org.apache.commons.lang.StringUtils;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;

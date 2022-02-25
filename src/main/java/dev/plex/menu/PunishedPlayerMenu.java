@@ -5,10 +5,8 @@ import dev.plex.cache.PlayerCache;
 import dev.plex.player.PunishedPlayer;
 import dev.plex.punishment.Punishment;
 import dev.plex.util.menu.AbstractMenu;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
