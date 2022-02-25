@@ -96,7 +96,9 @@ tasks {
     build {
         dependsOn(shadowJar)
         if (System.getenv("plex_repo_user") != null && System.getenv("plex_repo_pass") != null) {
-            dependsOn(publishPlexReleasesPublicationToMavenRepository)
+            if (!getVersion().toString().toLowerCase().endsWith("-snapshot")) {
+                dependsOn(publishPlexReleasesPublicationToMavenRepository)
+            }
         }
     }
 
