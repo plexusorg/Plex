@@ -508,6 +508,17 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
         return LegacyComponentSerializer.legacyAmpersand().deserialize(s);
     }
 
+    /**
+     * Converts a string to a mini message kyori component
+     *
+     * @param s The string to convert
+     * @return A Kyori component
+     */
+    protected Component mmString(String s)
+    {
+        return MiniMessage.miniMessage().parse(s);
+    }
+
     public Rank getLevel()
     {
         return level;

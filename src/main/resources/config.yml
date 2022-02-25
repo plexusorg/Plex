@@ -48,6 +48,9 @@ worlds:
     name: "Flatlands"
     permission: "plex.world.flatlands"
     noEdit: "&cYou can't edit this world!"
+    gameRules:
+      - "doWeatherCycle;false"
+      - "doDaylightCycle;false"
     parameters:
       grass_block: 1
       dirt: 32

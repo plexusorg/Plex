@@ -4,29 +4,11 @@ import dev.plex.Plex;
 import dev.plex.PlexBase;
 import dev.plex.config.Config;
 import dev.plex.storage.StorageType;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.stream.Collectors;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
+import org.apache.commons.lang.math.NumberUtils;
+import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.PluginCommandYamlParser;
 import org.bukkit.entity.Player;
@@ -34,6 +16,16 @@ import org.bukkit.plugin.Plugin;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 public class PlexUtils extends PlexBase
 {
@@ -68,20 +60,17 @@ public class PlexUtils extends PlexBase
             if (Plex.get().getStorageType() == StorageType.MARIADB)
             {
                 PlexLog.log("Successfully enabled MySQL!");
-            }
-            else if (Plex.get().getStorageType() == StorageType.SQLITE)
+            } else if (Plex.get().getStorageType() == StorageType.SQLITE)
             {
                 PlexLog.log("Successfully enabled SQLite!");
             }
             try
             {
                 Plex.get().getSqlConnection().getCon().close();
-            }
-            catch (SQLException ignored)
+            } catch (SQLException ignored)
             {
             }
-        }
-        else if (Plex.get().getMongoConnection().getDatastore() != null)
+        } else if (Plex.get().getMongoConnection().getDatastore() != null)
         {
             PlexLog.log("Successfully enabled MongoDB!");
         }
@@ -146,7 +135,7 @@ public class PlexUtils extends PlexBase
 
     public static String messageString(String entry, Object... objects)
     {
-         String f = plugin.messages.getString(entry);
+        String f = plugin.messages.getString(entry);
         if (f == null)
         {
             throw new NullPointerException();
@@ -164,12 +153,10 @@ public class PlexUtils extends PlexBase
         if (config.getString(path) == null)
         {
             color = def;
-        }
-        else if (ChatColor.getByChar(config.getString(path)) == null)
+        } else if (ChatColor.getByChar(config.getString(path)) == null)
         {
             color = def;
-        }
-        else
+        } else
         {
             color = ChatColor.getByChar(config.getString(path));
         }
@@ -196,6 +183,39 @@ public class PlexUtils extends PlexBase
         }
     }
 
+    public static <T> void commitGameRules(World world)
+    {
+        for (String s : Plex.get().config.getStringList("worlds." + world.getName().toLowerCase(Locale.ROOT) + ".gameRules"))
+        {
+            String gameRule = s.split(";")[0];
+            T value = (T) s.split(";")[1];
+            GameRule<T> rule = (GameRule<T>) GameRule.getByName(gameRule);
+            if (rule != null && check(value).getClass().equals(rule.getType()))
+            {
+                world.setGameRule(rule, value);
+                PlexLog.debug("Setting game rule " + gameRule + " for world " + world.getName() + " with value " + value);
+            } else
+            {
+                PlexLog.error(String.format("Failed to set game rule %s for world %s with value %s!", gameRule, world.getName().toLowerCase(Locale.ROOT), value));
+            }
+        }
+    }
+
+    public static <T> Object check(T value)
+    {
+
+        if (value.toString().equalsIgnoreCase("true") || value.toString().equalsIgnoreCase("false"))
+        {
+            return Boolean.parseBoolean(value.toString());
+        }
+
+        if (NumberUtils.isNumber(value.toString()))
+        {
+            return Integer.parseInt(value.toString());
+        }
+        return value;
+    }
+
     public static List<String> getPlayerNameList()
     {
         return Bukkit.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList());
@@ -216,7 +236,7 @@ public class PlexUtils extends PlexBase
         try
         {
             URL u = new URL(url);
-            HttpURLConnection connection = (HttpURLConnection)u.openConnection();
+            HttpURLConnection connection = (HttpURLConnection) u.openConnection();
             connection.setRequestMethod("GET");
             BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             String line;
@@ -228,8 +248,7 @@ public class PlexUtils extends PlexBase
             in.close();
             connection.disconnect();
             return new JSONParser().parse(content.toString());
-        }
-        catch (IOException | ParseException ex)
+        } catch (IOException | ParseException ex)
         {
             return null;
         }
@@ -238,13 +257,13 @@ public class PlexUtils extends PlexBase
     public static UUID getFromName(String name)
     {
         JSONObject profile;
-        profile = (JSONObject)simpleGET("https://api.ashcon.app/mojang/v2/user/" + name);
+        profile = (JSONObject) simpleGET("https://api.ashcon.app/mojang/v2/user/" + name);
         if (profile == null)
         {
             PlexLog.error("Profile from Ashcon API returned null!");
             return null;
         }
-        String uuidString = (String)profile.get("uuid");
+        String uuidString = (String) profile.get("uuid");
         return UUID.fromString(uuidString);
     }
 
