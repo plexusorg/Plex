@@ -26,5 +26,4 @@ public class DeopAllCMD extends PlexCommand
         PlexUtils.broadcast(messageComponent("deoppedAllPlayers", sender.getName()));
         return null;
     }
-
 }
