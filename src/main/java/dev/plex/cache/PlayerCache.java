@@ -34,6 +34,10 @@ public class PlayerCache
 
     public static PunishedPlayer getPunishedPlayer(UUID uuid)
     {
+        if (!getPunishedPlayerMap().containsKey(uuid))
+        {
+            getPunishedPlayerMap().put(uuid, new PunishedPlayer(uuid));
+        }
         return getPunishedPlayerMap().get(uuid);
     }
 

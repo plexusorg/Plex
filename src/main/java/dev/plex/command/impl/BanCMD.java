@@ -53,6 +53,7 @@ public class BanCMD extends PlexCommand
         {
             if (!isConsole(sender))
             {
+                assert playerSender != null;
                 PlexPlayer plexPlayer1 = getPlexPlayer(playerSender);
                 if (!plexPlayer1.getRankFromString().isAtLeast(plexPlayer.getRankFromString()))
                 {

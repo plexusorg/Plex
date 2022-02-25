@@ -21,6 +21,7 @@ public class MasterbuilderworldCMD extends PlexCommand
     @Override
     protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
     {
+        assert playerSender != null;
         // TODO: Add masterbuilderworld settings
         if (args.length == 0)
         {

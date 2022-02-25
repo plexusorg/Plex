@@ -73,7 +73,7 @@ public class ChatListener extends PlexListener
             {
                 return Component.empty().append(LegacyComponentSerializer.legacyAmpersand().deserialize(prefix))
                         .append(Component.space())
-                        .append(sourceDisplayName)
+                        .append(LegacyComponentSerializer.legacyAmpersand().deserialize("&" + plugin.config.getString("chat.name-color") + LegacyComponentSerializer.legacyAmpersand().serialize(sourceDisplayName)))
                         .append(Component.space())
                         .append(Component.text("»").color(NamedTextColor.GRAY))
                         .append(Component.space())

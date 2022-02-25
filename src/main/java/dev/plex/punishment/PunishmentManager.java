@@ -95,7 +95,7 @@ public class PunishmentManager extends PlexBase
 
     public boolean isBanned(UUID uuid)
     {
-        return PlayerCache.getPunishedPlayerMap().containsKey(uuid) && PlayerCache.getPunishedPlayer(uuid).getPunishments().stream().anyMatch(punishment -> punishment.getType() == PunishmentType.BAN && punishment.isActive());
+        return PlayerCache.getPunishedPlayer(uuid).getPunishments().stream().anyMatch(punishment -> punishment.getType() == PunishmentType.BAN && punishment.isActive());
     }
 
     public boolean isBanned(PunishedPlayer player)
@@ -160,15 +160,8 @@ public class PunishmentManager extends PlexBase
             jedis.set(uuid.toString(), object.toString());
         }
 
-        PunishedPlayer player;
-        if (PlayerCache.getPunishedPlayerMap().containsKey(uuid))
-        {
-            player = PlayerCache.getPunishedPlayer(uuid);
-        }
-        else
-        {
-            player = new PunishedPlayer(uuid);
-        }
+        PunishedPlayer player = PlayerCache.getPunishedPlayer(uuid);
+
         File file = player.getPunishmentsFile();
         if (isNotEmpty(file))
         {

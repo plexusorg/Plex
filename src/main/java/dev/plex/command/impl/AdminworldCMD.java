@@ -20,6 +20,7 @@ public class AdminworldCMD extends PlexCommand
     @Override
     protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
     {
+        assert playerSender != null;
         // TODO: Add adminworld settings
         if (args.length == 0)
         {

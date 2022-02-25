@@ -24,6 +24,7 @@ public class WorldCMD extends PlexCommand
     @Override
     protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
     {
+        assert playerSender != null;
         if (args.length != 1)
         {
             return usage();

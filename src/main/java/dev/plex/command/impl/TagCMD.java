@@ -38,6 +38,7 @@ public class TagCMD extends PlexCommand
             {
                 return messageComponent("noPermissionConsole");
             }
+            assert playerSender != null;
             PlexPlayer player = DataUtils.getPlayer(playerSender.getUniqueId());
             if (args.length < 2)
             {
