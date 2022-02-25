@@ -195,33 +195,37 @@ public class PlexUtils extends PlexBase
         Bukkit.broadcast(component);
     }
 
-    public static Object simpleGET(String url) throws IOException, ParseException
+    public static Object simpleGET(String url)
     {
-        URL u = new URL(url);
-        HttpURLConnection connection = (HttpURLConnection)u.openConnection();
-        connection.setRequestMethod("GET");
-        BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-        String line;
-        StringBuilder content = new StringBuilder();
-        while ((line = in.readLine()) != null)
+        try
         {
-            content.append(line);
+            URL u = new URL(url);
+            HttpURLConnection connection = (HttpURLConnection)u.openConnection();
+            connection.setRequestMethod("GET");
+            BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            String line;
+            StringBuilder content = new StringBuilder();
+            while ((line = in.readLine()) != null)
+            {
+                content.append(line);
+            }
+            in.close();
+            connection.disconnect();
+            return new JSONParser().parse(content.toString());
         }
-        in.close();
-        connection.disconnect();
-        return new JSONParser().parse(content.toString());
+        catch (IOException | ParseException ex)
+        {
+            return null;
+        }
     }
 
     public static UUID getFromName(String name)
     {
         JSONObject profile;
-        try
+        profile = (JSONObject)simpleGET("https://api.ashcon.app/mojang/v2/user/" + name);
+        if (profile == null)
         {
-            profile = (JSONObject)PlexUtils.simpleGET("https://api.ashcon.app/mojang/v2/user/" + name);
-        }
-        catch (IOException | ParseException e)
-        {
-            e.printStackTrace();
+            PlexLog.error("Profile from Ashcon API returned null!");
             return null;
         }
         String uuidString = (String)profile.get("uuid");

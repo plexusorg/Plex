@@ -104,3 +104,4 @@ teleportedToWorldSpawn: "<b>Teleporting to the local spawn"
 toggleCommandSpy: "CommandSpy has been "
 enabled: "enabled"
 disabled: "disabled"
+adminChatFormat: '&8[&9AdminChat&8] &4<v> &7» &6<v>'
