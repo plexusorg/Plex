@@ -33,7 +33,7 @@ dependencies {
     library 'commons-io:commons-io:2.11.0'
     library 'dev.morphia.morphia:morphia-core:2.2.3'
     library 'redis.clients:jedis:4.1.1'
-    library 'org.mariadb.jdbc:mariadb-java-client:2.7.4'
+    library 'org.mariadb.jdbc:mariadb-java-client:3.0.3'
     library 'org.apache.httpcomponents:httpclient:4.5.13'
     compileOnly 'io.papermc.paper:paper-api:1.18.1-R0.1-SNAPSHOT'
     implementation 'org.bstats:bstats-base:3.0.0'
@@ -58,7 +58,7 @@ bukkit {
     version = rootProject.version
     description = "Plex provides a new experience for freedom servers."
     main = "dev.plex.Plex"
-    website = "https://telesphoreo.me"
+    website = "https://plex.us.org"
     authors = ["Telesphoreo", "taahanis", "super"]
     apiVersion = "1.18"
 }
