@@ -19,7 +19,8 @@ banning:
 
 chat:
   max-tag-length: 16
-  name-color: 'f' #Color code for name color
+  # Color code for name color
+  name-color: 'f'
 
 # Settings for commands relating to Plex
 commands:

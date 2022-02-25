@@ -157,9 +157,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
                 send(sender, component);
             }
         }
-        catch (PlayerNotFoundException | CommandFailException
-                | ConsoleOnlyException | ConsoleMustDefinePlayerException
-                | PlayerNotBannedException ex)
+        catch (PlayerNotFoundException | CommandFailException | ConsoleOnlyException | ConsoleMustDefinePlayerException | PlayerNotBannedException ex)
         {
             send(sender, MiniMessage.miniMessage().deserialize(ex.getMessage()));
         }
@@ -294,7 +292,6 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
         return true;
     }
 
-
     /**
      * Checks whether a player has enough permissions or is high enough a rank
      *
@@ -414,15 +411,27 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
     }
 
     /**
-     * Converts a message entry from the "messages.yml" to a component
+     * Converts a message entry from the "messages.yml" to a Component
      *
      * @param s       The message entry
      * @param objects Any objects to replace in order
-     * @return A kyori component
+     * @return A Kyori component
      */
     protected Component messageComponent(String s, Object... objects)
     {
         return PlexUtils.messageComponent(s, objects);
+    }
+
+    /**
+     * Converts a message entry from the "messages.yml" to a String
+     *
+     * @param s       The message entry
+     * @param objects Any objects to replace in order
+     * @return A String
+     */
+    protected String messageString(String s, Object... objects)
+    {
+        return PlexUtils.messageString(s, objects);
     }
 
     /**
@@ -489,10 +498,10 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
     }
 
     /**
-     * Converts a string to a legacy kyori component
+     * Converts a string to a legacy Kyori component
      *
      * @param s The string to convert
-     * @return A kyori component
+     * @return A Kyori component
      */
     protected Component componentFromString(String s)
     {

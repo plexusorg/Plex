@@ -102,3 +102,7 @@ toggleCommandSpy: "CommandSpy has been"
 enabled: "enabled."
 disabled: "disabled."
 adminChatFormat: '&8[&9AdminChat&8] &4<v> &7» &6<v>'
+maximumPrefixLength: "<red>The maximum length for a tag may only be <v>."
+prefixCleared: "<aqua>Your prefix has been cleared."
+otherPrefixCleared: "<aqua>You have cleared <v>'s prefix."
+prefixSetTo: "<aqua>Your prefix has been set to <v>"
