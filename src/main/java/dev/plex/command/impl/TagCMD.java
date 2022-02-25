@@ -7,10 +7,11 @@ import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.player.PlexPlayer;
 import dev.plex.rank.enums.Rank;
-import dev.plex.util.PlexUtils;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.apache.commons.lang.StringUtils;
-import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
@@ -46,12 +47,17 @@ public class TagCMD extends PlexCommand
                 return usage("/tag set <prefix>");
             }
             String prefix = StringUtils.join(args, " ", 1, args.length);
-            if (ChatColor.stripColor(prefix).length() > plugin.config.getInt("chat.max-tag-length", 16))
+
+            Component convertedComponent = removeEvents(componentFromString(prefix));
+            convertedComponent = removeEvents(MiniMessage.miniMessage().deserialize(LegacyComponentSerializer.legacySection().serialize(convertedComponent)));
+
+            if (PlainTextComponentSerializer.plainText().serialize(convertedComponent).length() > plugin.config.getInt("chat.max-tag-length", 16))
             {
                 return messageComponent("maximumPrefixLength", plugin.config.getInt("chat.max-tag-length", 16));
             }
-            player.setPrefix(prefix);
-            return messageComponent("prefixSetTo", PlexUtils.colorize(prefix));
+
+            player.setPrefix(MiniMessage.miniMessage().serialize(convertedComponent));
+            return messageComponent("prefixSetTo", MiniMessage.miniMessage().serialize(convertedComponent));
         }
 
         if (args[0].equalsIgnoreCase("clear"))
@@ -76,4 +82,13 @@ public class TagCMD extends PlexCommand
         }
         return usage();
     }
+
+    private Component removeEvents(Component component)
+    {
+        if (component.clickEvent() != null) component = component.clickEvent(null);
+        if (component.hoverEvent() != null) component = component.hoverEvent(null);
+        return component;
+    }
 }
+
+

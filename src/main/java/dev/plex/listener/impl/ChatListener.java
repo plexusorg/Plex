@@ -10,6 +10,7 @@ import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -71,7 +72,7 @@ public class ChatListener extends PlexListener
         {
             if (hasPrefix)
             {
-                return Component.empty().append(LegacyComponentSerializer.legacyAmpersand().deserialize(prefix))
+                return Component.empty().append(MiniMessage.miniMessage().deserialize(prefix))
                         .append(Component.space())
                         .append(LegacyComponentSerializer.legacyAmpersand().deserialize("&" + plugin.config.getString("chat.name-color") + LegacyComponentSerializer.legacyAmpersand().serialize(sourceDisplayName)))
                         .append(Component.space())
