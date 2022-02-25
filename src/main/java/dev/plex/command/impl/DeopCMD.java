@@ -26,7 +26,7 @@ public class DeopCMD extends PlexCommand
         }
         Player player = getNonNullPlayer(args[0]);
         player.setOp(false);
-        PlexUtils.broadcast(messageComponent("oppedPlayer", sender.getName(), player.getName()));
+        PlexUtils.broadcast(messageComponent("deoppedPlayer", sender.getName(), player.getName()));
         return null;
     }
 
