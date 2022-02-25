@@ -1,4 +1,5 @@
 # Plex Messages File
+# Reference https://docs.adventure.kyori.net/minimessage/format.html
 
 # Messages in here will be placed in for certain commands, actions, etc.
 # Warning: not all commands have customizable messages
@@ -15,15 +16,11 @@ errorColor: "c"
 # you are unable to change the order the variables are used due to it being a code-side functionality.
 # if you are wishing to change these messages it's recommended you use the same amount of variables as stated in the documentation, however it's not required.
 
-# Reset color <r> - this will reset the color of the message to the base color defined above.
-# Broadcast color <b> - this will make the color of the message the broadcast color defined above.
-# Error color <e> - this will make the color of the message the error color defined above.
-
 # 1. Appeal URL
 # 2. Reason
 # 3. Expiry
 # 4. Punisher
-banMessage: "&cYou have been banned! You may appeal at &6<v>.\n&cReason: &6<v>\n&cEnd date: &6<v>\n&cBanned by: &6<v>"
+banMessage: "<red>You have been banned! You may appeal at <gold><v>.\n<red>Reason: <gold><v>\n<red>End date: <gold><v>\n<red>Banned by: <gold><v>"
 test: "this is a test message!"
 # 1. The command sender's username
 variableTest: "variable test with <v>!"
@@ -32,33 +29,33 @@ worldNotFound: "World not found!"
 # 1. The world you have been teleported to
 playerWorldTeleport: "You have been teleported to <v>."
 # 1. The sender who opped everyone
-oppedAllPlayers: "<b><v> - Opped all players on the server"
+oppedAllPlayers: "<aqua><v> - Opped all players on the server"
 # 1. The sender who de-opped everyone
-deoppedAllPlayers: "<b><v> - De-opped all players on the server"
+deoppedAllPlayers: "<aqua><v> - De-opped all players on the server"
 # 1. The person who is opping
 # 2. The person who has been opped
-oppedPlayer: "<b><v> - Opped <v>"
+oppedPlayer: "<aqua><v> - Opped <v>"
 # 1. The person who is freezing
 # 2. The person who has been frozen
-frozePlayer: "<b><v> - Froze <v>"
+frozePlayer: "<aqua><v> - Froze <v>"
 # 1. The person who is unfreezing
 # 2. The person who has been unfrozen
-unfrozePlayer: "<b><v> - Unfroze <v>"
-noPermission: "<e>You cannot use this command!"
+unfrozePlayer: "<aqua><v> - Unfroze <v>"
+noPermission: "<red>You cannot use this command!"
 # 1. The rank required to use the command
-noPermissionRank: "<e>You must be at least <v> to use this command!"
+noPermissionRank: "<red>You must be at least <v> to use this command!"
 # 1. The permission node required to use the command
-noPermissionNode: "<e>You must have the permission: <v> to use this command!"
-noPermissionInGame: "<e>You must be in console to use this command!"
-noPermissionConsole: "<e>You must be in-game to use this command!"
+noPermissionNode: "<red>You must have the permission: <v> to use this command!"
+noPermissionInGame: "<red>You must be in console to use this command!"
+noPermissionConsole: "<red>You must be in-game to use this command!"
 # 1. The username of the name history
 nameHistoryTitle: "Name History of <v>"
 # 1. A username of the found user
 # 2. When the user changed to that username
 nameHistoryBody: " - <v> (<v>)"
 # 1. The username that failed
-nameHistoryFail: "<e>Something went wrong while trying to retrieve name history of <v>! Try again later!"
-nameHistoryDoesntExist: "<e>Couldn't find this user! Please check if your spelling was correct and this player exists"
+nameHistoryFail: "<red>Something went wrong while trying to retrieve name history of <v>! Try again later!"
+nameHistoryDoesntExist: "<red>Couldn't find this user! Please check if your spelling was correct and this player exists"
 # 1. The gamemode
 gameModeSetTo: "Your gamemode has been set to <v>."
 # 1. The player's name
@@ -69,38 +66,38 @@ setOtherPlayerGameModeTo: "You set <v>'s gamemode to <v>."
 playerSetOtherGameMode: "<v> set your gamemode to <v>."
 # 1. The command sender
 # 2. The gamemode
-setEveryoneGameMode: "<b><v> - Changing everyone's gamemode to <v>"
+setEveryoneGameMode: "<aqua><v> - Changing everyone's gamemode to <v>"
 consoleMustDefinePlayer: "You must define a player since you are running this command from console."
 # 1. The command sender
 # 2. The player
-newAdminAdded: "<b><v> - Adding <v> to the admin list"
+newAdminAdded: "<aqua><v> - Adding <v> to the admin list"
 # 1. The command sender
 # 2. The player
-adminRemoved: "<e><v> - Removing <v> from the admin list"
+adminRemoved: "<red><v> - Removing <v> from the admin list"
 # 1. The command sender
 # 2. The player
-adminSetRank: "<b><v> - Setting <v>'s rank to <v>"
+adminSetRank: "<aqua><v> - Setting <v>'s rank to <v>"
 # The world name
-teleportedToWorld: "<b>You have been teleported to the <v>."
-higherRankThanYou: "<e>This player is an admin and a higher rank than you."
-playerNotAdmin: "<e>That player is not an admin."
-playerIsAdmin: "<e>That player is already an admin."
-rankNotFound: "<e>The rank you entered was not found."
-rankMustBeHigherThanAdmin: "<e>The rank you entered must be higher than Admin."
-consoleOnly: "<e>This command can only be executed by the console."
+teleportedToWorld: "<aqua>You have been teleported to the <v>."
+higherRankThanYou: "<red>This player is an admin and a higher rank than you."
+playerNotAdmin: "<red>That player is not an admin."
+playerIsAdmin: "<red>That player is already an admin."
+rankNotFound: "<red>The rank you entered was not found."
+rankMustBeHigherThanAdmin: "<red>The rank you entered must be higher than Admin."
+consoleOnly: "<red>This command can only be executed by the console."
 # 1. Rank
-yourRank: "<b>Your rank is: <v>"
+yourRank: "<aqua>Your rank is: <v>"
 # 1. Player name
 # 2. Rank
-otherRank: "<b><v>'s rank is: <v>"
+otherRank: "<aqua><v>'s rank is: <v>"
 # 1. The command sender
 # 2. The player
-banningPlayer: "<e><v> - Banning <v>"
+banningPlayer: "<red><v> - Banning <v>"
 # 1. The command sender
 # 2. The player
-unbanningPlayer: "<b><v> - Unbanning <v>"
-playerNotBanned: "<e>That player is not banned!"
-teleportedToWorldSpawn: "<b>Teleporting to the local spawn"
+unbanningPlayer: "<aqua><v> - Unbanning <v>"
+playerNotBanned: "<red>That player is not banned!"
+teleportedToWorldSpawn: "<aqua>Teleporting to the local spawn"
 toggleCommandSpy: "CommandSpy has been "
 enabled: "enabled"
 disabled: "disabled"

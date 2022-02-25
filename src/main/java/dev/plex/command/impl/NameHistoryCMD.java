@@ -39,7 +39,7 @@ public class NameHistoryCMD extends PlexCommand
         AshconInfo info = MojangUtils.getInfo(username);
         if (info == null)
         {
-            return tl("nameHistoryDoesntExist");
+            return messageComponent("nameHistoryDoesntExist");
         }
         PlexLog.debug("NameHistory UUID: " + info.getUuid());
         PlexLog.debug("NameHistory Size: " + info.getUsernameHistories().length);

@@ -31,6 +31,9 @@ public class ChatListener extends PlexListener
         {
             renderer.hasPrefix = true;
             renderer.prefix = prefix;
+        } else {
+            renderer.hasPrefix = false;
+            renderer.prefix = null;
         }
         event.renderer(renderer);
     }
@@ -44,18 +47,18 @@ public class ChatListener extends PlexListener
                 PlexPlayer plexPlayer = PlayerCache.getPlexPlayerMap().get(player.getUniqueId());
                 if (plexPlayer.getRankFromString().isAtLeast(Rank.ADMIN))
                 {
-                    player.sendMessage(PlexUtils.tl("adminChatFormat", sender.getName(), message));
+                    player.sendMessage(PlexUtils.messageComponent("adminChatFormat", sender.getName(), message));
                 }
             }
             else if (plugin.getSystem().equalsIgnoreCase("permissions"))
             {
                 if (player.hasPermission("plex.adminchat"))
                 {
-                    player.sendMessage(PlexUtils.tl("adminChatFormat", sender.getName(), message));
+                    player.sendMessage(PlexUtils.messageComponent("adminChatFormat", sender.getName(), message));
                 }
             }
         }
-        Bukkit.getLogger().info(PlexUtils.tl("adminChatFormat", sender.getName(), message));
+        plugin.getServer().getConsoleSender().sendMessage(PlexUtils.messageComponent("adminChatFormat", sender.getName(), message));
     }
 
     public static class PlexChatRenderer implements ChatRenderer

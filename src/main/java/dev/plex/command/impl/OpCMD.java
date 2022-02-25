@@ -26,7 +26,7 @@ public class OpCMD extends PlexCommand
         }
         Player player = getNonNullPlayer(args[0]);
         player.setOp(true);
-        PlexUtils.broadcast(tl("oppedPlayer", sender.getName(), player.getName()));
+        PlexUtils.broadcast(messageComponent("oppedPlayer", sender.getName(), player.getName()));
         return null;
     }
 

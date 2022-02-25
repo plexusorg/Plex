@@ -29,7 +29,7 @@ public class AdventureCMD extends PlexCommand
         {
             if (isConsole(sender))
             {
-                throw new CommandFailException(PlexUtils.tl("consoleMustDefinePlayer"));
+                throw new CommandFailException(PlexUtils.messageString("consoleMustDefinePlayer"));
             }
             Bukkit.getServer().getPluginManager().callEvent(new GameModeUpdateEvent(sender, playerSender, GameMode.ADVENTURE));
             return null;
@@ -42,9 +42,9 @@ public class AdventureCMD extends PlexCommand
                 for (Player targetPlayer : Bukkit.getServer().getOnlinePlayers())
                 {
                     targetPlayer.setGameMode(GameMode.ADVENTURE);
-                    tl("gameModeSetTo", "adventure");
+                    messageComponent("gameModeSetTo", "adventure");
                 }
-                PlexUtils.broadcast(tl("setEveryoneGameMode", sender.getName(), "adventure"));
+                PlexUtils.broadcast(messageComponent("setEveryoneGameMode", sender.getName(), "adventure"));
                 return null;
             }
 

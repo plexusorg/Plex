@@ -29,7 +29,7 @@ public class CreativeCMD extends PlexCommand
         {
             if (isConsole(sender))
             {
-                throw new CommandFailException(PlexUtils.tl("consoleMustDefinePlayer"));
+                throw new CommandFailException(PlexUtils.messageString("consoleMustDefinePlayer"));
             }
             if (!(playerSender == null))
             {
@@ -45,9 +45,9 @@ public class CreativeCMD extends PlexCommand
                 for (Player targetPlayer : Bukkit.getServer().getOnlinePlayers())
                 {
                     targetPlayer.setGameMode(GameMode.CREATIVE);
-                    tl("gameModeSetTo", "creative");
+                    messageComponent("gameModeSetTo", "creative");
                 }
-                PlexUtils.broadcast(tl("setEveryoneGameMode", sender.getName(), "creative"));
+                PlexUtils.broadcast(messageComponent("setEveryoneGameMode", sender.getName(), "creative"));
                 return null;
             }
 

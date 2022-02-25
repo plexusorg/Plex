@@ -225,7 +225,7 @@ public class PunishmentManager extends PlexBase
                         return;
                     }
                     player.setFrozen(false);
-                    Bukkit.broadcastMessage(PlexUtils.tl("unfrozePlayer", "Plex", Bukkit.getOfflinePlayer(UUID.fromString(player.getUuid())).getName()));
+                    Bukkit.broadcast(PlexUtils.messageComponent("unfrozePlayer", "Plex", Bukkit.getOfflinePlayer(UUID.fromString(player.getUuid())).getName()));
                     Bukkit.getLogger().info("Unfroze");
                 }
             }.runTaskLater(Plex.get(), 20 * seconds);

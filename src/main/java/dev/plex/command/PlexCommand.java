@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.UUID;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -108,7 +109,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
 
         if (commandSource == RequiredCommandSource.CONSOLE && sender instanceof Player)
         {
-            sender.sendMessage(tl("noPermissionInGame"));
+            sender.sendMessage(messageComponent("noPermissionInGame"));
             return true;
         }
 
@@ -116,7 +117,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
         {
             if (sender instanceof ConsoleCommandSender)
             {
-                send(sender, tl("noPermissionConsole"));
+                send(sender, messageComponent("noPermissionConsole"));
                 return true;
             }
         }
@@ -129,7 +130,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
             {
                 if (!plexPlayer.getRankFromString().isAtLeast(getLevel()))
                 {
-                    send(sender, tl("noPermissionRank", ChatColor.stripColor(getLevel().getLoginMessage())));
+                    send(sender, messageComponent("noPermissionRank", ChatColor.stripColor(getLevel().getLoginMessage())));
                     return true;
                 }
             }
@@ -137,7 +138,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
             {
                 if (!player.hasPermission(perms.permission()))
                 {
-                    send(sender, tl("noPermissionNode", perms.permission()));
+                    send(sender, messageComponent("noPermissionNode", perms.permission()));
                     return true;
                 }
             }
@@ -160,7 +161,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
                 | ConsoleOnlyException | ConsoleMustDefinePlayerException
                 | PlayerNotBannedException ex)
         {
-            send(sender, ex.getMessage());
+            send(sender, MiniMessage.miniMessage().deserialize(ex.getMessage()));
         }
         return true;
     }
@@ -262,14 +263,14 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
         {
             if (!plexPlayer.getRankFromString().isAtLeast(rank))
             {
-                throw new CommandFailException(PlexUtils.tl("noPermissionRank", ChatColor.stripColor(rank.getLoginMessage())));
+                throw new CommandFailException(PlexUtils.messageString("noPermissionRank", ChatColor.stripColor(rank.getLoginMessage())));
             }
         }
         else if (plugin.getSystem().equalsIgnoreCase("permissions"))
         {
             if (!player.hasPermission(permission))
             {
-                throw new CommandFailException(PlexUtils.tl("noPermissionNode", permission));
+                throw new CommandFailException(PlexUtils.messageString("noPermissionNode", permission));
             }
         }
         return true;
@@ -419,9 +420,9 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
      * @param objects Any objects to replace in order
      * @return A kyori component
      */
-    protected Component tl(String s, Object... objects)
+    protected Component messageComponent(String s, Object... objects)
     {
-        return componentFromString(PlexUtils.tl(s, objects));
+        return PlexUtils.messageComponent(s, objects);
     }
 
     /**
@@ -482,7 +483,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
         World world = Bukkit.getWorld(name);
         if (world == null)
         {
-            throw new CommandFailException(PlexUtils.tl("worldNotFound"));
+            throw new CommandFailException(PlexUtils.messageString("worldNotFound"));
         }
         return world;
     }

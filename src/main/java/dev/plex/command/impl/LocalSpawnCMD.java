@@ -19,6 +19,6 @@ public class LocalSpawnCMD extends PlexCommand
     protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
     {
         playerSender.teleportAsync(playerSender.getWorld().getSpawnLocation());
-        return tl("teleportedToWorldSpawn");
+        return messageComponent("teleportedToWorldSpawn");
     }
 }

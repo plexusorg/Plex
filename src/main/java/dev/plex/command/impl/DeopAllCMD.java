@@ -23,7 +23,7 @@ public class DeopAllCMD extends PlexCommand
         {
             player.setOp(false);
         }
-        PlexUtils.broadcast(tl("deoppedAllPlayers", sender.getName()));
+        PlexUtils.broadcast(messageComponent("deoppedAllPlayers", sender.getName()));
         return null;
     }
 

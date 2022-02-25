@@ -31,10 +31,10 @@ public class UnfreezeCMD extends PlexCommand
         PunishedPlayer punishedPlayer = PlayerCache.getPunishedPlayer(player.getUniqueId());
         if (!punishedPlayer.isFrozen())
         {
-            throw new CommandFailException(PlexUtils.tl("playerNotFrozen"));
+            throw new CommandFailException(PlexUtils.messageString("playerNotFrozen"));
         }
         punishedPlayer.setFrozen(false);
-        return tl("unfrozePlayer", sender.getName(), player.getName());
+        return messageComponent("unfrozePlayer", sender.getName(), player.getName());
     }
 
     @Override

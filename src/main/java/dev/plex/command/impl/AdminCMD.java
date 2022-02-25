@@ -61,7 +61,7 @@ public class AdminCMD extends PlexCommand
 
             if (isAdmin(plexPlayer))
             {
-                return tl("playerIsAdmin");
+                return messageComponent("playerIsAdmin");
             }
 
             Bukkit.getServer().getPluginManager().callEvent(new AdminAddEvent(sender, plexPlayer));
@@ -89,7 +89,7 @@ public class AdminCMD extends PlexCommand
 
             if (!isAdmin(plexPlayer))
             {
-                return tl("playerNotAdmin");
+                return messageComponent("playerNotAdmin");
             }
 
             Bukkit.getServer().getPluginManager().callEvent(new AdminRemoveEvent(sender, plexPlayer));
@@ -117,21 +117,21 @@ public class AdminCMD extends PlexCommand
 
             if (!rankExists(args[2]))
             {
-                return tl("rankNotFound");
+                return messageComponent("rankNotFound");
             }
 
             Rank rank = Rank.valueOf(args[2].toUpperCase());
 
             if (!rank.isAtLeast(Rank.ADMIN))
             {
-                return tl("rankMustBeHigherThanAdmin");
+                return messageComponent("rankMustBeHigherThanAdmin");
             }
 
             PlexPlayer plexPlayer = DataUtils.getPlayer(targetUUID);
 
             if (!isAdmin(plexPlayer))
             {
-                return tl("playerNotAdmin");
+                return messageComponent("playerNotAdmin");
             }
 
             Bukkit.getServer().getPluginManager().callEvent(new AdminSetRankEvent(sender, plexPlayer, rank));

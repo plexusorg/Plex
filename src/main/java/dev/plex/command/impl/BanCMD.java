@@ -56,7 +56,7 @@ public class BanCMD extends PlexCommand
                 PlexPlayer plexPlayer1 = getPlexPlayer(playerSender);
                 if (!plexPlayer1.getRankFromString().isAtLeast(plexPlayer.getRankFromString()))
                 {
-                    return tl("higherRankThanYou");
+                    return messageComponent("higherRankThanYou");
                 }
             }
         }
@@ -79,7 +79,7 @@ public class BanCMD extends PlexCommand
         punishment.setCustomTime(false);
         punishment.setActive(true);
         plugin.getPunishmentManager().doPunishment(punishedPlayer, punishment);
-        PlexUtils.broadcast(tl("banningPlayer", sender.getName(), plexPlayer.getName()));
+        PlexUtils.broadcast(messageComponent("banningPlayer", sender.getName(), plexPlayer.getName()));
         if (player != null)
         {
             player.kick(componentFromString("&cYou've been banned."));

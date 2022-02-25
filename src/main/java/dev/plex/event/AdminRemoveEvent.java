@@ -2,6 +2,7 @@ package dev.plex.event;
 
 import dev.plex.player.PlexPlayer;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.bukkit.command.CommandSender;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
@@ -9,6 +10,7 @@ import org.bukkit.event.HandlerList;
 /**
  * Event that is ran when a player is removed from the admin list
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
 public class AdminRemoveEvent extends Event
 {

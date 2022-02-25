@@ -38,7 +38,7 @@ public class TagCMD extends PlexCommand
         {
             if (sender instanceof ConsoleCommandSender)
             {
-                return tl("noPermissionConsole");
+                return messageComponent("noPermissionConsole");
             }
             PlexPlayer player = DataUtils.getPlayer(playerSender.getUniqueId());
             if (args.length < 2)
@@ -60,7 +60,7 @@ public class TagCMD extends PlexCommand
             {
                 if (sender instanceof ConsoleCommandSender)
                 {
-                    return tl("noPermissionConsole");
+                    return messageComponent("noPermissionConsole");
                 }
 
                 PlexPlayer player = DataUtils.getPlayer(playerSender.getUniqueId());

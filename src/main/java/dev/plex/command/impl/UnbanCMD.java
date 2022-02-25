@@ -47,7 +47,7 @@ public class UnbanCMD extends PlexCommand
             }
 
             plugin.getPunishmentManager().unban(targetUUID);
-            PlexUtils.broadcast(tl("unbanningPlayer", sender.getName(), plexPlayer.getName()));
+            PlexUtils.broadcast(messageComponent("unbanningPlayer", sender.getName(), plexPlayer.getName()));
         }
         return null;
     }

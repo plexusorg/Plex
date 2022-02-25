@@ -25,7 +25,7 @@ public class FlatlandsCMD extends PlexCommand
         {
             Location loc = new Location(Bukkit.getWorld("flatlands"), 0, 50, 0);
             playerSender.teleportAsync(loc);
-            return tl("teleportedToWorld", "flatlands");
+            return messageComponent("teleportedToWorld", "flatlands");
         }
         return null;
     }

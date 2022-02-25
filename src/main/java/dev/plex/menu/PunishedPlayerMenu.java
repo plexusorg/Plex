@@ -6,7 +6,11 @@ import dev.plex.player.PunishedPlayer;
 import dev.plex.punishment.Punishment;
 import dev.plex.util.menu.AbstractMenu;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -34,17 +38,17 @@ public class PunishedPlayerMenu extends AbstractMenu
             Inventory inventory = Bukkit.createInventory(null, 54, "Punishments Page " + (i + 1));
             ItemStack nextPage = new ItemStack(Material.FEATHER);
             ItemMeta meta = nextPage.getItemMeta();
-            meta.setDisplayName(ChatColor.LIGHT_PURPLE + "Next Page");
+            meta.displayName(Component.text("Next Page").color(NamedTextColor.LIGHT_PURPLE));
             nextPage.setItemMeta(meta);
 
             ItemStack previousPage = new ItemStack(Material.FEATHER);
             ItemMeta meta2 = previousPage.getItemMeta();
-            meta2.setDisplayName(ChatColor.LIGHT_PURPLE + "Previous Page");
+            meta2.displayName(Component.text("Next Page").color(NamedTextColor.LIGHT_PURPLE));
             previousPage.setItemMeta(meta2);
 
             ItemStack back = new ItemStack(Material.BARRIER);
             ItemMeta meta3 = back.getItemMeta();
-            meta3.setDisplayName(ChatColor.RED + "Return");
+            meta3.displayName(Component.text("Next Page").color(NamedTextColor.LIGHT_PURPLE));
             back.setItemMeta(meta3);
 
             inventory.setItem(50, nextPage);
@@ -81,8 +85,8 @@ public class PunishedPlayerMenu extends AbstractMenu
 
             ItemStack item = new ItemStack(Material.NETHER_STAR);
             ItemMeta meta = item.getItemMeta();
-            meta.setDisplayName(ChatColor.RED + punishment.getType().name().toUpperCase());
-            meta.setLore(Arrays.asList(ChatColor.YELLOW + "Reason: \n" + ChatColor.GRAY + punishment.getReason()));
+            meta.displayName(Component.text(punishment.getType().name().toUpperCase()).color(NamedTextColor.RED));
+            meta.lore(Collections.singletonList(Component.text("Reason: ").color(NamedTextColor.YELLOW).append(Component.newline()).append(Component.text(punishment.getReason()).color(NamedTextColor.GRAY))));
             item.setItemMeta(meta);
 
             inv.setItem(currentItemIndex, item);
@@ -109,10 +113,12 @@ public class PunishedPlayerMenu extends AbstractMenu
             return;
         }
         ItemStack item = event.getCurrentItem();
+        if (!item.hasItemMeta()) return;
+        if (!item.getItemMeta().hasDisplayName()) return;
         event.setCancelled(true);
         if (item.getType() == Material.FEATHER)
         {
-            if (item.getItemMeta().getDisplayName().equalsIgnoreCase(ChatColor.LIGHT_PURPLE + "Next Page"))
+            if (item.getItemMeta().displayName().equals(Component.text("Next Page").color(NamedTextColor.LIGHT_PURPLE)))
             {
                 if (getCurrentInventoryIndex(inv) + 1 > inventories.size() - 1)
                 {
@@ -124,7 +130,7 @@ public class PunishedPlayerMenu extends AbstractMenu
                 }
                 openInv((Player)event.getWhoClicked(), getCurrentInventoryIndex(inv) + 1);
             }
-            else if (item.getItemMeta().getDisplayName().equalsIgnoreCase(ChatColor.LIGHT_PURPLE + "Previous Page"))
+            else if (item.getItemMeta().displayName().equals(Component.text("Previous Page").color(NamedTextColor.LIGHT_PURPLE)))
             {
                 if (getCurrentInventoryIndex(inv) - 1 < 0)
                 {

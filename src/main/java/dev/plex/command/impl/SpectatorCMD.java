@@ -29,7 +29,7 @@ public class SpectatorCMD extends PlexCommand
         {
             if (isConsole(sender))
             {
-                throw new CommandFailException(PlexUtils.tl("consoleMustDefinePlayer"));
+                throw new CommandFailException(PlexUtils.messageString("consoleMustDefinePlayer"));
             }
             Bukkit.getServer().getPluginManager().callEvent(new GameModeUpdateEvent(sender, playerSender, GameMode.SPECTATOR));
             return null;
@@ -42,9 +42,9 @@ public class SpectatorCMD extends PlexCommand
                 for (Player targetPlayer : Bukkit.getServer().getOnlinePlayers())
                 {
                     targetPlayer.setGameMode(GameMode.SPECTATOR);
-                    tl("gameModeSetTo", "spectator");
+                    messageComponent("gameModeSetTo", "spectator");
                 }
-                PlexUtils.broadcast(tl("setEveryoneGameMode", sender.getName(), "spectator"));
+                PlexUtils.broadcast(messageComponent("setEveryoneGameMode", sender.getName(), "spectator"));
                 return null;
             }
 

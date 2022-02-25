@@ -9,7 +9,9 @@ import dev.plex.player.PlexPlayer;
 import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexUtils;
 import org.bukkit.event.EventHandler;
-import static dev.plex.util.PlexUtils.tl;
+
+import static dev.plex.util.PlexUtils.messageComponent;
+import static dev.plex.util.PlexUtils.messageString;
 
 public class AdminListener extends PlexListener
 {
@@ -20,7 +22,7 @@ public class AdminListener extends PlexListener
         PlexPlayer target = event.getPlexPlayer();
         target.setRank(Rank.ADMIN.name());
         DataUtils.update(target);
-        PlexUtils.broadcast(tl("newAdminAdded", userSender, target.getName()));
+        PlexUtils.broadcast(messageComponent("newAdminAdded", userSender, target.getName()));
     }
 
     @EventHandler
@@ -30,7 +32,7 @@ public class AdminListener extends PlexListener
         PlexPlayer target = event.getPlexPlayer();
         target.setRank("");
         DataUtils.update(target);
-        PlexUtils.broadcast(tl("adminRemoved", userSender, target.getName()));
+        PlexUtils.broadcast(messageComponent("adminRemoved", userSender, target.getName()));
     }
 
     @EventHandler
@@ -41,6 +43,6 @@ public class AdminListener extends PlexListener
         Rank newRank = event.getRank();
         target.setRank(newRank.name().toLowerCase());
         DataUtils.update(target);
-        PlexUtils.broadcast(tl("adminSetRank", userSender, target.getName(), newRank.getReadable()));
+        PlexUtils.broadcast(messageComponent("adminSetRank", userSender, target.getName(), newRank.getReadable()));
     }
 }

@@ -25,7 +25,7 @@ public class AdminworldCMD extends PlexCommand
         {
             Location loc = new Location(Bukkit.getWorld("adminworld"), 0, 50, 0);
             playerSender.teleportAsync(loc);
-            return tl("teleportedToWorld", "adminworld");
+            return messageComponent("teleportedToWorld", "adminworld");
         }
         return null;
     }

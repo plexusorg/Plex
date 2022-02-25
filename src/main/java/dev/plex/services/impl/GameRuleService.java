@@ -37,6 +37,7 @@ public class GameRuleService extends AbstractService
         world.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
         world.setGameRule(GameRule.SHOW_DEATH_MESSAGES, false);
         world.setGameRule(GameRule.SEND_COMMAND_FEEDBACK, false);
+        world.setGameRule(GameRule.DO_WEATHER_CYCLE, false);
     }
 
     @Override

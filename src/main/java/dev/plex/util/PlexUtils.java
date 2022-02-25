@@ -20,7 +20,9 @@ import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -116,8 +118,9 @@ public class PlexUtils extends PlexBase
         return ChatColor.translateAlternateColorCodes('&', string);
     }
 
+    /*@Deprecated(forRemoval = true)
     // if you think the name of this method is dumb feel free to change it i just thought it'd be cool
-    public static String tl(String s, Object... objects)
+    public static String messageComponent(String s, Object... objects)
     {
         if (s.equals("baseColor") || s.equals("errorColor") || s.equals("broadcastColor"))
         {
@@ -140,6 +143,25 @@ public class PlexUtils extends PlexBase
         f = f.replaceAll("<e>", error.toString());
         f = color(f);
         return base + f;
+    }*/
+
+    public static Component messageComponent(String entry, Object... objects)
+    {
+        return MiniMessage.miniMessage().parse(messageString(entry, objects));
+    }
+
+    public static String messageString(String entry, Object... objects)
+    {
+         String f = plugin.messages.getString(entry);
+        if (f == null)
+        {
+            throw new NullPointerException();
+        }
+        for (Object object : objects)
+        {
+            f = f.replaceFirst("<v>", String.valueOf(object));
+        }
+        return f;
     }
 
     public static ChatColor getChatColorFromConfig(Config config, ChatColor def, String path)

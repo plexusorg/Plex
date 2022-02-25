@@ -23,7 +23,7 @@ public class OpAllCMD extends PlexCommand
         {
             player.setOp(true);
         }
-        PlexUtils.broadcast(tl("oppedAllPlayers", sender.getName()));
+        PlexUtils.broadcast(messageComponent("oppedAllPlayers", sender.getName()));
         return null;
     }
 

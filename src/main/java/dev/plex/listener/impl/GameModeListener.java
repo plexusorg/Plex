@@ -17,13 +17,13 @@ public class GameModeListener extends PlexListener
         if (userSender.getName().equals(target.getName()))
         {
             target.setGameMode(event.getGameMode());
-            userSender.sendMessage(PlexUtils.tl("gameModeSetTo", event.getGameMode().toString().toLowerCase()));
+            userSender.sendMessage(PlexUtils.messageComponent("gameModeSetTo", event.getGameMode().toString().toLowerCase()));
         }
         else
         {
-            target.sendMessage(PlexUtils.tl("playerSetOtherGameMode", userSender.getName(), event.getGameMode().toString().toLowerCase()));
+            target.sendMessage(PlexUtils.messageComponent("playerSetOtherGameMode", userSender.getName(), event.getGameMode().toString().toLowerCase()));
             target.setGameMode(event.getGameMode());
-            userSender.sendMessage(PlexUtils.tl("setOtherPlayerGameModeTo", target.getName(), event.getGameMode().toString().toLowerCase()));
+            userSender.sendMessage(PlexUtils.messageComponent("setOtherPlayerGameModeTo", target.getName(), event.getGameMode().toString().toLowerCase()));
         }
     }
 }

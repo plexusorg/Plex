@@ -26,7 +26,7 @@ public class MasterbuilderworldCMD extends PlexCommand
         {
             Location loc = new Location(Bukkit.getWorld("masterbuilderworld"), 0, 50, 0);
             playerSender.teleportAsync(loc);
-            return tl("teleportedToWorld", "Master Builder World");
+            return messageComponent("teleportedToWorld", "Master Builder World");
         }
         return null;
     }

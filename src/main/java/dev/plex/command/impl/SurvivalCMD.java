@@ -29,7 +29,7 @@ public class SurvivalCMD extends PlexCommand
         {
             if (isConsole(sender))
             {
-                throw new CommandFailException(PlexUtils.tl("consoleMustDefinePlayer"));
+                throw new CommandFailException(PlexUtils.messageString("consoleMustDefinePlayer"));
             }
             Bukkit.getServer().getPluginManager().callEvent(new GameModeUpdateEvent(sender, playerSender, GameMode.SURVIVAL));
         }
@@ -41,9 +41,9 @@ public class SurvivalCMD extends PlexCommand
                 for (Player targetPlayer : Bukkit.getServer().getOnlinePlayers())
                 {
                     targetPlayer.setGameMode(GameMode.SURVIVAL);
-                    send(targetPlayer, tl("gameModeSetTo", "survival"));
+                    send(targetPlayer, messageComponent("gameModeSetTo", "survival"));
                 }
-                PlexUtils.broadcast(tl("setEveryoneGameMode", sender.getName(), "survival"));
+                PlexUtils.broadcast(messageComponent("setEveryoneGameMode", sender.getName(), "survival"));
                 return null;
             }
 

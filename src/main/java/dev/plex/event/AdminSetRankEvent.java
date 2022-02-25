@@ -3,6 +3,7 @@ package dev.plex.event;
 import dev.plex.player.PlexPlayer;
 import dev.plex.rank.enums.Rank;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.bukkit.command.CommandSender;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
@@ -10,6 +11,7 @@ import org.bukkit.event.HandlerList;
 /**
  * Event that is ran when an admin's rank is set
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
 public class AdminSetRankEvent extends Event
 {

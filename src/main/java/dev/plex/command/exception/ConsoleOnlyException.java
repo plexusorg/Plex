@@ -1,11 +1,11 @@
 package dev.plex.command.exception;
 
-import static dev.plex.util.PlexUtils.tl;
+import static dev.plex.util.PlexUtils.messageString;
 
 public class ConsoleOnlyException extends RuntimeException
 {
     public ConsoleOnlyException()
     {
-        super(tl("consoleOnly"));
+        super(messageString("consoleOnly"));
     }
 }
