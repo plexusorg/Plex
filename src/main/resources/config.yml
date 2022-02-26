@@ -51,6 +51,17 @@ worlds:
     gameRules:
       - "doWeatherCycle;false"
       - "doDaylightCycle;false"
+      - "doMobSpawning;false"
+      - "keepInventory;true"
+      - "doFireTick;false"
+      - "doMobLoot;false"
+      - "mobGriefing;false"
+      - "doTileDrops;false"
+      - "commandBlockOutput;false"
+      - "naturalRegeneration;true"
+      - "announceAdvancements;false"
+      - "showDeathMessages;false"
+      - "sendCommandFeedback;false"
     parameters:
       grass_block: 1
       dirt: 32
@@ -62,6 +73,20 @@ worlds:
     requiredLevels:
       - "Rank.ADMIN" # Minimum rank requirement
     noEdit: "&cYou can't edit this world!"
+    gameRules:
+      - "doWeatherCycle;false"
+      - "doDaylightCycle;false"
+      - "doMobSpawning;false"
+      - "keepInventory;true"
+      - "doFireTick;false"
+      - "doMobLoot;false"
+      - "mobGriefing;false"
+      - "doTileDrops;false"
+      - "commandBlockOutput;false"
+      - "naturalRegeneration;true"
+      - "announceAdvancements;false"
+      - "showDeathMessages;false"
+      - "sendCommandFeedback;false"
     parameters:
       grass_block: 1
       dirt: 32
@@ -73,6 +98,20 @@ worlds:
     requiredLevels:
       - "Title.MASTER_BUILDER" # Title has no "minimum", so this will have to be their title
     noEdit: "&cYou can't edit this world!"
+    gameRules:
+      - "doWeatherCycle;false"
+      - "doDaylightCycle;false"
+      - "doMobSpawning;false"
+      - "keepInventory;true"
+      - "doFireTick;false"
+      - "doMobLoot;false"
+      - "mobGriefing;false"
+      - "doTileDrops;false"
+      - "commandBlockOutput;false"
+      - "naturalRegeneration;true"
+      - "announceAdvancements;false"
+      - "showDeathMessages;false"
+      - "sendCommandFeedback;false"
     parameters:
       grass_block: 1
       dirt: 32
