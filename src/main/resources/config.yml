@@ -1,5 +1,5 @@
 # Plex Configuration File
-# For documentation, please visit: https://docs.plex.us.org
+# For documentation, please visit: https://plex.us.org
 
 server:
   name: "Plexus"
@@ -42,7 +42,7 @@ data:
     port: 6379
     password: ""
 
-# See https://docs.plex.us.org/docs/customization/config#worlds for documentation
+# See https://plex.us.org/docs/customization/config#worlds for documentation
 worlds:
   flatlands:
     name: "Flatlands"

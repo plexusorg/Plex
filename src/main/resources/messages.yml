@@ -1,20 +1,14 @@
 # Plex Messages File
-# Reference https://docs.adventure.kyori.net/minimessage/format.html
+# This file uses the MiniMessage system.
+# Documentation available at https://docs.adventure.kyori.net/minimessage/format.html
 
 # Messages in here will be placed in for certain commands, actions, etc.
 # Warning: not all commands have customizable messages
 
-# Base color - the main color prefix; will be used following each of the messages below
-# Broadcast color - the color used when broadcasting a message
-# Error color - the color of an error; will be used when an error is thrown from a command
-baseColor: "7"
-broadcastColor: "b"
-errorColor: "c"
-
 # Variables <v> - these are code-defined replacements for things that should be inserted into messages. (e.g. names, statuses, numbers)
-# if any of these variables are supposed to be used within a message, some documentation is provided to give more context to what the variables indicate.
-# you are unable to change the order the variables are used due to it being a code-side functionality.
-# if you are wishing to change these messages it's recommended you use the same amount of variables as stated in the documentation, however it's not required.
+# If any of these variables are supposed to be used within a message, some documentation is provided to give more context to what the variables indicate.
+# You are unable to change the order the variables are used due to it being a code-side functionality.
+# If you are wishing to change these messages it's recommended you use the same amount of variables as stated in the documentation, however it's not required.
 
 # 1. Appeal URL
 # 2. Reason
@@ -44,14 +38,12 @@ frozePlayer: "<aqua><v> - Froze <v>"
 # 1. The person who is unfreezing
 # 2. The person who has been unfrozen
 unfrozePlayer: "<aqua><v> - Unfroze <v>"
-
 # 1. The person who is freezing
 # 2. The person who has been frozen
 mutedPlayer: "<aqua><v> - Muted <v>"
 # 1. The person who is unfreezing
 # 2. The person who has been unfrozen
 unmutedPlayer: "<aqua><v> - Unmuted <v>"
-
 noPermission: "<red>You cannot use this command!"
 # 1. The rank required to use the command
 noPermissionRank: "<red>You must be at least <v> to use this command!"
@@ -107,17 +99,13 @@ banningPlayer: "<red><v> - Banning <v>"
 # 1. The command sender
 # 2. The player
 unbanningPlayer: "<aqua><v> - Unbanning <v>"
-
 playerNotBanned: "<red>That player is not banned!"
 playerNotFrozen: "<red>That player is not frozen!"
 playerNotMuted: "<red>That player is not muted!"
-
 playerBanned: "<red>That player is already banned!"
 playerFrozen: "<red>That player is already frozen!"
 playerMuted: "<red>That player is already muted!"
-
-muted: "<red>You are currently muted!"
-
+muted: "<red>You are currently muted - STFU!"
 teleportedToWorldSpawn: "<aqua>Teleporting to the local spawn"
 toggleCommandSpy: "CommandSpy has been"
 enabled: "enabled."

@@ -4,11 +4,36 @@ import dev.plex.Plex;
 import dev.plex.PlexBase;
 import dev.plex.config.Config;
 import dev.plex.storage.StorageType;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.sql.SQLException;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Random;
+import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.apache.commons.lang.math.NumberUtils;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.GameRule;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.PluginCommandYamlParser;
 import org.bukkit.entity.Player;
@@ -16,16 +41,6 @@ import org.bukkit.plugin.Plugin;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.sql.SQLException;
-import java.util.*;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.stream.Collectors;
 
 public class PlexUtils extends PlexBase
 {
@@ -36,6 +51,16 @@ public class PlexUtils extends PlexBase
                     "f5cd54c4-3a24-4213-9a56-c06c49594dff" // Taahh
             );
     private static final Random RANDOM;
+    private static final List<String> regxList = new ArrayList<>()
+    {{
+        add("y");
+        add("mo");
+        add("w");
+        add("d");
+        add("h");
+        add("m");
+        add("s");
+    }};
 
     static
     {
@@ -60,17 +85,20 @@ public class PlexUtils extends PlexBase
             if (Plex.get().getStorageType() == StorageType.MARIADB)
             {
                 PlexLog.log("Successfully enabled MySQL!");
-            } else if (Plex.get().getStorageType() == StorageType.SQLITE)
+            }
+            else if (Plex.get().getStorageType() == StorageType.SQLITE)
             {
                 PlexLog.log("Successfully enabled SQLite!");
             }
             try
             {
                 Plex.get().getSqlConnection().getCon().close();
-            } catch (SQLException ignored)
+            }
+            catch (SQLException ignored)
             {
             }
-        } else if (Plex.get().getMongoConnection().getDatastore() != null)
+        }
+        else if (Plex.get().getMongoConnection().getDatastore() != null)
         {
             PlexLog.log("Successfully enabled MongoDB!");
         }
@@ -147,16 +175,66 @@ public class PlexUtils extends PlexBase
         return f;
     }
 
+    private static long a(String parse)
+    {
+        StringBuilder sb = new StringBuilder();
+
+        regxList.forEach(obj ->
+        {
+            if (parse.endsWith(obj))
+            {
+                sb.append(parse.split(obj)[0]);
+            }
+        });
+
+        return Long.parseLong(sb.toString());
+    }
+
+    private static TimeUnit verify(String arg)
+    {
+        TimeUnit unit = null;
+        for (String c : regxList)
+        {
+            if (arg.endsWith(c))
+            {
+                switch (c)
+                {
+                    case "y" -> unit = TimeUnit.YEAR;
+                    case "mo" -> unit = TimeUnit.MONTH;
+                    case "w" -> unit = TimeUnit.WEEK;
+                    case "d" -> unit = TimeUnit.DAY;
+                    case "h" -> unit = TimeUnit.HOUR;
+                    case "m" -> unit = TimeUnit.MINUTE;
+                    case "s" -> unit = TimeUnit.SECOND;
+                }
+                break;
+            }
+        }
+        return (unit != null) ? unit : TimeUnit.DAY;
+    }
+
+    public static LocalDateTime parseDateOffset(String... time)
+    {
+        Instant instant = Instant.now();
+        for (String arg : time)
+        {
+            instant = instant.plusSeconds(verify(arg).get() * a(arg));
+        }
+        return LocalDateTime.ofInstant(instant, ZoneId.systemDefault().getRules().getOffset(instant));
+    }
+
     public static ChatColor getChatColorFromConfig(Config config, ChatColor def, String path)
     {
         ChatColor color;
         if (config.getString(path) == null)
         {
             color = def;
-        } else if (ChatColor.getByChar(config.getString(path)) == null)
+        }
+        else if (ChatColor.getByChar(config.getString(path)) == null)
         {
             color = def;
-        } else
+        }
+        else
         {
             color = ChatColor.getByChar(config.getString(path));
         }
@@ -188,13 +266,14 @@ public class PlexUtils extends PlexBase
         for (String s : Plex.get().config.getStringList("worlds." + world.getName().toLowerCase(Locale.ROOT) + ".gameRules"))
         {
             String gameRule = s.split(";")[0];
-            T value = (T) s.split(";")[1];
-            GameRule<T> rule = (GameRule<T>) GameRule.getByName(gameRule);
+            T value = (T)s.split(";")[1];
+            GameRule<T> rule = (GameRule<T>)GameRule.getByName(gameRule);
             if (rule != null && check(value).getClass().equals(rule.getType()))
             {
                 world.setGameRule(rule, value);
                 PlexLog.debug("Setting game rule " + gameRule + " for world " + world.getName() + " with value " + value);
-            } else
+            }
+            else
             {
                 PlexLog.error(String.format("Failed to set game rule %s for world %s with value %s!", gameRule, world.getName().toLowerCase(Locale.ROOT), value));
             }
@@ -236,7 +315,7 @@ public class PlexUtils extends PlexBase
         try
         {
             URL u = new URL(url);
-            HttpURLConnection connection = (HttpURLConnection) u.openConnection();
+            HttpURLConnection connection = (HttpURLConnection)u.openConnection();
             connection.setRequestMethod("GET");
             BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             String line;
@@ -248,7 +327,8 @@ public class PlexUtils extends PlexBase
             in.close();
             connection.disconnect();
             return new JSONParser().parse(content.toString());
-        } catch (IOException | ParseException ex)
+        }
+        catch (IOException | ParseException ex)
         {
             return null;
         }
@@ -257,13 +337,13 @@ public class PlexUtils extends PlexBase
     public static UUID getFromName(String name)
     {
         JSONObject profile;
-        profile = (JSONObject) simpleGET("https://api.ashcon.app/mojang/v2/user/" + name);
+        profile = (JSONObject)simpleGET("https://api.ashcon.app/mojang/v2/user/" + name);
         if (profile == null)
         {
             PlexLog.error("Profile from Ashcon API returned null!");
             return null;
         }
-        String uuidString = (String) profile.get("uuid");
+        String uuidString = (String)profile.get("uuid");
         return UUID.fromString(uuidString);
     }
 

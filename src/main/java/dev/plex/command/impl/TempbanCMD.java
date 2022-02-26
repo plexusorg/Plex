@@ -6,6 +6,7 @@ import dev.plex.cache.PlayerCache;
 import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
+import dev.plex.command.exception.PlayerNotBannedException;
 import dev.plex.command.exception.PlayerNotFoundException;
 import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.player.PlexPlayer;
@@ -13,7 +14,6 @@ import dev.plex.player.PunishedPlayer;
 import dev.plex.punishment.Punishment;
 import dev.plex.punishment.PunishmentType;
 import dev.plex.rank.enums.Rank;
-import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -26,15 +26,15 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-@CommandParameters(name = "ban", usage = "/<command> <player> [reason]", aliases = "offlineban,gtfo", description = "Bans a player, offline or online")
-@CommandPermissions(level = Rank.ADMIN, permission = "plex.ban", source = RequiredCommandSource.ANY)
+@CommandParameters(name = "tempban", usage = "/<command> <player> <time> [reason]", description = "Temporarily ban a player")
+@CommandPermissions(level = Rank.ADMIN, permission = "plex.tempban", source = RequiredCommandSource.ANY)
 
-public class BanCMD extends PlexCommand
+public class TempbanCMD extends PlexCommand
 {
     @Override
-    protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
+    public Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
     {
-        if (args.length == 0)
+        if (args.length <= 1)
         {
             return usage();
         }
@@ -46,6 +46,7 @@ public class BanCMD extends PlexCommand
         {
             throw new PlayerNotFoundException();
         }
+
         PlexPlayer plexPlayer = DataUtils.getPlayer(targetUUID);
         Player player = Bukkit.getPlayer(targetUUID);
 
@@ -70,9 +71,9 @@ public class BanCMD extends PlexCommand
         PunishedPlayer punishedPlayer = PlayerCache.getPunishedPlayer(targetUUID) == null ? new PunishedPlayer(targetUUID) : PlayerCache.getPunishedPlayer(targetUUID);
         Punishment punishment = new Punishment(targetUUID, getUUID(sender));
         punishment.setType(PunishmentType.BAN);
-        if (args.length > 1)
+        if (args.length > 2)
         {
-            reason = StringUtils.join(args, " ", 1, args.length);
+            reason = StringUtils.join(args, " ", 2, args.length);
             punishment.setReason(reason);
         }
         else
@@ -80,8 +81,7 @@ public class BanCMD extends PlexCommand
             punishment.setReason("No reason provided.");
         }
         punishment.setPunishedUsername(plexPlayer.getName());
-        LocalDateTime date = LocalDateTime.now();
-        punishment.setEndDate(date.plusDays(1));
+        punishment.setEndDate(PlexUtils.parseDateOffset(args[1]));
         punishment.setCustomTime(false);
         punishment.setActive(!isAdmin(plexPlayer));
         plugin.getPunishmentManager().doPunishment(punishedPlayer, punishment);
@@ -90,13 +90,12 @@ public class BanCMD extends PlexCommand
         {
             player.kick(Punishment.generateBanMessage(punishment));
         }
-        PlexLog.debug("(From /ban command) PunishedPlayer UUID: " + punishedPlayer.getUuid());
         return null;
     }
 
     @Override
     public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
     {
-        return args.length == 1 && checkTab(sender, Rank.ADMIN, "plex.ban") ? PlexUtils.getPlayerNameList() : ImmutableList.of();
+        return args.length == 1 && checkTab(sender, Rank.ADMIN, "plex.tempban") ? PlexUtils.getPlayerNameList() : ImmutableList.of();
     }
 }

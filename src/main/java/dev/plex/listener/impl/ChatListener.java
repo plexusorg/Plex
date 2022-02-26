@@ -38,7 +38,9 @@ public class ChatListener extends PlexListener
         {
             renderer.hasPrefix = true;
             renderer.prefix = prefix;
-        } else {
+        }
+        else
+        {
             renderer.hasPrefix = false;
             renderer.prefix = null;
         }
