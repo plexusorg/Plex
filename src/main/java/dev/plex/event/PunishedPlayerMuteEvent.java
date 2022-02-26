@@ -32,13 +32,13 @@ public class PunishedPlayerMuteEvent extends PunishedPlayerEvent implements Canc
         this.muted = muted;
     }
 
-    @Override
-    public HandlerList getHandlers()
+    public static HandlerList getHandlerList()
     {
         return handlers;
     }
 
-    public static HandlerList getHandlerList()
+    @Override
+    public HandlerList getHandlers()
     {
         return handlers;
     }

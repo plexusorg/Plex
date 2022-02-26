@@ -11,15 +11,14 @@ import dev.plex.punishment.Punishment;
 import dev.plex.punishment.PunishmentType;
 import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexUtils;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
 import net.kyori.adventure.text.Component;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
 
 @CommandParameters(name = "mute", description = "Mute a player on the server", usage = "/<command> <player>", aliases = "stfu")
 @CommandPermissions(level = Rank.ADMIN, permission = "plex.mute")

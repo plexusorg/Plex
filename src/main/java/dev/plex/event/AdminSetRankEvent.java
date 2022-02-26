@@ -32,13 +32,13 @@ public class AdminSetRankEvent extends Event
      */
     private final Rank rank;
 
-    @Override
-    public HandlerList getHandlers()
+    public static HandlerList getHandlerList()
     {
         return handlers;
     }
 
-    public static HandlerList getHandlerList()
+    @Override
+    public HandlerList getHandlers()
     {
         return handlers;
     }

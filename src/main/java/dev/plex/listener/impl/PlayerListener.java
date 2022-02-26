@@ -69,7 +69,7 @@ public class PlayerListener extends PlexListener
         {
             PlexUtils.broadcast(
                     Component.text(ChatColor.AQUA + player.getName() + " is ").color(NamedTextColor.AQUA)
-                    .append(LegacyComponentSerializer.legacyAmpersand().deserialize(loginMessage)));
+                            .append(LegacyComponentSerializer.legacyAmpersand().deserialize(loginMessage)));
         }
     }
 

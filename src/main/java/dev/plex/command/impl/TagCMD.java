@@ -85,8 +85,14 @@ public class TagCMD extends PlexCommand
 
     private Component removeEvents(Component component)
     {
-        if (component.clickEvent() != null) component = component.clickEvent(null);
-        if (component.hoverEvent() != null) component = component.hoverEvent(null);
+        if (component.clickEvent() != null)
+        {
+            component = component.clickEvent(null);
+        }
+        if (component.hoverEvent() != null)
+        {
+            component = component.hoverEvent(null);
+        }
         return component;
     }
 }

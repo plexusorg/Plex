@@ -7,6 +7,7 @@ import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
+import java.util.List;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
@@ -15,8 +16,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.List;
 
 @CommandParameters(name = "debug", description = "Debug command", usage = "/<command> <redis-reset | gamerules> [player]")
 @CommandPermissions(level = Rank.EXECUTIVE, permission = "plex.debug")

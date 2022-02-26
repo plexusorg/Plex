@@ -14,7 +14,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @CommandPermissions(level = Rank.ADMIN, permission = "plex.adminchat", source = RequiredCommandSource.ANY)
-@CommandParameters(name = "adminchat",  description = "Talk privately with other admins", usage = "/<command> <message>", aliases = "o,ac,sc,staffchat")
+@CommandParameters(name = "adminchat", description = "Talk privately with other admins", usage = "/<command> <message>", aliases = "o,ac,sc,staffchat")
 public class AdminChatCMD extends PlexCommand
 {
     @Override

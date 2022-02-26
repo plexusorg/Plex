@@ -21,13 +21,13 @@ public class GameModeUpdateEvent extends Event
 
     private final GameMode gameMode;
 
-    @Override
-    public @NotNull HandlerList getHandlers()
+    public static HandlerList getHandlerList()
     {
         return handlers;
     }
 
-    public static HandlerList getHandlerList()
+    @Override
+    public @NotNull HandlerList getHandlers()
     {
         return handlers;
     }

@@ -24,17 +24,6 @@ public class CustomWorld extends WorldCreator
         this.generator(this.chunks);
     }
 
-    @Override
-    public ChunkGenerator generator()
-    {
-        return chunks;
-    }
-
-    public World generate()
-    {
-        return this.createWorld();
-    }
-
     public static World generateConfigFlatWorld(String name)
     {
         if (!plugin.config.contains("worlds." + name))
@@ -65,5 +54,16 @@ public class CustomWorld extends WorldCreator
             }
         };
         return customWorld.generate();
+    }
+
+    @Override
+    public ChunkGenerator generator()
+    {
+        return chunks;
+    }
+
+    public World generate()
+    {
+        return this.createWorld();
     }
 }

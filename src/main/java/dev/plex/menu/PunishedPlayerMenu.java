@@ -111,8 +111,14 @@ public class PunishedPlayerMenu extends AbstractMenu
             return;
         }
         ItemStack item = event.getCurrentItem();
-        if (!item.hasItemMeta()) return;
-        if (!item.getItemMeta().hasDisplayName()) return;
+        if (!item.hasItemMeta())
+        {
+            return;
+        }
+        if (!item.getItemMeta().hasDisplayName())
+        {
+            return;
+        }
         event.setCancelled(true);
         if (item.getType() == Material.FEATHER)
         {

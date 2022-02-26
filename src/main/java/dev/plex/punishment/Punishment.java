@@ -19,21 +19,17 @@ import net.kyori.adventure.text.Component;
 @Setter
 public class Punishment
 {
+    private static final String banUrl = Plex.get().config.getString("banning.ban_url");
+    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("MM/dd/yyyy 'at' hh:mm:ss a");
     private final UUID punished;
     private final UUID punisher;
-
     private final List<String> IPS;
-
     private String punishedUsername;
-
     private PunishmentType type;
     private String reason;
-
     private boolean customTime;
     private boolean active; // Field is only for bans
-
     private LocalDateTime endDate;
-
     public Punishment(UUID punished, UUID punisher)
     {
         this.punished = punished;
@@ -47,22 +43,19 @@ public class Punishment
         this.endDate = null;
     }
 
-    private static final String banUrl = Plex.get().config.getString("banning.ban_url");
-    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("MM/dd/yyyy 'at' hh:mm:ss a");
-
     public static Component generateBanMessage(Punishment punishment)
     {
         return PlexUtils.messageComponent("banMessage", banUrl, punishment.getReason(),
                 DATE_FORMAT.format(punishment.getEndDate()), punishment.getPunisher() == null ? "CONSOLE" : MojangUtils.getInfo(punishment.getPunisher().toString()).getUsername());
     }
 
-    public String toJSON()
-    {
-        return new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new LocalDateTimeSerializer()).create().toJson(this);
-    }
-
     public static Punishment fromJson(String json)
     {
         return new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new LocalDateTimeDeserializer()).create().fromJson(json, Punishment.class);
+    }
+
+    public String toJSON()
+    {
+        return new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new LocalDateTimeSerializer()).create().toJson(this);
     }
 }

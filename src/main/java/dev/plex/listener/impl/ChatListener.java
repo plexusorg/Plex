@@ -22,6 +22,29 @@ public class ChatListener extends PlexListener
 {
     private final PlexChatRenderer renderer = new PlexChatRenderer();
 
+    public static void adminChat(CommandSender sender, String message)
+    {
+        for (Player player : Bukkit.getOnlinePlayers())
+        {
+            if (plugin.getSystem().equalsIgnoreCase("ranks"))
+            {
+                PlexPlayer plexPlayer = PlayerCache.getPlexPlayerMap().get(player.getUniqueId());
+                if (plexPlayer.getRankFromString().isAtLeast(Rank.ADMIN))
+                {
+                    player.sendMessage(PlexUtils.messageComponent("adminChatFormat", sender.getName(), message));
+                }
+            }
+            else if (plugin.getSystem().equalsIgnoreCase("permissions"))
+            {
+                if (player.hasPermission("plex.adminchat"))
+                {
+                    player.sendMessage(PlexUtils.messageComponent("adminChatFormat", sender.getName(), message));
+                }
+            }
+        }
+        plugin.getServer().getConsoleSender().sendMessage(PlexUtils.messageComponent("adminChatFormat", sender.getName(), message));
+    }
+
     @EventHandler
     public void onChat(AsyncChatEvent event)
     {
@@ -45,29 +68,6 @@ public class ChatListener extends PlexListener
             renderer.prefix = null;
         }
         event.renderer(renderer);
-    }
-
-    public static void adminChat(CommandSender sender, String message)
-    {
-        for (Player player : Bukkit.getOnlinePlayers())
-        {
-            if (plugin.getSystem().equalsIgnoreCase("ranks"))
-            {
-                PlexPlayer plexPlayer = PlayerCache.getPlexPlayerMap().get(player.getUniqueId());
-                if (plexPlayer.getRankFromString().isAtLeast(Rank.ADMIN))
-                {
-                    player.sendMessage(PlexUtils.messageComponent("adminChatFormat", sender.getName(), message));
-                }
-            }
-            else if (plugin.getSystem().equalsIgnoreCase("permissions"))
-            {
-                if (player.hasPermission("plex.adminchat"))
-                {
-                    player.sendMessage(PlexUtils.messageComponent("adminChatFormat", sender.getName(), message));
-                }
-            }
-        }
-        plugin.getServer().getConsoleSender().sendMessage(PlexUtils.messageComponent("adminChatFormat", sender.getName(), message));
     }
 
     public static class PlexChatRenderer implements ChatRenderer

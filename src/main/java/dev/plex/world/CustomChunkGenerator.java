@@ -8,8 +8,8 @@ import org.bukkit.generator.ChunkGenerator;
 
 public abstract class CustomChunkGenerator extends ChunkGenerator
 {
-    protected int height;
     private final List<BlockPopulator> populators;
+    protected int height;
 
     protected CustomChunkGenerator(int height, BlockPopulator... populators)
     {

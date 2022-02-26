@@ -44,12 +44,6 @@ import org.json.simple.parser.ParseException;
 
 public class PlexUtils extends PlexBase
 {
-    public static Map<String, ChatColor> CHAT_COLOR_NAMES;
-    public static List<ChatColor> CHAT_COLOR_POOL;
-    public static List<String> DEVELOPERS =
-            Arrays.asList("78408086-1991-4c33-a571-d8fa325465b2", // Telesphoreo
-                    "f5cd54c4-3a24-4213-9a56-c06c49594dff" // Taahh
-            );
     private static final Random RANDOM;
     private static final List<String> regxList = new ArrayList<>()
     {{
@@ -61,6 +55,12 @@ public class PlexUtils extends PlexBase
         add("m");
         add("s");
     }};
+    public static Map<String, ChatColor> CHAT_COLOR_NAMES;
+    public static List<ChatColor> CHAT_COLOR_POOL;
+    public static List<String> DEVELOPERS =
+            Arrays.asList("78408086-1991-4c33-a571-d8fa325465b2", // Telesphoreo
+                    "f5cd54c4-3a24-4213-9a56-c06c49594dff" // Taahh
+            );
 
     static
     {
