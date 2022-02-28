@@ -3,11 +3,14 @@
 
 # List of permanently banned UUIDs
 # If you want to get someone's UUID, use https://api.ashcon.app/mojang/v2/user/<username>
-uuids: []
+uuids:
+  - 1dac0e92-f565-4479-afd5-38c7df5f9732 # badplayer123
 
 # List of permanently banned IP addresses
-ips: []
+ips:
+  - 169.254.69.69
 
 # List of permanently banned UUIDs
 # If you want to get someone's username, use https://api.ashcon.app/mojang/v2/user/<uuid>, or just remember it
-usernames: []
+usernames:
+  - badplayer123
