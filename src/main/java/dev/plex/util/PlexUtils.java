@@ -129,33 +129,6 @@ public class PlexUtils extends PlexBase
         return ChatColor.translateAlternateColorCodes('&', string);
     }
 
-    /*@Deprecated(forRemoval = true)
-    // if you think the name of this method is dumb feel free to change it i just thought it'd be cool
-    public static String messageComponent(String s, Object... objects)
-    {
-        if (s.equals("baseColor") || s.equals("errorColor") || s.equals("broadcastColor"))
-        {
-            return getChatColorFromConfig(plugin.messages, ChatColor.WHITE, s).toString();
-        }
-        String f = plugin.messages.getString(s);
-        if (f == null)
-        {
-            return ChatColor.RED + "No message";
-        }
-        for (Object object : objects)
-        {
-            f = f.replaceFirst("<v>", String.valueOf(object));
-        }
-        ChatColor base = getChatColorFromConfig(plugin.messages, ChatColor.GRAY, "baseColor");
-        ChatColor broadcast = getChatColorFromConfig(plugin.messages, ChatColor.AQUA, "broadcastColor");
-        ChatColor error = getChatColorFromConfig(plugin.messages, ChatColor.RED, "errorColor");
-        f = f.replaceAll("<r>", base.toString());
-        f = f.replaceAll("<b>", broadcast.toString());
-        f = f.replaceAll("<e>", error.toString());
-        f = color(f);
-        return base + f;
-    }*/
-
     public static Component messageComponent(String entry, Object... objects)
     {
         return MiniMessage.miniMessage().parse(LegacyComponentSerializer.legacySection().serialize(LegacyComponentSerializer.legacyAmpersand().deserialize(messageString(entry, objects))));

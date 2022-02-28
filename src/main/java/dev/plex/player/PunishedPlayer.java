@@ -5,6 +5,7 @@ import com.google.common.collect.Maps;
 import dev.plex.Plex;
 import dev.plex.PlexBase;
 import dev.plex.event.PunishedPlayerFreezeEvent;
+import dev.plex.event.PunishedPlayerLockupEvent;
 import dev.plex.event.PunishedPlayerMuteEvent;
 import dev.plex.punishment.Punishment;
 import dev.plex.util.PlexLog;
@@ -23,6 +24,7 @@ import lombok.Setter;
 import lombok.SneakyThrows;
 import org.apache.commons.io.FileUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -36,12 +38,14 @@ public class PunishedPlayer extends PlexBase
 
     private boolean muted;
     private boolean frozen;
+    private boolean lockedUp;
 
     public PunishedPlayer(UUID playerUUID)
     {
         this.uuid = playerUUID.toString();
         this.muted = false;
         this.frozen = false;
+        this.lockedUp = false;
     }
 
     public void setFrozen(boolean frozen)
@@ -61,6 +65,21 @@ public class PunishedPlayer extends PlexBase
         if (!e.isCancelled())
         {
             this.muted = muted;
+        }
+    }
+
+    public void setLockedUp(boolean lockedUp)
+    {
+        PunishedPlayerLockupEvent e = new PunishedPlayerLockupEvent(this, this.lockedUp);
+        Bukkit.getServer().getPluginManager().callEvent(e);
+        if (!e.isCancelled())
+        {
+            this.lockedUp = lockedUp;
+            Player self = Bukkit.getPlayer(UUID.fromString(this.uuid));
+            if (self != null)
+            {
+                self.openInventory(self.getInventory());
+            }
         }
     }
 

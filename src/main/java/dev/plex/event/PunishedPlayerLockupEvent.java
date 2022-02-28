@@ -9,25 +9,25 @@ import org.bukkit.event.HandlerList;
  * Event that is called when a player is frozen or unfrozen
  */
 @Getter
-public class PunishedPlayerMuteEvent extends PunishedPlayerEvent implements Cancellable
+public class PunishedPlayerLockupEvent extends PunishedPlayerEvent implements Cancellable
 {
     private static final HandlerList handlers = new HandlerList();
 
     /**
-     * New muted state of the player
+     * New lock up state of the player
      */
-    private final boolean muted;
+    private final boolean lockedUp;
 
     /**
      * Creates a new event instance
      *
      * @param punishedPlayer The player who was punished
-     * @param muted          The new muted status
+     * @param lockedUp       The new muted status
      */
-    public PunishedPlayerMuteEvent(PunishedPlayer punishedPlayer, boolean muted)
+    public PunishedPlayerLockupEvent(PunishedPlayer punishedPlayer, boolean lockedUp)
     {
         super(punishedPlayer);
-        this.muted = muted;
+        this.lockedUp = lockedUp;
     }
 
     public static HandlerList getHandlerList()

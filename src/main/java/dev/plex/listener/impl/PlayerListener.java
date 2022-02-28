@@ -14,10 +14,13 @@ import java.util.UUID;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
@@ -60,6 +63,10 @@ public class PlayerListener extends PlexListener
         PunishedPlayer punishedPlayer = PlayerCache.getPunishedPlayer(player.getUniqueId());
         PlayerCache.getPlexPlayerMap().put(player.getUniqueId(), plexPlayer); //put them into the cache
         punishedPlayer.convertPunishments();
+        if (punishedPlayer.isLockedUp())
+        {
+            player.openInventory(player.getInventory());
+        }
 
         assert plexPlayer != null;
 
@@ -94,5 +101,25 @@ public class PlayerListener extends PlexListener
         }
 
         PlayerCache.getPlexPlayerMap().remove(event.getPlayer().getUniqueId()); //remove them from cache
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onPlayerInventoryClose(InventoryCloseEvent event)
+    {
+        PunishedPlayer player = PlayerCache.getPunishedPlayer(event.getPlayer().getUniqueId());
+        if (player.isLockedUp())
+        {
+            Bukkit.getScheduler().runTaskLater(plugin, () -> event.getPlayer().openInventory(event.getInventory()), 1L);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onInventoryClick(InventoryClickEvent event)
+    {
+        PunishedPlayer player = PlayerCache.getPunishedPlayer(event.getWhoClicked().getUniqueId());
+        if (player.isLockedUp())
+        {
+            event.setCancelled(true);
+        }
     }
 }
