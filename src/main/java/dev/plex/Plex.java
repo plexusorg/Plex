@@ -35,6 +35,7 @@ public class Plex extends JavaPlugin
     private static Plex plugin;
     public Config config;
     public Config messages;
+    public Config indefBans;
     private StorageType storageType = StorageType.SQLITE;
 
     private SQLConnection sqlConnection;
@@ -64,6 +65,7 @@ public class Plex extends JavaPlugin
         plugin = this;
         config = new Config(this, "config.yml");
         messages = new Config(this, "messages.yml");
+        indefBans = new Config(this, "indefbans.yml");
 
         sqlConnection = new SQLConnection();
         mongoConnection = new MongoConnection();
@@ -75,6 +77,7 @@ public class Plex extends JavaPlugin
     {
         config.load();
         messages.load();
+        indefBans.load();
         system = config.getString("commands.permissions");
 
         try
@@ -122,6 +125,7 @@ public class Plex extends JavaPlugin
         PlexLog.log("Rank Manager initialized");
 
         punishmentManager = new PunishmentManager();
+        punishmentManager.mergeIndefiniteBans();
 //        banManager = new BanManager();
         PlexLog.log("Punishment System initialized");
 

@@ -49,6 +49,11 @@ public class Punishment
                 DATE_FORMAT.format(punishment.getEndDate()), punishment.getPunisher() == null ? "CONSOLE" : MojangUtils.getInfo(punishment.getPunisher().toString()).getUsername());
     }
 
+    public static Component generateIndefBanMessage(String type)
+    {
+        return PlexUtils.messageComponent("indefBanMessage", type, banUrl);
+    }
+
     public static Punishment fromJson(String json)
     {
         return new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new LocalDateTimeDeserializer()).create().fromJson(json, Punishment.class);

@@ -31,12 +31,20 @@ public class PlexCMD extends PlexCommand
         if (args[0].equalsIgnoreCase("reload"))
         {
             checkRank(sender, Rank.SENIOR_ADMIN, "plex.reload");
+
             Plex.get().config.load();
             send(sender, "Reloaded config file");
+
             Plex.get().messages.load();
             send(sender, "Reloaded messages file");
+
+            Plex.get().indefBans.load();
+            Plex.get().getPunishmentManager().mergeIndefiniteBans();
+            send(sender, "Reloaded indefinite bans");
+
             Plex.get().getRankManager().importDefaultRanks();
             send(sender, "Imported ranks");
+
             send(sender, "Plex successfully reloaded.");
         }
         else if (args[0].equalsIgnoreCase("redis"))

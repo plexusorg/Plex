@@ -15,6 +15,7 @@
 # 3. Expiry
 # 4. Punisher
 banMessage: "<red>You have been banned! You may appeal at <gold><v>.\n<red>Reason: <gold><v>\n<red>End date: <gold><v>\n<red>Banned by: <gold><v>"
+indefBanMessage: "<red>Your <v> is currently banned! You may appeal at <gold><v>."
 test: "this is a test message!"
 # 1. The command sender's username
 variableTest: "variable test with <v>!"

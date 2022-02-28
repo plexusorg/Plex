@@ -13,6 +13,27 @@ public class BanListener extends PlexListener
     @EventHandler
     public void onPreLogin(AsyncPlayerPreLoginEvent event)
     {
+        if (plugin.getPunishmentManager().isIndefUUIDBanned(event.getUniqueId()))
+        {
+            event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED,
+                    Punishment.generateIndefBanMessage("UUID"));
+            return;
+        }
+
+        if (plugin.getPunishmentManager().isIndefIPBanned(event.getAddress().getHostAddress()))
+        {
+            event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED,
+                    Punishment.generateIndefBanMessage("IP"));
+            return;
+        }
+
+        if (plugin.getPunishmentManager().isIndefUserBanned(event.getName()))
+        {
+            event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED,
+                    Punishment.generateIndefBanMessage("username"));
+            return;
+        }
+
         if (plugin.getPunishmentManager().isBanned(event.getUniqueId()))
         {
             PunishedPlayer player = PlayerCache.getPunishedPlayer(event.getUniqueId());

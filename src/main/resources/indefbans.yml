@@ -1,0 +1,13 @@
+# Plex Indefinite Bans File
+# Players with their UUID / IP / Usernames in here will be indefinitely banned until removed
+
+# List of permanently banned UUIDs
+# If you want to get someone's UUID, use https://api.ashcon.app/mojang/v2/user/<username>
+uuids: []
+
+# List of permanently banned IP addresses
+ips: []
+
+# List of permanently banned UUIDs
+# If you want to get someone's username, use https://api.ashcon.app/mojang/v2/user/<uuid>, or just remember it
+usernames: []
