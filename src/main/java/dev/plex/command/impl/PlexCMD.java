@@ -20,31 +20,28 @@ import org.jetbrains.annotations.Nullable;
 @CommandParameters(name = "plex", usage = "/<command> [reload | redis]", aliases = "plexhelp", description = "Show information about Plex or reload it")
 public class PlexCMD extends PlexCommand
 {
+    // Don't modify this command
     @Override
     protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
     {
         if (args.length == 0)
         {
             send(sender, ChatColor.LIGHT_PURPLE + "Plex - A new freedom plugin.");
-            return componentFromString(ChatColor.LIGHT_PURPLE + "Plugin version: " + ChatColor.GOLD + plugin.getDescription().getVersion());
+            send(sender, ChatColor.LIGHT_PURPLE + "Plugin version: " + plugin.getDescription().getVersion());
+            return componentFromString(ChatColor.LIGHT_PURPLE + "Authors: " + ChatColor.GOLD + "Telesphoreo, Taahh");
         }
         if (args[0].equalsIgnoreCase("reload"))
         {
             checkRank(sender, Rank.SENIOR_ADMIN, "plex.reload");
-
-            Plex.get().config.load();
+            plugin.config.load();
             send(sender, "Reloaded config file");
-
-            Plex.get().messages.load();
+            plugin.messages.load();
             send(sender, "Reloaded messages file");
-
-            Plex.get().indefBans.load();
-            Plex.get().getPunishmentManager().mergeIndefiniteBans();
+            plugin.indefBans.load();
+            plugin.getPunishmentManager().mergeIndefiniteBans();
             send(sender, "Reloaded indefinite bans");
-
-            Plex.get().getRankManager().importDefaultRanks();
+            plugin.getRankManager().importDefaultRanks();
             send(sender, "Imported ranks");
-
             send(sender, "Plex successfully reloaded.");
         }
         else if (args[0].equalsIgnoreCase("redis"))

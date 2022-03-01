@@ -35,6 +35,7 @@ public class CommandHandler extends PlexBase
         commands.add(new CreativeCMD());
         commands.add(new FlatlandsCMD());
         commands.add(new FreezeCMD());
+        commands.add(new KickCMD());
         commands.add(new ListCMD());
         commands.add(new LocalSpawnCMD());
         commands.add(new LockupCMD());

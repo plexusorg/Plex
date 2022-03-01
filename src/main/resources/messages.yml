@@ -35,14 +35,14 @@ oppedPlayer: "<aqua><v> - Opped <v>"
 deoppedPlayer: "<red><v> - Deopped <v>"
 # 1. The person who is freezing
 # 2. The person who has been frozen
-frozePlayer: "<aqua><v> - Froze <v>"
+frozePlayer: "<red><v> - Froze <v>"
 # 1. The person who is unfreezing
 # 2. The person who has been unfrozen
 unfrozePlayer: "<aqua><v> - Unfroze <v>"
-# 1. The person who is muting
+# 1. The command sender
 # 2. The person who has been muted
-mutedPlayer: "<aqua><v> - Muted <v>"
-# 1. The person who is unmuting
+mutedPlayer: "<red><v> - Muted <v>"
+# 1. The command sender
 # 2. The person who has been unmuted
 unmutedPlayer: "<aqua><v> - Unmuted <v>"
 # 1. The person who is locking up
@@ -51,7 +51,6 @@ lockedUpPlayer: "<aqua><v> - Locking up <v>"
 # 1. The person who is unlocking
 # 2. The person who has been unlocked
 unlockedUpPlayer: "<aqua><v> - Unlocking <v>"
-
 noPermission: "<red>You cannot use this command!"
 # 1. The rank required to use the command
 noPermissionRank: "<red>You must be at least <v> to use this command!"
@@ -114,8 +113,8 @@ playerBanned: "<red>That player is already banned!"
 playerFrozen: "<red>That player is already frozen!"
 playerMuted: "<red>That player is already muted!"
 playerLockedUp: "<red>That player is already locked up!"
-
 muted: "<red>You are currently muted - STFU!"
+kickedPlayer: "<red><v> - Kicking <v>"
 teleportedToWorldSpawn: "<aqua>Teleporting to the local spawn"
 toggleCommandSpy: "CommandSpy has been"
 enabled: "enabled."
