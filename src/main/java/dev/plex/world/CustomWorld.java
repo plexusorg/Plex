@@ -3,6 +3,7 @@ package dev.plex.world;
 import dev.plex.Plex;
 import java.io.File;
 import java.util.Objects;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
@@ -45,8 +46,9 @@ public class CustomWorld extends WorldCreator
                     if (state instanceof Sign)
                     {
                         Sign sign = (Sign)state;
-                        sign.setLine(1, Objects.requireNonNull(plugin.config.getString("worlds." + name + ".name")));
-                        sign.setLine(2, "- 0, 0 -");
+                        sign.line(1, Component.text(
+                                Objects.requireNonNull(plugin.config.getString("worlds." + name + ".name"))));
+                        sign.line(2, Component.text("- 0, 0 -"));
                         sign.update();
                     }
                 }

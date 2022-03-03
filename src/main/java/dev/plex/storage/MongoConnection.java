@@ -6,13 +6,12 @@ import dev.morphia.Datastore;
 import dev.morphia.Morphia;
 import dev.morphia.mapping.MapperOptions;
 import dev.plex.Plex;
+import dev.plex.PlexBase;
 import dev.plex.player.PlexPlayer;
 
-public class MongoConnection
+public class MongoConnection extends PlexBase
 {
     // USE MORPHIA API FOR MONGO <3
-
-    private final Plex plugin = Plex.get();
 
     public Datastore getDatastore()
     {
