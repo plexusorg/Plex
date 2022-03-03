@@ -3,6 +3,7 @@ package dev.plex.world;
 import dev.plex.Plex;
 import java.io.File;
 import java.util.Objects;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
@@ -37,16 +38,17 @@ public class CustomWorld extends WorldCreator
             {
                 boolean existed = new File(name).exists();
                 World world = super.generate();
+
                 if (!existed)
                 {
                     Block block = world.getBlockAt(0, world.getHighestBlockYAt(0, 0) + 1, 0);
                     block.setType(Material.OAK_SIGN);
                     BlockState state = block.getState();
-                    if (state instanceof Sign)
+                    if (state instanceof Sign sign)
                     {
-                        Sign sign = (Sign)state;
-                        sign.setLine(1, Objects.requireNonNull(plugin.config.getString("worlds." + name + ".name")));
-                        sign.setLine(2, "- 0, 0 -");
+                        sign.line(1, Component.text(
+                                Objects.requireNonNull(plugin.config.getString("worlds." + name + ".name"))));
+                        sign.line(2, Component.text("- 0, 0 -"));
                         sign.update();
                     }
                 }
