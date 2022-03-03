@@ -20,6 +20,7 @@ import dev.plex.storage.SQLConnection;
 import dev.plex.storage.StorageType;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
+import dev.plex.util.UpdateChecker;
 import dev.plex.world.CustomWorld;
 import java.util.UUID;
 import lombok.Getter;
@@ -51,6 +52,8 @@ public class Plex extends JavaPlugin
     private PunishmentManager punishmentManager;
 
     private AdminList adminList;
+
+    private UpdateChecker updateChecker;
 
     private String system;
 
@@ -91,6 +94,9 @@ public class Plex extends JavaPlugin
             e.printStackTrace();
         }
 
+        updateChecker = new UpdateChecker();
+        PlexLog.log("Update checking enabled");
+
         // https://bstats.org/plugin/bukkit/Plex/14143
         Metrics metrics = new Metrics(this, 14143);
         PlexLog.log("Enabled Metrics");
@@ -117,7 +123,6 @@ public class Plex extends JavaPlugin
         new ListenerHandler();
         new CommandHandler();
 
-
         rankManager = new RankManager();
         rankManager.generateDefaultRanks();
         rankManager.importDefaultRanks();
@@ -126,14 +131,12 @@ public class Plex extends JavaPlugin
 
         punishmentManager = new PunishmentManager();
         punishmentManager.mergeIndefiniteBans();
-//        banManager = new BanManager();
         PlexLog.log("Punishment System initialized");
 
         generateWorlds();
 
         serviceManager = new ServiceManager();
         PlexLog.log("Service Manager initialized");
-
         serviceManager.startServices();
         PlexLog.log("Started " + serviceManager.serviceCount() + " services.");
 

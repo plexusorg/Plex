@@ -15,14 +15,13 @@
 # 3. Expiry
 # 4. Punisher
 banMessage: "<red>You have been banned! You may appeal at <gold><v>.\n<red>Reason: <gold><v>\n<red>End date: <gold><v>\n<red>Banned by: <gold><v>"
-indefBanMessage: "<red>Your <v> is currently banned! You may appeal at <gold><v>."
-test: "this is a test message!"
-# 1. The command sender's username
-variableTest: "variable test with <v>!"
-playerNotFound: "Player not found!"
-worldNotFound: "World not found!"
+# The type of indefinite ban
+# Appeal URL
+indefBanMessage: "<red>Your <v> is indefinitely banned! You may appeal at <gold><v>."
+playerNotFound: "<red>Player not found!"
+worldNotFound: "<red>World not found!"
 # 1. The world you have been teleported to
-playerWorldTeleport: "You have been teleported to <v>."
+playerWorldTeleport: "<aqua>You have been teleported to <v>."
 # 1. The sender who opped everyone
 oppedAllPlayers: "<aqua><v> - Opped all players on the server"
 # 1. The sender who de-opped everyone
@@ -50,8 +49,7 @@ unmutedPlayer: "<aqua><v> - Unmuted <v>"
 lockedUpPlayer: "<aqua><v> - Locking up <v>"
 # 1. The person who is unlocking
 # 2. The person who has been unlocked
-unlockedUpPlayer: "<aqua><v> - Unlocking <v>"
-noPermission: "<red>You cannot use this command!"
+unlockedPlayer: "<aqua><v> - Unlocking <v>"
 # 1. The rank required to use the command
 noPermissionRank: "<red>You must be at least <v> to use this command!"
 # 1. The permission node required to use the command
@@ -59,25 +57,23 @@ noPermissionNode: "<red>You must have the permission: <v> to use this command!"
 noPermissionInGame: "<red>You must be in console to use this command!"
 noPermissionConsole: "<red>You must be in-game to use this command!"
 # 1. The username of the name history
-nameHistoryTitle: "Name History of <v>"
-# 1. A username of the found user
-# 2. When the user changed to that username
-nameHistoryBody: " - <v> (<v>)"
-# 1. The username that failed
-nameHistoryFail: "<red>Something went wrong while trying to retrieve name history of <v>! Try again later!"
-nameHistoryDoesntExist: "<red>Couldn't find this user! Please check if your spelling was correct and this player exists"
+nameHistoryTitle: "<gold>Name History of <v>"
+nameHistorySeparator: "<gold><strikethrough>-----------------------------"
+# 1. The name
+# 2. The date and time of the name change
+nameHistoryBody: "<gold><v> <dark_gray>- <gold><v>"
 # 1. The gamemode
-gameModeSetTo: "Your gamemode has been set to <v>."
+gameModeSetTo: "<gray>Your gamemode has been set to <v>."
 # 1. The player's name
 # 2. The gamemode
-setOtherPlayerGameModeTo: "You set <v>'s gamemode to <v>."
+setOtherPlayerGameModeTo: "<gray>You set <v>'s gamemode to <v>."
 # 1. The command sender
 # 2. The gamemode
-playerSetOtherGameMode: "<v> set your gamemode to <v>."
+playerSetOtherGameMode: "<gray><v> set your gamemode to <v>."
 # 1. The command sender
 # 2. The gamemode
 setEveryoneGameMode: "<aqua><v> - Changing everyone's gamemode to <v>"
-consoleMustDefinePlayer: "You must define a player since you are running this command from console."
+consoleMustDefinePlayer: "<red>You must define a player since you are running this command from console."
 # 1. The command sender
 # 2. The player
 newAdminAdded: "<aqua><v> - Adding <v> to the admin list"
@@ -116,10 +112,10 @@ playerLockedUp: "<red>That player is already locked up!"
 muted: "<red>You are currently muted - STFU!"
 kickedPlayer: "<red><v> - Kicking <v>"
 teleportedToWorldSpawn: "<aqua>Teleporting to the local spawn"
-toggleCommandSpy: "CommandSpy has been"
-enabled: "enabled."
-disabled: "disabled."
-adminChatFormat: '&8[&9AdminChat&8] &4<v> &7» &6<v>'
+toggleCommandSpy: "<gray>CommandSpy has been"
+enabled: "<gray>enabled."
+disabled: "<gray>disabled."
+adminChatFormat: '<dark_gray>[<blue>AdminChat<dark_gray>] <dark_red><v> <gray>» <gold><v>'
 maximumPrefixLength: "<red>The maximum length for a tag may only be <v>."
 prefixCleared: "<aqua>Your prefix has been cleared."
 otherPrefixCleared: "<aqua>You have cleared <v>'s prefix."

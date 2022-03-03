@@ -516,7 +516,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
      */
     protected Component mmString(String s)
     {
-        return MiniMessage.miniMessage().parse(s);
+        return MiniMessage.miniMessage().deserialize(s);
     }
 
     public Rank getLevel()

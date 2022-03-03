@@ -2,7 +2,9 @@ package dev.plex.services;
 
 import com.google.common.collect.Lists;
 import dev.plex.Plex;
+import dev.plex.services.impl.BanService;
 import dev.plex.services.impl.GameRuleService;
+import dev.plex.services.impl.UpdateCheckerService;
 import java.util.List;
 import org.bukkit.Bukkit;
 
@@ -12,7 +14,9 @@ public class ServiceManager
 
     public ServiceManager()
     {
+        registerService(new BanService());
         registerService(new GameRuleService());
+        registerService(new UpdateCheckerService());
     }
 
     public void startServices()

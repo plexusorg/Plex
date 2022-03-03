@@ -58,11 +58,11 @@ public class PunishmentManager extends PlexBase
         this.bannedIPs.addAll(Plex.get().indefBans.getStringList("ips"));
         this.bannedUsernames.addAll(Plex.get().indefBans.getStringList("usernames"));
 
-        PlexLog.log("Loaded {0} UUID(s), {1} IP(s), and {2} username(s) into the indefinite banned list", this.bannedUUIDs.size(), this.bannedIPs.size(), this.bannedUsernames.size());
+        PlexLog.log("Loaded {0} UUID(s), {1} IP(s), and {2} username(s) as indefinitely banned", this.bannedUUIDs.size(), this.bannedIPs.size(), this.bannedUsernames.size());
 
         if (Plex.get().getRedisConnection().isEnabled())
         {
-            PlexLog.log("Resetting redis indefinite bans lists and asynchronously uploading from configuration");
+            PlexLog.log("Asynchronously uploading all indefinite bans to Redis");
             Plex.get().getRedisConnection().runAsync(jedis -> {
                 jedis.set("indefbanned-uuids", new Gson().toJson(this.bannedUUIDs));
                 jedis.set("indefbanned-ips", new Gson().toJson(this.bannedIPs));

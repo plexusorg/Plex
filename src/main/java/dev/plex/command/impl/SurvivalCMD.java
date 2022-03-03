@@ -32,6 +32,7 @@ public class SurvivalCMD extends PlexCommand
                 throw new CommandFailException(PlexUtils.messageString("consoleMustDefinePlayer"));
             }
             Bukkit.getServer().getPluginManager().callEvent(new GameModeUpdateEvent(sender, playerSender, GameMode.SURVIVAL));
+            return null;
         }
 
         if (checkRank(sender, Rank.ADMIN, "plex.gamemode.survival.others"))

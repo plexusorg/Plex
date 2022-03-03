@@ -22,8 +22,6 @@ public class BanService extends AbstractService
             if (LocalDateTime.now().isAfter(punishment.getEndDate()))
             {
                 Plex.get().getPunishmentManager().unban(punishment);
-//                Plex.get().getBanManager().unban(ban.getId());
-//                Bukkit.broadcastMessage("Plex - Unbanned " + Bukkit.getOfflinePlayer(ban.getUuid()).getName());
                 Bukkit.broadcast(Component.text("Plex - Unbanned " + Bukkit.getOfflinePlayer(punishment.getPunished()).getName()));
             }
         }
@@ -32,6 +30,7 @@ public class BanService extends AbstractService
     @Override
     public int repeatInSeconds()
     {
-        return 1;
+        // Every 5 minutes
+        return 300;
     }
 }

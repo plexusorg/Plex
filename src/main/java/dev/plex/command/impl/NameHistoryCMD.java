@@ -49,11 +49,9 @@ public class NameHistoryCMD extends PlexCommand
             if (history.getLocalDateTime() != null)
             {
                 historyList.add(
-                        Component.text(history.getUsername()).color(NamedTextColor.GOLD)
-                                .append(Component.space())
-                                .append(Component.text("-").color(NamedTextColor.DARK_GRAY))
-                                .append(Component.space())
-                                .append(Component.text(DATE_FORMAT.format(history.getLocalDateTime())).color(NamedTextColor.GOLD)));
+                        messageComponent("nameHistoryBody",
+                                history.getUsername(),
+                                DATE_FORMAT.format(history.getLocalDateTime())));
             }
             else
             {
@@ -62,8 +60,8 @@ public class NameHistoryCMD extends PlexCommand
                                 .append(Component.space()));
             }
         });
-        send(sender, Component.text("Name History (" + username + ")").color(NamedTextColor.GOLD));
-        send(sender, Component.text("-----------------------------").color(NamedTextColor.GOLD).decoration(TextDecoration.STRIKETHROUGH, true));
+        send(sender, messageComponent("nameHistoryTitle", username));
+        send(sender, messageComponent("nameHistorySeparator"));
         historyList.forEach(component -> send(sender, component));
         return null;
     }
