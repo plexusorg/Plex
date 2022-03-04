@@ -5,6 +5,7 @@ import com.google.common.collect.Maps;
 import dev.morphia.Datastore;
 import dev.morphia.query.Query;
 import dev.plex.Plex;
+import dev.plex.PlexBase;
 import dev.plex.player.PlexPlayer;
 import dev.plex.rank.enums.Rank;
 import dev.plex.storage.StorageType;
@@ -23,7 +24,7 @@ import java.util.stream.Collectors;
  * @see Admin
  */
 
-public class AdminList
+public class AdminList extends PlexBase
 {
     /**
      * Key/Value storage, where the key is the unique ID of the admin
@@ -59,15 +60,15 @@ public class AdminList
     public List<String> getAllAdmins()
     {
         List<String> admins = Lists.newArrayList();
-        if (Plex.get().getStorageType() == StorageType.MONGODB)
+        if (plugin.getStorageType() == StorageType.MONGODB)
         {
-            Datastore store = Plex.get().getMongoConnection().getDatastore();
+            Datastore store = plugin.getMongoConnection().getDatastore();
             Query<PlexPlayer> query = store.find(PlexPlayer.class);
             admins.addAll(query.stream().filter(plexPlayer -> plexPlayer.getRankFromString().isAtLeast(Rank.ADMIN)).map(PlexPlayer::getName).collect(Collectors.toList()));
         }
         else
         {
-            try (Connection con = Plex.get().getSqlConnection().getCon())
+            try (Connection con = plugin.getSqlConnection().getCon())
             {
                 PreparedStatement statement = con.prepareStatement("SELECT * FROM `players` WHERE rank IN(?, ?, ?)");
                 statement.setString(1, Rank.ADMIN.name().toLowerCase());
@@ -79,7 +80,6 @@ public class AdminList
                 {
                     admins.add(set.getString("name"));
                 }
-
             }
             catch (SQLException throwables)
             {
@@ -88,5 +88,4 @@ public class AdminList
         }
         return admins;
     }
-
 }

@@ -49,7 +49,7 @@ public class LockupCMD extends PlexCommand
         }
 
         punishedPlayer.setLockedUp(!punishedPlayer.isLockedUp());
-        PlexUtils.broadcast(messageComponent(punishedPlayer.isLockedUp() ? "lockedUpPlayer" : "unlockedUpPlayer", sender.getName(), player.getName()));
+        PlexUtils.broadcast(messageComponent(punishedPlayer.isLockedUp() ? "lockedUpPlayer" : "unlockedPlayer", sender.getName(), player.getName()));
         return null;
     }
 

@@ -123,7 +123,6 @@ public class Plex extends JavaPlugin
         new ListenerHandler();
         new CommandHandler();
 
-
         rankManager = new RankManager();
         rankManager.generateDefaultRanks();
         rankManager.importDefaultRanks();

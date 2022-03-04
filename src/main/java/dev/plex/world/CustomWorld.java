@@ -38,14 +38,14 @@ public class CustomWorld extends WorldCreator
             {
                 boolean existed = new File(name).exists();
                 World world = super.generate();
+
                 if (!existed)
                 {
                     Block block = world.getBlockAt(0, world.getHighestBlockYAt(0, 0) + 1, 0);
                     block.setType(Material.OAK_SIGN);
                     BlockState state = block.getState();
-                    if (state instanceof Sign)
+                    if (state instanceof Sign sign)
                     {
-                        Sign sign = (Sign)state;
                         sign.line(1, Component.text(
                                 Objects.requireNonNull(plugin.config.getString("worlds." + name + ".name"))));
                         sign.line(2, Component.text("- 0, 0 -"));

@@ -131,7 +131,7 @@ public class PlexUtils extends PlexBase
 
     public static Component messageComponent(String entry, Object... objects)
     {
-        return MiniMessage.miniMessage().parse(LegacyComponentSerializer.legacySection().serialize(LegacyComponentSerializer.legacyAmpersand().deserialize(messageString(entry, objects))));
+        return MiniMessage.miniMessage().deserialize(LegacyComponentSerializer.legacySection().serialize(LegacyComponentSerializer.legacyAmpersand().deserialize(messageString(entry, objects))));
     }
 
     public static String messageString(String entry, Object... objects)
