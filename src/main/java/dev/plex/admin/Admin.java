@@ -29,19 +29,19 @@ public class Admin
     /**
      * Returns if the admin has command spy or not
      * <br>
-     * Contains a #isCommandSpy and #setCommandSpy by lombok
+     * Contains a #isCommandSpy and #setCommandSpy by Lombok
      */
-    private boolean commandSpy = true;
+    private boolean commandSpy = false;
 
     /**
-     * Returns if the admin has staff chat toggled or not
+     * Returns if the admin has admin chat toggled or not
      * <br>
-     * Contains a #isStaffChat and #setStaffChat by lombok
+     * Contains a #isAdminChat and #setAdminChat by Lombok
      */
-    private boolean staffChat = false;
+    private boolean adminChat = false;
 
     /**
-     * Creates an admin with the startig ADMIN rank
+     * Creates an admin with the ADMIN rank as the default rank
      *
      * @param uuid
      * @see UUID
@@ -52,6 +52,4 @@ public class Admin
         this.uuid = uuid;
         this.rank = Rank.ADMIN;
     }
-
-
 }
