@@ -32,7 +32,8 @@ public class RedisConnection extends PlexBase
 
     public void runAsync(Consumer<Jedis> jedisConsumer)
     {
-        new Thread(() -> {
+        new Thread(() ->
+        {
             try (Jedis jedis = getJedis())
             {
                 jedisConsumer.accept(jedis);

@@ -14,6 +14,11 @@ public class UpdateChecker extends PlexBase
 
     public boolean check()
     {
+        if (currentVersion.contains("-SNAPSHOT"))
+        {
+            PlexLog.log("Snapshot version detected, not checking for updates.");
+            return true;
+        }
         try
         {
             String versionLink = "https://plex.us.org/updater/check/";

@@ -11,7 +11,6 @@ import java.time.ZoneId;
 
 public class LocalDateTimeDeserializer implements JsonDeserializer<LocalDateTime>
 {
-
     @Override
     public LocalDateTime deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException
     {
