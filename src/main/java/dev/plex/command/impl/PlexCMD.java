@@ -37,7 +37,7 @@ public class PlexCMD extends PlexCommand
             send(sender, "Reloaded config file");
             plugin.messages.load();
             send(sender, "Reloaded messages file");
-            plugin.indefBans.load();
+            plugin.indefBans.load(false);
             plugin.getPunishmentManager().mergeIndefiniteBans();
             send(sender, "Reloaded indefinite bans");
             plugin.getRankManager().importDefaultRanks();

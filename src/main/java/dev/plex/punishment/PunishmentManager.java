@@ -19,10 +19,13 @@ import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
+import lombok.Data;
 import org.apache.commons.io.FileUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -33,43 +36,26 @@ import redis.clients.jedis.Jedis;
 
 public class PunishmentManager extends PlexBase
 {
-    private final List<String> bannedIPs = Lists.newArrayList();
-    private final List<String> bannedUsernames = Lists.newArrayList();
-    private final List<UUID> bannedUUIDs = Lists.newArrayList();
+    private final List<IndefiniteBan> indefiniteBans = Lists.newArrayList();
 
     public void mergeIndefiniteBans()
     {
-        this.bannedUsernames.clear();
-        this.bannedIPs.clear();
-        this.bannedUUIDs.clear();
+        this.indefiniteBans.clear();
+        Plex.get().indefBans.getKeys(false).forEach(key -> {
+            IndefiniteBan ban = new IndefiniteBan();
+            ban.ips.addAll(Plex.get().getIndefBans().getStringList(key + ".ips"));
+            ban.usernames.addAll(Plex.get().getIndefBans().getStringList(key + ".users"));
+            ban.uuids.addAll(Plex.get().getIndefBans().getStringList(key + ".uuids").stream().map(UUID::fromString).toList());
+            this.indefiniteBans.add(ban);
+        });
 
-        this.bannedUUIDs.addAll(Plex.get().indefBans.getStringList("uuids").stream().filter(string ->
-        {
-            try
-            {
-                UUID uuid = UUID.fromString(string);
-                return true;
-            } catch (IllegalArgumentException e)
-            {
-                return false;
-            }
-        }).map(UUID::fromString).toList());
-
-        this.bannedIPs.addAll(Plex.get().indefBans.getStringList("ips"));
-        this.bannedUsernames.addAll(Plex.get().indefBans.getStringList("usernames"));
-
-        PlexLog.log("Loaded {0} UUID(s), {1} IP(s), and {2} username(s) as indefinitely banned", this.bannedUUIDs.size(), this.bannedIPs.size(), this.bannedUsernames.size());
+        PlexLog.log("Loaded {0} UUID(s), {1} IP(s), and {2} username(s) as indefinitely banned", this.indefiniteBans.stream().map(IndefiniteBan::getUuids).mapToLong(Collection::size).sum(), this.indefiniteBans.stream().map(IndefiniteBan::getIps).mapToLong(Collection::size).sum(), this.indefiniteBans.stream().map(IndefiniteBan::getUsernames).mapToLong(Collection::size).sum());
 
         if (Plex.get().getRedisConnection().isEnabled())
         {
             PlexLog.log("Asynchronously uploading all indefinite bans to Redis");
             Plex.get().getRedisConnection().runAsync(jedis -> {
-                jedis.set("indefbanned-uuids", new Gson().toJson(this.bannedUUIDs));
-                jedis.set("indefbanned-ips", new Gson().toJson(this.bannedIPs));
-                jedis.set("indefbanned-users", new Gson().toJson(this.bannedUsernames));
-                this.bannedIPs.clear();
-                this.bannedUsernames.clear();
-                this.bannedUUIDs.clear();
+                jedis.set("indefbans", new Gson().toJson(indefiniteBans));
             });
         }
     }
@@ -78,30 +64,33 @@ public class PunishmentManager extends PlexBase
     {
         if (Plex.get().getRedisConnection().isEnabled())
         {
-            List<UUID> uuids = new Gson().fromJson(Plex.get().getRedisConnection().getJedis().get("indefbanned-uuids"), new TypeToken<List<UUID>>(){}.getType());
-            return uuids.contains(uuid);
+            PlexLog.debug("Checking if UUID is banned in Redis");
+            List<IndefiniteBan> bans = new Gson().fromJson(Plex.get().getRedisConnection().getJedis().get("indefbans"), new TypeToken<List<IndefiniteBan>>(){}.getType());
+            return bans.stream().anyMatch(indefiniteBan -> indefiniteBan.getUuids().contains(uuid));
         }
-        return this.bannedUUIDs.contains(uuid);
+        return this.indefiniteBans.stream().anyMatch(indefiniteBan -> indefiniteBan.getUuids().contains(uuid));
     }
 
     public boolean isIndefIPBanned(String ip)
     {
         if (Plex.get().getRedisConnection().isEnabled())
         {
-            List<String> ips = new Gson().fromJson(Plex.get().getRedisConnection().getJedis().get("indefbanned-ips"), new TypeToken<List<String>>(){}.getType());
-            return ips.contains(ip);
+            PlexLog.debug("Checking if IP is banned in Redis");
+            List<IndefiniteBan> bans = new Gson().fromJson(Plex.get().getRedisConnection().getJedis().get("indefbans"), new TypeToken<List<IndefiniteBan>>(){}.getType());
+            return bans.stream().anyMatch(indefiniteBan -> indefiniteBan.getIps().contains(ip));
         }
-        return this.bannedIPs.contains(ip);
+        return this.indefiniteBans.stream().anyMatch(indefiniteBan -> indefiniteBan.getIps().contains(ip));
     }
 
     public boolean isIndefUserBanned(String username)
     {
         if (Plex.get().getRedisConnection().isEnabled())
         {
-            List<String> users = new Gson().fromJson(Plex.get().getRedisConnection().getJedis().get("indefbanned-users"), new TypeToken<List<String>>(){}.getType());
-            return users.contains(username);
+            PlexLog.debug("Checking if username is banned in Redis");
+            List<IndefiniteBan> bans = new Gson().fromJson(Plex.get().getRedisConnection().getJedis().get("indefbans"), new TypeToken<List<IndefiniteBan>>(){}.getType());
+            return bans.stream().anyMatch(indefiniteBan -> indefiniteBan.getUsernames().contains(username));
         }
-        return this.bannedUsernames.contains(username);
+        return this.indefiniteBans.stream().anyMatch(indefiniteBan -> indefiniteBan.getUsernames().contains(username));
     }
 
     public void insertPunishment(PunishedPlayer player, Punishment punishment)
@@ -319,5 +308,13 @@ public class PunishmentManager extends PlexBase
     {
         issuePunishment(player, punishment);
         insertPunishment(player, punishment);
+    }
+
+    @Data
+    public static class IndefiniteBan
+    {
+        private final List<String> usernames = Lists.newArrayList();
+        private final List<UUID> uuids = Lists.newArrayList();
+        private final List<String> ips = Lists.newArrayList();
     }
 }

@@ -1,5 +1,6 @@
 package dev.plex;
 
+import com.google.gson.Gson;
 import dev.plex.admin.Admin;
 import dev.plex.admin.AdminList;
 import dev.plex.cache.DataUtils;
@@ -69,7 +70,6 @@ public class Plex extends JavaPlugin
         config = new Config(this, "config.yml");
         messages = new Config(this, "messages.yml");
         indefBans = new Config(this, "indefbans.yml");
-
         sqlConnection = new SQLConnection();
         mongoConnection = new MongoConnection();
         redisConnection = new RedisConnection();
@@ -81,6 +81,7 @@ public class Plex extends JavaPlugin
         config.load();
         messages.load();
         indefBans.load();
+
         system = config.getString("commands.permissions");
 
         try
