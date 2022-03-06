@@ -22,17 +22,22 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @CommandPermissions(level = Rank.OP, permission = "plex.plex", source = RequiredCommandSource.ANY)
-@CommandParameters(name = "plex", usage = "/<command> [reload | redis | modules] [reload]", aliases = "plexhelp", description = "Show information about Plex or reload it")
-public class PlexCMD extends PlexCommand {
+@CommandParameters(name = "plex", usage = "/<command> [reload | redis | modules [reload]]", description = "Show information about Plex or reload it")
+public class PlexCMD extends PlexCommand
+{
     // Don't modify this command
     @Override
-    protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args) {
-        if (args.length == 0) {
+    protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
+    {
+        if (args.length == 0)
+        {
             send(sender, ChatColor.LIGHT_PURPLE + "Plex - A new freedom plugin.");
             send(sender, ChatColor.LIGHT_PURPLE + "Plugin version: " + plugin.getDescription().getVersion());
-            return componentFromString(ChatColor.LIGHT_PURPLE + "Authors: " + ChatColor.GOLD + "Telesphoreo, Taahh");
+            send(sender, ChatColor.LIGHT_PURPLE + "Authors: " + ChatColor.GOLD + "Telesphoreo, Taahh");
+            return componentFromString(ChatColor.LIGHT_PURPLE + "Run " + ChatColor.GOLD + "/plex modules" + ChatColor.LIGHT_PURPLE + " to see a list of modules.");
         }
-        if (args[0].equalsIgnoreCase("reload")) {
+        if (args[0].equalsIgnoreCase("reload"))
+        {
             checkRank(sender, Rank.SENIOR_ADMIN, "plex.reload");
             plugin.config.load();
             send(sender, "Reloaded config file");
@@ -44,9 +49,12 @@ public class PlexCMD extends PlexCommand {
             plugin.getRankManager().importDefaultRanks();
             send(sender, "Imported ranks");
             send(sender, "Plex successfully reloaded.");
-        } else if (args[0].equalsIgnoreCase("redis")) {
+        }
+        else if (args[0].equalsIgnoreCase("redis"))
+        {
             checkRank(sender, Rank.SENIOR_ADMIN, "plex.redis");
-            if (!plugin.getRedisConnection().isEnabled()) {
+            if (!plugin.getRedisConnection().isEnabled())
+            {
                 throw new CommandFailException("&cRedis is not enabled.");
             }
             plugin.getRedisConnection().getJedis().set("test", "123");
@@ -54,24 +62,30 @@ public class PlexCMD extends PlexCommand {
             send(sender, plugin.getRedisConnection().getJedis().get("test"));
             plugin.getRedisConnection().getJedis().close();
         }
-        if (args[0].equalsIgnoreCase("modules")) {
-            if (args.length == 1) {
+        if (args[0].equalsIgnoreCase("modules"))
+        {
+            if (args.length == 1)
+            {
                 return MiniMessage.miniMessage().deserialize("<gold>Modules (" + plugin.getModuleManager().getModules().size() + "): <yellow>" + StringUtils.join(plugin.getModuleManager().getModules().stream().map(PlexModule::getPlexModuleFile).map(PlexModuleFile::getName).collect(Collectors.toList()), ", "));
             }
-            if (args[1].equalsIgnoreCase("reload")) {
+            if (args[1].equalsIgnoreCase("reload"))
+            {
                 plugin.getModuleManager().unloadModules();
                 plugin.getModuleManager().loadAllModules();
                 plugin.getModuleManager().loadModules();
                 plugin.getModuleManager().enableModules();
             }
-        } else {
+        }
+        else
+        {
             return usage();
         }
         return null;
     }
 
     @Override
-    public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
+    public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
+    {
         return ImmutableList.of("reload", "redis");
     }
 }
