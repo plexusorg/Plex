@@ -63,7 +63,6 @@ public class PlexCMD extends PlexCommand {
                 plugin.getModuleManager().loadAllModules();
                 plugin.getModuleManager().loadModules();
                 plugin.getModuleManager().enableModules();
-                plugin.getModuleManager().disableModules();
             }
         } else {
             return usage();
