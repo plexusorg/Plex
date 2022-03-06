@@ -50,8 +50,8 @@ public class ModuleManager {
                         throw new ModuleLoadException("Plex module main class can't be null!");
                     }
 
-                    String description = internalModuleConfig.getString("description", "A plex module");
-                    String version = internalModuleConfig.getString("version", "0.1");
+                    String description = internalModuleConfig.getString("description", "A Plex module");
+                    String version = internalModuleConfig.getString("version", "1.0");
 
                     PlexModuleFile plexModuleFile = new PlexModuleFile(name, main, description, version);
                     Class<? extends PlexModule> module = (Class<? extends PlexModule>) Class.forName(main, true, loader);
@@ -109,5 +109,4 @@ public class ModuleManager {
             }
         });
     }
-
 }
