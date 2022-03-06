@@ -89,11 +89,18 @@ public class ModuleManager {
     public void disableModules() {
         this.modules.forEach(module -> {
             PlexLog.log("Disabling module " + module.getPlexModuleFile().getName() + " with version " + module.getPlexModuleFile().getVersion());
+            module.getCommands().stream().toList().forEach(plexCommand -> {
+                module.unregisterCommand(plexCommand);
+                Plex.get().getServer().getCommandMap().getKnownCommands().remove(plexCommand.getName());
+                plexCommand.getAliases().forEach(alias -> Plex.get().getServer().getCommandMap().getKnownCommands().remove(alias));
+            });
+            module.getListeners().forEach(module::unregisterListener);
             module.disable();
         });
     }
 
     public void unloadModules() {
+        this.disableModules();
         this.modules.forEach(module -> {
             try {
                 ((URLClassLoader)module.getClass().getClassLoader()).close();
