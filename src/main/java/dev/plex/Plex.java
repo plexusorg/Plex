@@ -90,7 +90,7 @@ public class Plex extends JavaPlugin {
     public void onEnable() {
         config.load();
         messages.load();
-        indefBans.load();
+        indefBans.load(false);
 
         moduleManager.enableModules();
 
