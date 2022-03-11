@@ -1,5 +1,6 @@
 package dev.plex.rank.enums;
 
+import dev.plex.util.PlexUtils;
 import lombok.Getter;
 import lombok.Setter;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -43,7 +44,7 @@ public enum Rank
 
     public String getPrefix()
     {
-        return MiniMessage.miniMessage().serialize(LegacyComponentSerializer.legacyAmpersand().deserialize(this.prefix));
+        return PlexUtils.colorize(this.prefix);
     }
 
     public JSONObject toJSON()
