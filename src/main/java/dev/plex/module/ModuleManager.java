@@ -4,10 +4,6 @@ import com.google.common.collect.Lists;
 import dev.plex.Plex;
 import dev.plex.module.exception.ModuleLoadException;
 import dev.plex.util.PlexLog;
-import lombok.Getter;
-import org.apache.logging.log4j.LogManager;
-import org.bukkit.configuration.file.YamlConfiguration;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -18,18 +14,26 @@ import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
+import lombok.Getter;
+import org.apache.logging.log4j.LogManager;
+import org.bukkit.configuration.file.YamlConfiguration;
 
 @Getter
-public class ModuleManager {
+public class ModuleManager
+{
 
     private final List<PlexModule> modules = Lists.newArrayList();
 
-    public void loadAllModules() {
+    public void loadAllModules()
+    {
         this.modules.clear();
         PlexLog.debug(String.valueOf(Plex.get().getModulesFolder().listFiles().length));
-        Arrays.stream(Plex.get().getModulesFolder().listFiles()).forEach(file -> {
-            if (file.getName().endsWith(".jar")) {
-                try {
+        Arrays.stream(Plex.get().getModulesFolder().listFiles()).forEach(file ->
+        {
+            if (file.getName().endsWith(".jar"))
+            {
+                try
+                {
                     URLClassLoader loader = new URLClassLoader(
                             new URL[]{file.toURI().toURL()},
                             Plex.class.getClassLoader()
@@ -54,42 +58,54 @@ public class ModuleManager {
                     String version = internalModuleConfig.getString("version", "1.0");
 
                     PlexModuleFile plexModuleFile = new PlexModuleFile(name, main, description, version);
-                    Class<? extends PlexModule> module = (Class<? extends PlexModule>) Class.forName(main, true, loader);
+                    Class<? extends PlexModule> module = (Class<? extends PlexModule>)Class.forName(main, true, loader);
 
                     PlexModule plexModule = module.getConstructor().newInstance();
                     plexModule.setPlex(Plex.get());
                     plexModule.setPlexModuleFile(plexModuleFile);
 
                     plexModule.setDataFolder(new File(Plex.get().getModulesFolder() + File.separator + plexModuleFile.getName()));
-                    if (!plexModule.getDataFolder().exists()) plexModule.getDataFolder().mkdir();
+                    if (!plexModule.getDataFolder().exists())
+                    {
+                        plexModule.getDataFolder().mkdir();
+                    }
 
                     plexModule.setLogger(LogManager.getLogger(plexModuleFile.getName()));
                     modules.add(plexModule);
-                } catch (MalformedURLException | ClassNotFoundException | InvocationTargetException | InstantiationException | IllegalAccessException | NoSuchMethodException e) {
+                }
+                catch (MalformedURLException | ClassNotFoundException | InvocationTargetException | InstantiationException | IllegalAccessException | NoSuchMethodException e)
+                {
                     e.printStackTrace();
                 }
             }
         });
     }
 
-    public void loadModules() {
-        this.modules.forEach(module -> {
+    public void loadModules()
+    {
+        this.modules.forEach(module ->
+        {
             PlexLog.log("Loading module " + module.getPlexModuleFile().getName() + " with version " + module.getPlexModuleFile().getVersion());
             module.load();
         });
     }
 
-    public void enableModules() {
-        this.modules.forEach(module -> {
+    public void enableModules()
+    {
+        this.modules.forEach(module ->
+        {
             PlexLog.log("Enabling module " + module.getPlexModuleFile().getName() + " with version " + module.getPlexModuleFile().getVersion());
             module.enable();
         });
     }
 
-    public void disableModules() {
-        this.modules.forEach(module -> {
+    public void disableModules()
+    {
+        this.modules.forEach(module ->
+        {
             PlexLog.log("Disabling module " + module.getPlexModuleFile().getName() + " with version " + module.getPlexModuleFile().getVersion());
-            module.getCommands().stream().toList().forEach(plexCommand -> {
+            module.getCommands().stream().toList().forEach(plexCommand ->
+            {
                 module.unregisterCommand(plexCommand);
                 Plex.get().getServer().getCommandMap().getKnownCommands().remove(plexCommand.getName());
                 plexCommand.getAliases().forEach(alias -> Plex.get().getServer().getCommandMap().getKnownCommands().remove(alias));
@@ -99,12 +115,17 @@ public class ModuleManager {
         });
     }
 
-    public void unloadModules() {
+    public void unloadModules()
+    {
         this.disableModules();
-        this.modules.forEach(module -> {
-            try {
+        this.modules.forEach(module ->
+        {
+            try
+            {
                 ((URLClassLoader)module.getClass().getClassLoader()).close();
-            } catch (IOException e) {
+            }
+            catch (IOException e)
+            {
                 e.printStackTrace();
             }
         });

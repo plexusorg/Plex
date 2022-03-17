@@ -4,12 +4,12 @@ import dev.plex.services.AbstractService;
 
 public class UpdateCheckerService extends AbstractService
 {
+    private boolean newVersion = false;
+
     public UpdateCheckerService()
     {
         super(true, true);
     }
-
-    private boolean newVersion = false;
 
     @Override
     public void run()

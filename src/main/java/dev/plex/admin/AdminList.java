@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import dev.morphia.Datastore;
 import dev.morphia.query.Query;
-import dev.plex.Plex;
 import dev.plex.PlexBase;
 import dev.plex.player.PlexPlayer;
 import dev.plex.rank.enums.Rank;

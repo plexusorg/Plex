@@ -4,17 +4,14 @@ import com.google.common.collect.Lists;
 import dev.plex.Plex;
 import dev.plex.command.PlexCommand;
 import dev.plex.listener.PlexListener;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.Setter;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.bukkit.event.HandlerList;
-
 import java.io.File;
 import java.util.List;
 import java.util.Locale;
-import java.util.stream.Collectors;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.logging.log4j.Logger;
+import org.bukkit.event.HandlerList;
 
 @Getter
 @Setter(AccessLevel.MODULE)
@@ -31,11 +28,17 @@ public abstract class PlexModule
     private File dataFolder;
     private Logger logger;
 
-    public void load() {}
+    public void load()
+    {
+    }
 
-    public void enable() {}
+    public void enable()
+    {
+    }
 
-    public void disable() {}
+    public void disable()
+    {
+    }
 
     public void registerListener(PlexListener listener)
     {

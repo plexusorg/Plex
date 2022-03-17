@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.UUID;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
@@ -90,9 +91,8 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
      * Executes the command
      *
      * @param sender       The sender of the command
-     * @param playerSender The player who executed the command (null if command source is console or if command source is any but console executed)
+     * @param playerSender The player who executed the command (null if CommandSource is console or if CommandSource is any but console executed)
      * @param args         A Kyori Component to send to the sender (can be null)
-     * @return
      */
     protected abstract Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, @NotNull String[] args);
 
@@ -165,9 +165,9 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
     }
 
     /**
-     * Checks if the string given is a command string
+     * Checks if the String given is a matching command
      *
-     * @param label The string to check
+     * @param label The String to check
      * @return true if the string is a command name or alias
      */
     private boolean matches(String label)
@@ -202,9 +202,9 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
     }
 
     /**
-     * Sends a message to an audience
+     * Sends a message to an Audience
      *
-     * @param audience The audience to send the message to
+     * @param audience The Audience to send the message to
      * @param s        The message to send
      */
     protected void send(Audience audience, String s)
@@ -213,10 +213,10 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
     }
 
     /**
-     * Sends a message to an audience
+     * Sends a message to an Audience
      *
-     * @param audience  The audience to send the message to
-     * @param component The component to send
+     * @param audience  The Audience to send the message to
+     * @param component The Component to send
      */
     protected void send(Audience audience, Component component)
     {
@@ -226,7 +226,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
     /**
      * Checks whether a sender has enough permissions or is high enough a rank
      *
-     * @param sender     A command sender
+     * @param sender     A CommandSender
      * @param rank       The rank to check (if the server is using ranks)
      * @param permission The permission to check (if the server is using permissions)
      * @return true if the sender has enough permissions
@@ -415,7 +415,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
      *
      * @param s       The message entry
      * @param objects Any objects to replace in order
-     * @return A Kyori component
+     * @return A Kyori Component
      */
     protected Component messageComponent(String s, Object... objects)
     {
@@ -435,25 +435,25 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
     }
 
     /**
-     * Converts usage to a component
+     * Converts usage to a Component
      *
-     * @return A Kyori component stating the usage
+     * @return A Kyori Component stating the usage
      */
     protected Component usage()
     {
-        return componentFromString(ChatColor.YELLOW + "Correct Usage: " + ChatColor.GRAY + this.getUsage());
+        return Component.text("Correct Usage: ").color(NamedTextColor.YELLOW).append(componentFromString(this.getUsage()).color(NamedTextColor.GRAY));
     }
 
     /**
-     * Converts usage to a component
+     * Converts usage to a Component
      * <p>
      * s The usage to convert
      *
-     * @return A Kyori component stating the usage
+     * @return A Kyori Component stating the usage
      */
     protected Component usage(String s)
     {
-        return componentFromString(ChatColor.YELLOW + "Correct Usage: " + ChatColor.GRAY + s);
+        return Component.text("Correct Usage: ").color(NamedTextColor.YELLOW).append(componentFromString(s).color(NamedTextColor.GRAY));
     }
 
     protected Player getNonNullPlayer(String name)
@@ -498,21 +498,21 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
     }
 
     /**
-     * Converts a string to a legacy Kyori component
+     * Converts a String to a legacy Kyori Component
      *
-     * @param s The string to convert
+     * @param s The String to convert
      * @return A Kyori component
      */
     protected Component componentFromString(String s)
     {
-        return LegacyComponentSerializer.legacyAmpersand().deserialize(s);
+        return LegacyComponentSerializer.legacyAmpersand().deserialize(s).colorIfAbsent(NamedTextColor.GRAY);
     }
 
     /**
-     * Converts a string to a mini message kyori component
+     * Converts a String to a MiniMessage Component
      *
-     * @param s The string to convert
-     * @return A Kyori component
+     * @param s The String to convert
+     * @return A Kyori Component
      */
     protected Component mmString(String s)
     {

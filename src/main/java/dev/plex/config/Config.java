@@ -2,16 +2,16 @@ package dev.plex.config;
 
 import dev.plex.Plex;
 import dev.plex.util.PlexLog;
-import org.bukkit.configuration.file.YamlConfiguration;
-
 import java.io.File;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import org.bukkit.configuration.file.YamlConfiguration;
 
 /**
  * Creates a custom Config object
  */
-public class Config extends YamlConfiguration {
+public class Config extends YamlConfiguration
+{
     /**
      * The plugin instance
      */
@@ -38,12 +38,14 @@ public class Config extends YamlConfiguration {
      * @param plugin The plugin instance
      * @param name   The file name
      */
-    public Config(Plex plugin, String name) {
+    public Config(Plex plugin, String name)
+    {
         this.plugin = plugin;
         this.file = new File(plugin.getDataFolder(), name);
         this.name = name;
 
-        if (!file.exists()) {
+        if (!file.exists())
+        {
             saveDefault();
         }
     }
@@ -56,17 +58,22 @@ public class Config extends YamlConfiguration {
     /**
      * Loads the configuration file
      */
-    public void load(boolean loadFromFile) {
-        try {
-            if (loadFromFile) {
+    public void load(boolean loadFromFile)
+    {
+        try
+        {
+            if (loadFromFile)
+            {
                 YamlConfiguration externalYamlConfig = YamlConfiguration.loadConfiguration(file);
                 InputStreamReader internalConfigFileStream = new InputStreamReader(Plex.get().getResource(name), StandardCharsets.UTF_8);
                 YamlConfiguration internalYamlConfig = YamlConfiguration.loadConfiguration(internalConfigFileStream);
 
                 // Gets all the keys inside the internal file and iterates through all of it's key pairs
-                for (String string : internalYamlConfig.getKeys(true)) {
+                for (String string : internalYamlConfig.getKeys(true))
+                {
                     // Checks if the external file contains the key already.
-                    if (!externalYamlConfig.contains(string)) {
+                    if (!externalYamlConfig.contains(string))
+                    {
                         // If it doesn't contain the key, we set the key based off what was found inside the plugin jar
                         externalYamlConfig.setComments(string, internalYamlConfig.getComments(string));
                         externalYamlConfig.set(string, internalYamlConfig.get(string));
@@ -74,14 +81,17 @@ public class Config extends YamlConfiguration {
                         added = true;
                     }
                 }
-                if (added) {
+                if (added)
+                {
                     externalYamlConfig.save(file);
                     PlexLog.log("Saving new file...");
                     added = false;
                 }
             }
             super.load(file);
-        } catch (Exception ex) {
+        }
+        catch (Exception ex)
+        {
             ex.printStackTrace();
         }
     }
@@ -89,10 +99,14 @@ public class Config extends YamlConfiguration {
     /**
      * Saves the configuration file
      */
-    public void save() {
-        try {
+    public void save()
+    {
+        try
+        {
             super.save(file);
-        } catch (Exception ex) {
+        }
+        catch (Exception ex)
+        {
             ex.printStackTrace();
         }
     }
@@ -100,7 +114,8 @@ public class Config extends YamlConfiguration {
     /**
      * Moves the configuration file from the plugin's resources folder to the data folder (plugins/Plex/)
      */
-    private void saveDefault() {
+    private void saveDefault()
+    {
         plugin.saveResource(name, false);
     }
 }

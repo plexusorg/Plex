@@ -30,6 +30,7 @@ public class Punishment
     private boolean customTime;
     private boolean active; // Field is only for bans
     private LocalDateTime endDate;
+
     public Punishment(UUID punished, UUID punisher)
     {
         this.punished = punished;

@@ -23,18 +23,18 @@ import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.UpdateChecker;
 import dev.plex.world.CustomWorld;
+import java.io.File;
+import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.File;
-import java.util.UUID;
-
 @Getter
 @Setter
-public class Plex extends JavaPlugin {
+public class Plex extends JavaPlugin
+{
     private static Plex plugin;
     public Config config;
     public Config messages;
@@ -63,19 +63,24 @@ public class Plex extends JavaPlugin {
 
     private String system;
 
-    public static Plex get() {
+    public static Plex get()
+    {
         return plugin;
     }
 
     @Override
-    public void onLoad() {
+    public void onLoad()
+    {
         plugin = this;
         config = new Config(this, "config.yml");
         messages = new Config(this, "messages.yml");
         indefBans = new Config(this, "indefbans.yml");
 
         modulesFolder = new File(this.getDataFolder() + File.separator + "modules");
-        if (!modulesFolder.exists()) modulesFolder.mkdir();
+        if (!modulesFolder.exists())
+        {
+            modulesFolder.mkdir();
+        }
 
         sqlConnection = new SQLConnection();
         mongoConnection = new MongoConnection();
@@ -87,19 +92,24 @@ public class Plex extends JavaPlugin {
     }
 
     @Override
-    public void onEnable() {
+    public void onEnable()
+    {
         config.load();
         messages.load();
+        // Don't add default entries to indefinite ban file
         indefBans.load(false);
 
         moduleManager.enableModules();
 
         system = config.getString("commands.permissions");
 
-        try {
+        try
+        {
             PlexUtils.testConnections();
             PlexLog.log("Connected to " + storageType.name().toUpperCase());
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             PlexLog.error("Failed to connect to " + storageType.name().toUpperCase());
             e.printStackTrace();
         }
@@ -111,16 +121,22 @@ public class Plex extends JavaPlugin {
         Metrics metrics = new Metrics(this, 14143);
         PlexLog.log("Enabled Metrics");
 
-        if (redisConnection.isEnabled()) {
+        if (redisConnection.isEnabled())
+        {
             redisConnection.getJedis();
             PlexLog.log("Connected to Redis!");
-        } else {
+        }
+        else
+        {
             PlexLog.log("Redis is disabled in the configuration file, not connecting.");
         }
 
-        if (storageType == StorageType.MONGODB) {
+        if (storageType == StorageType.MONGODB)
+        {
             mongoPlayerData = new MongoPlayerData();
-        } else {
+        }
+        else
+        {
             sqlPlayerData = new SQLPlayerData();
         }
 
@@ -148,24 +164,28 @@ public class Plex extends JavaPlugin {
     }
 
     @Override
-    public void onDisable() {
+    public void onDisable()
+    {
         Bukkit.getOnlinePlayers().forEach(player ->
         {
             PlexPlayer plexPlayer = PlayerCache.getPlexPlayerMap().get(player.getUniqueId()); //get the player because it's literally impossible for them to not have an object
 
-            if (plugin.getRankManager().isAdmin(plexPlayer)) {
+            if (plugin.getRankManager().isAdmin(plexPlayer))
+            {
                 plugin.getAdminList().removeFromCache(UUID.fromString(plexPlayer.getUuid()));
             }
 
             if (mongoPlayerData != null) //back to mongo checking
             {
                 mongoPlayerData.update(plexPlayer); //update the player's document
-            } else if (sqlPlayerData != null) //sql checking
+            }
+            else if (sqlPlayerData != null) //sql checking
             {
                 sqlPlayerData.update(plexPlayer);
             }
         });
-        if (redisConnection.isEnabled() && redisConnection.getJedis().isConnected()) {
+        if (redisConnection.isEnabled() && redisConnection.getJedis().isConnected())
+        {
             PlexLog.log("Disabling Redis/Jedis. No memory leaks in this Anarchy server!");
             redisConnection.getJedis().close();
         }
@@ -173,21 +193,25 @@ public class Plex extends JavaPlugin {
         moduleManager.disableModules();
     }
 
-    private void generateWorlds() {
+    private void generateWorlds()
+    {
         PlexLog.log("Generating any worlds if needed...");
-        for (String key : config.getConfigurationSection("worlds").getKeys(false)) {
+        for (String key : config.getConfigurationSection("worlds").getKeys(false))
+        {
             CustomWorld.generateConfigFlatWorld(key);
         }
         PlexLog.log("Finished with world generation!");
     }
 
-    private void reloadPlayers() {
+    private void reloadPlayers()
+    {
         Bukkit.getOnlinePlayers().forEach(player ->
         {
             PlexPlayer plexPlayer = DataUtils.getPlayer(player.getUniqueId());
             PlayerCache.getPlexPlayerMap().put(player.getUniqueId(), plexPlayer); //put them into the cache
             PlayerCache.getPunishedPlayerMap().put(player.getUniqueId(), new PunishedPlayer(player.getUniqueId()));
-            if (plugin.getRankManager().isAdmin(plexPlayer)) {
+            if (plugin.getRankManager().isAdmin(plexPlayer))
+            {
                 Admin admin = new Admin(UUID.fromString(plexPlayer.getUuid()));
                 admin.setRank(plexPlayer.getRankFromString());
 

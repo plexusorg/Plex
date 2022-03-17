@@ -7,7 +7,6 @@ import com.google.gson.Gson;
 import dev.plex.Plex;
 import dev.plex.PlexBase;
 import dev.plex.cache.PlayerCache;
-import dev.plex.player.PlexPlayer;
 import dev.plex.player.PunishedPlayer;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
@@ -15,7 +14,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -24,11 +22,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
 import lombok.Data;
 import org.apache.commons.io.FileUtils;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -41,7 +37,8 @@ public class PunishmentManager extends PlexBase
     public void mergeIndefiniteBans()
     {
         this.indefiniteBans.clear();
-        Plex.get().indefBans.getKeys(false).forEach(key -> {
+        Plex.get().indefBans.getKeys(false).forEach(key ->
+        {
             IndefiniteBan ban = new IndefiniteBan();
             ban.ips.addAll(Plex.get().getIndefBans().getStringList(key + ".ips"));
             ban.usernames.addAll(Plex.get().getIndefBans().getStringList(key + ".users"));
@@ -54,7 +51,8 @@ public class PunishmentManager extends PlexBase
         if (Plex.get().getRedisConnection().isEnabled())
         {
             PlexLog.log("Asynchronously uploading all indefinite bans to Redis");
-            Plex.get().getRedisConnection().runAsync(jedis -> {
+            Plex.get().getRedisConnection().runAsync(jedis ->
+            {
                 jedis.set("indefbans", new Gson().toJson(indefiniteBans));
             });
         }
@@ -65,7 +63,9 @@ public class PunishmentManager extends PlexBase
         if (Plex.get().getRedisConnection().isEnabled())
         {
             PlexLog.debug("Checking if UUID is banned in Redis");
-            List<IndefiniteBan> bans = new Gson().fromJson(Plex.get().getRedisConnection().getJedis().get("indefbans"), new TypeToken<List<IndefiniteBan>>(){}.getType());
+            List<IndefiniteBan> bans = new Gson().fromJson(Plex.get().getRedisConnection().getJedis().get("indefbans"), new TypeToken<List<IndefiniteBan>>()
+            {
+            }.getType());
             return bans.stream().anyMatch(indefiniteBan -> indefiniteBan.getUuids().contains(uuid));
         }
         return this.indefiniteBans.stream().anyMatch(indefiniteBan -> indefiniteBan.getUuids().contains(uuid));
@@ -76,7 +76,9 @@ public class PunishmentManager extends PlexBase
         if (Plex.get().getRedisConnection().isEnabled())
         {
             PlexLog.debug("Checking if IP is banned in Redis");
-            List<IndefiniteBan> bans = new Gson().fromJson(Plex.get().getRedisConnection().getJedis().get("indefbans"), new TypeToken<List<IndefiniteBan>>(){}.getType());
+            List<IndefiniteBan> bans = new Gson().fromJson(Plex.get().getRedisConnection().getJedis().get("indefbans"), new TypeToken<List<IndefiniteBan>>()
+            {
+            }.getType());
             return bans.stream().anyMatch(indefiniteBan -> indefiniteBan.getIps().contains(ip));
         }
         return this.indefiniteBans.stream().anyMatch(indefiniteBan -> indefiniteBan.getIps().contains(ip));
@@ -87,7 +89,9 @@ public class PunishmentManager extends PlexBase
         if (Plex.get().getRedisConnection().isEnabled())
         {
             PlexLog.debug("Checking if username is banned in Redis");
-            List<IndefiniteBan> bans = new Gson().fromJson(Plex.get().getRedisConnection().getJedis().get("indefbans"), new TypeToken<List<IndefiniteBan>>(){}.getType());
+            List<IndefiniteBan> bans = new Gson().fromJson(Plex.get().getRedisConnection().getJedis().get("indefbans"), new TypeToken<List<IndefiniteBan>>()
+            {
+            }.getType());
             return bans.stream().anyMatch(indefiniteBan -> indefiniteBan.getUsernames().contains(username));
         }
         return this.indefiniteBans.stream().anyMatch(indefiniteBan -> indefiniteBan.getUsernames().contains(username));
