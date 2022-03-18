@@ -1,13 +1,11 @@
 package dev.plex.util;
 
-import dev.plex.PlexBase;
+import dev.plex.Plex;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 
-public class PlexLog extends PlexBase
+public class PlexLog
 {
-    private static final boolean debugEnabled = plugin.config.getBoolean("debug");
-
     public static void log(String message, Object... strings)
     {
         for (int i = 0; i < strings.length; i++)
@@ -41,7 +39,7 @@ public class PlexLog extends PlexBase
                 message = message.replace("{" + i + "}", strings[i].toString());
             }
         }
-        if (debugEnabled)
+        if (Plex.get().config.getBoolean("debug"))
         {
             Bukkit.getConsoleSender().sendMessage(String.format(ChatColor.DARK_PURPLE + "[Plex Debug] " + ChatColor.GOLD + "%s", message));
         }

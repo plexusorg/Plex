@@ -1,6 +1,5 @@
 package dev.plex.command.impl;
 
-import com.google.common.collect.ImmutableList;
 import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
@@ -9,6 +8,7 @@ import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.module.PlexModule;
 import dev.plex.module.PlexModuleFile;
 import dev.plex.rank.enums.Rank;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -75,7 +75,7 @@ public class PlexCMD extends PlexCommand
                 plugin.getModuleManager().loadAllModules();
                 plugin.getModuleManager().loadModules();
                 plugin.getModuleManager().enableModules();
-                return null;
+                return componentFromString("All modules reloaded!");
             }
         }
         else
@@ -88,13 +88,13 @@ public class PlexCMD extends PlexCommand
     @Override
     public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
     {
-        if (args.length == 0)
+        if (args.length == 1)
         {
-            return ImmutableList.of("reload", "redis", "modules");
+            return Arrays.asList("reload", "redis", "modules");
         }
-        if (args[0].equalsIgnoreCase("modules"))
+        else if (args[0].equalsIgnoreCase("modules"))
         {
-            return ImmutableList.of("reload");
+            return List.of("reload");
         }
         return Collections.emptyList();
     }

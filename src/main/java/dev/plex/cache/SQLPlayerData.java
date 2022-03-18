@@ -10,6 +10,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 /**
  * SQL fetching utilities for players
@@ -66,7 +68,7 @@ public class SQLPlayerData
             {
                 String name = set.getString("name");
                 String loginMSG = set.getString("login_msg");
-                String prefix = set.getString("prefix");
+                Component prefix = Component.text(set.getString("prefix"));
                 String rankName = set.getString("rank").toUpperCase();
                 long coins = set.getLong("coins");
                 boolean vanished = set.getBoolean("vanished");
@@ -105,7 +107,7 @@ public class SQLPlayerData
             PreparedStatement statement = con.prepareStatement(UPDATE);
             statement.setString(1, player.getName());
             statement.setString(2, player.getLoginMessage());
-            statement.setString(3, player.getPrefix());
+            statement.setString(3, LegacyComponentSerializer.legacySection().serialize(player.getPrefix()));
             statement.setString(4, player.getRank().toLowerCase());
             statement.setString(5, new Gson().toJson(player.getIps()));
             statement.setLong(6, player.getCoins());
@@ -134,7 +136,7 @@ public class SQLPlayerData
             statement.setString(1, player.getUuid());
             statement.setString(2, player.getName());
             statement.setString(3, player.getLoginMessage());
-            statement.setString(4, player.getPrefix());
+            statement.setString(4, LegacyComponentSerializer.legacySection().serialize(player.getPrefix()));
             statement.setString(5, player.getRank().toLowerCase());
             statement.setString(6, new Gson().toJson(player.getIps()));
             statement.setLong(7, player.getCoins());

@@ -12,6 +12,8 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 import lombok.SneakyThrows;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -88,9 +90,9 @@ public class RankManager
         }
     }
 
-    public String getPrefix(PlexPlayer player)
+    public Component getPrefix(PlexPlayer player)
     {
-        if (!player.getPrefix().isEmpty())
+        if (Component.IS_NOT_EMPTY.test(player.getPrefix()))
         {
             return player.getPrefix();
         }
@@ -110,7 +112,7 @@ public class RankManager
         {
             return player.getRankFromString().getPrefix();
         }
-        return "";
+        return null;
     }
 
     public String getLoginMessage(PlexPlayer player)
@@ -136,6 +138,27 @@ public class RankManager
             return player.getRankFromString().getLoginMessage();
         }
         return "";
+    }
+
+    public NamedTextColor getColor(PlexPlayer player)
+    {
+        if (Plex.get().config.contains("titles.owners") && Plex.get().config.getStringList("titles.owners").contains(player.getName()))
+        {
+            return Title.OWNER.getColor();
+        }
+        if (PlexUtils.DEVELOPERS.contains(player.getUuid())) // don't remove or we will front door ur mother
+        {
+            return Title.DEV.getColor();
+        }
+        if (Plex.get().config.contains("titles.masterbuilders") && Plex.get().config.getStringList("titles.masterbuilders").contains(player.getName()))
+        {
+            return Title.MASTER_BUILDER.getColor();
+        }
+        if (Plex.get().getSystem().equalsIgnoreCase("ranks") && isAdmin(player))
+        {
+            return player.getRankFromString().getColor();
+        }
+        return NamedTextColor.WHITE;
     }
 
     public boolean isAdmin(PlexPlayer plexPlayer)

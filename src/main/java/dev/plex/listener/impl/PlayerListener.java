@@ -11,11 +11,8 @@ import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import java.util.Collections;
 import java.util.UUID;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -50,9 +47,9 @@ public class PlayerListener extends PlexListener
         if (!DataUtils.hasPlayedBefore(player.getUniqueId()))
         {
             PlexLog.log("A player with this name has not joined the server before, creating new entry.");
-            plexPlayer = new PlexPlayer(player.getUniqueId()); //it doesn't! okay so now create the object
-            plexPlayer.setName(player.getName()); //set the name of the player
-            plexPlayer.setIps(Collections.singletonList(player.getAddress().getAddress().getHostAddress().trim())); //set the arraylist of ips
+            plexPlayer = new PlexPlayer(player.getUniqueId()); // it doesn't! okay so now create the object
+            plexPlayer.setName(player.getName()); // set the name of the player
+            plexPlayer.setIps(Collections.singletonList(player.getAddress().getAddress().getHostAddress().trim())); // set the arraylist of ips
             DataUtils.insert(plexPlayer); // insert data in some wack db
         }
         else
@@ -69,14 +66,10 @@ public class PlayerListener extends PlexListener
         }
 
         assert plexPlayer != null;
-
         String loginMessage = plugin.getRankManager().getLoginMessage(plexPlayer);
-
         if (!loginMessage.isEmpty())
         {
-            PlexUtils.broadcast(
-                    Component.text(ChatColor.AQUA + player.getName() + " is ").color(NamedTextColor.AQUA)
-                            .append(LegacyComponentSerializer.legacyAmpersand().deserialize(loginMessage)));
+            PlexUtils.broadcast(MiniMessage.miniMessage().deserialize("<aqua>" + player.getName() + " is " + loginMessage));
         }
     }
 

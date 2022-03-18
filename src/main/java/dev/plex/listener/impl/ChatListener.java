@@ -4,13 +4,13 @@ import dev.plex.cache.PlayerCache;
 import dev.plex.listener.PlexListener;
 import dev.plex.player.PlexPlayer;
 import dev.plex.rank.enums.Rank;
+import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import io.papermc.paper.chat.ChatRenderer;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -56,8 +56,8 @@ public class ChatListener extends PlexListener
             return;
         }
 
-        String prefix = plugin.getRankManager().getPrefix(plexPlayer);
-        if (!prefix.isEmpty())
+        Component prefix = plugin.getRankManager().getPrefix(plexPlayer);
+        if (prefix != null)
         {
             renderer.hasPrefix = true;
             renderer.prefix = prefix;
@@ -73,14 +73,14 @@ public class ChatListener extends PlexListener
     public static class PlexChatRenderer implements ChatRenderer
     {
         public boolean hasPrefix;
-        public String prefix;
+        public Component prefix;
 
         @Override
         public @NotNull Component render(@NotNull Player source, @NotNull Component sourceDisplayName, @NotNull Component message, @NotNull Audience viewer)
         {
             if (hasPrefix)
             {
-                return Component.empty().append(MiniMessage.miniMessage().deserialize(prefix))
+                return Component.empty().append(prefix)
                         .append(Component.space())
                         .append(LegacyComponentSerializer.legacyAmpersand().deserialize("&" + plugin.config.getString("chat.name-color") + LegacyComponentSerializer.legacyAmpersand().serialize(sourceDisplayName)))
                         .append(Component.space())

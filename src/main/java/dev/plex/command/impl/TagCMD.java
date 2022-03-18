@@ -19,7 +19,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @CommandPermissions(level = Rank.OP, permission = "plex.tag", source = RequiredCommandSource.ANY)
-@CommandParameters(name = "tag", aliases = "prefix", description = "Manages your prefix", usage = "/<command> <set | clear> <prefix | player>")
+@CommandParameters(name = "tag", aliases = "prefix", description = "Set or clear your prefix", usage = "/<command> <set <prefix> | clear <player>>")
 public class TagCMD extends PlexCommand
 {
     @Override
@@ -47,8 +47,7 @@ public class TagCMD extends PlexCommand
                 return usage("/tag set <prefix>");
             }
             String prefix = StringUtils.join(args, " ", 1, args.length);
-
-            Component convertedComponent = removeEvents(componentFromString(prefix));
+            Component convertedComponent = removeEvents(noColorComponentFromString(prefix));
             convertedComponent = removeEvents(MiniMessage.miniMessage().deserialize(LegacyComponentSerializer.legacySection().serialize(convertedComponent)));
 
             if (PlainTextComponentSerializer.plainText().serialize(convertedComponent).length() > plugin.config.getInt("chat.max-tag-length", 16))
@@ -56,7 +55,7 @@ public class TagCMD extends PlexCommand
                 return messageComponent("maximumPrefixLength", plugin.config.getInt("chat.max-tag-length", 16));
             }
 
-            player.setPrefix(MiniMessage.miniMessage().serialize(convertedComponent));
+            player.setPrefix(Component.text(MiniMessage.miniMessage().serialize(convertedComponent)));
             return messageComponent("prefixSetTo", MiniMessage.miniMessage().serialize(convertedComponent));
         }
 
@@ -70,14 +69,14 @@ public class TagCMD extends PlexCommand
                 }
 
                 PlexPlayer player = DataUtils.getPlayer(playerSender.getUniqueId());
-                player.setPrefix("");
+                player.setPrefix(null);
                 return messageComponent("prefixCleared");
             }
 
             checkRank(sender, Rank.ADMIN, "plex.tag.clear.others");
             Player target = getNonNullPlayer(args[1]);
             PlexPlayer plexTarget = DataUtils.getPlayer(target.getUniqueId());
-            plexTarget.setPrefix("");
+            plexTarget.setPrefix(null);
             messageComponent("otherPrefixCleared");
         }
         return usage();

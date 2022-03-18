@@ -508,6 +508,11 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
         return LegacyComponentSerializer.legacyAmpersand().deserialize(s).colorIfAbsent(NamedTextColor.GRAY);
     }
 
+    protected Component noColorComponentFromString(String s)
+    {
+        return LegacyComponentSerializer.legacyAmpersand().deserialize(s);
+    }
+
     /**
      * Converts a String to a MiniMessage Component
      *

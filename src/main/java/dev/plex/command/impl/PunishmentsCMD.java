@@ -22,7 +22,7 @@ public class PunishmentsCMD extends PlexCommand
     @Override
     protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
     {
-        new PunishmentMenu().openInv(((Player)sender), 0);
+        new PunishmentMenu().openInv(playerSender, 0);
         return null;
     }
 

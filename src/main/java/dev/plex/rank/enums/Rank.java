@@ -1,22 +1,21 @@
 package dev.plex.rank.enums;
 
-import dev.plex.util.PlexUtils;
 import lombok.Getter;
 import lombok.Setter;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import org.bukkit.ChatColor;
 import org.json.JSONObject;
 
 @Getter
 public enum Rank
 {
-    IMPOSTOR(-1, ChatColor.AQUA + "an " + ChatColor.YELLOW + "Impostor", "Impostor", "&8[&eImp&8]"),
-    NONOP(0, "a " + ChatColor.WHITE + "Non-Op", "Non-Op", ""),
-    OP(1, "an " + ChatColor.GREEN + "Operator", "Operator", "&8[&aOP&8]"),
-    ADMIN(2, "an " + ChatColor.DARK_GREEN + "Admin", "Admin", "&8[&2Admin&8]"),
-    SENIOR_ADMIN(3, "a " + ChatColor.GOLD + "Senior Admin", "Senior Admin", "&8[&6SrA&8]"),
-    EXECUTIVE(4, "an " + ChatColor.RED + "Executive", "Executive", "&8[&cExec&8]");
+    IMPOSTOR(-1, "<aqua>an <yellow>Impostor", "Impostor", "<dark_gray>[<yellow>Imp<dark_gray>]", NamedTextColor.YELLOW),
+    NONOP(0, "a <white>Non-Op", "Non-Op", "", NamedTextColor.WHITE),
+    OP(1, "an <green>Op", "Operator", "<dark_gray>[<green>OP<dark_gray>]", NamedTextColor.GREEN),
+    ADMIN(2, "an <dark_green>Admin", "Admin", "<dark_gray>[<green>Admin<dark_gray>]", NamedTextColor.DARK_GREEN),
+    SENIOR_ADMIN(3, "a <gold>Senior Admin", "Senior Admin", "<dark_gray>[<gold>SrA<dark_gray>]", NamedTextColor.GOLD),
+    EXECUTIVE(4, "an <red>Executive", "Executive", "<dark_gray>[<red>Exec<dark_gray>]", NamedTextColor.RED);
 
     private final int level;
 
@@ -29,12 +28,16 @@ public enum Rank
     @Setter
     private String prefix;
 
-    Rank(int level, String loginMessage, String readable, String prefix)
+    @Getter
+    private NamedTextColor color;
+
+    Rank(int level, String loginMessage, String readable, String prefix, NamedTextColor color)
     {
         this.level = level;
         this.loginMessage = loginMessage;
         this.readable = readable;
         this.prefix = prefix;
+        this.color = color;
     }
 
     public boolean isAtLeast(Rank rank)
@@ -42,9 +45,9 @@ public enum Rank
         return this.level >= rank.getLevel();
     }
 
-    public String getPrefix()
+    public Component getPrefix()
     {
-        return PlexUtils.colorize(this.prefix);
+        return MiniMessage.miniMessage().deserialize(this.prefix);
     }
 
     public JSONObject toJSON()

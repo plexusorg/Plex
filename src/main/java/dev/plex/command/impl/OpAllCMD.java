@@ -26,5 +26,4 @@ public class OpAllCMD extends PlexCommand
         PlexUtils.broadcast(messageComponent("oppedAllPlayers", sender.getName()));
         return null;
     }
-
 }

@@ -2,17 +2,17 @@ package dev.plex.rank.enums;
 
 import lombok.Getter;
 import lombok.Setter;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import org.bukkit.ChatColor;
 import org.json.JSONObject;
 
 @Getter
 public enum Title
 {
-    MASTER_BUILDER(0, ChatColor.AQUA + "a " + ChatColor.DARK_AQUA + "Master Builder", "Master Builder", "&8[&3Master Builder&8]"),
-    DEV(1, ChatColor.AQUA + "a " + ChatColor.DARK_PURPLE + "Developer", "Developer", "&8[&5Developer&8]"),
-    OWNER(2, ChatColor.AQUA + "an " + ChatColor.BLUE + "Owner", "Owner", "&8[&9Owner&8]");
+    MASTER_BUILDER(0, "<aqua>a <dark_aqua>Master Builder", "Master Builder", "<dark_gray>[<dark_aqua>Master Builder<dark_gray>]", NamedTextColor.DARK_AQUA),
+    DEV(1, "<aqua>a <dark_purple>Developer", "Developer", "<dark_gray>[<dark_purple>Developer<dark_gray>]", NamedTextColor.DARK_PURPLE),
+    OWNER(2, "<aqua>an <blue>Owner", "Owner", "<dark_gray>[<blue>Owner<dark_gray>]", NamedTextColor.BLUE);
 
     private final int level;
 
@@ -25,17 +25,21 @@ public enum Title
     @Setter
     private String prefix;
 
-    Title(int level, String loginMessage, String readable, String prefix)
+    @Getter
+    private NamedTextColor color;
+
+    Title(int level, String loginMessage, String readable, String prefix, NamedTextColor color)
     {
         this.level = level;
         this.loginMessage = loginMessage;
         this.readable = readable;
         this.prefix = prefix;
+        this.color = color;
     }
 
-    public String getPrefix()
+    public Component getPrefix()
     {
-        return MiniMessage.miniMessage().serialize(LegacyComponentSerializer.legacyAmpersand().deserialize(this.prefix));
+        return MiniMessage.miniMessage().deserialize(this.prefix);
     }
 
     public JSONObject toJSON()

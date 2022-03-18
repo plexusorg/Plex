@@ -11,6 +11,7 @@ import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -34,7 +35,7 @@ public class PlexPlayer
     private Player player;
 
     private String loginMessage;
-    private String prefix;
+    private Component prefix;
 
     private boolean vanished;
     private boolean commandSpy;
@@ -59,7 +60,7 @@ public class PlexPlayer
         this.player = Bukkit.getPlayer(name);
 
         this.loginMessage = "";
-        this.prefix = "";
+        this.prefix = null;
 
         this.vanished = false;
         this.commandSpy = false;

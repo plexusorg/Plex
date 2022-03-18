@@ -10,6 +10,7 @@ import dev.plex.listener.impl.FreezeListener;
 import dev.plex.listener.impl.GameModeListener;
 import dev.plex.listener.impl.PlayerListener;
 import dev.plex.listener.impl.ServerListener;
+import dev.plex.listener.impl.TabListener;
 import dev.plex.listener.impl.WorldListener;
 import dev.plex.util.PlexLog;
 import java.util.List;
@@ -28,6 +29,7 @@ public class ListenerHandler
         listeners.add(new GameModeListener());
         listeners.add(new PlayerListener());
         listeners.add(new ServerListener());
+        listeners.add(new TabListener());
         listeners.add(new WorldListener());
         PlexLog.log(String.format("Registered %s listeners!", listeners.size()));
     }

@@ -3,6 +3,7 @@ package dev.plex.command.impl;
 import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
+import dev.plex.command.exception.CommandFailException;
 import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.rank.enums.Rank;
 import net.kyori.adventure.text.Component;
@@ -11,7 +12,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-@CommandPermissions(level = Rank.OP, permission = "plex.rank", source = RequiredCommandSource.IN_GAME)
+@CommandPermissions(level = Rank.OP, permission = "plex.rank", source = RequiredCommandSource.ANY)
 @CommandParameters(name = "rank", description = "Displays your rank")
 public class RankCMD extends PlexCommand
 {
@@ -20,6 +21,10 @@ public class RankCMD extends PlexCommand
     {
         if (args.length == 0)
         {
+            if (isConsole(sender))
+            {
+                throw new CommandFailException("<red>When using the console, you must specify a player's rank.");
+            }
             if (!(playerSender == null))
             {
                 Rank rank = getPlexPlayer(playerSender).getRankFromString();
