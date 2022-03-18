@@ -110,7 +110,7 @@ public class ModuleManager
                 Plex.get().getServer().getCommandMap().getKnownCommands().remove(plexCommand.getName());
                 plexCommand.getAliases().forEach(alias -> Plex.get().getServer().getCommandMap().getKnownCommands().remove(alias));
             });
-            module.getListeners().forEach(module::unregisterListener);
+            module.getListeners().stream().toList().forEach(module::unregisterListener);
             module.disable();
         });
     }
