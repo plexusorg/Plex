@@ -71,6 +71,7 @@ public class PlexCMD extends PlexCommand
             }
             if (args[1].equalsIgnoreCase("reload"))
             {
+                checkRank(sender, Rank.SENIOR_ADMIN, "plex.modules.reload");
                 plugin.getModuleManager().unloadModules();
                 plugin.getModuleManager().loadAllModules();
                 plugin.getModuleManager().loadModules();

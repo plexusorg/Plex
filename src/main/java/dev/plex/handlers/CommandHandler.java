@@ -7,7 +7,7 @@ import dev.plex.command.impl.*;
 import dev.plex.util.PlexLog;
 import java.util.List;
 
-//TODO: Switch to Reflections API
+// TODO: Switch to Reflections API
 public class CommandHandler extends PlexBase
 {
     public CommandHandler()
@@ -18,6 +18,7 @@ public class CommandHandler extends PlexBase
             commands.add(new AdminCMD());
             commands.add(new DeopAllCMD());
             commands.add(new DeopCMD());
+            commands.add(new ListCMD());
             commands.add(new OpAllCMD());
             commands.add(new OpCMD());
             commands.add(new RankCMD());
@@ -26,7 +27,6 @@ public class CommandHandler extends PlexBase
         {
             commands.add(new DebugCMD());
         }
-
         commands.add(new AdminChatCMD());
         commands.add(new AdminworldCMD());
         commands.add(new AdventureCMD());
@@ -36,7 +36,6 @@ public class CommandHandler extends PlexBase
         commands.add(new FlatlandsCMD());
         commands.add(new FreezeCMD());
         commands.add(new KickCMD());
-        commands.add(new ListCMD());
         commands.add(new LocalSpawnCMD());
         commands.add(new LockupCMD());
         commands.add(new MasterbuilderworldCMD());
