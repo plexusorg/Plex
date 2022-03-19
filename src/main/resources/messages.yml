@@ -51,9 +51,9 @@ lockedUpPlayer: "<aqua><v> - Locking up <v>"
 # 2. The person who has been unlocked
 unlockedPlayer: "<aqua><v> - Unlocking <v>"
 # 1. The rank required to use the command
-noPermissionRank: "<red>You must be at least <v> to use this command!"
+noPermissionRank: "<red>You must be at least <v> <red>to use this command!"
 # 1. The permission node required to use the command
-noPermissionNode: "<red>You must have the permission: <v> to use this command!"
+noPermissionNode: "<red>You must have the permission: <v> <red>to use this command!"
 noPermissionInGame: "<red>You must be in console to use this command!"
 noPermissionConsole: "<red>You must be in-game to use this command!"
 # 1. The username of the name history

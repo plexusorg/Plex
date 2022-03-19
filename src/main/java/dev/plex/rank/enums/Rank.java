@@ -10,12 +10,12 @@ import org.json.JSONObject;
 @Getter
 public enum Rank
 {
-    IMPOSTOR(-1, "<aqua>an <yellow>Impostor", "Impostor", "<dark_gray>[<yellow>Imp<dark_gray>]", NamedTextColor.YELLOW),
-    NONOP(0, "a <white>Non-Op", "Non-Op", "", NamedTextColor.WHITE),
-    OP(1, "an <green>Op", "Operator", "<dark_gray>[<green>OP<dark_gray>]", NamedTextColor.GREEN),
-    ADMIN(2, "an <dark_green>Admin", "Admin", "<dark_gray>[<green>Admin<dark_gray>]", NamedTextColor.DARK_GREEN),
-    SENIOR_ADMIN(3, "a <gold>Senior Admin", "Senior Admin", "<dark_gray>[<gold>SrA<dark_gray>]", NamedTextColor.GOLD),
-    EXECUTIVE(4, "an <red>Executive", "Executive", "<dark_gray>[<red>Exec<dark_gray>]", NamedTextColor.RED);
+    IMPOSTOR(-1, "<aqua>an <yellow>Impostor<reset>", "Impostor", "<dark_gray>[<yellow>Imp<dark_gray>]", NamedTextColor.YELLOW),
+    NONOP(0, "a <white>Non-Op<reset>", "Non-Op", "", NamedTextColor.WHITE),
+    OP(1, "an <green>Op<reset>", "Operator", "<dark_gray>[<green>OP<dark_gray>]", NamedTextColor.GREEN),
+    ADMIN(2, "an <dark_green>Admin<reset>", "Admin", "<dark_gray>[<green>Admin<dark_gray>]", NamedTextColor.DARK_GREEN),
+    SENIOR_ADMIN(3, "a <gold>Senior Admin<reset>", "Senior Admin", "<dark_gray>[<gold>SrA<dark_gray>]", NamedTextColor.GOLD),
+    EXECUTIVE(4, "an <red>Executive<reset>", "Executive", "<dark_gray>[<red>Exec<dark_gray>]", NamedTextColor.RED);
 
     private final int level;
 
