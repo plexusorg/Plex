@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
+import dev.plex.command.annotation.System;
 import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexUtils;
 import java.util.List;
@@ -15,6 +16,7 @@ import org.jetbrains.annotations.Nullable;
 
 @CommandParameters(name = "op", description = "Op a player on the server", usage = "/<command> <player>")
 @CommandPermissions(level = Rank.OP)
+@System("ranks")
 public class OpCMD extends PlexCommand
 {
     @Override
