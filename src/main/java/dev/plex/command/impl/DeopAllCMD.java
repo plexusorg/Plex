@@ -3,6 +3,7 @@ package dev.plex.command.impl;
 import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
+import dev.plex.command.annotation.System;
 import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexUtils;
 import net.kyori.adventure.text.Component;
@@ -14,6 +15,7 @@ import org.jetbrains.annotations.Nullable;
 
 @CommandParameters(name = "deopall", description = "Deop everyone on the server", aliases = "deopa")
 @CommandPermissions(level = Rank.ADMIN)
+@System("ranks")
 public class DeopAllCMD extends PlexCommand
 {
     @Override

@@ -5,6 +5,7 @@ import dev.plex.cache.DataUtils;
 import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
+import dev.plex.command.annotation.System;
 import dev.plex.command.exception.ConsoleOnlyException;
 import dev.plex.command.exception.PlayerNotFoundException;
 import dev.plex.command.source.RequiredCommandSource;
@@ -27,6 +28,7 @@ import org.jetbrains.annotations.Nullable;
 
 @CommandPermissions(level = Rank.OP, source = RequiredCommandSource.ANY)
 @CommandParameters(name = "admin", usage = "/<command> <add <player> | remove <player> | setrank <player> <rank> | list>", aliases = "saconfig,slconfig,adminconfig,adminmanage", description = "Manage all admins")
+@System("ranks")
 public class AdminCMD extends PlexCommand
 {
     //TODO: Better return messages

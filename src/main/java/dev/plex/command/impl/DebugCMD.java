@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
+import dev.plex.command.annotation.System;
 import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
@@ -19,6 +20,7 @@ import org.jetbrains.annotations.Nullable;
 
 @CommandParameters(name = "pdebug", description = "Plex's debug command", usage = "/<command> <redis-reset <player> | gamerules>")
 @CommandPermissions(level = Rank.EXECUTIVE, permission = "plex.debug")
+@System("debug")
 public class DebugCMD extends PlexCommand
 {
     @Override
