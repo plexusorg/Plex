@@ -22,13 +22,23 @@ public class CommandHandler extends PlexBase
             try
             {
                 System annotation = clazz.getDeclaredAnnotation(System.class);
-                if (annotation != null && annotation.value().equalsIgnoreCase(plugin.getSystem()))
+                if (annotation != null)
+                {
+                    if (annotation.value().equalsIgnoreCase(plugin.getSystem()))
+                    {
+                        commands.add(clazz.getConstructor().newInstance());
+                        return;
+                    }
+
+                    if (plugin.config.getBoolean("debug") && annotation.debug())
+                    {
+                        commands.add(clazz.getConstructor().newInstance());
+                    }
+                }
+                else
                 {
                     commands.add(clazz.getConstructor().newInstance());
-                    return;
                 }
-
-                commands.add(clazz.getConstructor().newInstance());
             }
             catch (InvocationTargetException | InstantiationException | IllegalAccessException | NoSuchMethodException ex)
             {
