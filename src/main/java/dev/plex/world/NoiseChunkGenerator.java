@@ -3,7 +3,9 @@ package dev.plex.world;
 import java.util.Random;
 import org.bukkit.World;
 import org.bukkit.generator.BlockPopulator;
+import org.bukkit.generator.WorldInfo;
 import org.bukkit.util.noise.PerlinNoiseGenerator;
+import org.jetbrains.annotations.NotNull;
 
 public abstract class NoiseChunkGenerator extends CustomChunkGenerator
 {
@@ -16,10 +18,9 @@ public abstract class NoiseChunkGenerator extends CustomChunkGenerator
     }
 
     @Override
-    public ChunkData generateChunkData(World world, Random random, int x, int z, BiomeGrid biome)
+    public void generateNoise(WorldInfo worldInfo, Random random, int x, int z, ChunkData chunk)
     {
-        ChunkData chunk = this.createChunkData(world);
-        PerlinNoiseGenerator generator = new PerlinNoiseGenerator(new Random(world.getSeed()));
+        PerlinNoiseGenerator generator = new PerlinNoiseGenerator(new Random(worldInfo.getSeed()));
         for (int xx = 0; xx < 16; xx++)
         {
             for (int zz = 0; zz < 16; zz++)
@@ -28,7 +29,6 @@ public abstract class NoiseChunkGenerator extends CustomChunkGenerator
                 createLoopChunkData(xx, height, zz, chunk);
             }
         }
-        return chunk;
     }
 
     public abstract void createLoopChunkData(int x, int y, int z, ChunkData chunk);

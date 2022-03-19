@@ -17,6 +17,7 @@ public abstract class CustomChunkGenerator extends ChunkGenerator
         this.populators = Arrays.asList(populators);
     }
 
+    @Override
     public List<BlockPopulator> getDefaultPopulators(World world)
     {
         return populators;

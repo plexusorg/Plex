@@ -175,28 +175,31 @@ public class PunishmentManager extends PlexBase
     public List<Punishment> getActiveBans()
     {
         List<Punishment> punishments = Lists.newArrayList();
-        Jedis jedis = Plex.get().getRedisConnection().getJedis();
-        jedis.keys("*").forEach(key ->
-        {
-            try
-            {
-                UUID uuid = UUID.fromString(key);
-                String jsonPunishmentString = jedis.get(uuid.toString());
-                JSONObject object = new JSONObject(jsonPunishmentString);
-                object.getJSONObject(uuid.toString()).getJSONArray("punishments").forEach(json ->
-                {
-                    Punishment punishment = Punishment.fromJson(json.toString());
-                    if (punishment.isActive() && punishment.getType() == PunishmentType.BAN)
-                    {
-                        punishments.add(punishment);
-                    }
-                });
-            }
-            catch (IllegalArgumentException ignored)
-            {
 
-            }
-        });
+        if (Plex.get().getRedisConnection().isEnabled())
+        {
+            Jedis jedis = Plex.get().getRedisConnection().getJedis();
+            jedis.keys("*").forEach(key ->
+            {
+                try
+                {
+                    UUID uuid = UUID.fromString(key);
+                    String jsonPunishmentString = jedis.get(uuid.toString());
+                    JSONObject object = new JSONObject(jsonPunishmentString);
+                    object.getJSONObject(uuid.toString()).getJSONArray("punishments").forEach(json ->
+                    {
+                        Punishment punishment = Punishment.fromJson(json.toString());
+                        if (punishment.isActive() && punishment.getType() == PunishmentType.BAN)
+                        {
+                            punishments.add(punishment);
+                        }
+                    });
+                }
+                catch (IllegalArgumentException ignored)
+                {
+                }
+            });
+        }
 
         return punishments;
     }
