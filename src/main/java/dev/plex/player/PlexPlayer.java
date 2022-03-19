@@ -35,7 +35,7 @@ public class PlexPlayer
     private Player player;
 
     private String loginMessage;
-    private Component prefix;
+    private String prefix;
 
     private boolean vanished;
     private boolean commandSpy;
@@ -60,7 +60,7 @@ public class PlexPlayer
         this.player = Bukkit.getPlayer(name);
 
         this.loginMessage = "";
-        this.prefix = null;
+        this.prefix = "";
 
         this.vanished = false;
         this.commandSpy = false;

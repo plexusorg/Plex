@@ -1,6 +1,7 @@
 package dev.plex.handlers;
 
 import com.google.common.collect.Lists;
+import dev.plex.Plex;
 import dev.plex.listener.PlexListener;
 import dev.plex.listener.impl.AdminListener;
 import dev.plex.listener.impl.BanListener;
@@ -23,7 +24,10 @@ public class ListenerHandler
         List<PlexListener> listeners = Lists.newArrayList();
         listeners.add(new AdminListener());
         listeners.add(new BanListener());
-        listeners.add(new ChatListener());
+        if (Plex.get().config.getBoolean("chat.enabled"))
+        {
+            listeners.add(new ChatListener());
+        }
         listeners.add(new CommandListener());
         listeners.add(new FreezeListener());
         listeners.add(new GameModeListener());

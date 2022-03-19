@@ -55,7 +55,7 @@ public class TagCMD extends PlexCommand
                 return messageComponent("maximumPrefixLength", plugin.config.getInt("chat.max-tag-length", 16));
             }
 
-            player.setPrefix(Component.text(MiniMessage.miniMessage().serialize(convertedComponent)));
+            player.setPrefix(MiniMessage.miniMessage().serialize(convertedComponent));
             return messageComponent("prefixSetTo", MiniMessage.miniMessage().serialize(convertedComponent));
         }
 
@@ -69,14 +69,14 @@ public class TagCMD extends PlexCommand
                 }
 
                 PlexPlayer player = DataUtils.getPlayer(playerSender.getUniqueId());
-                player.setPrefix(null);
+                player.setPrefix("");
                 return messageComponent("prefixCleared");
             }
 
             checkRank(sender, Rank.ADMIN, "plex.tag.clear.others");
             Player target = getNonNullPlayer(args[1]);
             PlexPlayer plexTarget = DataUtils.getPlayer(target.getUniqueId());
-            plexTarget.setPrefix(null);
+            plexTarget.setPrefix("");
             messageComponent("otherPrefixCleared");
         }
         return usage();

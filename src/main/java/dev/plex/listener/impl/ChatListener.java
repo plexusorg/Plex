@@ -3,7 +3,6 @@ package dev.plex.listener.impl;
 import dev.plex.cache.PlayerCache;
 import dev.plex.listener.PlexListener;
 import dev.plex.player.PlexPlayer;
-import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import io.papermc.paper.chat.ChatRenderer;
@@ -12,8 +11,6 @@ import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import org.bukkit.Bukkit;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.jetbrains.annotations.NotNull;
@@ -21,29 +18,6 @@ import org.jetbrains.annotations.NotNull;
 public class ChatListener extends PlexListener
 {
     private final PlexChatRenderer renderer = new PlexChatRenderer();
-
-    public static void adminChat(CommandSender sender, String message)
-    {
-        for (Player player : Bukkit.getOnlinePlayers())
-        {
-            if (plugin.getSystem().equalsIgnoreCase("ranks"))
-            {
-                PlexPlayer plexPlayer = PlayerCache.getPlexPlayerMap().get(player.getUniqueId());
-                if (plexPlayer.getRankFromString().isAtLeast(Rank.ADMIN))
-                {
-                    player.sendMessage(PlexUtils.messageComponent("adminChatFormat", sender.getName(), message));
-                }
-            }
-            else if (plugin.getSystem().equalsIgnoreCase("permissions"))
-            {
-                if (player.hasPermission("plex.adminchat"))
-                {
-                    player.sendMessage(PlexUtils.messageComponent("adminChatFormat", sender.getName(), message));
-                }
-            }
-        }
-        plugin.getServer().getConsoleSender().sendMessage(PlexUtils.messageComponent("adminChatFormat", sender.getName(), message));
-    }
 
     @EventHandler
     public void onChat(AsyncChatEvent event)
@@ -80,7 +54,8 @@ public class ChatListener extends PlexListener
         {
             if (hasPrefix)
             {
-                return Component.empty().append(prefix)
+                return Component.empty()
+                        .append(prefix)
                         .append(Component.space())
                         .append(LegacyComponentSerializer.legacyAmpersand().deserialize("&" + plugin.config.getString("chat.name-color") + LegacyComponentSerializer.legacyAmpersand().serialize(sourceDisplayName)))
                         .append(Component.space())
@@ -89,7 +64,7 @@ public class ChatListener extends PlexListener
                         .append(message);
             }
             return Component.empty()
-                    .append(sourceDisplayName)
+                    .append(LegacyComponentSerializer.legacyAmpersand().deserialize("&" + plugin.config.getString("chat.name-color") + LegacyComponentSerializer.legacyAmpersand().serialize(sourceDisplayName)))
                     .append(Component.space())
                     .append(Component.text("»").color(NamedTextColor.GRAY))
                     .append(Component.space())

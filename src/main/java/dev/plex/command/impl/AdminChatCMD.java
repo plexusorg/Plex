@@ -1,13 +1,16 @@
 package dev.plex.command.impl;
 
+import dev.plex.cache.PlayerCache;
 import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.source.RequiredCommandSource;
-import dev.plex.listener.impl.ChatListener;
+import dev.plex.player.PlexPlayer;
 import dev.plex.rank.enums.Rank;
+import dev.plex.util.PlexUtils;
 import net.kyori.adventure.text.Component;
 import org.apache.commons.lang.StringUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -25,7 +28,30 @@ public class AdminChatCMD extends PlexCommand
             return usage();
         }
 
-        ChatListener.adminChat(sender, StringUtils.join(args, " "));
+        adminChat(sender, StringUtils.join(args, " "));
         return null;
+    }
+
+    private void adminChat(CommandSender sender, String message)
+    {
+        for (Player player : Bukkit.getOnlinePlayers())
+        {
+            if (plugin.getSystem().equalsIgnoreCase("ranks"))
+            {
+                PlexPlayer plexPlayer = PlayerCache.getPlexPlayerMap().get(player.getUniqueId());
+                if (plexPlayer.getRankFromString().isAtLeast(Rank.ADMIN))
+                {
+                    player.sendMessage(PlexUtils.messageComponent("adminChatFormat", sender.getName(), message));
+                }
+            }
+            else if (plugin.getSystem().equalsIgnoreCase("permissions"))
+            {
+                if (player.hasPermission("plex.adminchat"))
+                {
+                    player.sendMessage(PlexUtils.messageComponent("adminChatFormat", sender.getName(), message));
+                }
+            }
+        }
+        plugin.getServer().getConsoleSender().sendMessage(PlexUtils.messageComponent("adminChatFormat", sender.getName(), message));
     }
 }
