@@ -1,40 +1,44 @@
 package dev.plex.handlers;
 
 import com.google.common.collect.Lists;
-import dev.plex.Plex;
+import dev.plex.PlexBase;
 import dev.plex.listener.PlexListener;
-import dev.plex.listener.impl.AdminListener;
-import dev.plex.listener.impl.BanListener;
-import dev.plex.listener.impl.ChatListener;
-import dev.plex.listener.impl.CommandListener;
-import dev.plex.listener.impl.FreezeListener;
-import dev.plex.listener.impl.GameModeListener;
-import dev.plex.listener.impl.PlayerListener;
-import dev.plex.listener.impl.ServerListener;
-import dev.plex.listener.impl.TabListener;
-import dev.plex.listener.impl.WorldListener;
+import dev.plex.listener.annotation.Toggled;
 import dev.plex.util.PlexLog;
+import dev.plex.util.PlexUtils;
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
+import java.util.Set;
 
-//TODO: Switch to Reflections API
-public class ListenerHandler
+public class ListenerHandler extends PlexBase
 {
     public ListenerHandler()
     {
+        Set<Class<? extends PlexListener>> listenerSet = PlexUtils.getClassesBySubType("dev.plex.listener.impl", PlexListener.class);
         List<PlexListener> listeners = Lists.newArrayList();
-        listeners.add(new AdminListener());
-        listeners.add(new BanListener());
-        if (Plex.get().config.getBoolean("chat.enabled"))
+
+        listenerSet.forEach(clazz ->
         {
-            listeners.add(new ChatListener());
-        }
-        listeners.add(new CommandListener());
-        listeners.add(new FreezeListener());
-        listeners.add(new GameModeListener());
-        listeners.add(new PlayerListener());
-        listeners.add(new ServerListener());
-        listeners.add(new TabListener());
-        listeners.add(new WorldListener());
-        PlexLog.log(String.format("Registered %s listeners!", listeners.size()));
+            try
+            {
+                Toggled annotation = clazz.getDeclaredAnnotation(Toggled.class);
+                if (annotation != null)
+                {
+                    if (plugin.config.getBoolean("chat.enabled") && annotation.enabled())
+                    {
+                        listeners.add(clazz.getConstructor().newInstance());
+                    }
+                }
+                else
+                {
+                    listeners.add(clazz.getConstructor().newInstance());
+                }
+            }
+            catch (InvocationTargetException | InstantiationException | IllegalAccessException | NoSuchMethodException ex)
+            {
+                PlexLog.error("Failed to register " + clazz.getSimpleName() + " as a listener!");
+            }
+        });
+        PlexLog.log(String.format("Registered %s listeners from %s classes!", listeners.size(), listenerSet.size()));
     }
 }
