@@ -2,7 +2,7 @@ package dev.plex.listener.impl;
 
 import dev.plex.cache.PlayerCache;
 import dev.plex.listener.PlexListener;
-import dev.plex.listener.annotation.Toggled;
+import dev.plex.listener.annotation.Toggleable;
 import dev.plex.player.PlexPlayer;
 import dev.plex.util.PlexUtils;
 import io.papermc.paper.chat.ChatRenderer;
@@ -15,7 +15,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.jetbrains.annotations.NotNull;
 
-@Toggled(enabled = true)
+@Toggleable("chat.enabled")
 public class ChatListener extends PlexListener
 {
     private final PlexChatRenderer renderer = new PlexChatRenderer();

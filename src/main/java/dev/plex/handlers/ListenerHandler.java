@@ -3,7 +3,7 @@ package dev.plex.handlers;
 import com.google.common.collect.Lists;
 import dev.plex.PlexBase;
 import dev.plex.listener.PlexListener;
-import dev.plex.listener.annotation.Toggled;
+import dev.plex.listener.annotation.Toggleable;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import java.lang.reflect.InvocationTargetException;
@@ -21,10 +21,10 @@ public class ListenerHandler extends PlexBase
         {
             try
             {
-                Toggled annotation = clazz.getDeclaredAnnotation(Toggled.class);
+                Toggleable annotation = clazz.getDeclaredAnnotation(Toggleable.class);
                 if (annotation != null)
                 {
-                    if (plugin.config.getBoolean("chat.enabled") && annotation.enabled())
+                    if (plugin.config.get(annotation.value()) != null && plugin.config.getBoolean(annotation.value()))
                     {
                         listeners.add(clazz.getConstructor().newInstance());
                     }
