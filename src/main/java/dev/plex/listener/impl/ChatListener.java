@@ -24,12 +24,6 @@ public class ChatListener extends PlexListener
     public void onChat(AsyncChatEvent event)
     {
         PlexPlayer plexPlayer = PlayerCache.getPlexPlayerMap().get(event.getPlayer().getUniqueId());
-        if (PlayerCache.getPunishedPlayer(event.getPlayer().getUniqueId()).isMuted())
-        {
-            event.getPlayer().sendMessage(PlexUtils.messageComponent("muted"));
-            event.setCancelled(true);
-            return;
-        }
 
         Component prefix = plugin.getRankManager().getPrefix(plexPlayer);
         if (prefix != null)
