@@ -239,28 +239,40 @@ public class PlexUtils extends PlexBase
         }
     }
 
-    public static <T> void commitGameRules(World world)
+    public static <T> void commitGlobalGameRules(World world)
+    {
+        for (String s : Plex.get().config.getStringList("global_gamerules"))
+        {
+            readGameRules(world, s);
+        }
+    }
+
+    public static <T> void commitSpecificGameRules(World world)
     {
         for (String s : Plex.get().config.getStringList("worlds." + world.getName().toLowerCase(Locale.ROOT) + ".gameRules"))
         {
-            String gameRule = s.split(";")[0];
-            T value = (T)s.split(";")[1];
-            GameRule<T> rule = (GameRule<T>)GameRule.getByName(gameRule);
-            if (rule != null && check(value).getClass().equals(rule.getType()))
-            {
-                world.setGameRule(rule, value);
-                PlexLog.debug("Setting game rule " + gameRule + " for world " + world.getName() + " with value " + value);
-            }
-            else
-            {
-                PlexLog.error(String.format("Failed to set game rule %s for world %s with value %s!", gameRule, world.getName().toLowerCase(Locale.ROOT), value));
-            }
+            readGameRules(world, s);
+        }
+    }
+
+    private static <T> void readGameRules(World world, String s)
+    {
+        String gameRule = s.split(";")[0];
+        T value = (T)s.split(";")[1];
+        GameRule<T> rule = (GameRule<T>)GameRule.getByName(gameRule);
+        if (rule != null && check(value).getClass().equals(rule.getType()))
+        {
+            world.setGameRule(rule, value);
+            PlexLog.debug("Setting game rule " + gameRule + " for world " + world.getName() + " with value " + value);
+        }
+        else
+        {
+            PlexLog.error(String.format("Failed to set game rule %s for world %s with value %s!", gameRule, world.getName().toLowerCase(Locale.ROOT), value));
         }
     }
 
     public static <T> Object check(T value)
     {
-
         if (value.toString().equalsIgnoreCase("true") || value.toString().equalsIgnoreCase("false"))
         {
             return Boolean.parseBoolean(value.toString());

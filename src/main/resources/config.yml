@@ -47,25 +47,31 @@ data:
     password: ""
 
 # See https://plex.us.org/docs/customization/config#worlds for documentation
+# These gamerules apply to all worlds on the server
+global_gamerules:
+  - "doWeatherCycle;true"
+  - "doDaylightCycle;true"
+  - "doMobSpawning;false"
+  - "keepInventory;true"
+  - "doFireTick;false"
+  - "doMobLoot;false"
+  - "mobGriefing;false"
+  - "doTileDrops;false"
+  - "commandBlockOutput;false"
+  - "naturalRegeneration;true"
+  - "announceAdvancements;false"
+  - "showDeathMessages;false"
+  - "sendCommandFeedback;false"
+
 worlds:
   flatlands:
     name: "Flatlands"
     permission: "plex.world.flatlands"
     noEdit: "&cYou can't edit this world!"
     gameRules:
+      # The gamerules here override the global gamerules
       - "doWeatherCycle;false"
       - "doDaylightCycle;false"
-      - "doMobSpawning;false"
-      - "keepInventory;true"
-      - "doFireTick;false"
-      - "doMobLoot;false"
-      - "mobGriefing;false"
-      - "doTileDrops;false"
-      - "commandBlockOutput;false"
-      - "naturalRegeneration;true"
-      - "announceAdvancements;false"
-      - "showDeathMessages;false"
-      - "sendCommandFeedback;false"
     parameters:
       grass_block: 1
       dirt: 32
@@ -80,17 +86,6 @@ worlds:
     gameRules:
       - "doWeatherCycle;false"
       - "doDaylightCycle;false"
-      - "doMobSpawning;false"
-      - "keepInventory;true"
-      - "doFireTick;false"
-      - "doMobLoot;false"
-      - "mobGriefing;false"
-      - "doTileDrops;false"
-      - "commandBlockOutput;false"
-      - "naturalRegeneration;true"
-      - "announceAdvancements;false"
-      - "showDeathMessages;false"
-      - "sendCommandFeedback;false"
     parameters:
       grass_block: 1
       dirt: 32
@@ -105,17 +100,6 @@ worlds:
     gameRules:
       - "doWeatherCycle;false"
       - "doDaylightCycle;false"
-      - "doMobSpawning;false"
-      - "keepInventory;true"
-      - "doFireTick;false"
-      - "doMobLoot;false"
-      - "mobGriefing;false"
-      - "doTileDrops;false"
-      - "commandBlockOutput;false"
-      - "naturalRegeneration;true"
-      - "announceAdvancements;false"
-      - "showDeathMessages;false"
-      - "sendCommandFeedback;false"
     parameters:
       grass_block: 1
       dirt: 32

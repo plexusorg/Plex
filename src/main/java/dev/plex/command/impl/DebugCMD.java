@@ -9,6 +9,7 @@ import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import java.util.List;
+import java.util.Locale;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
@@ -44,8 +45,17 @@ public class DebugCMD extends PlexCommand
         {
             for (World world : Bukkit.getWorlds())
             {
-                PlexUtils.commitGameRules(world);
-                PlexLog.debug("Set gamerules for world: " + world.getName());
+                PlexUtils.commitGlobalGameRules(world);
+                PlexLog.log("Set global gamerules for world: " + world.getName());
+            }
+            for (String world : plugin.config.getConfigurationSection("worlds").getKeys(false))
+            {
+                World bukkitWorld = Bukkit.getWorld(world);
+                if (bukkitWorld != null)
+                {
+                    PlexUtils.commitSpecificGameRules(bukkitWorld);
+                    PlexLog.log("Set specific gamerules for world: " + world.toLowerCase(Locale.ROOT));
+                }
             }
             return mmString("<aqua>Re-applied game all the game rules!");
         }
