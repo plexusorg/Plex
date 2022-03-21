@@ -4,7 +4,6 @@ import dev.plex.cache.PlayerCache;
 import dev.plex.listener.PlexListener;
 import dev.plex.listener.annotation.Toggleable;
 import dev.plex.player.PlexPlayer;
-import dev.plex.util.PlexUtils;
 import io.papermc.paper.chat.ChatRenderer;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.audience.Audience;

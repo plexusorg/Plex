@@ -4,7 +4,6 @@ import dev.plex.Plex;
 import dev.plex.player.PlexPlayer;
 import dev.plex.rank.enums.Rank;
 import dev.plex.rank.enums.Title;
-import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import java.io.File;
 import java.io.FileInputStream;

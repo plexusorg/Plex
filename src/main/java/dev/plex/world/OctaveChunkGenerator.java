@@ -1,7 +1,6 @@
 package dev.plex.world;
 
 import java.util.Random;
-import org.bukkit.World;
 import org.bukkit.generator.BlockPopulator;
 import org.bukkit.generator.WorldInfo;
 import org.bukkit.util.noise.PerlinOctaveGenerator;
