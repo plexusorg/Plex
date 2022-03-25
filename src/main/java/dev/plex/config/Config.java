@@ -15,17 +15,17 @@ public class Config extends YamlConfiguration
     /**
      * The plugin instance
      */
-    private Plex plugin;
+    private final Plex plugin;
 
     /**
      * The File instance
      */
-    private File file;
+    private final File file;
 
     /**
      * The file name
      */
-    private String name;
+    private final String name;
 
     /**
      * Whether new entries were added to the file automatically

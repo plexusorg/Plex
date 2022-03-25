@@ -20,16 +20,16 @@ public enum Rank
     private final int level;
 
     @Setter
-    private String loginMessage;
+    private final String loginMessage;
 
     @Setter
-    private String readable;
+    private final String readable;
 
     @Setter
-    private String prefix;
+    private final String prefix;
 
     @Getter
-    private NamedTextColor color;
+    private final NamedTextColor color;
 
     Rank(int level, String loginMessage, String readable, String prefix, NamedTextColor color)
     {
