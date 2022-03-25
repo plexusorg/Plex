@@ -5,7 +5,7 @@ import org.bukkit.event.Listener;
 
 public abstract class AbstractMenu implements Listener
 {
-    private final String name;
+    private String name;
 
     public AbstractMenu(String name)
     {

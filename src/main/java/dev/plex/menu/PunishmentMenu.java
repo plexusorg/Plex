@@ -20,7 +20,7 @@ import org.bukkit.inventory.meta.SkullMeta;
 public class PunishmentMenu extends AbstractMenu
 {
 
-    private final List<Inventory> inventories = Lists.newArrayList();
+    private List<Inventory> inventories = Lists.newArrayList();
 
     public PunishmentMenu()
     {

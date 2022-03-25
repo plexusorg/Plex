@@ -4,8 +4,8 @@ import dev.plex.PlexBase;
 
 public abstract class AbstractService extends PlexBase implements IService
 {
-    private final boolean asynchronous;
-    private final boolean repeating;
+    private boolean asynchronous;
+    private boolean repeating;
 
     public AbstractService(boolean repeating, boolean async)
     {
