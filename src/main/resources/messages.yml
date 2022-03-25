@@ -85,7 +85,7 @@ adminRemoved: "<red><v> - Removing <v> from the admin list"
 adminSetRank: "<aqua><v> - Setting <v>'s rank to <v>"
 # The world name
 teleportedToWorld: "<aqua>You have been teleported to the <v>."
-higherRankThanYou: "<red>This player is an admin and a higher rank than you."
+higherRankThanYou: "<red>This player is an admin or a higher rank than you."
 playerNotAdmin: "<red>That player is not an admin."
 playerIsAdmin: "<red>That player is already an admin."
 rankNotFound: "<red>The rank you entered was not found."
@@ -110,6 +110,8 @@ playerFrozen: "<red>That player is already frozen!"
 playerMuted: "<red>That player is already muted!"
 playerLockedUp: "<red>That player is already locked up!"
 muted: "<red>You are currently muted - STFU!"
+# 1. The command sender
+# 2. The player
 kickedPlayer: "<red><v> - Kicking <v>"
 teleportedToWorldSpawn: "<aqua>Teleporting to the local spawn"
 toggleCommandSpy: "<gray>CommandSpy has been"
@@ -118,5 +120,23 @@ disabled: "<gray>disabled."
 adminChatFormat: '<dark_gray>[<blue>AdminChat<dark_gray>] <dark_red><v> <gray>» <gold><v>'
 maximumPrefixLength: "<red>The maximum length for a tag may only be <v>."
 prefixCleared: "<aqua>Your prefix has been cleared."
+# 1. The player name
 otherPrefixCleared: "<aqua>You have cleared <v>'s prefix."
+# 1. The new prefix
 prefixSetTo: "<aqua>Your prefix has been set to <v>"
+# 1. The amount of players whose edits are blocked
+blockedEditsSize: "Blocked block modification abilities for <v> players."
+# 1. The amount of players whose edits are unblocked
+unblockedEditsSize: "Unblocked all block modification abilities for <v> players."
+# 1. The command sender
+# 2. The player name
+blockingEditFor: "<red><v> - Blocking block modification abilities for <v>"
+# 1. The command sender
+# 2. The player name
+unblockingEditFor: "<aqua><v> - Unblocking block modification abilities for <v>"
+yourEditsHaveBeenBlocked: "<gray>Your block modification abilities have been blocked."
+yourEditsHaveBeenUnblocked: "<gray>Your block modification abilities have been restored."
+# 1. The player name
+editsBlocked: "<gray>Blocked block modification abilities for <v>"
+# 1. The player name
+editsUnblocked: "<gray>Unblocked block modification abilities for <v>"

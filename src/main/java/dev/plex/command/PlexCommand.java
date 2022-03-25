@@ -274,6 +274,24 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
         return true;
     }
 
+    protected boolean silentCheckRank(Player player, Rank rank, String permission)
+    {
+        if (player instanceof ConsoleCommandSender)
+        {
+            return true;
+        }
+        PlexPlayer plexPlayer = getPlexPlayer(player);
+        if (plugin.getSystem().equalsIgnoreCase("ranks"))
+        {
+            return plexPlayer.getRankFromString().isAtLeast(rank);
+        }
+        else if (plugin.getSystem().equalsIgnoreCase("permissions"))
+        {
+            return player.hasPermission(permission);
+        }
+        return false;
+    }
+
     /**
      * Checks whether a sender has enough permissions or is high enough a rank
      *
