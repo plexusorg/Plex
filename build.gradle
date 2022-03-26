@@ -89,7 +89,7 @@ static def getDate() {
 }
 
 ext {
-    buildNumber = System.getenv("BUILD_NUMBER") != null ? System.getenv("BUILD_NUMBER") : getGitHash()
+    buildNumber = System.getenv("BUILD_NUMBER") != null ? System.getenv("BUILD_NUMBER") : getBuildNumber()
 }
 
 task buildProperties {
