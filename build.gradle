@@ -45,12 +45,6 @@ ext {
     buildNumber = System.getenv("BUILD_NUMBER") ?: "unknown"
 }
 
-tasks.register('printProperties') {
-    doLast {
-        println buildNumber
-    }
-}
-
 shadowJar {
     archiveClassifier.set("")
     relocate "org.bstats", "dev.plex"
@@ -64,6 +58,12 @@ bukkit {
     website = "https://plex.us.org"
     authors = ["Telesphoreo", "taahanis", "super"]
     apiVersion = "1.18"
+}
+
+task buildProperties {
+    ant.propertyfile(file: "$project.rootDir/src/main/resources/build.properties") {
+        entry(key: "buildNumber", value: buildNumber)
+    }
 }
 
 java {

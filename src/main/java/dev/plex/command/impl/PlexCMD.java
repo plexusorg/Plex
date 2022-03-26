@@ -1,5 +1,6 @@
 package dev.plex.command.impl;
 
+import dev.plex.Plex;
 import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
@@ -24,6 +25,8 @@ import org.jetbrains.annotations.Nullable;
 public class PlexCMD extends PlexCommand
 {
     // Don't modify this command
+    Plex.BuildProperties build = new Plex.BuildProperties();
+
     @Override
     protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
     {
@@ -32,6 +35,7 @@ public class PlexCMD extends PlexCommand
             send(sender, mmString("<light_purple>Plex - A new freedom plugin."));
             send(sender, mmString("<light_purple>Plugin version: <gold>" + plugin.getDescription().getVersion()));
             send(sender, mmString("<light_purple>Authors: <gold>Telesphoreo, Taahh"));
+            send(sender, mmString("<light_purple>Build: <gold>" + build.number));
             send(sender, mmString("<light_purple>Run <gold>/plex modules <light_purple>to see a list of modules."));
             return null;
         }

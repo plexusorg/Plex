@@ -24,6 +24,8 @@ import dev.plex.util.PlexUtils;
 import dev.plex.util.UpdateChecker;
 import dev.plex.world.CustomWorld;
 import java.io.File;
+import java.io.InputStream;
+import java.util.Properties;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
@@ -218,5 +220,30 @@ public class Plex extends JavaPlugin
                 plugin.getAdminList().addToCache(admin);
             }
         });
+    }
+
+    public static class BuildProperties
+    {
+        public String number;
+
+        public void load(Plex plugin)
+        {
+            try
+            {
+                final Properties props;
+
+                try (InputStream in = plugin.getResource("build.properties"))
+                {
+                    props = new Properties();
+                    props.load(in);
+                }
+
+                number = props.getProperty("buildNumber", "unknown");
+            }
+            catch (Exception ex)
+            {
+                PlexLog.error("Could not load build properties! Did you compile with NetBeans/Maven?");
+            }
+        }
     }
 }
