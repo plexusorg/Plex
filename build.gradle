@@ -88,14 +88,10 @@ static def getDate() {
     return new Date().format("MM/dd/yyyy '<light_purple>at<gold>' hh:mm:ss a")
 }
 
-ext {
-    buildNumber = System.getenv("JENKINS_URL") != null ? System.getenv("BUILD_NUMBER") : getBuildNumber()
-}
-
 task buildProperties {
     ant.propertyfile(file: "$project.rootDir/src/main/resources/build.properties") {
         entry(key: "buildAuthor", default: System.getenv("JENKINS_URL") != null ? "jenkins" : "unknown")
-        entry(key: "buildNumber", value: buildNumber)
+        entry(key: "buildNumber", value: System.getenv("JENKINS_URL") != null ? System.getenv("BUILD_NUMBER") : getBuildNumber())
         entry(key: "buildDate", value: getDate())
         entry(key: "buildHead", value: getGitHash())
     }
