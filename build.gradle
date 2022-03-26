@@ -41,10 +41,6 @@ group = "dev.plex"
 version = "0.10-SNAPSHOT"
 description = "Plex"
 
-ext {
-    buildNumber = System.getenv("BUILD_NUMBER") ?: "unknown"
-}
-
 shadowJar {
     archiveClassifier.set("")
     relocate "org.bstats", "dev.plex"
@@ -60,9 +56,48 @@ bukkit {
     apiVersion = "1.18"
 }
 
+String getGitHash() {
+    def stdout = new ByteArrayOutputStream()
+    try {
+        exec {
+            commandLine "git", "rev-parse", "--short", "HEAD"
+            standardOutput = stdout
+            ignoreExitValue = true
+        }
+    } catch (GradleException e) {
+        logger.error("Couldn't determine Git head because Git is not installed. " + e.getMessage())
+    }
+    return stdout.size() > 0 ? stdout.toString().trim() : "unknown"
+}
+
+String getBuildNumber() {
+    def stdout = new ByteArrayOutputStream()
+    try {
+        exec {
+            commandLine "git", "rev-list", "HEAD", "--count"
+            standardOutput = stdout
+            ignoreExitValue = true
+        }
+    } catch (GradleException e) {
+        logger.error("Couldn't determine build number because Git is not installed. " + e.getMessage())
+    }
+    return stdout.size() ? stdout.toString().trim() + " (local)" : "unknown"
+}
+
+static def getDate() {
+    return new Date().format("MM/dd/yyyy '<light_purple>at<gold>' hh:mm:ss a")
+}
+
+ext {
+    buildNumber = System.getenv("BUILD_NUMBER") + " (Jenkins)" ?: getBuildNumber()
+}
+
 task buildProperties {
     ant.propertyfile(file: "$project.rootDir/src/main/resources/build.properties") {
+        entry(key: "buildAuthor", default: "unknown")
         entry(key: "buildNumber", value: buildNumber)
+        entry(key: "buildDate", value: getDate())
+        entry(key: "buildHead", value: getGitHash())
     }
 }
 

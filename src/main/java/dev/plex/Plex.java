@@ -65,6 +65,8 @@ public class Plex extends JavaPlugin
 
     private String system;
 
+    public static final BuildProperties build = new BuildProperties();
+
     public static Plex get()
     {
         return plugin;
@@ -77,6 +79,7 @@ public class Plex extends JavaPlugin
         config = new Config(this, "config.yml");
         messages = new Config(this, "messages.yml");
         indefBans = new Config(this, "indefbans.yml");
+        build.load(this);
 
         modulesFolder = new File(this.getDataFolder() + File.separator + "modules");
         if (!modulesFolder.exists())
@@ -225,6 +228,9 @@ public class Plex extends JavaPlugin
     public static class BuildProperties
     {
         public String number;
+        public String author;
+        public String date;
+        public String head;
 
         public void load(Plex plugin)
         {
@@ -239,6 +245,9 @@ public class Plex extends JavaPlugin
                 }
 
                 number = props.getProperty("buildNumber", "unknown");
+                author = props.getProperty("buildAuthor", "unknown");
+                date = props.getProperty("buildDate", "unknown");
+                head = props.getProperty("buildHead", "unknown");
             }
             catch (Exception ex)
             {

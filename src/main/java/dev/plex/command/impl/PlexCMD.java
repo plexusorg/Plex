@@ -25,17 +25,15 @@ import org.jetbrains.annotations.Nullable;
 public class PlexCMD extends PlexCommand
 {
     // Don't modify this command
-    Plex.BuildProperties build = new Plex.BuildProperties();
-
     @Override
     protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
     {
         if (args.length == 0)
         {
             send(sender, mmString("<light_purple>Plex - A new freedom plugin."));
-            send(sender, mmString("<light_purple>Plugin version: <gold>" + plugin.getDescription().getVersion()));
+            send(sender, mmString("<light_purple>Plugin version: <gold>" + plugin.getDescription().getVersion() + " #" + Plex.build.number + " <light_purple>Git: <gold>" + Plex.build.head));
             send(sender, mmString("<light_purple>Authors: <gold>Telesphoreo, Taahh"));
-            send(sender, mmString("<light_purple>Build: <gold>" + build.number));
+            send(sender, mmString("<light_purple>Built by: <gold>" + Plex.build.author + " <light_purple>on <gold>" + Plex.build.date));
             send(sender, mmString("<light_purple>Run <gold>/plex modules <light_purple>to see a list of modules."));
             return null;
         }
