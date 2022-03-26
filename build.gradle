@@ -90,11 +90,12 @@ static def getDate() {
 
 ext {
     buildNumber = System.getenv("BUILD_NUMBER") + " (Jenkins)" ?: getBuildNumber()
+    buildAuthor = System.getenv("JENKINS_URL") != null ? "jenkins" : "unknown"
 }
 
 task buildProperties {
     ant.propertyfile(file: "$project.rootDir/src/main/resources/build.properties") {
-        entry(key: "buildAuthor", default: "unknown")
+        entry(key: "buildAuthor", value: buildAuthor)
         entry(key: "buildNumber", value: buildNumber)
         entry(key: "buildDate", value: getDate())
         entry(key: "buildHead", value: getGitHash())
