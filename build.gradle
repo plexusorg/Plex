@@ -89,7 +89,7 @@ static def getDate() {
 }
 
 ext {
-    buildNumber = System.getenv("BUILD_NUMBER") != null ? System.getenv("BUILD_NUMBER") : getBuildNumber()
+    buildNumber = System.getenv("JENKINS_URL") != null ? System.getenv("BUILD_NUMBER") : getBuildNumber()
 }
 
 task buildProperties {
