@@ -89,7 +89,7 @@ static def getDate() {
 }
 
 ext {
-    buildNumber = System.getenv("BUILD_NUMBER") + " (Jenkins)" ?: getBuildNumber()
+    buildAuthor = System.getenv("BUILD_NUMBER") != null ? System.getenv("BUILD_NUMBER") : getGitHash()
     buildAuthor = System.getenv("JENKINS_URL") != null ? "jenkins" : "unknown"
 }
 
