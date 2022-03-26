@@ -41,6 +41,16 @@ group = "dev.plex"
 version = "0.10-SNAPSHOT"
 description = "Plex"
 
+ext {
+    buildNumber = System.getenv("BUILD_NUMBER") ?: "unknown"
+}
+
+tasks.register('printProperties') {
+    doLast {
+        println buildNumber
+    }
+}
+
 shadowJar {
     archiveClassifier.set("")
     relocate "org.bstats", "dev.plex"
