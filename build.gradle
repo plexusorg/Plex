@@ -118,6 +118,18 @@ publishing {
                 }
             }
         }
+        plexSnapshots(MavenPublication) {
+            from(components.java)
+            repositories {
+                maven {
+                    url("https://nexus.telesphoreo.me/repository/plex-snapshots/")
+                    credentials {
+                        username = System.getenv("plex_repo_user")
+                        password = System.getenv("plex_repo_pass")
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -143,4 +155,8 @@ tasks {
 
 task publishRelease {
     dependsOn(publishPlexReleasesPublicationToMavenRepository)
+}
+
+task publishSnapshot {
+    dependsOn(publishPlexSnapshotsPublicationToMaven2Repository)
 }
