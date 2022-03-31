@@ -91,7 +91,7 @@ static def getDate() {
 task buildProperties {
     ant.propertyfile(file: "$project.rootDir/src/main/resources/build.properties") {
         entry(key: "buildAuthor", default: System.getenv("JENKINS_URL") != null ? "jenkins" : "unknown")
-        entry(key: "buildNumber", value: System.getenv("JENKINS_URL") != null ? System.getenv("BUILD_NUMBER") + " (Jenkins)": getBuildNumber())
+        entry(key: "buildNumber", value: System.getenv("JENKINS_URL") != null ? System.getenv("BUILD_NUMBER") + " (Jenkins)" : getBuildNumber())
         entry(key: "buildDate", value: getDate())
         entry(key: "buildHead", value: getGitHash())
     }
@@ -159,4 +159,16 @@ task publishRelease {
 
 task publishSnapshot {
     dependsOn(publishPlexSnapshotsPublicationToMaven2Repository)
+}
+
+task jenkinsPublish {
+    if (System.getenv("plex_repo_user") == "jenkins") {
+        if (System.getenv("plex_repo_user") != null && System.getenv("plex_repo_user") == "jenkins") {
+            if (!getVersion().toString().toLowerCase().endsWith("-snapshot")) {
+                dependsOn(publishPlexReleasesPublicationToMavenRepository)
+            } else {
+                dependsOn(publishPlexSnapshotsPublicationToMaven2Repository)
+            }
+        }
+    }
 }
