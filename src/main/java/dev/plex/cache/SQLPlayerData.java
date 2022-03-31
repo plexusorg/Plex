@@ -10,6 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * SQL fetching utilities for players
@@ -74,6 +75,61 @@ public class SQLPlayerData
                 List<String> ips = new Gson().fromJson(set.getString("ips"), new TypeToken<List<String>>()
                 {
                 }.getType());
+                plexPlayer.setName(name);
+                plexPlayer.setLoginMessage(loginMSG);
+                plexPlayer.setPrefix(prefix);
+                plexPlayer.setRank(rankName);
+                plexPlayer.setIps(ips);
+                plexPlayer.setCoins(coins);
+                plexPlayer.setVanished(vanished);
+                plexPlayer.setCommandSpy(commandspy);
+            }
+            return plexPlayer;
+        }
+        catch (SQLException throwables)
+        {
+            throwables.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * Gets the player from cache or from the SQL database
+     *
+     * @param ip The IP address of the player.
+     * @return a PlexPlayer object
+     * @see PlexPlayer
+     */
+    public PlexPlayer getByIP(String ip)
+    {
+        PlexPlayer player = PlayerCache.getPlexPlayerMap().values().stream().filter(plexPlayer -> plexPlayer.getIps().contains(ip)).findFirst().orElse(null);
+        if (player != null)
+        {
+            return player;
+        }
+
+        try (Connection con = Plex.get().getSqlConnection().getCon())
+        {
+            PreparedStatement statement = con.prepareStatement("select * from `players` where json_search(ips, ?, ?) IS NOT NULL LIMIT 1");
+            statement.setString(1, "one");
+            statement.setString(2, ip);
+            ResultSet set = statement.executeQuery();
+
+            PlexPlayer plexPlayer = null;
+            while (set.next())
+            {
+                String uuid = set.getString("uuid");
+                String name = set.getString("name");
+                String loginMSG = set.getString("login_msg");
+                String prefix = set.getString("prefix");
+                String rankName = set.getString("rank").toUpperCase();
+                long coins = set.getLong("coins");
+                boolean vanished = set.getBoolean("vanished");
+                boolean commandspy = set.getBoolean("commandspy");
+                List<String> ips = new Gson().fromJson(set.getString("ips"), new TypeToken<List<String>>()
+                {
+                }.getType());
+                plexPlayer = new PlexPlayer(UUID.fromString(uuid));
                 plexPlayer.setName(name);
                 plexPlayer.setLoginMessage(loginMSG);
                 plexPlayer.setPrefix(prefix);

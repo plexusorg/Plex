@@ -56,6 +56,31 @@ public class DataUtils
     /**
      * Gets a player from cache or from the database
      *
+     * @param ip The IP address of the player.
+     * @return a PlexPlayer object
+     * @see PlexPlayer
+     */
+    public static PlexPlayer getPlayerByIP(String ip)
+    {
+        PlexPlayer player = PlayerCache.getPlexPlayerMap().values().stream().filter(plexPlayer -> plexPlayer.getIps().contains(ip)).findFirst().orElse(null);
+        if (player != null)
+        {
+            return player;
+        }
+
+        if (Plex.get().getStorageType() == StorageType.MONGODB)
+        {
+            return Plex.get().getMongoPlayerData().getByIP(ip);
+        }
+        else
+        {
+            return Plex.get().getSqlPlayerData().getByIP(ip);
+        }
+    }
+
+    /**
+     * Gets a player from cache or from the database
+     *
      * @param name Username of the player
      * @return a PlexPlayer object
      * @see PlexPlayer

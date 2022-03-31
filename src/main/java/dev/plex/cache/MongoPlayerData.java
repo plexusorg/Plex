@@ -7,6 +7,8 @@ import dev.morphia.query.experimental.filters.Filters;
 import dev.morphia.query.experimental.updates.UpdateOperators;
 import dev.plex.Plex;
 import dev.plex.player.PlexPlayer;
+
+import java.util.Collections;
 import java.util.UUID;
 
 /**
@@ -56,6 +58,25 @@ public class MongoPlayerData
         }
 
         Query<PlexPlayer> query2 = datastore.find(PlexPlayer.class).filter(Filters.eq("uuid", uuid.toString()));
+        return query2.first();
+    }
+
+    /**
+     * Gets the player from cache or from mongo's database
+     *
+     * @param ip The IP address of the player.
+     * @return a PlexPlayer object
+     * @see PlexPlayer
+     */
+    public PlexPlayer getByIP(String ip)
+    {
+        PlexPlayer player = PlayerCache.getPlexPlayerMap().values().stream().filter(plexPlayer -> plexPlayer.getIps().contains(ip)).findFirst().orElse(null);
+        if (player != null)
+        {
+            return player;
+        }
+
+        Query<PlexPlayer> query2 = datastore.find(PlexPlayer.class).filter(Filters.in("ips", Collections.singleton(ip)));
         return query2.first();
     }
 
