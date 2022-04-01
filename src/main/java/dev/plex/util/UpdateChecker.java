@@ -76,8 +76,7 @@ public class UpdateChecker extends PlexBase
             }
             default -> {
                 sender.sendMessage(Component.text("Your version of Plex is not up to date!", NamedTextColor.RED));
-                sender.sendMessage(Component.text("Download a new version at: ")
-                        .append(Component.text(DOWNLOAD_PAGE, NamedTextColor.RED)));
+                sender.sendMessage(Component.text("Download a new version at: " + DOWNLOAD_PAGE).color(NamedTextColor.RED));
                 return true;
             }
         }
