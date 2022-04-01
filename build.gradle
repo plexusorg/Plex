@@ -111,12 +111,6 @@ publishing {
     publications {
         maven(MavenPublication) {
             from(components.java)
-            // TODO: Not working
-            versionMapping {
-                usage("implementation") {
-                    fromResolutionOf("compileClasspath")
-                }
-            }
         }
     }
     repositories {
