@@ -1,9 +1,8 @@
 package dev.plex.module;
 
 import com.google.common.collect.ImmutableList;
-import lombok.Data;
-
 import java.util.List;
+import lombok.Data;
 
 @Data
 public class PlexModuleFile

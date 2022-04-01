@@ -18,7 +18,16 @@ import org.bukkit.command.CommandSender;
 
 public class UpdateChecker extends PlexBase
 {
-    private static final String DOWNLOAD_PAGE = "https://ci.plex.us.org/job/Plex/";
+    /*
+     * -4 = Never checked for updates
+     * -3 = Likely rate limited
+     * -2 = Unknown commit
+     * -1 = Error occurred
+     * 0 = Up to date
+     * > 0 = Number of commits behind
+     */
+    private final String DOWNLOAD_PAGE = "https://ci.plex.us.org/job/Plex/";
+    private int distance = -4;
 
     // Adapted from Paper
     private int fetchDistanceFromGitHub(@Nonnull String repo, @Nonnull String branch, @Nonnull String hash)
@@ -30,6 +39,10 @@ public class UpdateChecker extends PlexBase
             if (connection.getResponseCode() == HttpURLConnection.HTTP_NOT_FOUND)
             {
                 return -2; // Unknown commit
+            }
+            if (connection.getResponseCode() == HttpURLConnection.HTTP_FORBIDDEN)
+            {
+                return -3; // Rate limited likely
             }
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), Charsets.UTF_8)))
             {
@@ -55,10 +68,27 @@ public class UpdateChecker extends PlexBase
         }
     }
 
-    public boolean getUpdateStatusMessage(CommandSender sender)
+    public boolean getUpdateStatusMessage(CommandSender sender, boolean cached)
     {
-        int distance;
-        distance = fetchDistanceFromGitHub("plexusorg/Plex", "master", Plex.build.head);
+        // If it's -4, it hasn't checked for updates yet
+        if (distance == -4)
+        {
+            distance = fetchDistanceFromGitHub("plexusorg/Plex", "master", Plex.build.head);
+            PlexLog.debug("Never checked for updates, checking now...");
+        }
+        else
+        {
+            // If the request isn't asked to be cached, fetch it
+            if (!cached)
+            {
+                distance = fetchDistanceFromGitHub("plexusorg/Plex", "master", Plex.build.head);
+                PlexLog.debug("We have checked for updates before, but this request was not asked to be cached.");
+            }
+            else
+            {
+                PlexLog.debug("We have checked for updates before, using cache.");
+            }
+        }
 
         switch (distance)
         {

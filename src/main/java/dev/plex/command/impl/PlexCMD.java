@@ -35,7 +35,7 @@ public class PlexCMD extends PlexCommand
             send(sender, mmString("<light_purple>Authors: <gold>Telesphoreo, Taahh"));
             send(sender, mmString("<light_purple>Built by: <gold>" + Plex.build.author + " <light_purple>on <gold>" + Plex.build.date));
             send(sender, mmString("<light_purple>Run <gold>/plex modules <light_purple>to see a list of modules."));
-            plugin.getUpdateChecker().getUpdateStatusMessage(sender);
+            plugin.getUpdateChecker().getUpdateStatusMessage(sender, true);
             return null;
         }
         if (args[0].equalsIgnoreCase("reload"))

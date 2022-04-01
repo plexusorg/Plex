@@ -3,7 +3,6 @@ package dev.plex.module;
 import com.google.common.collect.Lists;
 import dev.plex.Plex;
 import dev.plex.module.exception.ModuleLoadException;
-//import dev.plex.module.loader.CustomClassLoader;
 import dev.plex.module.loader.LibraryLoader;
 import dev.plex.util.PlexLog;
 import java.io.File;

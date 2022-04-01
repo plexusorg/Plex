@@ -7,8 +7,6 @@ import dev.plex.listener.PlexListener;
 import java.io.File;
 import java.util.List;
 import java.util.Locale;
-
-//import dev.plex.module.loader.CustomClassLoader;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;

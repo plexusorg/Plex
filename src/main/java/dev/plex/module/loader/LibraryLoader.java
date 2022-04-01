@@ -4,6 +4,20 @@ import com.google.common.collect.Lists;
 import dev.plex.Plex;
 import dev.plex.module.PlexModule;
 import dev.plex.module.PlexModuleFile;
+import java.io.File;
+import java.io.IOException;
+import java.net.JarURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.maven.repository.internal.MavenRepositorySystemUtils;
 import org.eclipse.aether.DefaultRepositorySystemSession;
 import org.eclipse.aether.RepositorySystem;
@@ -28,18 +42,6 @@ import org.eclipse.aether.transfer.TransferEvent;
 import org.eclipse.aether.transport.http.HttpTransporterFactory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 //TODO: doesn't work
 
