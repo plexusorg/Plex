@@ -3,6 +3,8 @@ package dev.plex.module;
 import com.google.common.collect.Lists;
 import dev.plex.Plex;
 import dev.plex.module.exception.ModuleLoadException;
+//import dev.plex.module.loader.CustomClassLoader;
+import dev.plex.module.loader.LibraryLoader;
 import dev.plex.util.PlexLog;
 import java.io.File;
 import java.io.IOException;
@@ -23,6 +25,12 @@ public class ModuleManager
 {
 
     private final List<PlexModule> modules = Lists.newArrayList();
+    private final LibraryLoader libraryLoader;
+
+    public ModuleManager()
+    {
+        this.libraryLoader = new LibraryLoader(Plex.get().getLogger());
+    }
 
     public void loadAllModules()
     {
@@ -56,8 +64,10 @@ public class ModuleManager
 
                     String description = internalModuleConfig.getString("description", "A Plex module");
                     String version = internalModuleConfig.getString("version", "1.0");
+                    List<String> libraries = internalModuleConfig.getStringList("libraries");
 
                     PlexModuleFile plexModuleFile = new PlexModuleFile(name, main, description, version);
+                    plexModuleFile.setLibraries(libraries);
                     Class<? extends PlexModule> module = (Class<? extends PlexModule>)Class.forName(main, true, loader);
 
                     PlexModule plexModule = module.getConstructor().newInstance();
@@ -87,6 +97,7 @@ public class ModuleManager
         {
             PlexLog.log("Loading module " + module.getPlexModuleFile().getName() + " with version " + module.getPlexModuleFile().getVersion());
             module.load();
+//            this.libraryLoader.createLoader(module, module.getPlexModuleFile());
         });
     }
 
