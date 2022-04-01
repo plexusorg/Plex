@@ -106,7 +106,7 @@ public class Plex extends JavaPlugin
 
         moduleManager.enableModules();
 
-        system = config.getString("commands.permissions");
+        system = config.getString("system");
 
         try
         {

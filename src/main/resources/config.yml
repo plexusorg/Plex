@@ -26,10 +26,9 @@ chat:
   # Color code for name color
   name-color: 'f'
 
-# Settings for commands relating to Plex
-commands:
-  # Should Plex use a "true op" system with ranks or only permission nodes
-  permissions: ranks
+# Should Plex use a "true op" system with ranks or only permission nodes
+# Options are "permissions" or "ranks"
+system: ranks
 
 data:
   central:

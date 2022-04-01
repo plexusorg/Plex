@@ -28,7 +28,7 @@ import org.jetbrains.annotations.Nullable;
 
 @CommandPermissions(level = Rank.OP, source = RequiredCommandSource.ANY)
 @CommandParameters(name = "admin", usage = "/<command> <add <player> | remove <player> | setrank <player> <rank> | list>", aliases = "saconfig,slconfig,adminconfig,adminmanage", description = "Manage all admins")
-@System("ranks")
+@System(value = "ranks")
 public class AdminCMD extends PlexCommand
 {
     //TODO: Better return messages

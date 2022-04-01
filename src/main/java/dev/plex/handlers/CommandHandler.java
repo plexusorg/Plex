@@ -22,22 +22,26 @@ public class CommandHandler extends PlexBase
             try
             {
                 System annotation = clazz.getDeclaredAnnotation(System.class);
+                // TODO: Annotations are always null?
                 if (annotation != null)
                 {
-                    if (annotation.value().equalsIgnoreCase(plugin.getSystem()))
+                    PlexLog.debug(clazz.getName() + " has annotations");
+                    if (annotation.value().equalsIgnoreCase(plugin.getSystem().toLowerCase()))
                     {
                         commands.add(clazz.getConstructor().newInstance());
-                        return;
+                        PlexLog.debug("Adding " + clazz.getName() + " as a rank command");
                     }
 
                     if (plugin.config.getBoolean("debug") && annotation.debug())
                     {
                         commands.add(clazz.getConstructor().newInstance());
+                        PlexLog.debug("Adding " + clazz.getName() + " as a debug command");
                     }
                 }
                 else
                 {
                     commands.add(clazz.getConstructor().newInstance());
+                    // PlexLog.debug("Adding command normally " + clazz.getName());
                 }
             }
             catch (InvocationTargetException | InstantiationException | IllegalAccessException | NoSuchMethodException ex)
@@ -46,6 +50,7 @@ public class CommandHandler extends PlexBase
             }
         });
 
+        PlexLog.debug("Test");
         PlexLog.log(String.format("Registered %s commands from %s classes!", commands.size(), commandSet.size()));
     }
 }

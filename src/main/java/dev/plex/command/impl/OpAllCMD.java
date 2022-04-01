@@ -15,7 +15,7 @@ import org.jetbrains.annotations.Nullable;
 
 @CommandParameters(name = "opall", description = "Op everyone on the server", aliases = "opa")
 @CommandPermissions(level = Rank.ADMIN)
-@System("ranks")
+@System(value = "ranks")
 public class OpAllCMD extends PlexCommand
 {
     @Override

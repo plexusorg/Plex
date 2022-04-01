@@ -16,7 +16,7 @@ public class UpdateCheckerService extends AbstractService
     {
         if (!newVersion)
         {
-            if (plugin.getUpdateChecker().check())
+            if (plugin.getUpdateChecker().getUpdateStatusMessage("plexusorg/Plex", "master"))
             {
                 newVersion = true;
             }

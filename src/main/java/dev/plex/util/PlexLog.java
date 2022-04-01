@@ -1,6 +1,8 @@
 package dev.plex.util;
 
 import dev.plex.Plex;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 
@@ -16,6 +18,11 @@ public class PlexLog
             }
         }
         Bukkit.getConsoleSender().sendMessage(String.format(ChatColor.YELLOW + "[Plex] " + ChatColor.GRAY + "%s", message));
+    }
+
+    public static void log(Component component)
+    {
+        Bukkit.getConsoleSender().sendMessage(Component.text("[Plex] ").color(NamedTextColor.YELLOW).append(component).colorIfAbsent(NamedTextColor.GRAY));
     }
 
     public static void error(String message, Object... strings)

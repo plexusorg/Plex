@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
 
 @CommandParameters(name = "list", description = "Show a list of all online players")
 @CommandPermissions(level = Rank.OP, permission = "plex.list")
-@System("ranks")
+@System(value = "ranks")
 public class ListCMD extends PlexCommand
 {
     @Override

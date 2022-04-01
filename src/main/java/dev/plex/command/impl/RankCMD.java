@@ -15,7 +15,7 @@ import org.jetbrains.annotations.Nullable;
 
 @CommandPermissions(level = Rank.OP, permission = "plex.rank", source = RequiredCommandSource.ANY)
 @CommandParameters(name = "rank", description = "Displays your rank")
-@System("ranks")
+@System(value = "ranks")
 public class RankCMD extends PlexCommand
 {
     @Override
