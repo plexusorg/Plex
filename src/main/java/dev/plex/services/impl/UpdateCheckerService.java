@@ -1,6 +1,7 @@
 package dev.plex.services.impl;
 
 import dev.plex.services.AbstractService;
+import org.bukkit.Bukkit;
 
 public class UpdateCheckerService extends AbstractService
 {
@@ -16,7 +17,7 @@ public class UpdateCheckerService extends AbstractService
     {
         if (!newVersion)
         {
-            if (plugin.getUpdateChecker().getUpdateStatusMessage("plexusorg/Plex", "master"))
+            if (plugin.getUpdateChecker().getUpdateStatusMessage(Bukkit.getConsoleSender()))
             {
                 newVersion = true;
             }

@@ -14,7 +14,7 @@ import java.net.URL;
 import javax.annotation.Nonnull;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import org.bukkit.ChatColor;
+import org.bukkit.command.CommandSender;
 
 public class UpdateChecker extends PlexBase
 {
@@ -55,30 +55,29 @@ public class UpdateChecker extends PlexBase
         }
     }
 
-    public boolean getUpdateStatusMessage(@Nonnull String repo, @Nonnull String branch)
+    public boolean getUpdateStatusMessage(CommandSender sender)
     {
         int distance;
-        distance = fetchDistanceFromGitHub(repo, branch, Plex.build.head);
+        distance = fetchDistanceFromGitHub("plexusorg/Plex", "master", Plex.build.head);
 
         switch (distance)
         {
             case -1 -> {
-                PlexLog.log(ChatColor.RED + "There was an error checking for updates.");
+                sender.sendMessage(Component.text("There was an error checking for updates.").color(NamedTextColor.RED));
                 return false;
             }
             case 0 -> {
-                PlexLog.log(ChatColor.GREEN + "Your version of Plex is up to date!");
+                sender.sendMessage(Component.text("Your version of Plex is up to date!").color(NamedTextColor.GREEN));
                 return true;
             }
             case -2 -> {
-                PlexLog.log(ChatColor.RED + "Unknown version, unable to check for updates.");
+                sender.sendMessage(Component.text("Unknown version, unable to check for updates.").color(NamedTextColor.RED));
                 return false;
             }
             default -> {
-                PlexLog.log(Component.text("Your version of Plex is not up to date!", NamedTextColor.RED)
-                        .append(Component.newline())
-                        .append(Component.text("Download the new version at: ")
-                                .append(Component.text(DOWNLOAD_PAGE, NamedTextColor.RED))));
+                sender.sendMessage(Component.text("Your version of Plex is not up to date!", NamedTextColor.RED));
+                sender.sendMessage(Component.text("Download a new version at: ")
+                        .append(Component.text(DOWNLOAD_PAGE, NamedTextColor.RED)));
                 return true;
             }
         }
