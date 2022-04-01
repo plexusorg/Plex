@@ -28,7 +28,7 @@ dependencies {
     library "org.json:json:20220320"
     library "commons-io:commons-io:2.11.0"
     library "dev.morphia.morphia:morphia-core:2.2.6"
-    library "redis.clients:jedis:4.2.0"
+    library "redis.clients:jedis:4.2.1"
     library "org.mariadb.jdbc:mariadb-java-client:3.0.4"
     library "org.apache.httpcomponents:httpclient:4.5.13"
     library "org.apache.commons:commons-lang3:3.12.0"
@@ -37,7 +37,7 @@ dependencies {
     library "org.apache.maven.resolver:maven-resolver-connector-basic:1.7.3"
     library "org.apache.maven.resolver:maven-resolver-transport-http:1.7.3"
     library "org.apache.maven:maven-resolver-provider:3.8.5"
-    library "org.springframework.boot:spring-boot-starter-web:2.6.5"
+    library "org.springframework.boot:spring-boot-starter-web:2.6.6"
     compileOnly "io.papermc.paper:paper-api:1.18.2-R0.1-SNAPSHOT"
     implementation "org.bstats:bstats-base:3.0.0"
     implementation "org.bstats:bstats-bukkit:3.0.0"
@@ -111,29 +111,22 @@ publishing {
     publications {
         maven(MavenPublication) {
             from(components.java)
-        }
-        plexReleases(MavenPublication) {
-            from(components.java)
-            repositories {
-                maven {
-                    url("https://nexus.telesphoreo.me/repository/plex-releases/")
-                    credentials {
-                        username = System.getenv("plex_repo_user")
-                        password = System.getenv("plex_repo_pass")
-                    }
+            // TODO: Not working
+            versionMapping {
+                usage("implementation") {
+                    fromResolutionOf("compileClasspath")
                 }
             }
         }
-        plexSnapshots(MavenPublication) {
-            from(components.java)
-            repositories {
-                maven {
-                    url("https://nexus.telesphoreo.me/repository/plex-snapshots/")
-                    credentials {
-                        username = System.getenv("plex_repo_user")
-                        password = System.getenv("plex_repo_pass")
-                    }
-                }
+    }
+    repositories {
+        maven {
+            def releasesRepoUrl = uri("https://nexus.telesphoreo.me/repository/plex-release/")
+            def snapshotsRepoUrl = uri("https://nexus.telesphoreo.me/repository/plex-snapshots/")
+            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+            credentials {
+                username System.getenv("plexUser")
+                password System.getenv("plexPassword")
             }
         }
     }
@@ -147,34 +140,9 @@ tasks {
     build {
         dependsOn(shadowJar)
         finalizedBy(buildProperties)
-        if (System.getenv("plex_repo_user") != null && System.getenv("plex_repo_pass") != null) {
-            if (!getVersion().toString().toLowerCase().endsWith("-snapshot")) {
-                dependsOn(publishPlexReleasesPublicationToMavenRepository)
-            }
-        }
     }
 
     javadoc {
         options.memberLevel = JavadocMemberLevel.PRIVATE
-    }
-}
-
-task publishRelease {
-    dependsOn(publishPlexReleasesPublicationToMavenRepository)
-}
-
-task publishSnapshot {
-    dependsOn(publishPlexSnapshotsPublicationToMaven2Repository)
-}
-
-task jenkinsPublish {
-    if (System.getenv("plex_repo_user") == "jenkins") {
-        if (System.getenv("plex_repo_user") != null && System.getenv("plex_repo_user") == "jenkins") {
-            if (!getVersion().toString().toLowerCase().endsWith("-snapshot")) {
-                dependsOn(publishPlexReleasesPublicationToMavenRepository)
-            } else {
-                dependsOn(publishPlexSnapshotsPublicationToMaven2Repository)
-            }
-        }
     }
 }
