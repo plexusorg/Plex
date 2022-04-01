@@ -124,13 +124,9 @@ publishing {
             def releasesRepoUrl = uri("https://nexus.telesphoreo.me/repository/plex-release/")
             def snapshotsRepoUrl = uri("https://nexus.telesphoreo.me/repository/plex-snapshots/")
             url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
-            /* Place a file in your root .gradle folder named "gradle.properties" with the following
-               plexUser = <Nexus username>
-               plexPassword = <Nexus password>
-             */
             credentials {
-                username plexUser
-                password plexPassword
+                username = System.getenv("plexUser")
+                password = System.getenv("plexPassword")
             }
         }
     }
