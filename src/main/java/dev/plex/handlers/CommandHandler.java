@@ -21,10 +21,9 @@ public class CommandHandler extends PlexBase
         {
             try
             {
-                System annotation = clazz.getDeclaredAnnotation(System.class);
-                // TODO: Annotations are always null?
-                if (annotation != null)
+                if (clazz.isAnnotationPresent(System.class))
                 {
+                    System annotation = clazz.getDeclaredAnnotation(System.class);
                     PlexLog.debug(clazz.getName() + " has annotations");
                     if (annotation.value().equalsIgnoreCase(plugin.getSystem().toLowerCase()))
                     {
@@ -41,7 +40,6 @@ public class CommandHandler extends PlexBase
                 else
                 {
                     commands.add(clazz.getConstructor().newInstance());
-                    // PlexLog.debug("Adding command normally " + clazz.getName());
                 }
             }
             catch (InvocationTargetException | InstantiationException | IllegalAccessException | NoSuchMethodException ex)
