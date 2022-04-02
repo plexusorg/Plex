@@ -9,7 +9,8 @@ import dev.plex.player.PlexPlayer;
 import dev.plex.player.PunishedPlayer;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
-import java.util.Collections;
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
@@ -49,12 +50,25 @@ public class PlayerListener extends PlexListener
             PlexLog.log("A player with this name has not joined the server before, creating new entry.");
             plexPlayer = new PlexPlayer(player.getUniqueId()); // it doesn't! okay so now create the object
             plexPlayer.setName(player.getName()); // set the name of the player
-            plexPlayer.setIps(Collections.singletonList(player.getAddress().getAddress().getHostAddress().trim())); // set the arraylist of ips
+            plexPlayer.setIps(Arrays.asList(player.getAddress().getAddress().getHostAddress().trim())); // set the arraylist of ips
             DataUtils.insert(plexPlayer); // insert data in some wack db
         }
         else
         {
             plexPlayer = DataUtils.getPlayer(player.getUniqueId());
+            /*List<String> ips = plexPlayer.getIps();
+            String currentIP = player.getAddress().getAddress().getHostAddress().trim();
+            for (int i = 0; i < plexPlayer.getIps().size(); i++)
+            {
+                if (!currentIP.equals(ips.get(i)))
+                {
+                    PlexLog.debug("New IP address detected for player: " + player.getName() + ". Adding " + currentIP + " to the database.");
+                    ips.add(currentIP);
+                    plexPlayer.setIps(ips);
+                    DataUtils.update(plexPlayer);
+                    return;
+                }
+            }*/
         }
 
         PunishedPlayer punishedPlayer = PlayerCache.getPunishedPlayer(player.getUniqueId());
