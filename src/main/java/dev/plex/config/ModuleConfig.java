@@ -1,19 +1,17 @@
 package dev.plex.config;
 
 import dev.plex.module.PlexModule;
-import dev.plex.util.PlexLog;
-import org.apache.logging.log4j.Level;
-import org.bukkit.configuration.file.YamlConfiguration;
-
-import java.io.*;
-import java.nio.charset.StandardCharsets;
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
+import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.configuration.file.YamlConfiguration;
 
 /**
  * Creates a custom Config object
  */
-public class ModuleConfig extends YamlConfiguration {
+public class ModuleConfig extends YamlConfiguration
+{
     /**
      * The plugin instance
      */
@@ -30,70 +28,39 @@ public class ModuleConfig extends YamlConfiguration {
     private String name;
 
     /**
-     * Whether new entries were added to the file automatically
-     */
-    private boolean added = false;
-
-    /**
      * Creates a config object
      *
      * @param module The module instance
      * @param name   The file name
      */
-    public ModuleConfig(PlexModule module, String name) {
+    public ModuleConfig(PlexModule module, String name)
+    {
         this.module = module;
         this.file = new File(module.getDataFolder(), name);
         this.name = name;
 
-        if (!file.exists()) {
+        if (!file.exists())
+        {
             saveDefault();
         }
     }
 
-    public void load() {
-        this.load(true);
-    }
-
-    /**
-     * Loads the configuration file
-     */
-    public void load(boolean loadFromFile) {
-        try {
-            if (loadFromFile) {
-                YamlConfiguration externalYamlConfig = YamlConfiguration.loadConfiguration(file);
-                InputStreamReader internalConfigFileStream = new InputStreamReader(module.getResource(name), StandardCharsets.UTF_8);
-                YamlConfiguration internalYamlConfig = YamlConfiguration.loadConfiguration(internalConfigFileStream);
-
-                // Gets all the keys inside the internal file and iterates through all of it's key pairs
-                for (String string : internalYamlConfig.getKeys(true)) {
-                    // Checks if the external file contains the key already.
-                    if (!externalYamlConfig.contains(string)) {
-                        // If it doesn't contain the key, we set the key based off what was found inside the plugin jar
-                        externalYamlConfig.setComments(string, internalYamlConfig.getComments(string));
-                        externalYamlConfig.set(string, internalYamlConfig.get(string));
-                        PlexLog.log("Setting key: " + string + " in " + this.name + " to the default value(s) since it does not exist!");
-                        added = true;
-                    }
-                }
-                if (added) {
-                    externalYamlConfig.save(file);
-                    PlexLog.log("Saving new file...");
-                    added = false;
-                }
-            }
-            super.load(file);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+    public void load() throws IOException, InvalidConfigurationException
+    {
+        super.load(file);
     }
 
     /**
      * Saves the configuration file
      */
-    public void save() {
-        try {
+    public void save()
+    {
+        try
+        {
             super.save(file);
-        } catch (Exception ex) {
+        }
+        catch (Exception ex)
+        {
             ex.printStackTrace();
         }
     }
@@ -101,10 +68,14 @@ public class ModuleConfig extends YamlConfiguration {
     /**
      * Moves the configuration file from the plugin's resources folder to the data folder (plugins/Plex/)
      */
-    private void saveDefault() {
-        try {
+    private void saveDefault()
+    {
+        try
+        {
             Files.copy(module.getClass().getResourceAsStream("/" + name), this.file.toPath());
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             e.printStackTrace();
         }
         /*if (name == null || name.equals("")) {
