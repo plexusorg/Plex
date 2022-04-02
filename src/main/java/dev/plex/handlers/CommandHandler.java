@@ -24,17 +24,14 @@ public class CommandHandler extends PlexBase
                 if (clazz.isAnnotationPresent(System.class))
                 {
                     System annotation = clazz.getDeclaredAnnotation(System.class);
-                    PlexLog.debug(clazz.getName() + " has annotations");
                     if (annotation.value().equalsIgnoreCase(plugin.getSystem().toLowerCase()))
                     {
                         commands.add(clazz.getConstructor().newInstance());
-                        PlexLog.debug("Adding " + clazz.getName() + " as a rank command");
                     }
 
                     if (plugin.config.getBoolean("debug") && annotation.debug())
                     {
                         commands.add(clazz.getConstructor().newInstance());
-                        PlexLog.debug("Adding " + clazz.getName() + " as a debug command");
                     }
                 }
                 else
@@ -47,8 +44,6 @@ public class CommandHandler extends PlexBase
                 PlexLog.error("Failed to register " + clazz.getSimpleName() + " as a command!");
             }
         });
-
-        PlexLog.debug("Test");
         PlexLog.log(String.format("Registered %s commands from %s classes!", commands.size(), commandSet.size()));
     }
 }
