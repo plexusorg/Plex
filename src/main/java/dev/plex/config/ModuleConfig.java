@@ -45,9 +45,16 @@ public class ModuleConfig extends YamlConfiguration
         }
     }
 
-    public void load() throws IOException, InvalidConfigurationException
+    public void load()
     {
-        super.load(file);
+        try
+        {
+            super.load(file);
+        }
+        catch (IOException | InvalidConfigurationException ex)
+        {
+            ex.printStackTrace();
+        }
     }
 
     /**
