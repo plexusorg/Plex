@@ -23,7 +23,7 @@ public class Punishment
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("MM/dd/yyyy 'at' hh:mm:ss a");
     private final UUID punished;
     private final UUID punisher;
-    private final List<String> IPS;
+    private String ip;
     private String punishedUsername;
     private PunishmentType type;
     private String reason;
@@ -35,8 +35,8 @@ public class Punishment
     {
         this.punished = punished;
         this.punisher = punisher;
-        this.IPS = Lists.newArrayList();
 
+        this.ip = "";
         this.punishedUsername = "";
         this.type = null;
         this.reason = "";

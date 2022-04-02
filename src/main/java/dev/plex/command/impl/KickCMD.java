@@ -63,6 +63,7 @@ public class KickCMD extends PlexCommand
         punishment.setEndDate(LocalDateTime.now());
         punishment.setCustomTime(false);
         punishment.setActive(false);
+        punishment.setIp(player.getAddress().getAddress().getHostAddress().trim());
         plugin.getPunishmentManager().doPunishment(punishedPlayer, punishment);
         PlexUtils.broadcast(messageComponent("kickedPlayer", sender.getName(), plexPlayer.getName()));
         player.kick(componentFromString(reason));

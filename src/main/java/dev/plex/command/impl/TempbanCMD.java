@@ -82,6 +82,10 @@ public class TempbanCMD extends PlexCommand
         punishment.setEndDate(PlexUtils.parseDateOffset(args[1]));
         punishment.setCustomTime(false);
         punishment.setActive(!isAdmin(plexPlayer));
+        if (player != null)
+        {
+            punishment.setIp(player.getAddress().getAddress().getHostAddress().trim());
+        }
         plugin.getPunishmentManager().doPunishment(punishedPlayer, punishment);
         PlexUtils.broadcast(messageComponent("banningPlayer", sender.getName(), plexPlayer.getName()));
         if (player != null)

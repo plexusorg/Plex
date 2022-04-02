@@ -104,7 +104,6 @@ public class PunishedPlayer extends PlexBase
             }
         }
         return file;
-
     }
 
     @SneakyThrows

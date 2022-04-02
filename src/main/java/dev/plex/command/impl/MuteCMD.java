@@ -58,6 +58,7 @@ public class MuteCMD extends PlexCommand
         punishment.setEndDate(date.plusMinutes(5));
         punishment.setType(PunishmentType.MUTE);
         punishment.setPunishedUsername(player.getName());
+        punishment.setIp(player.getAddress().getAddress().getHostAddress().trim());
         punishment.setReason("");
 
         plugin.getPunishmentManager().doPunishment(punishedPlayer, punishment);

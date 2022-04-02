@@ -58,6 +58,7 @@ public class FreezeCMD extends PlexCommand
         punishment.setEndDate(date.plusMinutes(5));
         punishment.setType(PunishmentType.FREEZE);
         punishment.setPunishedUsername(player.getName());
+        punishment.setIp(player.getAddress().getAddress().getHostAddress().trim());
         punishment.setReason("");
 
         plugin.getPunishmentManager().doPunishment(punishedPlayer, punishment);
