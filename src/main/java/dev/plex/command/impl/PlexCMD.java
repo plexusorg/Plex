@@ -51,7 +51,7 @@ public class PlexCMD extends PlexCommand
             plugin.getRankManager().importDefaultRanks();
             send(sender, "Imported ranks");
             send(sender, "Plex successfully reloaded.");
-            plugin.setSystem(plugin.config.getString("commands.permissions"));
+            plugin.setSystem(plugin.config.getString("system"));
             return null;
         }
         else if (args[0].equalsIgnoreCase("redis"))

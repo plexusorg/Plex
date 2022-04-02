@@ -27,6 +27,7 @@ public class TabListener extends PlexListener
     {
         PlexPlayer plexPlayer = event.getPlexPlayer();
         Player player = event.getPlexPlayer().getPlayer();
+        if (player == null) return;
         player.playerListName(Component.text(player.getName()).color(plugin.getRankManager().getColor(plexPlayer)));
     }
 
@@ -35,6 +36,7 @@ public class TabListener extends PlexListener
     {
         PlexPlayer plexPlayer = event.getPlexPlayer();
         Player player = event.getPlexPlayer().getPlayer();
+        if (player == null) return;
         player.playerListName(Component.text(player.getName()).color(plugin.getRankManager().getColor(plexPlayer)));
     }
 
@@ -43,6 +45,7 @@ public class TabListener extends PlexListener
     {
         PlexPlayer plexPlayer = event.getPlexPlayer();
         Player player = event.getPlexPlayer().getPlayer();
+        if (player == null) return;
         player.playerListName(Component.text(player.getName()).color(plugin.getRankManager().getColor(plexPlayer)));
     }
 }

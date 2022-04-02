@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.Data;
+import lombok.Getter;
 import org.apache.commons.io.FileUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -32,6 +33,7 @@ import redis.clients.jedis.Jedis;
 
 public class PunishmentManager extends PlexBase
 {
+    @Getter
     private final List<IndefiniteBan> indefiniteBans = Lists.newArrayList();
 
     public void mergeIndefiniteBans()
