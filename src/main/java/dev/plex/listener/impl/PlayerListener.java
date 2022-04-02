@@ -56,19 +56,22 @@ public class PlayerListener extends PlexListener
         else
         {
             plexPlayer = DataUtils.getPlayer(player.getUniqueId());
-            /*List<String> ips = plexPlayer.getIps();
+            List<String> ips = plexPlayer.getIps();
             String currentIP = player.getAddress().getAddress().getHostAddress().trim();
-            for (int i = 0; i < plexPlayer.getIps().size(); i++)
+            if (!ips.contains(currentIP))
             {
-                if (!currentIP.equals(ips.get(i)))
+                PlexLog.debug("New IP address detected for player: " + player.getName() + ". Adding " + currentIP + " to the database.");
+                ips.add(currentIP);
+                plexPlayer.setIps(ips);
+                if (mongoPlayerData != null) //back to mongo checking
                 {
-                    PlexLog.debug("New IP address detected for player: " + player.getName() + ". Adding " + currentIP + " to the database.");
-                    ips.add(currentIP);
-                    plexPlayer.setIps(ips);
-                    DataUtils.update(plexPlayer);
-                    return;
+                    mongoPlayerData.update(plexPlayer); //update the player's document
                 }
-            }*/
+                else if (sqlPlayerData != null) //sql checking
+                {
+                    sqlPlayerData.update(plexPlayer);
+                }
+            }
         }
 
         PunishedPlayer punishedPlayer = PlayerCache.getPunishedPlayer(player.getUniqueId());
