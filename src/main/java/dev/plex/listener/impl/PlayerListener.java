@@ -63,14 +63,13 @@ public class PlayerListener extends PlexListener
                 PlexLog.debug("New IP address detected for player: " + player.getName() + ". Adding " + currentIP + " to the database.");
                 ips.add(currentIP);
                 plexPlayer.setIps(ips);
-                if (mongoPlayerData != null) //back to mongo checking
-                {
-                    mongoPlayerData.update(plexPlayer); //update the player's document
-                }
-                else if (sqlPlayerData != null) //sql checking
-                {
-                    sqlPlayerData.update(plexPlayer);
-                }
+                DataUtils.update(plexPlayer);
+            }
+            if (!plexPlayer.getName().equals(player.getName()))
+            {
+                PlexLog.log(plexPlayer.getName() + " has a new name. Changing it to " + player.getName());
+                plexPlayer.setName(player.getName());
+                DataUtils.update(plexPlayer);
             }
         }
 
@@ -101,15 +100,7 @@ public class PlayerListener extends PlexListener
             plugin.getAdminList().removeFromCache(UUID.fromString(plexPlayer.getUuid()));
         }
 
-        if (mongoPlayerData != null) //back to mongo checking
-        {
-            mongoPlayerData.update(plexPlayer); //update the player's document
-        }
-        else if (sqlPlayerData != null) //sql checking
-        {
-            sqlPlayerData.update(plexPlayer);
-        }
-
+        DataUtils.update(plexPlayer);
         PlayerCache.getPlexPlayerMap().remove(event.getPlayer().getUniqueId()); //remove them from cache
     }
 
