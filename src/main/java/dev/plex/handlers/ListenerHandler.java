@@ -24,11 +24,9 @@ public class ListenerHandler extends PlexBase
                 if (clazz.isAnnotationPresent(Toggleable.class))
                 {
                     Toggleable annotation = clazz.getDeclaredAnnotation(Toggleable.class);
-                    PlexLog.debug(clazz.getName() + " has annotations");
                     if (plugin.config.get(annotation.value()) != null && plugin.config.getBoolean(annotation.value()))
                     {
                         listeners.add(clazz.getConstructor().newInstance());
-                        PlexLog.debug("Registering " + clazz.getName() + " as a listener");
                     }
                 }
                 else
