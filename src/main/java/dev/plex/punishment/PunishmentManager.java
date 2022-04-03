@@ -12,6 +12,7 @@ import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -20,6 +21,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.Data;
@@ -183,28 +185,51 @@ public class PunishmentManager extends PlexBase
         if (Plex.get().getRedisConnection().isEnabled())
         {
             Jedis jedis = Plex.get().getRedisConnection().getJedis();
-            jedis.keys("*").forEach(key ->
+            for (String key : jedis.keys("*"))
             {
                 try
                 {
                     UUID uuid = UUID.fromString(key);
                     String jsonPunishmentString = jedis.get(uuid.toString());
                     JSONObject object = new JSONObject(jsonPunishmentString);
-                    object.getJSONObject(uuid.toString()).getJSONArray("punishments").forEach(json ->
+                    for (Object json : object.getJSONObject(uuid.toString()).getJSONArray("punishments"))
                     {
                         Punishment punishment = Punishment.fromJson(json.toString());
                         if (punishment.isActive() && punishment.getType() == PunishmentType.BAN)
                         {
                             punishments.add(punishment);
                         }
-                    });
+                    }
                 }
                 catch (IllegalArgumentException ignored)
                 {
                 }
-            });
+            }
         }
-
+        else
+        {
+            File fileDir = new File(plugin.getDataFolder() + File.separator + "punishments");
+            for (File file : Objects.requireNonNull(fileDir.listFiles()))
+            {
+                if (isNotEmpty(file))
+                {
+                    try (FileInputStream fis = new FileInputStream(file))
+                    {
+                        JSONTokener tokener = new JSONTokener(fis);
+                        JSONObject object = new JSONObject(tokener);
+                        object.keySet().stream().findFirst().ifPresent(key ->
+                        {
+                            JSONObject obj = object.getJSONObject(key);
+                            punishments.addAll(obj.getJSONArray("punishments").toList().stream().map(Object::toString).map(Punishment::fromJson).filter(punishment -> punishment.isActive() && punishment.getType() == PunishmentType.BAN).toList());
+                        });
+                    }
+                    catch (IOException e)
+                    {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
         return punishments;
     }
 
