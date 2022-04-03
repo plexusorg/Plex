@@ -110,17 +110,7 @@ public class PunishmentManager extends PlexBase
                 JSONTokener tokener = new JSONTokener(new FileInputStream(file));
                 JSONObject object = new JSONObject(tokener);
                 object.getJSONObject(punishment.getPunished().toString()).getJSONArray("punishments").put(punishment.toJSON());
-                if (plugin.getRedisConnection().isEnabled())
-                {
-                    plugin.getRedisConnection().getJedis().set(player.getUuid(), object.toString());
-                    PlexLog.debug("Added " + player.getUuid() + "'s punishment to the Redis database.");
-                    plugin.getRedisConnection().getJedis().close();
-                }
-
-                FileWriter writer = new FileWriter(file);
-                writer.append(object.toString(8));
-                writer.flush();
-                writer.close();
+                addToRedis(player, file, object);
             }
             else
             {
@@ -132,22 +122,34 @@ public class PunishmentManager extends PlexBase
 
                 punishments.put("punishments", punishmentList);
                 object.put(punishment.getPunished().toString(), punishments);
-                if (plugin.getRedisConnection().isEnabled())
-                {
-                    plugin.getRedisConnection().getJedis().set(player.getUuid(), object.toString());
-                    PlexLog.debug("Added " + player.getUuid() + "'s punishment to the Redis database.");
-                    plugin.getRedisConnection().getJedis().close();
-                }
-
-                FileWriter writer = new FileWriter(file);
-                writer.append(object.toString(8));
-                writer.flush();
-                writer.close();
+                addToRedis(player, file, object);
             }
         }
         catch (IOException e)
         {
             e.printStackTrace();
+        }
+    }
+
+    private void addToRedis(PunishedPlayer player, File file, JSONObject object)
+    {
+        try
+        {
+            if (plugin.getRedisConnection().isEnabled())
+            {
+                plugin.getRedisConnection().getJedis().set(player.getUuid(), object.toString());
+                PlexLog.debug("Added " + player.getUuid() + "'s punishment to the Redis database.");
+                plugin.getRedisConnection().getJedis().close();
+            }
+
+            FileWriter writer = new FileWriter(file);
+            writer.append(object.toString(8));
+            writer.flush();
+            writer.close();
+        }
+        catch (IOException ex)
+        {
+            ex.printStackTrace();
         }
     }
 
@@ -219,18 +221,7 @@ public class PunishmentManager extends PlexBase
 
             String jsonPunishmentString = jedis.get(uuid.toString());
             JSONObject object = new JSONObject(jsonPunishmentString);
-            List<Punishment> punishments = object.getJSONObject(uuid.toString()).getJSONArray("punishments").toList().stream().map(obj -> Punishment.fromJson(obj.toString())).collect(Collectors.toList());
-            while (punishments.stream().anyMatch(punishment -> punishment.isActive() && punishment.getType() == PunishmentType.BAN))
-            {
-                punishments.stream().filter(Punishment::isActive).filter(punishment -> punishment.getType() == PunishmentType.BAN).findFirst().ifPresent(punishment ->
-                {
-                    int index = punishments.indexOf(punishment);
-                    punishment.setActive(false);
-                    punishments.set(index, punishment);
-                });
-            }
-            object.getJSONObject(uuid.toString()).getJSONArray("punishments").clear();
-            object.getJSONObject(uuid.toString()).getJSONArray("punishments").putAll(punishments.stream().map(Punishment::toJSON).collect(Collectors.toList()));
+            setActive(uuid, object, false);
             jedis.set(uuid.toString(), object.toString());
         }
 
@@ -243,18 +234,7 @@ public class PunishmentManager extends PlexBase
             {
                 JSONTokener tokener = new JSONTokener(fis);
                 JSONObject object = new JSONObject(tokener);
-                List<Punishment> punishments = object.getJSONObject(uuid.toString()).getJSONArray("punishments").toList().stream().map(obj -> Punishment.fromJson(obj.toString())).collect(Collectors.toList());
-                while (punishments.stream().anyMatch(punishment -> punishment.isActive() && punishment.getType() == PunishmentType.BAN))
-                {
-                    punishments.stream().filter(Punishment::isActive).filter(punishment -> punishment.getType() == PunishmentType.BAN).findFirst().ifPresent(punishment ->
-                    {
-                        int index = punishments.indexOf(punishment);
-                        punishment.setActive(false);
-                        punishments.set(index, punishment);
-                    });
-                }
-                object.getJSONObject(uuid.toString()).getJSONArray("punishments").clear();
-                object.getJSONObject(uuid.toString()).getJSONArray("punishments").putAll(punishments.stream().map(Punishment::toJSON).collect(Collectors.toList()));
+                setActive(uuid, object, false);
                 FileWriter writer = new FileWriter(file);
                 writer.append(object.toString());
                 writer.flush();
@@ -265,6 +245,22 @@ public class PunishmentManager extends PlexBase
                 e.printStackTrace();
             }
         }
+    }
+
+    private void setActive(UUID uuid, JSONObject object, boolean active)
+    {
+        List<Punishment> punishments = object.getJSONObject(uuid.toString()).getJSONArray("punishments").toList().stream().map(obj -> Punishment.fromJson(obj.toString())).collect(Collectors.toList());
+        while (punishments.stream().anyMatch(punishment -> punishment.isActive() && punishment.getType() == PunishmentType.BAN))
+        {
+            punishments.stream().filter(Punishment::isActive).filter(punishment -> punishment.getType() == PunishmentType.BAN).findFirst().ifPresent(punishment ->
+            {
+                int index = punishments.indexOf(punishment);
+                punishment.setActive(active);
+                punishments.set(index, punishment);
+            });
+        }
+        object.getJSONObject(uuid.toString()).getJSONArray("punishments").clear();
+        object.getJSONObject(uuid.toString()).getJSONArray("punishments").putAll(punishments.stream().map(Punishment::toJSON).collect(Collectors.toList()));
     }
 
     private void issuePunishment(PunishedPlayer player, Punishment punishment)

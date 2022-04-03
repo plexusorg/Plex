@@ -1,6 +1,5 @@
 package dev.plex.punishment;
 
-import com.google.common.collect.Lists;
 import com.google.gson.GsonBuilder;
 import dev.plex.Plex;
 import dev.plex.util.MojangUtils;
@@ -9,7 +8,6 @@ import dev.plex.util.adapter.LocalDateTimeDeserializer;
 import dev.plex.util.adapter.LocalDateTimeSerializer;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
