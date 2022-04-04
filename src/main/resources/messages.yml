@@ -5,103 +5,103 @@
 # Messages in here will be placed in for certain commands, actions, etc.
 # Warning: not all commands have customizable messages
 
-# Variables <v> - these are code-defined replacements for things that should be inserted into messages. (e.g. names, statuses, numbers)
+# Variables {number} - these are code-defined replacements for things that should be inserted into messages. (e.g. names, statuses, numbers)
 # If any of these variables are supposed to be used within a message, some documentation is provided to give more context to what the variables indicate.
-# You are unable to change the order the variables are used due to it being a code-side functionality.
 # If you are wishing to change these messages it's recommended you use the same amount of variables as stated in the documentation, however it's not required.
 
-# 1. Appeal URL
-# 2. Reason
-# 3. Expiry
-# 4. Punisher
-banMessage: "<red>You have been banned! You may appeal at <gold><v>.\n<red>Reason: <gold><v>\n<red>End date: <gold><v>\n<red>Banned by: <gold><v>"
-# The type of indefinite ban
-# Appeal URL
-indefBanMessage: "<red>Your <v> is indefinitely banned! You may appeal at <gold><v>."
+# 0 - Appeal URL
+# 1 - Reason
+# 2 - Expiry
+# 3 - Punisher
+banMessage: "<red>You have been banned! You may appeal at <gold>{0}.\n<red>Reason: <gold>{1}\n<red>End date: <gold>{2}\n<red>Banned by: <gold>{3}"
+# 0 - The type of indefinite ban
+# 1 - Appeal URL
+indefBanMessage: "<red>Your {0} is indefinitely banned! You may appeal at <gold>{1}."
 playerNotFound: "<red>Player not found!"
 worldNotFound: "<red>World not found!"
-# 1. The world you have been teleported to
-playerWorldTeleport: "<aqua>You have been teleported to <v>."
-# 1. The sender who opped everyone
-oppedAllPlayers: "<aqua><v> - Opped all players on the server"
-# 1. The sender who de-opped everyone
-deoppedAllPlayers: "<aqua><v> - De-opped all players on the server"
-# 1. The person who is opping
-# 2. The person who has been opped
-oppedPlayer: "<aqua><v> - Opped <v>"
-# 1. The person who is deopped
-# 2. The person who has been deopped
-deoppedPlayer: "<red><v> - Deopped <v>"
-# 1. The person who is freezing
-# 2. The person who has been frozen
-frozePlayer: "<red><v> - Froze <v>"
-# 1. The person who is unfreezing
-# 2. The person who has been unfrozen
-unfrozePlayer: "<aqua><v> - Unfroze <v>"
-# 1. The command sender
-# 2. The person who has been muted
-mutedPlayer: "<red><v> - Muted <v>"
-# 1. The command sender
-# 2. The person who has been unmuted
-unmutedPlayer: "<aqua><v> - Unmuted <v>"
-# 1. The person who is locking up
-# 2. The person who has been locked up
-lockedUpPlayer: "<aqua><v> - Locking up <v>"
-# 1. The person who is unlocking
-# 2. The person who has been unlocked
-unlockedPlayer: "<aqua><v> - Unlocking <v>"
-# 1. The rank required to use the command
-noPermissionRank: "<red>You must be at least <v> <red>to use this command!"
-# 1. The permission node required to use the command
-noPermissionNode: "<red>You must have the permission: <v> <red>to use this command!"
+# 0 - The world you have been teleported to
+playerWorldTeleport: "<aqua>You have been teleported to {0}."
+# 0 - The sender who opped everyone
+oppedAllPlayers: "<aqua>{0} - Opped all players on the server"
+# 0 - The sender who de-opped everyone
+deoppedAllPlayers: "<aqua>{0} - De-opped all players on the server"
+# 0 - The person who is opping
+# 1 - The person who has been opped
+oppedPlayer: "<aqua>{0} - Opped {1}"
+# 0 - The person who is deopped
+# 1 - The person who has been deopped
+deoppedPlayer: "<red>{0} - Deopped {1}"
+# 0 - The person who is freezing
+# 1 - The person who has been frozen
+frozePlayer: "<red>{0} - Froze {1}"
+# 0 - The person who is unfreezing
+# 1 - The person who has been unfrozen
+unfrozePlayer: "<aqua>{0} - Unfroze {1}"
+# 0 - The command sender
+# 1 - The person who has been muted
+mutedPlayer: "<red>{0} - Muted {1}"
+# 0 - The command sender
+# 1 - The person who has been unmuted
+unmutedPlayer: "<aqua>{0} - Unmuted {1}"
+# 0 - The person who is locking up
+# 1 - The person who has been locked up
+lockedUpPlayer: "<aqua>{0} - Locking up {1}"
+# 0 - The person who is unlocking
+# 1 - The person who has been unlocked
+unlockedPlayer: "<aqua>{0} - Unlocking {1}"
+# 0 - The rank required to use the command
+noPermissionRank: "<red>You must be at least {0} <red>to use this command!"
+# 0 - The permission node required to use the command
+noPermissionNode: "<red>You must have the permission: {0} <red>to use this command!"
 noPermissionInGame: "<red>You must be in console to use this command!"
 noPermissionConsole: "<red>You must be in-game to use this command!"
-# 1. The username of the name history
-nameHistoryTitle: "<gold>Name History of <v>"
+# 0 - The username of the name history
+nameHistoryTitle: "<gold>Name History of {0}"
 nameHistorySeparator: "<gold><strikethrough>-----------------------------"
-# 1. The name
-# 2. The date and time of the name change
-nameHistoryBody: "<gold><v> <dark_gray>- <gold><v>"
-# 1. The gamemode
-gameModeSetTo: "<gray>Your gamemode has been set to <v>."
-# 1. The player's name
-# 2. The gamemode
-setOtherPlayerGameModeTo: "<gray>You set <v>'s gamemode to <v>."
-# 1. The command sender
-# 2. The gamemode
-playerSetOtherGameMode: "<gray><v> set your gamemode to <v>."
-# 1. The command sender
-# 2. The gamemode
-setEveryoneGameMode: "<aqua><v> - Changing everyone's gamemode to <v>"
+# 0 - The name
+# 1 - The date and time of the name change
+nameHistoryBody: "<gold>{0} <dark_gray>- <gold>{1}"
+# 0 - The gamemode
+gameModeSetTo: "<gray>Your gamemode has been set to {0}."
+# 0 - The player's name
+# 1 - The gamemode
+setOtherPlayerGameModeTo: "<gray>You set {0}'s gamemode to {1}."
+# 0 - The command sender
+# 1 - The gamemode
+playerSetOtherGameMode: "<gray>{0} set your gamemode to {1}."
+# 0 - The command sender
+# 1 - The gamemode
+setEveryoneGameMode: "<aqua>{0} - Changing everyone's gamemode to {1}"
 consoleMustDefinePlayer: "<red>You must define a player since you are running this command from console."
-# 1. The command sender
-# 2. The player
-newAdminAdded: "<aqua><v> - Adding <v> to the admin list"
-# 1. The command sender
-# 2. The player
-adminRemoved: "<red><v> - Removing <v> from the admin list"
-# 1. The command sender
-# 2. The player
-adminSetRank: "<aqua><v> - Setting <v>'s rank to <v>"
-# The world name
-teleportedToWorld: "<aqua>You have been teleported to the <v>."
+# 0 - The command sender
+# 1 - The player
+newAdminAdded: "<aqua>{0} - Adding {1} to the admin list"
+# 0 - The command sender
+# 1 - The player
+adminRemoved: "<red>{0} - Removing {1} from the admin list"
+# 0 - The command sender
+# 1 - The player
+# 2 - The rank
+adminSetRank: "<aqua>{0} - Setting {1}'s rank to {2}"
+# 0 - The world name
+teleportedToWorld: "<aqua>You have been teleported to the {0}."
 higherRankThanYou: "<red>This player is an admin or a higher rank than you."
 playerNotAdmin: "<red>That player is not an admin."
 playerIsAdmin: "<red>That player is already an admin."
 rankNotFound: "<red>The rank you entered was not found."
 rankMustBeHigherThanAdmin: "<red>The rank you entered must be higher than Admin."
 consoleOnly: "<red>This command can only be executed by the console."
-# 1. Rank
-yourRank: "<aqua>Your rank is: <v>"
-# 1. Player name
-# 2. Rank
-otherRank: "<aqua><v>'s rank is: <v>"
-# 1. The command sender
-# 2. The player
-banningPlayer: "<red><v> - Banning <v>"
-# 1. The command sender
-# 2. The player
-unbanningPlayer: "<aqua><v> - Unbanning <v>"
+# 0 - Rank
+yourRank: "<aqua>Your rank is: {0}"
+# 0 - Player name
+# 1 - Rank
+otherRank: "<aqua>{0}'s rank is: {1}"
+# 0 - The command sender
+# 1 - The player
+banningPlayer: "<red>{0} - Banning {1}"
+# 0 - The command sender
+# 1 - The player
+unbanningPlayer: "<aqua>{0} - Unbanning {1}"
 playerNotBanned: "<red>That player is not banned!"
 playerNotFrozen: "<red>That player is not frozen!"
 playerNotMuted: "<red>That player is not muted!"
@@ -110,33 +110,36 @@ playerFrozen: "<red>That player is already frozen!"
 playerMuted: "<red>That player is already muted!"
 playerLockedUp: "<red>That player is already locked up!"
 muted: "<red>You are currently muted - STFU!"
-# 1. The command sender
-# 2. The player
-kickedPlayer: "<red><v> - Kicking <v>"
+# 0 - The command sender
+# 1 - The player
+kickedPlayer: "<red>{0} - Kicking {1}"
 teleportedToWorldSpawn: "<aqua>Teleporting to the local spawn"
 toggleCommandSpy: "<gray>CommandSpy has been"
 enabled: "<gray>enabled."
 disabled: "<gray>disabled."
-adminChatFormat: '<dark_gray>[<blue>AdminChat<dark_gray>] <dark_red><v> <gray>» <gold><v>'
-maximumPrefixLength: "<red>The maximum length for a tag may only be <v>."
+# 0 - The admin / staff member
+# 1 - The message
+adminChatFormat: '<dark_gray>[<blue>AdminChat<dark_gray>] <dark_red>{0} <gray>» <gold>{1}'
+# 0 - Maximum length, configured in config.yml
+maximumPrefixLength: "<red>The maximum length for a tag may only be {0}."
 prefixCleared: "<aqua>Your prefix has been cleared."
-# 1. The player name
-otherPrefixCleared: "<aqua>You have cleared <v>'s prefix."
-# 1. The new prefix
-prefixSetTo: "<aqua>Your prefix has been set to <v>"
-# 1. The amount of players whose edits are blocked
-blockedEditsSize: "Blocked block modification abilities for <v> players."
-# 1. The amount of players whose edits are unblocked
-unblockedEditsSize: "Unblocked all block modification abilities for <v> players."
-# 1. The command sender
-# 2. The player name
-blockingEditFor: "<red><v> - Blocking block modification abilities for <v>"
-# 1. The command sender
-# 2. The player name
-unblockingEditFor: "<aqua><v> - Unblocking block modification abilities for <v>"
+# 0 - The player name
+otherPrefixCleared: "<aqua>You have cleared {0}'s prefix."
+# 0 - The new prefix
+prefixSetTo: "<aqua>Your prefix has been set to {0}"
+# 0 - The amount of players whose edits are blocked
+blockedEditsSize: "Blocked block modification abilities for {0} players."
+# 0 - The amount of players whose edits are unblocked
+unblockedEditsSize: "Unblocked all block modification abilities for {0} players."
+# 0 - The command sender
+# 1 - The player name
+blockingEditFor: "<red>{0} - Blocking block modification abilities for {1}"
+# 0 - The command sender
+# 1 - The player name
+unblockingEditFor: "<aqua>{0} - Unblocking block modification abilities for {1}"
 yourEditsHaveBeenBlocked: "<gray>Your block modification abilities have been blocked."
 yourEditsHaveBeenUnblocked: "<gray>Your block modification abilities have been restored."
-# 1. The player name
-editsBlocked: "<gray>Blocked block modification abilities for <v>"
-# 1. The player name
-editsUnblocked: "<gray>Unblocked block modification abilities for <v>"
+# 0 - The player name
+editsBlocked: "<gray>Blocked block modification abilities for {0}"
+# 0 - The player name
+editsUnblocked: "<gray>Unblocked block modification abilities for {0}"

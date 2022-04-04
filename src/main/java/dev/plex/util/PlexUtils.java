@@ -146,9 +146,13 @@ public class PlexUtils extends PlexBase
         {
             throw new NullPointerException();
         }
-        for (Object object : objects)
+        /*for (Object object : objects)
         {
             f = f.replaceFirst("<v>", String.valueOf(object));
+        }*/
+        for (int i = 0; i < objects.length; i++)
+        {
+            f = f.replace("{" + i + "}", String.valueOf(objects[i]));
         }
         return f;
     }
