@@ -2,14 +2,13 @@ package dev.plex.command.impl;
 
 import com.google.common.collect.ImmutableList;
 import dev.plex.cache.DataUtils;
-import dev.plex.cache.PlayerCache;
+import dev.plex.cache.player.PlayerCache;
 import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.exception.PlayerNotFoundException;
 import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.player.PlexPlayer;
-import dev.plex.player.PunishedPlayer;
 import dev.plex.punishment.Punishment;
 import dev.plex.punishment.PunishmentType;
 import dev.plex.rank.enums.Rank;
@@ -65,8 +64,6 @@ public class TempbanCMD extends PlexCommand
         {
             return messageComponent("playerBanned");
         }
-
-        PunishedPlayer punishedPlayer = PlayerCache.getPunishedPlayer(targetUUID) == null ? new PunishedPlayer(targetUUID) : PlayerCache.getPunishedPlayer(targetUUID);
         Punishment punishment = new Punishment(targetUUID, getUUID(sender));
         punishment.setType(PunishmentType.BAN);
         if (args.length > 2)
@@ -86,7 +83,7 @@ public class TempbanCMD extends PlexCommand
         {
             punishment.setIp(player.getAddress().getAddress().getHostAddress().trim());
         }
-        plugin.getPunishmentManager().doPunishment(punishedPlayer, punishment);
+        plugin.getPunishmentManager().punish(plexPlayer, punishment);
         PlexUtils.broadcast(messageComponent("banningPlayer", sender.getName(), plexPlayer.getName()));
         if (player != null)
         {

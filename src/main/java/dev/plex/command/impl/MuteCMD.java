@@ -1,12 +1,11 @@
 package dev.plex.command.impl;
 
 import com.google.common.collect.ImmutableList;
-import dev.plex.cache.PlayerCache;
+import dev.plex.cache.player.PlayerCache;
 import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.player.PlexPlayer;
-import dev.plex.player.PunishedPlayer;
 import dev.plex.punishment.Punishment;
 import dev.plex.punishment.PunishmentType;
 import dev.plex.rank.enums.Rank;
@@ -32,7 +31,7 @@ public class MuteCMD extends PlexCommand
             return usage();
         }
         Player player = getNonNullPlayer(args[0]);
-        PunishedPlayer punishedPlayer = PlayerCache.getPunishedPlayer(player.getUniqueId());
+        PlexPlayer punishedPlayer = getOfflinePlexPlayer(player.getUniqueId());
 
         if (punishedPlayer.isMuted())
         {
@@ -61,7 +60,7 @@ public class MuteCMD extends PlexCommand
         punishment.setIp(player.getAddress().getAddress().getHostAddress().trim());
         punishment.setReason("");
 
-        plugin.getPunishmentManager().doPunishment(punishedPlayer, punishment);
+        plugin.getPunishmentManager().punish(punishedPlayer, punishment);
         PlexUtils.broadcast(messageComponent("mutedPlayer", sender.getName(), player.getName()));
         return null;
     }

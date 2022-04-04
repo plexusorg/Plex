@@ -1,6 +1,6 @@
 package dev.plex.listener.impl;
 
-import dev.plex.cache.PlayerCache;
+import dev.plex.cache.player.PlayerCache;
 import dev.plex.listener.PlexListener;
 import dev.plex.listener.annotation.Toggleable;
 import dev.plex.player.PlexPlayer;

@@ -2,7 +2,7 @@ package dev.plex.command;
 
 import dev.plex.Plex;
 import dev.plex.cache.DataUtils;
-import dev.plex.cache.PlayerCache;
+import dev.plex.cache.player.PlayerCache;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.exception.CommandFailException;

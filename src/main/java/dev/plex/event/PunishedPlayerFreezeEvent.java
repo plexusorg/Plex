@@ -1,6 +1,6 @@
 package dev.plex.event;
 
-import dev.plex.player.PunishedPlayer;
+import dev.plex.player.PlexPlayer;
 import lombok.Getter;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
@@ -24,7 +24,7 @@ public class PunishedPlayerFreezeEvent extends PunishedPlayerEvent implements Ca
      * @param punishedPlayer The player who was punished
      * @param frozen         The new frozen status
      */
-    public PunishedPlayerFreezeEvent(PunishedPlayer punishedPlayer, boolean frozen)
+    public PunishedPlayerFreezeEvent(PlexPlayer punishedPlayer, boolean frozen)
     {
         super(punishedPlayer);
         this.frozen = frozen;

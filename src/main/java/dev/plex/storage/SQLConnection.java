@@ -1,73 +1,96 @@
 package dev.plex.storage;
 
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import dev.plex.Plex;
 import dev.plex.PlexBase;
+
+import javax.sql.DataSource;
 import java.io.File;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class SQLConnection extends PlexBase
 {
-    private Connection connection;
+    private HikariDataSource dataSource;
 
-    public Connection getCon()
+    public SQLConnection()
     {
         String host = plugin.config.getString("data.central.hostname");
         int port = plugin.config.getInt("data.central.port");
         String username = plugin.config.getString("data.central.user");
         String password = plugin.config.getString("data.central.password");
         String database = plugin.config.getString("data.central.db");
+
+        HikariConfig config = new HikariConfig();
+        config.addDataSourceProperty("cachePrepStmts", "true");
+        config.addDataSourceProperty("prepStmtCacheSize", "250");
+        config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
+
+        this.dataSource = new HikariDataSource();
+        dataSource.setMaxLifetime(15000);
+        dataSource.setIdleTimeout(15000 * 2);
+        dataSource.setConnectionTimeout(15000 * 4);
+        dataSource.setMinimumIdle(2);
+        dataSource.setMaximumPoolSize(10);
         try
         {
             if (plugin.config.getString("data.central.storage").equalsIgnoreCase("sqlite"))
             {
-                connection = DriverManager.getConnection("jdbc:sqlite:" + new File(plugin.getDataFolder(), "database.db").getAbsolutePath());
+                dataSource.setJdbcUrl("jdbc:sqlite:" + new File(plugin.getDataFolder(), "database.db").getAbsolutePath());
                 plugin.setStorageType(StorageType.SQLITE);
-            }
-            else if (plugin.config.getString("data.central.storage").equalsIgnoreCase("mariadb"))
+            } else if (plugin.config.getString("data.central.storage").equalsIgnoreCase("mariadb"))
             {
                 Class.forName("org.mariadb.jdbc.Driver");
-                connection = DriverManager.getConnection("jdbc:mariadb://" + host + ":" + port + "/" + database, username, password);
+                dataSource.setJdbcUrl("jdbc:mariadb://" + host + ":" + port + "/" + database);
+                dataSource.setUsername(username);
+                dataSource.setPassword(password);
                 Plex.get().setStorageType(StorageType.MARIADB);
             }
-        }
-        catch (SQLException | ClassNotFoundException throwables)
+        } catch (ClassNotFoundException throwables)
         {
             throwables.printStackTrace();
         }
 
-        try
+        try (Connection con = getCon())
         {
-            if (connection != null)
-            {
-                connection.prepareStatement("CREATE TABLE IF NOT EXISTS `players` (" +
-                        "`uuid` VARCHAR(46) NOT NULL, " +
-                        "`name` VARCHAR(18), " +
-                        "`login_msg` VARCHAR(70), " +
-                        "`prefix` VARCHAR(45), " +
-                        "`rank` VARCHAR(20), " +
-                        "`ips` VARCHAR(2000), " +
-                        "`coins` BIGINT, " +
-                        "`vanished` BOOLEAN, " +
-                        "`commandspy` BOOLEAN, " +
-                        "PRIMARY KEY (`uuid`));").execute();
-                connection.prepareStatement("CREATE TABLE IF NOT EXISTS `bans` (" +
-                        "`banID` VARCHAR(46), " +
-                        "`uuid` VARCHAR(46) NOT NULL, " +
-                        "`banner` VARCHAR(46), " +
-                        "`ip` VARCHAR(2000), " +
-                        "`reason` VARCHAR(256), " +
-                        "`enddate` BIGINT, " +
-                        "`active` BOOLEAN, " +
-                        "PRIMARY KEY (`banID`)" +
-                        ");").execute();
-            }
-        }
-        catch (SQLException throwables)
+            con.prepareStatement("CREATE TABLE IF NOT EXISTS `players` (" +
+                    "`uuid` VARCHAR(46) NOT NULL, " +
+                    "`name` VARCHAR(18), " +
+                    "`login_msg` VARCHAR(70), " +
+                    "`prefix` VARCHAR(45), " +
+                    "`rank` VARCHAR(20), " +
+                    "`ips` VARCHAR(2000), " +
+                    "`coins` BIGINT, " +
+                    "`vanished` BOOLEAN, " +
+                    "`commandspy` BOOLEAN, " +
+                    "PRIMARY KEY (`uuid`));").execute();
+            con.prepareStatement("CREATE TABLE IF NOT EXISTS `punishments` (" +
+                    "`punished` VARCHAR(46) NOT NULL, " +
+                    "`punisher` VARCHAR(46), " +
+                    "`punishedUsername` VARCHAR(16), " +
+                    "`ip` VARCHAR(2000), " +
+                    "`type` VARCHAR(30), " +
+                    "`reason` VARCHAR(2000), " +
+                    "`customTime` BOOLEAN, " +
+                    "`active` BOOLEAN, " +
+                    "`endDate` BIGINT" +
+                    ");").execute();
+        } catch (SQLException throwables)
         {
             throwables.printStackTrace();
         }
-        return connection;
+    }
+
+    public Connection getCon()
+    {
+        try
+        {
+            return dataSource.getConnection();
+        } catch (SQLException e)
+        {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

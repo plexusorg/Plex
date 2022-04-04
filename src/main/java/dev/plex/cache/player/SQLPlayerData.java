@@ -1,4 +1,4 @@
-package dev.plex.cache;
+package dev.plex.cache.player;
 
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;

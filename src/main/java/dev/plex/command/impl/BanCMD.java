@@ -1,23 +1,19 @@
 package dev.plex.command.impl;
 
 import com.google.common.collect.ImmutableList;
+import dev.plex.Plex;
 import dev.plex.cache.DataUtils;
-import dev.plex.cache.PlayerCache;
 import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.exception.PlayerNotFoundException;
 import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.player.PlexPlayer;
-import dev.plex.player.PunishedPlayer;
 import dev.plex.punishment.Punishment;
 import dev.plex.punishment.PunishmentType;
 import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
 import net.kyori.adventure.text.Component;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
@@ -25,6 +21,10 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
 
 @CommandParameters(name = "ban", usage = "/<command> <player> [reason]", aliases = "offlineban,gtfo", description = "Bans a player, offline or online")
 @CommandPermissions(level = Rank.ADMIN, permission = "plex.ban", source = RequiredCommandSource.ANY)
@@ -40,7 +40,6 @@ public class BanCMD extends PlexCommand
         }
 
         UUID targetUUID = PlexUtils.getFromName(args[0]);
-        String reason;
 
         if (targetUUID == null || !DataUtils.hasPlayedBefore(targetUUID))
         {
@@ -62,39 +61,45 @@ public class BanCMD extends PlexCommand
             }
         }
 
-        if (plugin.getPunishmentManager().isBanned(targetUUID))
+        plugin.getPunishmentManager().isAsyncBanned(targetUUID).whenComplete((aBoolean, throwable) ->
         {
-            return messageComponent("playerBanned");
-        }
+            if (aBoolean)
+            {
+                send(sender, messageComponent("playerBanned"));
+                return;
+            }
+            String reason;
+            Punishment punishment = new Punishment(targetUUID, getUUID(sender));
+            punishment.setType(PunishmentType.BAN);
+            if (args.length > 1)
+            {
+                reason = StringUtils.join(args, " ", 1, args.length);
+                punishment.setReason(reason);
+            } else
+            {
+                punishment.setReason("No reason provided.");
+            }
+            punishment.setPunishedUsername(plexPlayer.getName());
+            LocalDateTime date = LocalDateTime.now();
+            punishment.setEndDate(date.plusDays(1));
+            punishment.setCustomTime(false);
+            punishment.setActive(!isAdmin(plexPlayer));
+            if (player != null)
+            {
+                punishment.setIp(player.getAddress().getAddress().getHostAddress().trim());
+            }
+            plugin.getPunishmentManager().punish(plexPlayer, punishment);
+            PlexUtils.broadcast(messageComponent("banningPlayer", sender.getName(), plexPlayer.getName()));
+            Bukkit.getScheduler().runTask(Plex.get(), () ->
+            {
+                if (player != null)
+                {
+                    player.kick(Punishment.generateBanMessage(punishment));
+                }
+            });
+            PlexLog.debug("(From /ban command) PunishedPlayer UUID: " + plexPlayer.getUuid());
+        });
 
-        PunishedPlayer punishedPlayer = PlayerCache.getPunishedPlayer(targetUUID) == null ? new PunishedPlayer(targetUUID) : PlayerCache.getPunishedPlayer(targetUUID);
-        Punishment punishment = new Punishment(targetUUID, getUUID(sender));
-        punishment.setType(PunishmentType.BAN);
-        if (args.length > 1)
-        {
-            reason = StringUtils.join(args, " ", 1, args.length);
-            punishment.setReason(reason);
-        }
-        else
-        {
-            punishment.setReason("No reason provided.");
-        }
-        punishment.setPunishedUsername(plexPlayer.getName());
-        LocalDateTime date = LocalDateTime.now();
-        punishment.setEndDate(date.plusDays(1));
-        punishment.setCustomTime(false);
-        punishment.setActive(!isAdmin(plexPlayer));
-        if (player != null)
-        {
-            punishment.setIp(player.getAddress().getAddress().getHostAddress().trim());
-        }
-        plugin.getPunishmentManager().doPunishment(punishedPlayer, punishment);
-        PlexUtils.broadcast(messageComponent("banningPlayer", sender.getName(), plexPlayer.getName()));
-        if (player != null)
-        {
-            player.kick(Punishment.generateBanMessage(punishment));
-        }
-        PlexLog.debug("(From /ban command) PunishedPlayer UUID: " + punishedPlayer.getUuid());
         return null;
     }
 

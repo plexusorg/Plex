@@ -1,6 +1,7 @@
 package dev.plex.cache;
 
 import dev.plex.Plex;
+import dev.plex.cache.player.PlayerCache;
 import dev.plex.player.PlexPlayer;
 import dev.plex.storage.StorageType;
 import java.util.UUID;
@@ -42,6 +43,7 @@ public class DataUtils
         {
             return PlayerCache.getPlexPlayerMap().get(uuid);
         }
+
 
         if (Plex.get().getStorageType() == StorageType.MONGODB)
         {

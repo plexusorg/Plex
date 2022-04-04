@@ -1,28 +1,24 @@
 package dev.plex.punishment;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import dev.plex.Plex;
 import dev.plex.PlexBase;
-import dev.plex.cache.PlayerCache;
-import dev.plex.player.PunishedPlayer;
+import dev.plex.cache.DataUtils;
+import dev.plex.player.PlexPlayer;
+import dev.plex.storage.StorageType;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import lombok.Data;
 import lombok.Getter;
@@ -30,8 +26,6 @@ import org.apache.commons.io.FileUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.json.JSONObject;
-import org.json.JSONTokener;
-import redis.clients.jedis.Jedis;
 
 public class PunishmentManager extends PlexBase
 {
@@ -101,9 +95,19 @@ public class PunishmentManager extends PlexBase
         return this.indefiniteBans.stream().anyMatch(indefiniteBan -> indefiniteBan.getUsernames().contains(username));
     }
 
-    public void insertPunishment(PunishedPlayer player, Punishment punishment)
+    public void issuePunishment(PlexPlayer plexPlayer, Punishment punishment)
     {
-        File file = player.getPunishmentsFile();
+        plexPlayer.getPunishments().add(punishment);
+        if (Plex.get().getStorageType() == StorageType.MONGODB)
+        {
+            CompletableFuture.runAsync(() -> {
+                DataUtils.update(plexPlayer);
+            });
+        } else {
+            Plex.get().getSqlPunishment().insertPunishment(punishment);
+        }
+
+        /*File file = player.getPunishmentsFile();
 
         try
         {
@@ -130,29 +134,7 @@ public class PunishmentManager extends PlexBase
         catch (IOException e)
         {
             e.printStackTrace();
-        }
-    }
-
-    private void addToRedis(PunishedPlayer player, File file, JSONObject object)
-    {
-        try
-        {
-            if (plugin.getRedisConnection().isEnabled())
-            {
-                plugin.getRedisConnection().getJedis().set(player.getUuid(), object.toString());
-                PlexLog.debug("Added " + player.getUuid() + "'s punishment to the Redis database.");
-                plugin.getRedisConnection().getJedis().close();
-            }
-
-            FileWriter writer = new FileWriter(file);
-            writer.append(object.toString(8));
-            writer.flush();
-            writer.close();
-        }
-        catch (IOException ex)
-        {
-            ex.printStackTrace();
-        }
+        }*/
     }
 
     private boolean isNotEmpty(File file)
@@ -168,19 +150,41 @@ public class PunishmentManager extends PlexBase
         return false;
     }
 
-    public boolean isBanned(UUID uuid)
+    public CompletableFuture<Boolean> isAsyncBanned(UUID uuid)
     {
-        return PlayerCache.getPunishedPlayer(uuid).getPunishments().stream().anyMatch(punishment -> punishment.getType() == PunishmentType.BAN && punishment.isActive());
+        return CompletableFuture.supplyAsync(() -> {
+            PlexPlayer player = DataUtils.getPlayer(uuid);
+            player.loadPunishments();
+            return player.getPunishments().stream().anyMatch(punishment -> punishment.getType() == PunishmentType.BAN && punishment.isActive());
+        });
     }
 
-    public boolean isBanned(PunishedPlayer player)
+    public boolean isBanned(UUID uuid)
+    {
+        return DataUtils.getPlayer(uuid).getPunishments().stream().anyMatch(punishment -> punishment.getType() == PunishmentType.BAN && punishment.isActive());
+    }
+
+    public boolean isBanned(PlexPlayer player)
     {
         return isBanned(UUID.fromString(player.getUuid()));
     }
 
-    public List<Punishment> getActiveBans()
+    public CompletableFuture<List<Punishment>> getActiveBans()
     {
-        List<Punishment> punishments = Lists.newArrayList();
+        if (Plex.get().getStorageType() == StorageType.MONGODB)
+        {
+            return CompletableFuture.supplyAsync(() -> {
+                List<PlexPlayer> players = Plex.get().getMongoPlayerData().getPlayers();
+                return players.stream().map(PlexPlayer::getPunishments).flatMap(Collection::stream).filter(Punishment::isActive).filter(punishment -> punishment.getType() == PunishmentType.BAN).toList();
+            });
+        } else {
+            CompletableFuture<List<Punishment>> future = new CompletableFuture<>();
+            Plex.get().getSqlPunishment().getPunishments().whenComplete((punishments, throwable) -> {
+                future.complete(punishments.stream().filter(Punishment::isActive).filter(punishment -> punishment.getType() == PunishmentType.BAN).toList());
+            });
+            return future;
+        }
+        /*List<Punishment> punishments = Lists.newArrayList();
 
         if (Plex.get().getRedisConnection().isEnabled())
         {
@@ -229,8 +233,8 @@ public class PunishmentManager extends PlexBase
                     }
                 }
             }
-        }
-        return punishments;
+        }*/
+//        return punishments;
     }
 
     public void unban(Punishment punishment)
@@ -238,9 +242,20 @@ public class PunishmentManager extends PlexBase
         this.unban(punishment.getPunished());
     }
 
-    public void unban(UUID uuid)
+    public CompletableFuture<Void> unban(UUID uuid)
     {
-        if (Plex.get().getRedisConnection().isEnabled())
+        if (Plex.get().getStorageType() == StorageType.MONGODB)
+        {
+            return CompletableFuture.runAsync(() -> {
+               PlexPlayer plexPlayer = DataUtils.getPlayer(uuid);
+               plexPlayer.setPunishments(plexPlayer.getPunishments().stream().filter(Punishment::isActive).filter(punishment -> punishment.getType() == PunishmentType.BAN)
+                       .peek(punishment -> punishment.setActive(false)).collect(Collectors.toList()));
+               DataUtils.update(plexPlayer);
+            });
+        } else {
+            return Plex.get().getSqlPunishment().removeBan(uuid);
+        }
+        /*if (Plex.get().getRedisConnection().isEnabled())
         {
             Jedis jedis = Plex.get().getRedisConnection().getJedis();
 
@@ -269,7 +284,7 @@ public class PunishmentManager extends PlexBase
             {
                 e.printStackTrace();
             }
-        }
+        }*/
     }
 
     private void setActive(UUID uuid, JSONObject object, boolean active)
@@ -288,7 +303,7 @@ public class PunishmentManager extends PlexBase
         object.getJSONObject(uuid.toString()).getJSONArray("punishments").putAll(punishments.stream().map(Punishment::toJSON).collect(Collectors.toList()));
     }
 
-    private void issuePunishment(PunishedPlayer player, Punishment punishment)
+    private void doPunishment(PlexPlayer player, Punishment punishment)
     {
         if (punishment.getType() == PunishmentType.FREEZE)
         {
@@ -334,10 +349,10 @@ public class PunishmentManager extends PlexBase
         }
     }
 
-    public void doPunishment(PunishedPlayer player, Punishment punishment)
+    public void punish(PlexPlayer player, Punishment punishment)
     {
         issuePunishment(player, punishment);
-        insertPunishment(player, punishment);
+        doPunishment(player, punishment);
     }
 
     @Data

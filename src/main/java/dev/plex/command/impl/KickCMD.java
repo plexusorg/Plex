@@ -1,14 +1,13 @@
 package dev.plex.command.impl;
 
 import dev.plex.cache.DataUtils;
-import dev.plex.cache.PlayerCache;
+import dev.plex.cache.player.PlayerCache;
 import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.exception.PlayerNotFoundException;
 import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.player.PlexPlayer;
-import dev.plex.player.PunishedPlayer;
 import dev.plex.punishment.Punishment;
 import dev.plex.punishment.PunishmentType;
 import dev.plex.rank.enums.Rank;
@@ -49,8 +48,6 @@ public class KickCMD extends PlexCommand
         {
             throw new PlayerNotFoundException();
         }
-
-        PunishedPlayer punishedPlayer = PlayerCache.getPunishedPlayer(targetUUID) == null ? new PunishedPlayer(targetUUID) : PlayerCache.getPunishedPlayer(targetUUID);
         Punishment punishment = new Punishment(targetUUID, getUUID(sender));
         punishment.setType(PunishmentType.KICK);
         if (args.length > 1)
@@ -64,7 +61,7 @@ public class KickCMD extends PlexCommand
         punishment.setCustomTime(false);
         punishment.setActive(false);
         punishment.setIp(player.getAddress().getAddress().getHostAddress().trim());
-        plugin.getPunishmentManager().doPunishment(punishedPlayer, punishment);
+        plugin.getPunishmentManager().punish(plexPlayer, punishment);
         PlexUtils.broadcast(messageComponent("kickedPlayer", sender.getName(), plexPlayer.getName()));
         player.kick(componentFromString(reason));
         return null;

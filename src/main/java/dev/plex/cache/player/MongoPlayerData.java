@@ -1,4 +1,4 @@
-package dev.plex.cache;
+package dev.plex.cache.player;
 
 import dev.morphia.Datastore;
 import dev.morphia.query.Query;
@@ -8,6 +8,7 @@ import dev.morphia.query.experimental.updates.UpdateOperators;
 import dev.plex.Plex;
 import dev.plex.player.PlexPlayer;
 import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -102,6 +103,11 @@ public class MongoPlayerData
                         UpdateOperators.set("commandspy", player.isCommandSpy()));
 
         updateOps.execute();
+    }
+
+    public List<PlexPlayer> getPlayers()
+    {
+        return datastore.find(PlexPlayer.class).stream().toList();
     }
 
 
