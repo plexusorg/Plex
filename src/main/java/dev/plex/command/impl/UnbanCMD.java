@@ -37,7 +37,7 @@ public class UnbanCMD extends PlexCommand
             UUID targetUUID = PlexUtils.getFromName(args[0]);
             PlexPlayer plexPlayer = getOfflinePlexPlayer(targetUUID);
 
-            if (!DataUtils.hasPlayedBefore(targetUUID))
+            if (targetUUID == null || !DataUtils.hasPlayedBefore(targetUUID))
             {
                 throw new PlayerNotFoundException();
             }

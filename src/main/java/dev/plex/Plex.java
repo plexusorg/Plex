@@ -37,35 +37,25 @@ import org.bukkit.plugin.java.JavaPlugin;
 @Setter
 public class Plex extends JavaPlugin
 {
+    public static final BuildProperties build = new BuildProperties();
     private static Plex plugin;
     public Config config;
     public Config messages;
     public Config indefBans;
-
     public File modulesFolder;
-
     private StorageType storageType = StorageType.SQLITE;
-
     private SQLConnection sqlConnection;
     private MongoConnection mongoConnection;
     private RedisConnection redisConnection;
-
     private MongoPlayerData mongoPlayerData;
     private SQLPlayerData sqlPlayerData;
-
     private ModuleManager moduleManager;
     private RankManager rankManager;
     private ServiceManager serviceManager;
-
     private PunishmentManager punishmentManager;
-
     private AdminList adminList;
-
     private UpdateChecker updateChecker;
-
     private String system;
-
-    public static final BuildProperties build = new BuildProperties();
 
     public static Plex get()
     {
