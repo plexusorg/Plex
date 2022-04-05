@@ -56,6 +56,7 @@ public class TagCMD extends PlexCommand
             }
 
             player.setPrefix(MiniMessage.miniMessage().serialize(convertedComponent));
+            DataUtils.update(player);
             return messageComponent("prefixSetTo", MiniMessage.miniMessage().serialize(convertedComponent));
         }
 
@@ -68,8 +69,14 @@ public class TagCMD extends PlexCommand
                     return messageComponent("noPermissionConsole");
                 }
 
+                if (playerSender == null)
+                {
+                    return null;
+                }
+
                 PlexPlayer player = DataUtils.getPlayer(playerSender.getUniqueId());
                 player.setPrefix("");
+                DataUtils.update(player);
                 return messageComponent("prefixCleared");
             }
 
@@ -77,6 +84,7 @@ public class TagCMD extends PlexCommand
             Player target = getNonNullPlayer(args[1]);
             PlexPlayer plexTarget = DataUtils.getPlayer(target.getUniqueId());
             plexTarget.setPrefix("");
+            DataUtils.update(plexTarget);
             messageComponent("otherPrefixCleared");
         }
         return usage();

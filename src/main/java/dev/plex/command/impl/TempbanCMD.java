@@ -2,7 +2,6 @@ package dev.plex.command.impl;
 
 import com.google.common.collect.ImmutableList;
 import dev.plex.cache.DataUtils;
-import dev.plex.cache.player.PlayerCache;
 import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;

@@ -4,8 +4,6 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import dev.plex.Plex;
 import dev.plex.PlexBase;
-
-import javax.sql.DataSource;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -59,8 +57,8 @@ public class SQLConnection extends PlexBase
             con.prepareStatement("CREATE TABLE IF NOT EXISTS `players` (" +
                     "`uuid` VARCHAR(46) NOT NULL, " +
                     "`name` VARCHAR(18), " +
-                    "`login_msg` VARCHAR(70), " +
-                    "`prefix` VARCHAR(45), " +
+                    "`login_msg` VARCHAR(2000), " +
+                    "`prefix` VARCHAR(2000), " +
                     "`rank` VARCHAR(20), " +
                     "`ips` VARCHAR(2000), " +
                     "`coins` BIGINT, " +
