@@ -1,12 +1,10 @@
 package dev.plex.services.impl;
 
 import dev.plex.Plex;
-import dev.plex.punishment.Punishment;
 import dev.plex.services.AbstractService;
+import java.time.LocalDateTime;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
-
-import java.time.LocalDateTime;
 
 public class BanService extends AbstractService
 {

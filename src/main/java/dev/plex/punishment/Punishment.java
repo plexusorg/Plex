@@ -9,8 +9,6 @@ import dev.plex.util.adapter.LocalDateTimeSerializer;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
-
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import net.kyori.adventure.text.Component;

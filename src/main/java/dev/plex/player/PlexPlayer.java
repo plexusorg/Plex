@@ -9,6 +9,9 @@ import dev.plex.Plex;
 import dev.plex.punishment.Punishment;
 import dev.plex.rank.enums.Rank;
 import dev.plex.storage.StorageType;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,11 +19,6 @@ import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
-
-import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 @Getter
 @Setter

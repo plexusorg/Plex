@@ -2,7 +2,6 @@ package dev.plex.menu;
 
 import com.google.common.collect.Lists;
 import dev.plex.cache.DataUtils;
-import dev.plex.cache.player.PlayerCache;
 import dev.plex.player.PlexPlayer;
 import dev.plex.util.menu.AbstractMenu;
 import java.util.List;

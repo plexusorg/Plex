@@ -1,7 +1,6 @@
 package dev.plex.listener.impl;
 
 import dev.plex.cache.DataUtils;
-import dev.plex.cache.player.PlayerCache;
 import dev.plex.listener.PlexListener;
 import dev.plex.util.PlexUtils;
 import io.papermc.paper.event.player.AsyncChatEvent;

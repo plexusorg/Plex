@@ -25,7 +25,6 @@ import lombok.Getter;
 import org.apache.commons.io.FileUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.json.JSONObject;
 
 public class PunishmentManager extends PlexBase
 {
