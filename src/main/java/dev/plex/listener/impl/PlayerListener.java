@@ -1,12 +1,11 @@
 package dev.plex.listener.impl;
 
 import dev.plex.cache.DataUtils;
-import dev.plex.cache.MongoPlayerData;
-import dev.plex.cache.PlayerCache;
-import dev.plex.cache.SQLPlayerData;
+import dev.plex.cache.player.MongoPlayerData;
+import dev.plex.cache.player.PlayerCache;
+import dev.plex.cache.player.SQLPlayerData;
 import dev.plex.listener.PlexListener;
 import dev.plex.player.PlexPlayer;
-import dev.plex.player.PunishedPlayer;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import java.util.Arrays;
@@ -24,9 +23,6 @@ import org.bukkit.event.player.PlayerQuitEvent;
 
 public class PlayerListener extends PlexListener
 {
-    private final MongoPlayerData mongoPlayerData = plugin.getMongoPlayerData() != null ? plugin.getMongoPlayerData() : null;
-    private final SQLPlayerData sqlPlayerData = plugin.getSqlPlayerData() != null ? plugin.getSqlPlayerData() : null;
-
     // setting up a player's data
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerSetup(PlayerJoinEvent event)
@@ -71,12 +67,9 @@ public class PlayerListener extends PlexListener
                 plexPlayer.setName(player.getName());
                 DataUtils.update(plexPlayer);
             }
+            PlayerCache.getPlexPlayerMap().put(player.getUniqueId(), plexPlayer);
         }
-
-        PunishedPlayer punishedPlayer = PlayerCache.getPunishedPlayer(player.getUniqueId());
-        PlayerCache.getPlexPlayerMap().put(player.getUniqueId(), plexPlayer); //put them into the cache
-        punishedPlayer.convertPunishments();
-        if (punishedPlayer.isLockedUp())
+        if (plexPlayer.isLockedUp())
         {
             player.openInventory(player.getInventory());
         }
@@ -107,7 +100,7 @@ public class PlayerListener extends PlexListener
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerInventoryClose(InventoryCloseEvent event)
     {
-        PunishedPlayer player = PlayerCache.getPunishedPlayer(event.getPlayer().getUniqueId());
+        PlexPlayer player = DataUtils.getPlayer(event.getPlayer().getUniqueId());
         if (player.isLockedUp())
         {
             Bukkit.getScheduler().runTaskLater(plugin, () -> event.getPlayer().openInventory(event.getInventory()), 1L);
@@ -117,7 +110,7 @@ public class PlayerListener extends PlexListener
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onInventoryClick(InventoryClickEvent event)
     {
-        PunishedPlayer player = PlayerCache.getPunishedPlayer(event.getWhoClicked().getUniqueId());
+        PlexPlayer player = DataUtils.getPlayer(event.getWhoClicked().getUniqueId());
         if (player.isLockedUp())
         {
             event.setCancelled(true);

@@ -1,12 +1,12 @@
 package dev.plex.command.impl;
 
 import com.google.common.collect.ImmutableList;
-import dev.plex.cache.PlayerCache;
+import dev.plex.cache.player.PlayerCache;
 import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.exception.CommandFailException;
-import dev.plex.player.PunishedPlayer;
+import dev.plex.player.PlexPlayer;
 import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexUtils;
 import java.util.List;
@@ -28,7 +28,7 @@ public class UnfreezeCMD extends PlexCommand
             return usage();
         }
         Player player = getNonNullPlayer(args[0]);
-        PunishedPlayer punishedPlayer = PlayerCache.getPunishedPlayer(player.getUniqueId());
+        PlexPlayer punishedPlayer = getOfflinePlexPlayer(player.getUniqueId());
         if (!punishedPlayer.isFrozen())
         {
             throw new CommandFailException(PlexUtils.messageString("playerNotFrozen"));

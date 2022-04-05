@@ -1,13 +1,14 @@
 package dev.plex.player;
 
+import com.google.common.collect.Lists;
 import dev.morphia.annotations.Entity;
 import dev.morphia.annotations.Id;
 import dev.morphia.annotations.IndexOptions;
 import dev.morphia.annotations.Indexed;
+import dev.plex.Plex;
+import dev.plex.punishment.Punishment;
 import dev.plex.rank.enums.Rank;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import dev.plex.storage.StorageType;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,6 +16,11 @@ import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
+
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -39,11 +45,16 @@ public class PlexPlayer
     private boolean vanished;
     private boolean commandSpy;
 
+    private boolean frozen;
+    private boolean muted;
+    private boolean lockedUp;
+
     private long coins;
 
     private String rank;
 
-    private List<String> ips;
+    private List<String> ips = Lists.newArrayList();
+    private List<Punishment> punishments = Lists.newArrayList();
 
     public PlexPlayer()
     {
@@ -66,9 +77,8 @@ public class PlexPlayer
 
         this.coins = 0;
 
-        this.ips = new ArrayList<>();
-
         this.rank = "";
+        this.loadPunishments();
     }
 
     public String displayName()
@@ -93,6 +103,14 @@ public class PlexPlayer
         else
         {
             return Rank.valueOf(rank.toUpperCase());
+        }
+    }
+
+    public void loadPunishments()
+    {
+        if (Plex.get().getStorageType() != StorageType.MONGODB)
+        {
+            this.setPunishments(Plex.get().getSqlPunishment().getPunishments(UUID.fromString(this.getUuid())).stream().filter(punishment -> punishment.getPunished().equals(UUID.fromString(this.getUuid()))).collect(Collectors.toList()));
         }
     }
 }

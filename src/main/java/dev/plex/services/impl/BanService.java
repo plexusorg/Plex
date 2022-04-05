@@ -3,9 +3,10 @@ package dev.plex.services.impl;
 import dev.plex.Plex;
 import dev.plex.punishment.Punishment;
 import dev.plex.services.AbstractService;
-import java.time.LocalDateTime;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
+
+import java.time.LocalDateTime;
 
 public class BanService extends AbstractService
 {
@@ -17,14 +18,17 @@ public class BanService extends AbstractService
     @Override
     public void run()
     {
-        for (Punishment punishment : Plex.get().getPunishmentManager().getActiveBans())
+        Plex.get().getPunishmentManager().getActiveBans().whenComplete((punishments, throwable) ->
         {
-            if (LocalDateTime.now().isAfter(punishment.getEndDate()))
+            punishments.forEach(punishment ->
             {
-                Plex.get().getPunishmentManager().unban(punishment);
-                Bukkit.broadcast(Component.text("Plex - Unbanned " + Bukkit.getOfflinePlayer(punishment.getPunished()).getName()));
-            }
-        }
+                if (LocalDateTime.now().isAfter(punishment.getEndDate()))
+                {
+                    Plex.get().getPunishmentManager().unban(punishment);
+                    Bukkit.broadcast(Component.text("Plex - Unbanned " + Bukkit.getOfflinePlayer(punishment.getPunished()).getName()));
+                }
+            });
+        });
     }
 
     @Override

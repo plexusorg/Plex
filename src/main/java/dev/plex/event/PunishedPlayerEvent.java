@@ -1,7 +1,8 @@
 package dev.plex.event;
 
-import dev.plex.player.PunishedPlayer;
 import java.util.UUID;
+
+import dev.plex.player.PlexPlayer;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
@@ -17,7 +18,7 @@ public abstract class PunishedPlayerEvent extends PlayerEvent implements Cancell
     /**
      * The player who was punished
      */
-    protected PunishedPlayer punishedPlayer;
+    protected PlexPlayer punishedPlayer;
 
     /**
      * Whether the event was cancelled
@@ -29,9 +30,9 @@ public abstract class PunishedPlayerEvent extends PlayerEvent implements Cancell
      * Creates an event object
      *
      * @param punishedPlayer The player who was punished
-     * @see PunishedPlayer
+     * @see PlexPlayer
      */
-    protected PunishedPlayerEvent(PunishedPlayer punishedPlayer)
+    protected PunishedPlayerEvent(PlexPlayer punishedPlayer)
     {
         super(Bukkit.getPlayer(UUID.fromString(punishedPlayer.getUuid())));
         this.punishedPlayer = punishedPlayer;

@@ -1,6 +1,6 @@
 package dev.plex.event;
 
-import dev.plex.player.PunishedPlayer;
+import dev.plex.player.PlexPlayer;
 import lombok.Getter;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
@@ -24,7 +24,7 @@ public class PunishedPlayerLockupEvent extends PunishedPlayerEvent implements Ca
      * @param punishedPlayer The player who was punished
      * @param lockedUp       The new muted status
      */
-    public PunishedPlayerLockupEvent(PunishedPlayer punishedPlayer, boolean lockedUp)
+    public PunishedPlayerLockupEvent(PlexPlayer punishedPlayer, boolean lockedUp)
     {
         super(punishedPlayer);
         this.lockedUp = lockedUp;

@@ -9,6 +9,8 @@ import dev.plex.util.adapter.LocalDateTimeSerializer;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
+
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import net.kyori.adventure.text.Component;
@@ -29,17 +31,16 @@ public class Punishment
     private boolean active; // Field is only for bans
     private LocalDateTime endDate;
 
+    public Punishment()
+    {
+        this.punished = null;
+        this.punisher = null;
+    }
+
     public Punishment(UUID punished, UUID punisher)
     {
         this.punished = punished;
         this.punisher = punisher;
-
-        this.ip = "";
-        this.punishedUsername = "";
-        this.type = null;
-        this.reason = "";
-        this.customTime = false;
-        this.endDate = null;
     }
 
     public static Component generateBanMessage(Punishment punishment)

@@ -1,8 +1,9 @@
 package dev.plex.menu;
 
 import com.google.common.collect.Lists;
-import dev.plex.cache.PlayerCache;
-import dev.plex.player.PunishedPlayer;
+import dev.plex.cache.DataUtils;
+import dev.plex.cache.player.PlayerCache;
+import dev.plex.player.PlexPlayer;
 import dev.plex.util.menu.AbstractMenu;
 import java.util.List;
 import org.bukkit.Bukkit;
@@ -138,7 +139,7 @@ public class PunishmentMenu extends AbstractMenu
             SkullMeta meta = (SkullMeta)item.getItemMeta();
             OfflinePlayer player = meta.getOwningPlayer();
             assert player != null;
-            PunishedPlayer punishedPlayer = PlayerCache.getPunishedPlayer(player.getUniqueId()) == null ? null : PlayerCache.getPunishedPlayer(player.getUniqueId());
+            PlexPlayer punishedPlayer = DataUtils.getPlayer(player.getUniqueId());
             if (punishedPlayer == null)
             {
                 event.getWhoClicked().sendMessage(ChatColor.RED + "This player does not exist. Try doing /punishments <player> instead.");

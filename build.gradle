@@ -30,6 +30,7 @@ dependencies {
     library "dev.morphia.morphia:morphia-core:2.2.6"
     library "redis.clients:jedis:4.2.1"
     library "org.mariadb.jdbc:mariadb-java-client:3.0.4"
+    library "com.zaxxer:HikariCP:5.0.1"
     library "org.apache.httpcomponents:httpclient:4.5.13"
     library "org.apache.commons:commons-lang3:3.12.0"
     library "org.apache.maven.resolver:maven-resolver-api:1.7.3"

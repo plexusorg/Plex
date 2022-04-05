@@ -1,8 +1,9 @@
 package dev.plex.menu;
 
 import com.google.common.collect.Lists;
-import dev.plex.cache.PlayerCache;
-import dev.plex.player.PunishedPlayer;
+import dev.plex.cache.DataUtils;
+import dev.plex.cache.player.PlayerCache;
+import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.Punishment;
 import dev.plex.util.menu.AbstractMenu;
 import java.util.Collections;
@@ -23,11 +24,11 @@ import org.bukkit.inventory.meta.SkullMeta;
 
 public class PunishedPlayerMenu extends AbstractMenu
 {
-    private final PunishedPlayer punishedPlayer;
+    private final PlexPlayer punishedPlayer;
 
     private final List<Inventory> inventories = Lists.newArrayList();
 
-    public PunishedPlayerMenu(PunishedPlayer player)
+    public PunishedPlayerMenu(PlexPlayer player)
     {
         super("§c§lPunishments");
         this.punishedPlayer = player;
@@ -162,7 +163,7 @@ public class PunishedPlayerMenu extends AbstractMenu
             SkullMeta meta = (SkullMeta)item.getItemMeta();
             OfflinePlayer player = meta.getOwningPlayer();
             assert player != null;
-            PunishedPlayer punishedPlayer = PlayerCache.getPunishedPlayer(player.getUniqueId()) == null ? null : PlayerCache.getPunishedPlayer(player.getUniqueId());
+            PlexPlayer punishedPlayer = DataUtils.getPlayer(player.getUniqueId()) == null ? null : PlayerCache.getPlexPlayer(player.getUniqueId());
             if (punishedPlayer == null)
             {
                 event.getWhoClicked().sendMessage(ChatColor.RED + "This player does not exist. Try doing /punishments <player> instead.");

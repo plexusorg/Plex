@@ -3,15 +3,15 @@ package dev.plex;
 import dev.plex.admin.Admin;
 import dev.plex.admin.AdminList;
 import dev.plex.cache.DataUtils;
-import dev.plex.cache.MongoPlayerData;
-import dev.plex.cache.PlayerCache;
-import dev.plex.cache.SQLPlayerData;
+import dev.plex.cache.player.MongoPlayerData;
+import dev.plex.cache.player.PlayerCache;
+import dev.plex.cache.player.SQLPlayerData;
+import dev.plex.cache.sql.SQLPunishment;
 import dev.plex.config.Config;
 import dev.plex.handlers.CommandHandler;
 import dev.plex.handlers.ListenerHandler;
 import dev.plex.module.ModuleManager;
 import dev.plex.player.PlexPlayer;
-import dev.plex.player.PunishedPlayer;
 import dev.plex.punishment.PunishmentManager;
 import dev.plex.rank.RankManager;
 import dev.plex.services.ServiceManager;
@@ -49,6 +49,7 @@ public class Plex extends JavaPlugin
     private RedisConnection redisConnection;
     private MongoPlayerData mongoPlayerData;
     private SQLPlayerData sqlPlayerData;
+    private SQLPunishment sqlPunishment;
     private ModuleManager moduleManager;
     private RankManager rankManager;
     private ServiceManager serviceManager;
@@ -77,10 +78,6 @@ public class Plex extends JavaPlugin
             modulesFolder.mkdir();
         }
 
-        sqlConnection = new SQLConnection();
-        mongoConnection = new MongoConnection();
-        redisConnection = new RedisConnection();
-
         moduleManager = new ModuleManager();
         moduleManager.loadAllModules();
         moduleManager.loadModules();
@@ -93,6 +90,10 @@ public class Plex extends JavaPlugin
         messages.load();
         // Don't add default entries to indefinite ban file
         indefBans.load(false);
+
+        sqlConnection = new SQLConnection();
+        mongoConnection = new MongoConnection();
+        redisConnection = new RedisConnection();
 
         moduleManager.enableModules();
 
@@ -133,6 +134,7 @@ public class Plex extends JavaPlugin
         else
         {
             sqlPlayerData = new SQLPlayerData();
+            sqlPunishment = new SQLPunishment();
         }
 
         new ListenerHandler();
@@ -204,7 +206,6 @@ public class Plex extends JavaPlugin
         {
             PlexPlayer plexPlayer = DataUtils.getPlayer(player.getUniqueId());
             PlayerCache.getPlexPlayerMap().put(player.getUniqueId(), plexPlayer); //put them into the cache
-            PlayerCache.getPunishedPlayerMap().put(player.getUniqueId(), new PunishedPlayer(player.getUniqueId()));
             if (plugin.getRankManager().isAdmin(plexPlayer))
             {
                 Admin admin = new Admin(UUID.fromString(plexPlayer.getUuid()));

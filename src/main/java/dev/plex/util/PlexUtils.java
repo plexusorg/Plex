@@ -6,39 +6,11 @@ import dev.plex.Plex;
 import dev.plex.PlexBase;
 import dev.plex.config.Config;
 import dev.plex.storage.StorageType;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.sql.SQLException;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.stream.Collectors;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.apache.commons.lang.math.NumberUtils;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.GameRule;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.PluginCommandYamlParser;
 import org.bukkit.entity.Player;
@@ -46,6 +18,20 @@ import org.bukkit.plugin.Plugin;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 public class PlexUtils extends PlexBase
 {
@@ -85,7 +71,7 @@ public class PlexUtils extends PlexBase
 
     public static void testConnections()
     {
-        if (Plex.get().getSqlConnection().getCon() != null)
+        try (Connection con = Plex.get().getSqlConnection().getCon())
         {
             if (Plex.get().getStorageType() == StorageType.MARIADB)
             {
@@ -95,17 +81,13 @@ public class PlexUtils extends PlexBase
             {
                 PlexLog.log("Successfully enabled SQLite!");
             }
-            try
-            {
-                Plex.get().getSqlConnection().getCon().close();
-            }
-            catch (SQLException ignored)
-            {
-            }
         }
-        else if (Plex.get().getMongoConnection().getDatastore() != null)
+        catch (SQLException e)
         {
-            PlexLog.log("Successfully enabled MongoDB!");
+            if (Plex.get().getMongoConnection().getDatastore() != null)
+            {
+                PlexLog.log("Successfully enabled MongoDB!");
+            }
         }
     }
 

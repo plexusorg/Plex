@@ -1,8 +1,8 @@
-package dev.plex.cache;
+package dev.plex.cache.player;
 
 import com.google.common.collect.Maps;
 import dev.plex.player.PlexPlayer;
-import dev.plex.player.PunishedPlayer;
+
 import java.util.Map;
 import java.util.UUID;
 
@@ -20,19 +20,18 @@ public class PlayerCache
     /**
      * A key/value pair where the key is the unique ID of the Punished Player
      */
-    private static final Map<UUID, PunishedPlayer> punishedPlayerMap = Maps.newHashMap();
+//    private static final Map<UUID, PunishedPlayer> punishedPlayerMap = Maps.newHashMap();
 
-    public static Map<UUID, PunishedPlayer> getPunishedPlayerMap()
-    {
-        return punishedPlayerMap;
-    }
-
+//    public static Map<UUID, PunishedPlayer> getPunishedPlayerMap()
+//    {
+//        return punishedPlayerMap;
+//    }
     public static Map<UUID, PlexPlayer> getPlexPlayerMap()
     {
         return plexPlayerMap;
     }
 
-    public static PunishedPlayer getPunishedPlayer(UUID uuid)
+    /*public static PunishedPlayer getPunishedPlayer(UUID uuid)
     {
         if (!getPunishedPlayerMap().containsKey(uuid))
         {
@@ -40,7 +39,7 @@ public class PlayerCache
         }
         return getPunishedPlayerMap().get(uuid);
     }
-
+*/
     public static PlexPlayer getPlexPlayer(UUID uuid)
     {
         return getPlexPlayerMap().get(uuid);

@@ -1,8 +1,9 @@
 package dev.plex.listener.impl;
 
-import dev.plex.cache.PlayerCache;
+import dev.plex.cache.DataUtils;
+import dev.plex.cache.player.PlayerCache;
 import dev.plex.listener.PlexListener;
-import dev.plex.player.PunishedPlayer;
+import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.Punishment;
 import dev.plex.punishment.PunishmentType;
 import org.bukkit.event.EventHandler;
@@ -36,7 +37,7 @@ public class BanListener extends PlexListener
 
         if (plugin.getPunishmentManager().isBanned(event.getUniqueId()))
         {
-            PunishedPlayer player = PlayerCache.getPunishedPlayer(event.getUniqueId());
+            PlexPlayer player = DataUtils.getPlayer(event.getUniqueId());
             player.getPunishments().stream().filter(punishment -> punishment.getType() == PunishmentType.BAN && punishment.isActive()).findFirst().ifPresent(punishment ->
                     event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED,
                             Punishment.generateBanMessage(punishment)));
