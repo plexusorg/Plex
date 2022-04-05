@@ -47,7 +47,8 @@ public class SQLPunishment
                     punishment.setIp(set.getString("ip"));
                     punishments.add(punishment);
                 }
-            } catch (SQLException e)
+            }
+            catch (SQLException e)
             {
                 e.printStackTrace();
             }
@@ -75,7 +76,8 @@ public class SQLPunishment
                 punishment.setIp(set.getString("ip"));
                 punishments.add(punishment);
             }
-        } catch (SQLException e)
+        }
+        catch (SQLException e)
         {
             e.printStackTrace();
         }
@@ -102,7 +104,8 @@ public class SQLPunishment
                 statement.setLong(9, punishment.getEndDate().toInstant(ZoneOffset.UTC).toEpochMilli());
                 PlexLog.debug("Executing punishment");
                 statement.execute();
-            } catch (SQLException e)
+            }
+            catch (SQLException e)
             {
                 e.printStackTrace();
             }
@@ -121,7 +124,8 @@ public class SQLPunishment
                 statement.setString(3, uuid.toString());
                 statement.setString(4, PunishmentType.BAN.name());
                 statement.executeUpdate();
-            } catch (SQLException e)
+            }
+            catch (SQLException e)
             {
                 e.printStackTrace();
             }

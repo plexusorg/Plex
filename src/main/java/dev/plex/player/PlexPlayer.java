@@ -94,11 +94,13 @@ public class PlexPlayer
             if (player.isOp())
             {
                 return Rank.OP;
-            } else
+            }
+            else
             {
                 return Rank.NONOP;
             }
-        } else
+        }
+        else
         {
             return Rank.valueOf(rank.toUpperCase());
         }
