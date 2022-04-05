@@ -45,14 +45,16 @@ import org.jetbrains.annotations.Nullable;
 
 //TODO: doesn't work
 
-public class LibraryLoader {
+public class LibraryLoader
+{
 
     private final Logger logger;
     private final RepositorySystem repository;
     private final DefaultRepositorySystemSession session;
     private final List<RemoteRepository> repositories;
 
-    public LibraryLoader(@NotNull Logger logger) {
+    public LibraryLoader(@NotNull Logger logger)
+    {
         this.logger = logger;
 
         DefaultServiceLocator locator = MavenRepositorySystemUtils.newServiceLocator();
@@ -64,9 +66,11 @@ public class LibraryLoader {
 
         session.setChecksumPolicy(RepositoryPolicy.CHECKSUM_POLICY_FAIL);
         session.setLocalRepositoryManager(repository.newLocalRepositoryManager(session, new LocalRepository("libraries")));
-        session.setTransferListener(new AbstractTransferListener() {
+        session.setTransferListener(new AbstractTransferListener()
+        {
             @Override
-            public void transferStarted(@NotNull TransferEvent event) throws TransferCancelledException {
+            public void transferStarted(@NotNull TransferEvent event) throws TransferCancelledException
+            {
                 logger.log(Level.INFO, "Downloading {0}", event.getResource().getRepositoryUrl() + event.getResource().getResourceName());
             }
         });
@@ -76,8 +80,10 @@ public class LibraryLoader {
     }
 
     @Nullable
-    public ClassLoader createLoader(@NotNull PlexModule module, @NotNull PlexModuleFile moduleFile) {
-        if (moduleFile.getLibraries().isEmpty()) {
+    public ClassLoader createLoader(@NotNull PlexModule module, @NotNull PlexModuleFile moduleFile)
+    {
+        if (moduleFile.getLibraries().isEmpty())
+        {
             return null;
         }
         logger.log(Level.INFO, "Loading libraries for {0}", new Object[]{moduleFile.getName()});
@@ -89,7 +95,8 @@ public class LibraryLoader {
         List<Dependency> dependencies = new ArrayList<>();
         List<Class<?>> classes = Lists.newArrayList();
         List<File> files = Lists.newArrayList();
-        for (String library : moduleFile.getLibraries()) {
+        for (String library : moduleFile.getLibraries())
+        {
             Artifact artifact = new DefaultArtifact(library);
             Dependency dependency = new Dependency(artifact, null);
 
@@ -97,20 +104,27 @@ public class LibraryLoader {
         }
 
         DependencyResult result;
-        try {
-            result = repository.resolveDependencies(session, new DependencyRequest(new CollectRequest((Dependency) null, dependencies, repositories), null));
-        } catch (DependencyResolutionException ex) {
+        try
+        {
+            result = repository.resolveDependencies(session, new DependencyRequest(new CollectRequest((Dependency)null, dependencies, repositories), null));
+        }
+        catch (DependencyResolutionException ex)
+        {
             throw new RuntimeException("Error resolving libraries", ex);
         }
 
         List<URL> jarFiles = new ArrayList<>();
-        for (ArtifactResult artifact : result.getArtifactResults()) {
+        for (ArtifactResult artifact : result.getArtifactResults())
+        {
             File file = artifact.getArtifact().getFile();
             files.add(file);
             URL url;
-            try {
+            try
+            {
                 url = file.toURI().toURL();
-            } catch (MalformedURLException ex) {
+            }
+            catch (MalformedURLException ex)
+            {
                 throw new AssertionError(ex);
             }
 
@@ -167,21 +181,29 @@ public class LibraryLoader {
         });
 
         classes.forEach(clazz -> logger.log(Level.INFO, "Loading class {0}", new Object[]{clazz.getName()}));*/
-        jarFiles.forEach(url -> {
+        jarFiles.forEach(url ->
+        {
             JarURLConnection connection;
-            try {
+            try
+            {
                 URL url2 = new URL("jar:" + url.toString() + "!/");
                 /*
                 connection = (JarURLConnection) url2.openConnection();
                 logger.log(Level.INFO, "Jar File: " + connection.getJarFileURL().toString());*/
-            } catch (IOException e) {
+            }
+            catch (IOException e)
+            {
                 e.printStackTrace();
             }
         });
-        return new URLClassLoader(files.stream().map(File::toURI).map(uri -> {
-            try {
+        return new URLClassLoader(files.stream().map(File::toURI).map(uri ->
+        {
+            try
+            {
                 return uri.toURL();
-            } catch (MalformedURLException e) {
+            }
+            catch (MalformedURLException e)
+            {
                 e.printStackTrace();
                 return null;
             }
@@ -216,21 +238,27 @@ public class LibraryLoader {
     }*/
 
 
-    private ArrayList<String> getClassNamesFromJar(JarFile file) throws Exception {
+    private ArrayList<String> getClassNamesFromJar(JarFile file) throws Exception
+    {
         ArrayList<String> classNames = new ArrayList<>();
-        try {
+        try
+        {
             //Iterate through the contents of the jar file
             Enumeration<JarEntry> entries = file.entries();
-            while (entries.hasMoreElements()) {
+            while (entries.hasMoreElements())
+            {
                 JarEntry entry = entries.nextElement();
                 //Pick file that has the extension of .class
-                if ((entry.getName().endsWith(".class"))) {
+                if ((entry.getName().endsWith(".class")))
+                {
                     String className = entry.getName().replaceAll("/", "\\.");
                     String myClass = className.substring(0, className.lastIndexOf('.'));
                     classNames.add(myClass);
                 }
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             throw new Exception("Error while getting class names from jar", e);
         }
         return classNames;
