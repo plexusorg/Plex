@@ -98,7 +98,7 @@ public class UpdateChecker extends PlexBase
             }
             case 0 -> {
                 sender.sendMessage(Component.text("Your version of Plex is up to date!").color(NamedTextColor.GREEN));
-                return true;
+                return false;
             }
             case -2 -> {
                 sender.sendMessage(Component.text("Unknown version, unable to check for updates.").color(NamedTextColor.RED));
