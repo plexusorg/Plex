@@ -23,7 +23,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 @CommandPermissions(level = Rank.ADMIN, permission = "plex.entitywipe", source = RequiredCommandSource.ANY)
-@CommandParameters(name = "entitywipe", description = "Remove various server entities that may cause lag, such as dropped items, minecarts, and boats.", usage = "/<command> [name | -a]", aliases = "ew,rd")
+@CommandParameters(name = "entitywipe", description = "Remove various server entities that may cause lag, such as dropped items, minecarts, and boats.", usage = "/<command> [name]", aliases = "ew,rd")
 public class EntityWipeCMD extends PlexCommand
 {
     @Override
@@ -62,12 +62,7 @@ public class EntityWipeCMD extends PlexCommand
                         entity.teleportAsync(loc);
                         entity.remove();
 
-                        if (!entityCounts.containsKey(type))
-                        {
-                            entityCounts.put(type,0);
-                        }
-
-                        entityCounts.put(type,entityCounts.get(type)+1);
+                        entityCounts.put(type,entityCounts.getOrDefault(type, 0) + 1);
                     }
                 }
             }
