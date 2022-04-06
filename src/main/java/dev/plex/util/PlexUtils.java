@@ -33,6 +33,7 @@ import java.util.stream.Collectors;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.apache.commons.lang.math.NumberUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -133,7 +134,7 @@ public class PlexUtils extends PlexBase
 
     public static Component messageComponent(String entry, Object... objects)
     {
-        return MiniMessage.miniMessage().deserialize(LegacyComponentSerializer.legacySection().serialize(LegacyComponentSerializer.legacyAmpersand().deserialize(messageString(entry, objects))));
+        return MiniMessage.miniMessage().deserialize(messageString(entry, objects));
     }
 
     public static String messageString(String entry, Object... objects)
@@ -149,7 +150,7 @@ public class PlexUtils extends PlexBase
         }*/
         for (int i = 0; i < objects.length; i++)
         {
-            f = f.replace("{" + i + "}", String.valueOf(objects[i]));
+            f = f.replace("{" + i + "}", PlainTextComponentSerializer.plainText().serialize(MiniMessage.miniMessage().deserialize(String.valueOf(objects[i]))));
         }
         return f;
     }

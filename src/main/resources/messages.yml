@@ -143,3 +143,17 @@ yourEditsHaveBeenUnblocked: "<gray>Your block modification abilities have been r
 editsBlocked: "<gray>Blocked block modification abilities for {0}"
 # 0 - The player name
 editsUnblocked: "<gray>Unblocked block modification abilities for {0}"
+# 0 - The command sender
+# 1 - Number of entities removed
+removedEntities: "<red>{0} - Removed {1} entities"
+# 0 - The command sender
+# 1 - Number of entities removed
+# 2 - Entity type(s) removed
+removedEntitiesOfTypes: "<red>{0} - Removed {1} entities of type(s) {2}"
+# 0 - The command sender
+# 1 - Number of entities removed
+# 2 - Entity type removed
+removedEntitiesOfType: "<gray>Removed {1} {2}"
+# 0 - Entity type that is invalid
+invalidEntityType: "<gray>Notice: Entity type {0} is invalid!"
+noRemovedEntities: "<gray>No entities were removed."
