@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 public class AdminList extends PlexBase
 {
     /**
-     * Key/Value storage, where the key is the unique ID of the admin
+     * Key / Value storage, where the key is the unique ID of the admin
      */
     private final Map<UUID, Admin> admins = Maps.newHashMap();
 
@@ -54,7 +54,7 @@ public class AdminList extends PlexBase
     }
 
     /**
-     * Gathers every admin's username (cached and databsed)
+     * Gathers every admin's username (cached and in the database)
      *
      * @return An array list of the names of every admin
      */
@@ -91,7 +91,7 @@ public class AdminList extends PlexBase
     }
 
     /**
-     * Gathers every admin (cached and databsed)
+     * Gathers every admin (cached and in the database)
      *
      * @return An array list of the names of every admin
      */
