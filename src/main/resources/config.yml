@@ -62,6 +62,11 @@ global_gamerules:
   - "showDeathMessages;false"
   - "sendCommandFeedback;false"
 
+# Mob limiter/Entity wiping config
+# All entities listed here will NOT be wiped upon wiping entities
+entitywipe_list:
+    - "item_frame"
+
 worlds:
   flatlands:
     name: "Flatlands"
