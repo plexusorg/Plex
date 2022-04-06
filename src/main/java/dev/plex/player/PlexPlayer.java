@@ -43,9 +43,10 @@ public class PlexPlayer
     private boolean vanished;
     private boolean commandSpy;
 
-    private boolean frozen;
-    private boolean muted;
-    private boolean lockedUp;
+    // These fields are transient so MongoDB doesn't automatically drop them in.
+    private transient boolean frozen;
+    private transient boolean muted;
+    private transient boolean lockedUp;
 
     private long coins;
 

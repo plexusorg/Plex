@@ -61,6 +61,18 @@ public class MongoPlayerData
         return query2.first();
     }
 
+    public PlexPlayer getByName(String username)
+    {
+        PlexPlayer player = PlayerCache.getPlexPlayerMap().values().stream().filter(plexPlayer -> plexPlayer.getName().equalsIgnoreCase(username)).findFirst().orElse(null);
+        if (player != null)
+        {
+            return player;
+        }
+
+        Query<PlexPlayer> query2 = datastore.find(PlexPlayer.class).filter(Filters.regex("name").caseInsensitive().pattern(username));
+        return query2.first();
+    }
+
     /**
      * Gets the player from cache or from mongo's database
      *
