@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -95,6 +96,10 @@ public class PlexCMD extends PlexCommand
             if (sender instanceof Player player && !PlexUtils.DEVELOPERS.contains(player.getUniqueId().toString()))
             {
                 return messageComponent("noPermissionConsole");
+            }
+            if (!plugin.getUpdateChecker().getUpdateStatus(false))
+            {
+                return MiniMessage.miniMessage().deserialize("<red>Plex is already up to date!");
             }
             plugin.getUpdateChecker().updateJar();
             return null;

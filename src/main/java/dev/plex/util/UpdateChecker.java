@@ -6,15 +6,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import dev.plex.Plex;
 import dev.plex.PlexBase;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.util.concurrent.CompletableFuture;
-import javax.annotation.Nonnull;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.apache.commons.io.FileUtils;
@@ -23,10 +14,19 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
-import org.bukkit.util.FileUtil;
-import org.json.JSONArray;
 import org.json.JSONObject;
+
+import javax.annotation.Nonnull;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.concurrent.CompletableFuture;
 
 public class UpdateChecker extends PlexBase
 {
@@ -46,7 +46,7 @@ public class UpdateChecker extends PlexBase
     {
         try
         {
-            HttpURLConnection connection = (HttpURLConnection)new URL("https://api.github.com/repos/" + repo + "/compare/" + branch + "..." + hash).openConnection();
+            HttpURLConnection connection = (HttpURLConnection) new URL("https://api.github.com/repos/" + repo + "/compare/" + branch + "..." + hash).openConnection();
             connection.connect();
             if (connection.getResponseCode() == HttpURLConnection.HTTP_NOT_FOUND)
             {
@@ -66,17 +66,51 @@ public class UpdateChecker extends PlexBase
                             case "behind" -> obj.get("behind_by").getAsInt();
                             default -> -1;
                         };
-            }
-            catch (JsonSyntaxException | NumberFormatException e)
+            } catch (JsonSyntaxException | NumberFormatException e)
             {
                 e.printStackTrace();
                 return -1;
             }
-        }
-        catch (IOException e)
+        } catch (IOException e)
         {
             e.printStackTrace();
             return -1;
+        }
+    }
+
+    public boolean getUpdateStatus(boolean cached)
+    {
+        if (distance == -4)
+        {
+            distance = fetchDistanceFromGitHub("plexusorg/Plex", "master", Plex.build.head);
+            PlexLog.debug("Never checked for updates, checking now...");
+        } else
+        {
+            // If the request isn't asked to be cached, fetch it
+            if (!cached)
+            {
+                distance = fetchDistanceFromGitHub("plexusorg/Plex", "master", Plex.build.head);
+                PlexLog.debug("We have checked for updates before, but this request was not asked to be cached.");
+            } else
+            {
+                PlexLog.debug("We have checked for updates before, using cache.");
+            }
+        }
+
+        switch (distance)
+        {
+            case -1 -> {
+                return false;
+            }
+            case 0 -> {
+                return false;
+            }
+            case -2 -> {
+                return false;
+            }
+            default -> {
+                return true;
+            }
         }
     }
 
@@ -87,16 +121,14 @@ public class UpdateChecker extends PlexBase
         {
             distance = fetchDistanceFromGitHub("plexusorg/Plex", "master", Plex.build.head);
             PlexLog.debug("Never checked for updates, checking now...");
-        }
-        else
+        } else
         {
             // If the request isn't asked to be cached, fetch it
             if (!cached)
             {
                 distance = fetchDistanceFromGitHub("plexusorg/Plex", "master", Plex.build.head);
                 PlexLog.debug("We have checked for updates before, but this request was not asked to be cached.");
-            }
-            else
+            } else
             {
                 PlexLog.debug("We have checked for updates before, using cache.");
             }
@@ -136,12 +168,13 @@ public class UpdateChecker extends PlexBase
             JSONObject artifact = object.getJSONArray("artifacts").getJSONObject(0);
             String name = artifact.getString("displayPath");
             PlexLog.log("Downloading latest Plex jar file: " + name);
-            CompletableFuture.runAsync(() -> {
+            CompletableFuture.runAsync(() ->
+            {
                 try
                 {
                     FileUtils.copyURLToFile(
                             new URL(DOWNLOAD_PAGE + "lastSuccessfulBuild/artifact/build/libs/" + name),
-                            new File(Plex.get().getDataFolder() + File.separator + "..", name)
+                            new File(Bukkit.getUpdateFolder(), name)
                     );
                     PlexLog.log("Saved new jar. Please restart your server.");
                 } catch (IOException e)
