@@ -32,8 +32,10 @@ public class SpawnListener extends PlexListener
             Block block = event.getBlock();
             Location blockLoc = block.getLocation().add(0.5,0.5,0.5).add(((Directional) block.getBlockData()).getFacing().getDirection().multiply(0.8));
             event.setCancelled(true);
+            /*
             item.setAmount(item.getAmount() - 1);
             event.setItem(item);
+            */
             EntityType eggType = spawnEggToEntityType(itemType);
             if (eggType != null)
             {
