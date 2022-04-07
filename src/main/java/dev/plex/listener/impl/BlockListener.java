@@ -43,7 +43,7 @@ public class BlockListener extends PlexListener
 
         if (blockedBlocks.contains(event.getBlock().getType()))
         {
-            event.getBlock().setType(Material.COBWEB);
+            event.getBlock().setType(Material.CAKE);
             Particle.CLOUD.builder().location(event.getBlock().getLocation().add(0.5,0.5,0.5)).receivers(event.getPlayer()).extra(0).offset(0.5,0.5,0.5).count(5).spawn();
             Particle.FLAME.builder().location(event.getBlock().getLocation().add(0.5,0.5,0.5)).receivers(event.getPlayer()).extra(0).offset(0.5,0.5,0.5).count(3).spawn();
             Particle.SOUL_FIRE_FLAME.builder().location(event.getBlock().getLocation().add(0.5,0.5,0.5)).receivers(event.getPlayer()).offset(0.5,0.5,0.5).extra(0).count(2).spawn();
