@@ -9,6 +9,7 @@ import dev.plex.command.annotation.System;
 import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.extra.Note;
 import dev.plex.rank.enums.Rank;
+import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -16,6 +17,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.apache.commons.lang3.ArrayUtils;
@@ -48,13 +50,13 @@ public class NotesCMD extends PlexCommand
             case "list":
             {
                 Component noteList = Component.text("Player notes for: " + plexPlayer.getName()).color(NamedTextColor.GREEN);
-                int id = 1;
-                for (Note note : plexPlayer.getNotes())
+                /*for (Note note : plugin.getSqlNotes().getNotes(UUID.fromString(plexPlayer.getUuid())))
                 {
-                    Component noteLine = Component.text(id + ". " + note.getWrittenBy() + ": " + note.getNote()).color(NamedTextColor.GOLD);
-                    noteList.append(Component.empty()).append(noteLine);
-                    id++;
-                }
+                    PlexLog.debug("We got here");
+                    Component noteLine = Component.text(note.getId() + ". " + note.getWrittenBy() + ": " + note.getNote()).color(NamedTextColor.GOLD);
+                    noteList.append(Component.empty());
+                    noteList.append(noteLine);
+                }*/
                 send(sender, noteList);
                 return null;
             }

@@ -30,18 +30,9 @@ public class ToggleDropsCMD extends PlexCommand
     @Override
     protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, @NotNull String[] args)
     {
-        if (plugin.config.getBoolean("allowdrops"))
-        {
-            plugin.config.set("allowdrops", false);
-            plugin.config.save();
-            sender.sendMessage(messageComponent("allowDropsDisabled"));
-        }
-        else
-        {
-            plugin.config.set("allowdrops", true);
-            plugin.config.save();
-            sender.sendMessage(messageComponent("allowDropsEnabled"));
-        }
+        plugin.config.set("allowdrops", !plugin.config.getBoolean("allowdrops"));
+        plugin.config.save();
+        send(sender, plugin.config.getBoolean("allowdrops") ? messageComponent("allowDropsEnabled") : messageComponent("allowDropsDisabled"));
         return null;
     }
 }

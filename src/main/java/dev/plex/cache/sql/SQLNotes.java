@@ -19,7 +19,6 @@ import java.util.concurrent.CompletableFuture;
 public class SQLNotes
 {
     private static final String SELECT = "SELECT * FROM `notes` WHERE uuid=?";
-
     private static final String INSERT = "INSERT INTO `notes` (`id`, `uuid`, `written_by`, `note`, `timestamp`) VALUES(?, ?, ?, ?, ?)";
     private static final String DELETE = "DELETE FROM `notes` WHERE uuid=? AND id=?";
 
@@ -44,7 +43,8 @@ public class SQLNotes
                     note.setId(set.getInt("id"));
                     notes.add(note);
                 }
-            } catch (SQLException e)
+            }
+            catch (SQLException e)
             {
                 e.printStackTrace();
             }
@@ -62,7 +62,8 @@ public class SQLNotes
                 statement.setString(1, uuid.toString());
                 statement.setInt(2, id);
                 statement.execute();
-            } catch (SQLException e)
+            }
+            catch (SQLException e)
             {
                 e.printStackTrace();
             }
@@ -85,13 +86,12 @@ public class SQLNotes
                     statement.setLong(5, note.getTimestamp().toInstant(ZoneOffset.UTC).toEpochMilli());
                     statement.execute();
                     note.setId(notes.size());
-                } catch (SQLException e)
+                }
+                catch (SQLException e)
                 {
                     e.printStackTrace();
                 }
-
             });
-
         });
     }
 }
