@@ -46,7 +46,7 @@ public class UpdateChecker extends PlexBase
     {
         try
         {
-            HttpURLConnection connection = (HttpURLConnection) new URL("https://api.github.com/repos/" + repo + "/compare/" + branch + "..." + hash).openConnection();
+            HttpURLConnection connection = (HttpURLConnection)new URL("https://api.github.com/repos/" + repo + "/compare/" + branch + "..." + hash).openConnection();
             connection.connect();
             if (connection.getResponseCode() == HttpURLConnection.HTTP_NOT_FOUND)
             {
@@ -66,12 +66,14 @@ public class UpdateChecker extends PlexBase
                             case "behind" -> obj.get("behind_by").getAsInt();
                             default -> -1;
                         };
-            } catch (JsonSyntaxException | NumberFormatException e)
+            }
+            catch (JsonSyntaxException | NumberFormatException e)
             {
                 e.printStackTrace();
                 return -1;
             }
-        } catch (IOException e)
+        }
+        catch (IOException e)
         {
             e.printStackTrace();
             return -1;
@@ -84,14 +86,16 @@ public class UpdateChecker extends PlexBase
         {
             distance = fetchDistanceFromGitHub("plexusorg/Plex", "master", Plex.build.head);
             PlexLog.debug("Never checked for updates, checking now...");
-        } else
+        }
+        else
         {
             // If the request isn't asked to be cached, fetch it
             if (!cached)
             {
                 distance = fetchDistanceFromGitHub("plexusorg/Plex", "master", Plex.build.head);
                 PlexLog.debug("We have checked for updates before, but this request was not asked to be cached.");
-            } else
+            }
+            else
             {
                 PlexLog.debug("We have checked for updates before, using cache.");
             }
@@ -121,14 +125,16 @@ public class UpdateChecker extends PlexBase
         {
             distance = fetchDistanceFromGitHub("plexusorg/Plex", "master", Plex.build.head);
             PlexLog.debug("Never checked for updates, checking now...");
-        } else
+        }
+        else
         {
             // If the request isn't asked to be cached, fetch it
             if (!cached)
             {
                 distance = fetchDistanceFromGitHub("plexusorg/Plex", "master", Plex.build.head);
                 PlexLog.debug("We have checked for updates before, but this request was not asked to be cached.");
-            } else
+            }
+            else
             {
                 PlexLog.debug("We have checked for updates before, using cache.");
             }
@@ -174,15 +180,17 @@ public class UpdateChecker extends PlexBase
                 {
                     FileUtils.copyURLToFile(
                             new URL(DOWNLOAD_PAGE + "lastSuccessfulBuild/artifact/build/libs/" + name),
-                            new File(Bukkit.getUpdateFolder(), name)
+                            new File(Bukkit.getUpdateFolderFile(), name)
                     );
                     PlexLog.log("Saved new jar. Please restart your server.");
-                } catch (IOException e)
+                }
+                catch (IOException e)
                 {
                     e.printStackTrace();
                 }
             });
-        } catch (IOException e)
+        }
+        catch (IOException e)
         {
             e.printStackTrace();
         }
