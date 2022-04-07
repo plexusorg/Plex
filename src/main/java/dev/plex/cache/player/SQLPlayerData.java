@@ -92,6 +92,49 @@ public class SQLPlayerData
         return null;
     }
 
+    public PlexPlayer getByName(String username)
+    {
+        PlexPlayer player = PlayerCache.getPlexPlayerMap().values().stream().filter(plexPlayer -> plexPlayer.getName().equalsIgnoreCase(username)).findFirst().orElse(null);
+        if (player != null)
+        {
+            return player;
+        }
+        try (Connection con = Plex.get().getSqlConnection().getCon())
+        {
+            PreparedStatement statement = con.prepareStatement("SELECT * FROM `players` WHERE name=? LIMIT 1");
+            statement.setString(1, username);
+            ResultSet set = statement.executeQuery();
+            while (set.next())
+            {
+                PlexPlayer plexPlayer = new PlexPlayer(UUID.fromString(set.getString("uuid")));
+                String loginMSG = set.getString("login_msg");
+                String prefix = set.getString("prefix");
+                String rankName = set.getString("rank").toUpperCase();
+                long coins = set.getLong("coins");
+                boolean vanished = set.getBoolean("vanished");
+                boolean commandspy = set.getBoolean("commandspy");
+                List<String> ips = new Gson().fromJson(set.getString("ips"), new TypeToken<List<String>>()
+                {
+                }.getType());
+                plexPlayer.setName(username);
+                plexPlayer.setLoginMessage(loginMSG);
+                plexPlayer.setPrefix(prefix);
+                plexPlayer.setRank(rankName);
+                plexPlayer.setIps(ips);
+                plexPlayer.setCoins(coins);
+                plexPlayer.setVanished(vanished);
+                plexPlayer.setCommandSpy(commandspy);
+                return plexPlayer;
+            }
+            return null;
+        }
+        catch (SQLException throwables)
+        {
+            throwables.printStackTrace();
+        }
+        return null;
+    }
+
     /**
      * Gets the player from cache or from the SQL database
      *

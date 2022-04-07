@@ -13,6 +13,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import dev.plex.util.PlexLog;
 import net.kyori.adventure.text.Component;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.command.CommandSender;
@@ -52,6 +54,9 @@ public class PlexCMD extends PlexCommand
             send(sender, "Imported ranks");
             send(sender, "Plex successfully reloaded.");
             plugin.setSystem(plugin.config.getString("system"));
+            plugin.getServiceManager().endServices();
+            plugin.getServiceManager().startServices();
+            PlexLog.debug("Restarted services");
             return null;
         }
         else if (args[0].equalsIgnoreCase("redis"))

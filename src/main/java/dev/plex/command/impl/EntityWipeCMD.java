@@ -57,9 +57,11 @@ public class EntityWipeCMD extends PlexCommand
 
                     if (useBlacklist ? entityBlacklist.stream().noneMatch(entityName -> entityName.equalsIgnoreCase(type)) : entityWhitelist.stream().anyMatch(entityName -> entityName.equalsIgnoreCase(type)))
                     {
+                        /*
                         Location loc = entity.getLocation();
                         loc.setY(-500);
                         entity.teleportAsync(loc);
+                        */
                         entity.remove();
 
                         entityCounts.put(type,entityCounts.getOrDefault(type, 0) + 1);

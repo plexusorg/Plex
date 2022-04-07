@@ -78,6 +78,10 @@ public class PlayerListener extends PlexListener
         {
             PlexUtils.broadcast(MiniMessage.miniMessage().deserialize("<aqua>" + player.getName() + " is " + loginMessage));
         }
+
+        plexPlayer.loadNotes().whenComplete((notes, throwable) -> {
+           //TODO: Send note messages to admins
+        });
     }
 
     // saving the player's data

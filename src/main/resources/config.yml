@@ -141,6 +141,19 @@ entitywipe_list:
   - "ZOMBIFIED_PIGLIN"
   - "PUFFERFISH"
 
+# Automatically wipe the specified entities
+autowipe:
+  # Should we automatically wipe entities?
+  enabled: true
+  # How often, in seconds, to automatically wipe entities. Default is 5 minutes.
+  interval: 300
+  # Entities to automatically wipe
+  entities:
+    - "DROPPED_ITEM"
+
+# Should we allow drops from players?
+allowdrops: true
+
 worlds:
   flatlands:
     name: "Flatlands"

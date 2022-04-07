@@ -34,9 +34,11 @@ public class MobPurgeCMD extends PlexCommand
                 {
                     String type = entity.getType().name();
 
+                    /*
                     Location loc = entity.getLocation();
                     loc.setY(-500);
                     entity.teleportAsync(loc);
+                    */
                     entity.remove();
 
                     entityCounts.put(type,entityCounts.getOrDefault(type, 0) + 1);

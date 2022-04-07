@@ -76,6 +76,13 @@ public class SQLConnection extends PlexBase
                     "`active` BOOLEAN, " +
                     "`endDate` BIGINT" +
                     ");").execute();
+            con.prepareStatement("CREATE TABLE IF NOT EXISTS `notes` (" +
+                    "`id` INT NOT NULL, " +
+                    "`uuid` VARCHAR(46) NOT NULL, " +
+                    "`written_by` VARCHAR(46), " +
+                    "`note` VARCHAR(2000), " +
+                    "`timestamp` BIGINT" +
+                    ");").execute();
         }
         catch (SQLException throwables)
         {

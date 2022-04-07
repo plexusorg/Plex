@@ -55,6 +55,18 @@ public class DataUtils
         }
     }
 
+    public static PlexPlayer getPlayer(String username)
+    {
+        if (Plex.get().getStorageType() == StorageType.MONGODB)
+        {
+            return Plex.get().getMongoPlayerData().getByName(username);
+        }
+        else
+        {
+            return Plex.get().getSqlPlayerData().getByName(username);
+        }
+    }
+
     /**
      * Gets a player from cache or from the database
      *
@@ -78,18 +90,6 @@ public class DataUtils
         {
             return Plex.get().getSqlPlayerData().getByIP(ip);
         }
-    }
-
-    /**
-     * Gets a player from cache or from the database
-     *
-     * @param name Username of the player
-     * @return a PlexPlayer object
-     * @see PlexPlayer
-     */
-    public static PlexPlayer getPlayer(String name)
-    {
-        return getPlayer(Bukkit.getPlayer(name).getUniqueId());
     }
 
     /**
