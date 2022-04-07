@@ -40,6 +40,7 @@ public class UpdateChecker extends PlexBase
      * > 0 = Number of commits behind
      */
     private final String DOWNLOAD_PAGE = "https://ci.plex.us.org/job/Plex/";
+    private String branch = plugin.config.getString("update_branch");
     private int distance = -4;
 
     // Adapted from Paper
@@ -83,10 +84,15 @@ public class UpdateChecker extends PlexBase
 
     public boolean getUpdateStatusMessage(CommandSender sender, boolean cached, boolean verbose)
     {
+        if (branch == null)
+        {
+            PlexLog.error("You did not specify a branch to use for update checking. Defaulting to master.");
+            branch = "master";
+        }
         // If it's -4, it hasn't checked for updates yet
         if (distance == -4)
         {
-            distance = fetchDistanceFromGitHub("plexusorg/Plex", "master", Plex.build.head);
+            distance = fetchDistanceFromGitHub("plexusorg/Plex", branch, Plex.build.head);
             PlexLog.debug("Never checked for updates, checking now...");
         }
         else
@@ -94,7 +100,7 @@ public class UpdateChecker extends PlexBase
             // If the request isn't asked to be cached, fetch it
             if (!cached)
             {
-                distance = fetchDistanceFromGitHub("plexusorg/Plex", "master", Plex.build.head);
+                distance = fetchDistanceFromGitHub("plexusorg/Plex", branch, Plex.build.head);
                 PlexLog.debug("We have checked for updates before, but this request was not asked to be cached.");
             }
             else
@@ -143,7 +149,7 @@ public class UpdateChecker extends PlexBase
     public void updateJar(CommandSender sender)
     {
         CloseableHttpClient client = HttpClients.createDefault();
-        HttpGet get = new HttpGet(DOWNLOAD_PAGE + "job/master/lastSuccessfulBuild/api/json");
+        HttpGet get = new HttpGet(DOWNLOAD_PAGE + "job/" + branch + "/lastSuccessfulBuild/api/json");
         try
         {
             HttpResponse response = client.execute(get);
@@ -156,7 +162,7 @@ public class UpdateChecker extends PlexBase
                 try
                 {
                     FileUtils.copyURLToFile(
-                            new URL(DOWNLOAD_PAGE + "job/master/lastSuccessfulBuild/artifact/build/libs/" + name),
+                            new URL(DOWNLOAD_PAGE + "job/" + branch + "/lastSuccessfulBuild/artifact/build/libs/" + name),
                             new File(Bukkit.getUpdateFolderFile(), name)
                     );
                     sendMini(sender, "Saved new jar. Please restart your server.");

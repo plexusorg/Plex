@@ -208,5 +208,8 @@ worlds:
       stone: 16
       bedrock: 1
 
+# What branch should Plex fetch updates from?
+update_branch: master
+
 # Additional logging for debugging
 debug: false
