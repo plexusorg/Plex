@@ -8,6 +8,16 @@ pipeline {
                 }
             }
         }
+        stage("publish") {
+            when {
+                branch "master"
+            }
+            steps {
+                withGradle {
+                    sh "./gradlew publish --no-daemon"
+                }
+            }
+        }
     }
     post {
         always {
