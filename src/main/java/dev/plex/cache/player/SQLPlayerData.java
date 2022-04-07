@@ -209,7 +209,7 @@ public class SQLPlayerData
             statement.setLong(6, player.getCoins());
             statement.setBoolean(7, player.isVanished());
             statement.setBoolean(8, player.isCommandSpy());
-            statement.setString(9, player.getUuid());
+            statement.setString(9, player.getUuid().toString());
             statement.executeUpdate();
         }
         catch (SQLException throwables)
@@ -229,7 +229,7 @@ public class SQLPlayerData
         try (Connection con = Plex.get().getSqlConnection().getCon())
         {
             PreparedStatement statement = con.prepareStatement(INSERT);
-            statement.setString(1, player.getUuid());
+            statement.setString(1, player.getUuid().toString());
             statement.setString(2, player.getName());
             statement.setString(3, player.getLoginMessage());
             statement.setString(4, player.getPrefix());

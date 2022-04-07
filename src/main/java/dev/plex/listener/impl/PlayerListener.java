@@ -92,7 +92,7 @@ public class PlayerListener extends PlexListener
 
         if (plugin.getRankManager().isAdmin(plexPlayer))
         {
-            plugin.getAdminList().removeFromCache(UUID.fromString(plexPlayer.getUuid()));
+            plugin.getAdminList().removeFromCache(plexPlayer.getUuid());
         }
 
         DataUtils.update(plexPlayer);

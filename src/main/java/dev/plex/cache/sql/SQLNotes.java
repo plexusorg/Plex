@@ -79,7 +79,7 @@ public class SQLNotes
                 try (Connection con = Plex.get().getSqlConnection().getCon())
                 {
                     PreparedStatement statement = con.prepareStatement(INSERT);
-                    statement.setInt(1, notes.size());
+                    statement.setInt(1, notes.size() + 1);
                     statement.setString(2, note.getUuid().toString());
                     statement.setString(3, note.getWrittenBy().toString());
                     statement.setString(4, note.getNote());

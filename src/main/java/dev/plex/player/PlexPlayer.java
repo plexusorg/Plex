@@ -38,7 +38,7 @@ public class PlexPlayer
 
     @Setter(AccessLevel.NONE)
     @Indexed(options = @IndexOptions(unique = true))
-    private String uuid;
+    private UUID uuid;
 
     @Indexed
     private String name;
@@ -69,9 +69,9 @@ public class PlexPlayer
 
     public PlexPlayer(UUID playerUUID)
     {
-        this.uuid = playerUUID.toString();
+        this.uuid = playerUUID;
 
-        this.id = uuid.substring(0, 8);
+        this.id = uuid.toString().substring(0, 8);
 
         this.name = "";
         this.player = Bukkit.getPlayer(name);
@@ -95,7 +95,7 @@ public class PlexPlayer
 
     public Rank getRankFromString()
     {
-        OfflinePlayer player = Bukkit.getOfflinePlayer(UUID.fromString(uuid));
+        OfflinePlayer player = Bukkit.getOfflinePlayer(uuid);
         if (rank.isEmpty())
         {
             if (player.isOp())
@@ -117,7 +117,7 @@ public class PlexPlayer
     {
         if (Plex.get().getStorageType() != StorageType.MONGODB)
         {
-            this.setPunishments(Plex.get().getSqlPunishment().getPunishments(UUID.fromString(this.getUuid())).stream().filter(punishment -> punishment.getPunished().equals(UUID.fromString(this.getUuid()))).collect(Collectors.toList()));
+            this.setPunishments(Plex.get().getSqlPunishment().getPunishments(this.getUuid()).stream().filter(punishment -> punishment.getPunished().equals(this.getUuid())).collect(Collectors.toList()));
         }
     }
 
@@ -125,7 +125,7 @@ public class PlexPlayer
     {
         if (Plex.get().getStorageType() != StorageType.MONGODB)
         {
-            return Plex.get().getSqlNotes().getNotes(UUID.fromString(this.getUuid()));
+            return Plex.get().getSqlNotes().getNotes(this.getUuid());
         }
         return null;
     }

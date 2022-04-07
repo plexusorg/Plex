@@ -15,7 +15,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-@CommandParameters(name = "list", description = "Show a list of all online players")
+@CommandParameters(name = "list", description = "Show a list of all online players", aliases = "lsit")
 @CommandPermissions(level = Rank.OP, permission = "plex.list")
 @System(value = "ranks")
 public class ListCMD extends PlexCommand

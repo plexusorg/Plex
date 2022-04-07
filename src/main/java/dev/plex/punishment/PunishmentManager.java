@@ -140,7 +140,7 @@ public class PunishmentManager extends PlexBase
 
     public boolean isBanned(PlexPlayer player)
     {
-        return isBanned(UUID.fromString(player.getUuid()));
+        return isBanned(player.getUuid());
     }
 
     public CompletableFuture<List<Punishment>> getActiveBans()
@@ -206,7 +206,7 @@ public class PunishmentManager extends PlexBase
                         return;
                     }
                     player.setFrozen(false);
-                    Bukkit.broadcast(PlexUtils.messageComponent("unfrozePlayer", "Plex", Bukkit.getOfflinePlayer(UUID.fromString(player.getUuid())).getName()));
+                    Bukkit.broadcast(PlexUtils.messageComponent("unfrozePlayer", "Plex", Bukkit.getOfflinePlayer(player.getUuid()).getName()));
                 }
             }.runTaskLater(Plex.get(), 20 * seconds);
         }
@@ -227,7 +227,7 @@ public class PunishmentManager extends PlexBase
                         return;
                     }
                     player.setMuted(false);
-                    Bukkit.broadcast(PlexUtils.messageComponent("unmutedPlayer", "Plex", Bukkit.getOfflinePlayer(UUID.fromString(player.getUuid())).getName()));
+                    Bukkit.broadcast(PlexUtils.messageComponent("unmutedPlayer", "Plex", Bukkit.getOfflinePlayer(player.getUuid()).getName()));
                 }
             }.runTaskLater(Plex.get(), 20 * seconds);
         }
