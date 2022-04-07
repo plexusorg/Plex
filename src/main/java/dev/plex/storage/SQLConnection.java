@@ -77,6 +77,7 @@ public class SQLConnection extends PlexBase
                     "`endDate` BIGINT" +
                     ");").execute();
             con.prepareStatement("CREATE TABLE IF NOT EXISTS `notes` (" +
+                    "`id` INT NOT NULL AUTO_INCREMENT, " +
                     "`uuid` VARCHAR(46) NOT NULL, " +
                     "`written_by` VARCHAR(16), " +
                     "`note` VARCHAR(2000), " +

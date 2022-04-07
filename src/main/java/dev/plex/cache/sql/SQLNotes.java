@@ -20,7 +20,7 @@ public class SQLNotes
 {
     private static final String SELECT = "SELECT * FROM `notes` WHERE uuid=?";
 
-    private static final String INSERT = "INSERT INTO `notes` (`uuid`, `written_by`, `note`, timestamp`) VALUES(?, ?, ?, ?)";
+    private static final String INSERT = "INSERT INTO `notes` (`uuid`, `written_by`, `note`, `timestamp`) VALUES(?, ?, ?, ?)";
     private static final String DELETE = "DELETE FROM `notes` WHERE uuid=? AND note=?";
 
     public CompletableFuture<List<Note>> getNotes(UUID uuid)
@@ -43,7 +43,8 @@ public class SQLNotes
                     );
                     notes.add(note);
                 }
-            } catch (SQLException e)
+            }
+            catch (SQLException e)
             {
                 e.printStackTrace();
             }
@@ -63,7 +64,8 @@ public class SQLNotes
                 statement.setString(3, note.getNote());
                 statement.setLong(4, note.getTimestamp().toInstant(ZoneOffset.UTC).toEpochMilli());
                 statement.execute();
-            } catch (SQLException e)
+            }
+            catch (SQLException e)
             {
                 e.printStackTrace();
             }
