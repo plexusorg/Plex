@@ -135,21 +135,9 @@ public class UpdateChecker extends PlexBase
         }
     }
 
-    public void updateJar()
+    private void sendMini(CommandSender sender, String message)
     {
-        updateJar(null);
-    }
-
-    private void sendOrLog(CommandSender sender, String message)
-    {
-        if (sender == null)
-        {
-            PlexLog.log(message);
-        }
-        else
-        {
-            sender.sendMessage(MiniMessage.miniMessage().deserialize(message));
-        }
+        sender.sendMessage(MiniMessage.miniMessage().deserialize(message));
     }
 
     public void updateJar(CommandSender sender)
@@ -162,7 +150,7 @@ public class UpdateChecker extends PlexBase
             JSONObject object = new JSONObject(EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8));
             JSONObject artifact = object.getJSONArray("artifacts").getJSONObject(0);
             String name = artifact.getString("fileName");
-            sendOrLog(sender, "Downloading latest Plex jar file: " + name);
+            sendMini(sender, "Downloading latest Plex jar file: " + name);
             CompletableFuture.runAsync(() ->
             {
                 try
@@ -171,7 +159,7 @@ public class UpdateChecker extends PlexBase
                             new URL(DOWNLOAD_PAGE + "job/master/lastSuccessfulBuild/artifact/build/libs/" + name),
                             new File(Bukkit.getUpdateFolderFile(), name)
                     );
-                    sendOrLog(sender, "Saved new jar. Please restart your server.");
+                    sendMini(sender, "Saved new jar. Please restart your server.");
                 }
                 catch (IOException e)
                 {
