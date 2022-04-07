@@ -2,6 +2,7 @@ package dev.plex.services;
 
 import com.google.common.collect.Lists;
 import dev.plex.Plex;
+import dev.plex.services.impl.AutoWipeService;
 import dev.plex.services.impl.BanService;
 import dev.plex.services.impl.GameRuleService;
 import dev.plex.services.impl.UpdateCheckerService;
@@ -19,6 +20,7 @@ public class ServiceManager
         registerService(new BanService());
         registerService(new GameRuleService());
         registerService(new UpdateCheckerService());
+        if (Plex.get().config.getBoolean("autowipe.enabled")) registerService(new AutoWipeService());
     }
 
     public void startServices()
