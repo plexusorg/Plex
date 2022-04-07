@@ -51,7 +51,8 @@ public class PlexUtils extends PlexBase
     public static List<ChatColor> CHAT_COLOR_POOL;
     public static List<String> DEVELOPERS =
             Arrays.asList("78408086-1991-4c33-a571-d8fa325465b2", // Telesphoreo
-                    "f5cd54c4-3a24-4213-9a56-c06c49594dff" // Taahh
+                    "f5cd54c4-3a24-4213-9a56-c06c49594dff", // Taahh
+                    "ca83b658-c03b-4106-9edc-72f70a80656d" // ayunami2000
             );
 
     static
