@@ -4,7 +4,7 @@ pipeline {
         stage("build") {
             steps {
                 withGradle {
-                    sh "./gradlew build javadoc publish --no-daemon"
+                    sh "./gradlew build javadoc --no-daemon"
                 }
             }
         }
