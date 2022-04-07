@@ -1,15 +1,19 @@
 package dev.plex.listener.impl;
 
 import dev.plex.listener.PlexListener;
+import dev.plex.util.PlexUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.Directional;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockDispenseEvent;
+import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -18,9 +22,21 @@ import java.util.List;
 
 public class SpawnListener extends PlexListener
 {
-    // TODO: CONFIGURABILITY!!!
-
     public static final List<Material> SPAWN_EGGS = Arrays.stream(Material.values()).filter((mat) -> mat.name().endsWith("_SPAWN_EGG")).toList();
+
+    @EventHandler
+    public void onEntitySpawn(EntitySpawnEvent event)
+    {
+        if(plugin.config.getStringList("blockedEntities").stream().anyMatch(type -> type.equalsIgnoreCase(event.getEntityType().name())))
+        {
+            event.setCancelled(true);
+            Location location = event.getLocation();
+            for (Player player : location.getNearbyEntitiesByType(Player.class, 10))
+            {
+                PlexUtils.disabledEffect(player, location);
+            }
+        }
+    }
 
     @EventHandler
     public void onDispense(BlockDispenseEvent event)

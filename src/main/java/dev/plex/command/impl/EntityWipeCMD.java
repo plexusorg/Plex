@@ -35,7 +35,7 @@ public class EntityWipeCMD extends PlexCommand
 
         EntityType[] entityTypes = EntityType.values();
         entityWhitelist.removeIf(name -> {
-            boolean res = Arrays.stream(entityTypes).noneMatch(entityType -> entityType.name().equalsIgnoreCase(name));
+            boolean res = Arrays.stream(entityTypes).noneMatch(entityType -> name.equalsIgnoreCase(entityType.name()));
             if (res)
             {
                 sender.sendMessage(messageComponent("invalidEntityType", name));

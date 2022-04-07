@@ -4,9 +4,13 @@ import dev.plex.listener.PlexListener;
 import java.util.ArrayList;
 import java.util.List;
 
+import dev.plex.util.PlexUtils;
 import net.kyori.adventure.sound.Sound;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
+import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -41,23 +45,17 @@ public class BlockListener extends PlexListener
             }
         }
 
-        if (blockedBlocks.contains(event.getBlock().getType()))
-        {
-            event.getBlock().setType(Material.CAKE);
-            Particle.CLOUD.builder().location(event.getBlock().getLocation().add(0.5,0.5,0.5)).receivers(event.getPlayer()).extra(0).offset(0.5,0.5,0.5).count(5).spawn();
-            Particle.FLAME.builder().location(event.getBlock().getLocation().add(0.5,0.5,0.5)).receivers(event.getPlayer()).extra(0).offset(0.5,0.5,0.5).count(3).spawn();
-            Particle.SOUL_FIRE_FLAME.builder().location(event.getBlock().getLocation().add(0.5,0.5,0.5)).receivers(event.getPlayer()).offset(0.5,0.5,0.5).extra(0).count(2).spawn();
-            event.getPlayer().playSound(Sound.sound(org.bukkit.Sound.BLOCK_FIRE_EXTINGUISH.key(), Sound.Source.BLOCK, 0.5f, 0.5f));
-        }
-
-        if (blockedPlayers.size() == 0)
-        {
-            return;
-        }
+        Block block = event.getBlock();
 
         if (blockedPlayers.contains(event.getPlayer().getName()))
         {
             event.setCancelled(true);
+        }
+
+        if (blockedBlocks.contains(block.getType()))
+        {
+            block.setType(Material.CAKE);
+            PlexUtils.disabledEffect(event.getPlayer(), block.getLocation().add(0.5,0.5,0.5));
         }
     }
 

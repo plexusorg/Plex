@@ -160,6 +160,11 @@ blockedBlocks:
   - "STRUCTURE_BLOCK"
   - "JIGSAW"
 
+# What entities should be blocked?
+blockedEntities:
+  - "WITHER"
+  - "ENDER_DRAGON"
+
 worlds:
   flatlands:
     name: "Flatlands"

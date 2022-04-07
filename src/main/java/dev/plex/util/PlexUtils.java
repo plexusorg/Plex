@@ -66,6 +66,14 @@ public class PlexUtils extends PlexBase
         }
     }
 
+    public static void disabledEffect(Player player, Location location)
+    {
+        Particle.CLOUD.builder().location(location).receivers(player).extra(0).offset(0.5,0.5,0.5).count(5).spawn();
+        Particle.FLAME.builder().location(location).receivers(player).extra(0).offset(0.5,0.5,0.5).count(3).spawn();
+        Particle.SOUL_FIRE_FLAME.builder().location(location).receivers(player).offset(0.5,0.5,0.5).extra(0).count(2).spawn();
+        player.playSound(net.kyori.adventure.sound.Sound.sound(org.bukkit.Sound.BLOCK_FIRE_EXTINGUISH.key(), net.kyori.adventure.sound.Sound.Source.BLOCK, 0.5f, 0.5f));
+    }
+
     public static ChatColor randomChatColor()
     {
         return CHAT_COLOR_POOL.get(RANDOM.nextInt(CHAT_COLOR_POOL.size()));
