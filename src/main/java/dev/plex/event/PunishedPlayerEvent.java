@@ -33,7 +33,7 @@ public abstract class PunishedPlayerEvent extends PlayerEvent implements Cancell
      */
     protected PunishedPlayerEvent(PlexPlayer punishedPlayer)
     {
-        super(Bukkit.getPlayer(UUID.fromString(punishedPlayer.getUuid())));
+        super(Bukkit.getPlayer(punishedPlayer.getUuid()));
         this.punishedPlayer = punishedPlayer;
     }
 }

@@ -1,28 +1,24 @@
 package dev.plex.command.impl;
 
-import com.google.common.collect.ImmutableList;
 import dev.plex.cache.DataUtils;
 import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
-import dev.plex.command.annotation.System;
 import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.extra.Note;
 import dev.plex.rank.enums.Rank;
-import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicReference;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -49,15 +45,23 @@ public class NotesCMD extends PlexCommand
         {
             case "list":
             {
-                Component noteList = Component.text("Player notes for: " + plexPlayer.getName()).color(NamedTextColor.GREEN);
-                /*for (Note note : plugin.getSqlNotes().getNotes(UUID.fromString(plexPlayer.getUuid())))
+                plugin.getSqlNotes().getNotes(plexPlayer.getUuid()).whenComplete((notes, ex) ->
                 {
-                    PlexLog.debug("We got here");
-                    Component noteLine = Component.text(note.getId() + ". " + note.getWrittenBy() + ": " + note.getNote()).color(NamedTextColor.GOLD);
-                    noteList.append(Component.empty());
-                    noteList.append(noteLine);
-                }*/
-                send(sender, noteList);
+                    if (notes.size() == 0)
+                    {
+                        send(sender, mmString("<red>This player has no notes!"));
+                        return;
+                    }
+                    AtomicReference<Component> noteList = new AtomicReference<>(Component.text("Player notes for: " + plexPlayer.getName()).color(NamedTextColor.GREEN));
+                    for (Note note : notes)
+                    {
+                        Component noteLine = Component.text(note.getId() + " - Written by: " + DataUtils.getPlayer(note.getWrittenBy()).getName() + " on " + DATE_FORMAT.format(note.getTimestamp())).color(NamedTextColor.YELLOW).decoration(TextDecoration.ITALIC, false);
+                        noteLine = noteLine.append(Component.text(note.getNote())).color(NamedTextColor.GOLD).decoration(TextDecoration.ITALIC, true);
+                        noteList.set(noteList.get().append(Component.newline()));
+                        noteList.set(noteList.get().append(noteLine));
+                    }
+                    send(sender, noteList.get());
+                });
                 return null;
             }
             case "add":
@@ -69,7 +73,7 @@ public class NotesCMD extends PlexCommand
                 String content = StringUtils.join(ArrayUtils.subarray(args, 2, args.length), " ");
                 if (playerSender != null)
                 {
-                    Note note = new Note(UUID.fromString(plexPlayer.getUuid()), content, playerSender.getUniqueId(), LocalDateTime.now());
+                    Note note = new Note(plexPlayer.getUuid(), content, playerSender.getUniqueId(), LocalDateTime.now());
                     plexPlayer.getNotes().add(note);
                     plugin.getSqlNotes().addNote(note);
                     return Component.text("Note added.").color(NamedTextColor.GREEN);
@@ -77,19 +81,42 @@ public class NotesCMD extends PlexCommand
             }
             case "remove":
             {
-                return null;
+                int id;
+                try
+                {
+                    id = Integer.parseInt(args[2]);
+                }
+                catch (NumberFormatException ignored)
+                {
+                    return Component.text("Invalid number: " + args[2]).color(NamedTextColor.RED);
+                }
+                plugin.getSqlNotes().getNotes(plexPlayer.getUuid()).whenComplete((notes, ex) ->
+                {
+                    for (Note note : notes)
+                    {
+                        if (note.getId() == id)
+                        {
+                            plugin.getSqlNotes().deleteNote(id, plexPlayer.getUuid()).whenComplete((notes1, ex1) ->
+                                    send(sender, Component.text("Removed note with ID: " + id).color(NamedTextColor.GREEN)));
+                        }
+                        else
+                        {
+                            send(sender, mmString("<red>A note with this ID could not be found"));
+                        }
+                    }
+                });
             }
             case "clear":
             {
-                int count = plexPlayer.getNotes().size();
-                final List<Note> notes = plexPlayer.getNotes();
-                for (Note note : notes)
+                plugin.getSqlNotes().getNotes(plexPlayer.getUuid()).whenComplete((notes, ex) ->
                 {
-                    plexPlayer.getNotes().remove(note);
-                    count++;
-                }
-                DataUtils.update(plexPlayer);
-                return Component.text("Cleared " + count + " note(s).").color(NamedTextColor.GREEN);
+                    for (Note note : notes)
+                    {
+                        plugin.getSqlNotes().deleteNote(note.getId(), plexPlayer.getUuid());
+                    }
+                    send(sender, Component.text("Cleared " + notes.size() + " note(s).").color(NamedTextColor.GREEN));
+                });
+                return null;
             }
             default:
             {

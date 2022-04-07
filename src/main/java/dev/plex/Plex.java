@@ -177,7 +177,7 @@ public class Plex extends JavaPlugin
 
             if (plugin.getRankManager().isAdmin(plexPlayer))
             {
-                plugin.getAdminList().removeFromCache(UUID.fromString(plexPlayer.getUuid()));
+                plugin.getAdminList().removeFromCache(plexPlayer.getUuid());
             }
 
             if (mongoPlayerData != null) //back to mongo checking
@@ -215,7 +215,7 @@ public class Plex extends JavaPlugin
             PlayerCache.getPlexPlayerMap().put(player.getUniqueId(), plexPlayer); //put them into the cache
             if (plugin.getRankManager().isAdmin(plexPlayer))
             {
-                Admin admin = new Admin(UUID.fromString(plexPlayer.getUuid()));
+                Admin admin = new Admin(plexPlayer.getUuid());
                 admin.setRank(plexPlayer.getRankFromString());
 
                 plugin.getAdminList().addToCache(admin);

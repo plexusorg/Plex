@@ -50,7 +50,7 @@ public class FreezeCMD extends PlexCommand
             }
         }
 
-        Punishment punishment = new Punishment(UUID.fromString(punishedPlayer.getUuid()), getUUID(sender));
+        Punishment punishment = new Punishment(punishedPlayer.getUuid(), getUUID(sender));
         punishment.setCustomTime(false);
         LocalDateTime date = LocalDateTime.now();
         punishment.setEndDate(date.plusMinutes(5));
