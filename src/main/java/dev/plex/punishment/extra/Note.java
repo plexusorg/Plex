@@ -15,6 +15,8 @@ public class Note
     private final UUID writtenBy;
     private final LocalDateTime timestamp;
 
+    private int id; // This will be automatically set from addNote
+
     public String toJSON()
     {
         return new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new LocalDateTimeSerializer()).create().toJson(this);

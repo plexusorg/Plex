@@ -18,4 +18,14 @@ public abstract class AbstractService extends PlexBase implements IService
         this.repeating = repeating;
         this.asynchronous = async;
     }
+
+    public void onStart()
+    {
+
+    }
+
+    public void onEnd()
+    {
+
+    }
 }

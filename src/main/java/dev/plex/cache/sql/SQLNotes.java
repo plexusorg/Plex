@@ -20,8 +20,8 @@ public class SQLNotes
 {
     private static final String SELECT = "SELECT * FROM `notes` WHERE uuid=?";
 
-    private static final String INSERT = "INSERT INTO `notes` (`uuid`, `written_by`, `note`, `timestamp`) VALUES(?, ?, ?, ?)";
-    private static final String DELETE = "DELETE FROM `notes` WHERE uuid=? AND note=?";
+    private static final String INSERT = "INSERT INTO `notes` (`id`, `uuid`, `written_by`, `note`, `timestamp`) VALUES(?, ?, ?, ?, ?)";
+    private static final String DELETE = "DELETE FROM `notes` WHERE uuid=? AND id=?";
 
     public CompletableFuture<List<Note>> getNotes(UUID uuid)
     {
@@ -41,10 +41,10 @@ public class SQLNotes
                             UUID.fromString(set.getString("written_by")),
                             LocalDateTime.ofInstant(Instant.ofEpochMilli(set.getLong("timestamp")), ZoneId.systemDefault())
                     );
+                    note.setId(set.getInt("id"));
                     notes.add(note);
                 }
-            }
-            catch (SQLException e)
+            } catch (SQLException e)
             {
                 e.printStackTrace();
             }
@@ -52,23 +52,46 @@ public class SQLNotes
         });
     }
 
-    public CompletableFuture<Void> addNote(Note note)
+    public CompletableFuture<Void> deleteNote(int id, UUID uuid)
     {
         return CompletableFuture.runAsync(() ->
         {
             try (Connection con = Plex.get().getSqlConnection().getCon())
             {
-                PreparedStatement statement = con.prepareStatement(INSERT);
-                statement.setString(1, note.getUuid().toString());
-                statement.setString(2, note.getWrittenBy().toString());
-                statement.setString(3, note.getNote());
-                statement.setLong(4, note.getTimestamp().toInstant(ZoneOffset.UTC).toEpochMilli());
+                PreparedStatement statement = con.prepareStatement(DELETE);
+                statement.setString(1, uuid.toString());
+                statement.setInt(2, id);
                 statement.execute();
-            }
-            catch (SQLException e)
+            } catch (SQLException e)
             {
                 e.printStackTrace();
             }
+        });
+    }
+
+    public CompletableFuture<Void> addNote(Note note)
+    {
+        return CompletableFuture.runAsync(() ->
+        {
+            getNotes(note.getUuid()).whenComplete((notes, throwable) ->
+            {
+                try (Connection con = Plex.get().getSqlConnection().getCon())
+                {
+                    PreparedStatement statement = con.prepareStatement(INSERT);
+                    statement.setInt(1, notes.size());
+                    statement.setString(2, note.getUuid().toString());
+                    statement.setString(3, note.getWrittenBy().toString());
+                    statement.setString(4, note.getNote());
+                    statement.setLong(5, note.getTimestamp().toInstant(ZoneOffset.UTC).toEpochMilli());
+                    statement.execute();
+                    note.setId(notes.size());
+                } catch (SQLException e)
+                {
+                    e.printStackTrace();
+                }
+
+            });
+
         });
     }
 }

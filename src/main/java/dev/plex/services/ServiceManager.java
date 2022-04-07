@@ -27,20 +27,13 @@ public class ServiceManager
     {
         for (AbstractService service : services)
         {
-            if (!service.isRepeating())
-            {
-                BukkitTask task = Bukkit.getScheduler().runTask(Plex.get(), service::run);
-                service.setTaskId(task.getTaskId());
-            } else if (service.isRepeating() && service.isAsynchronous())
-            {
-                BukkitTask task = Bukkit.getScheduler().runTaskTimerAsynchronously(Plex.get(), service::run, 0, 20L * service.repeatInSeconds());
-                service.setTaskId(task.getTaskId());
-            } else if (service.isRepeating() && !service.isAsynchronous())
-            {
-                BukkitTask task = Bukkit.getScheduler().runTaskTimer(Plex.get(), service::run, 0, 20L * service.repeatInSeconds());
-                service.setTaskId(task.getTaskId());
-            }
+            startService(service);
         }
+    }
+
+    public void endServices()
+    {
+        services.forEach(this::endService);
     }
 
     public AbstractService getService(Class<? extends AbstractService> clazz)
@@ -63,11 +56,26 @@ public class ServiceManager
             BukkitTask task = Bukkit.getScheduler().runTaskTimer(Plex.get(), service::run, 0, 20L * service.repeatInSeconds());
             service.setTaskId(task.getTaskId());
         }
+        if (!services.contains(service))
+        {
+            services.add(service);
+        }
+        service.onStart();
+    }
+
+    public void endService(AbstractService service, boolean remove)
+    {
+        Bukkit.getScheduler().cancelTask(service.getTaskId());
+        service.onEnd();
+        if (remove)
+        {
+            services.remove(service);
+        }
     }
 
     public void endService(AbstractService service)
     {
-        Bukkit.getScheduler().cancelTask(service.getTaskId());
+        endService(service, false);
     }
 
     private void registerService(AbstractService service)
