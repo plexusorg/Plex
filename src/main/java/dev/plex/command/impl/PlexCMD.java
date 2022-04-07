@@ -95,7 +95,7 @@ public class PlexCMD extends PlexCommand
         {
             if (sender instanceof Player player && !PlexUtils.DEVELOPERS.contains(player.getUniqueId().toString()))
             {
-                return messageComponent("noPermissionConsole");
+                return messageComponent("noPermissionRank", "a developer");
             }
             if (!plugin.getUpdateChecker().getUpdateStatusMessage(sender, false, false))
             {
