@@ -78,9 +78,9 @@ public class SQLConnection extends PlexBase
                     ");").execute();
             con.prepareStatement("CREATE TABLE IF NOT EXISTS `notes` (" +
                     "`uuid` VARCHAR(46) NOT NULL, " +
-                    "`name` VARCHAR(18), " +
                     "`written_by` VARCHAR(16), " +
                     "`note` VARCHAR(2000), " +
+                    "`timestamp` BIGINT" +
                     ");").execute();
         }
         catch (SQLException throwables)

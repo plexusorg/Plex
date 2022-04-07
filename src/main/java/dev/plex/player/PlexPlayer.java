@@ -1,17 +1,24 @@
 package dev.plex.player;
 
 import com.google.common.collect.Lists;
+import com.google.gson.GsonBuilder;
 import dev.morphia.annotations.Entity;
 import dev.morphia.annotations.Id;
 import dev.morphia.annotations.IndexOptions;
 import dev.morphia.annotations.Indexed;
 import dev.plex.Plex;
 import dev.plex.punishment.Punishment;
+import dev.plex.punishment.extra.Note;
 import dev.plex.rank.enums.Rank;
 import dev.plex.storage.StorageType;
+
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
+
+import dev.plex.util.adapter.LocalDateTimeSerializer;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -54,6 +61,7 @@ public class PlexPlayer
 
     private List<String> ips = Lists.newArrayList();
     private List<Punishment> punishments = Lists.newArrayList();
+    private List<Note> notes = Lists.newArrayList();
 
     public PlexPlayer()
     {
@@ -111,5 +119,19 @@ public class PlexPlayer
         {
             this.setPunishments(Plex.get().getSqlPunishment().getPunishments(UUID.fromString(this.getUuid())).stream().filter(punishment -> punishment.getPunished().equals(UUID.fromString(this.getUuid()))).collect(Collectors.toList()));
         }
+    }
+
+    public CompletableFuture<List<Note>> loadNotes()
+    {
+        if (Plex.get().getStorageType() != StorageType.MONGODB)
+        {
+            return Plex.get().getSqlNotes().getNotes(UUID.fromString(this.getUuid()));
+        }
+        return null;
+    }
+
+    public String toJSON()
+    {
+        return new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new LocalDateTimeSerializer()).create().toJson(this);
     }
 }

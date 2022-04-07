@@ -5,8 +5,10 @@ import dev.plex.Plex;
 import dev.plex.services.impl.BanService;
 import dev.plex.services.impl.GameRuleService;
 import dev.plex.services.impl.UpdateCheckerService;
-import java.util.List;
 import org.bukkit.Bukkit;
+import org.bukkit.scheduler.BukkitTask;
+
+import java.util.List;
 
 public class ServiceManager
 {
@@ -25,17 +27,45 @@ public class ServiceManager
         {
             if (!service.isRepeating())
             {
-                Bukkit.getScheduler().runTask(Plex.get(), service::run);
-            }
-            else if (service.isRepeating() && service.isAsynchronous())
+                BukkitTask task = Bukkit.getScheduler().runTask(Plex.get(), service::run);
+                service.setTaskId(task.getTaskId());
+            } else if (service.isRepeating() && service.isAsynchronous())
             {
-                Bukkit.getScheduler().runTaskTimerAsynchronously(Plex.get(), service::run, 0, 20L * service.repeatInSeconds());
-            }
-            else if (service.isRepeating() && !service.isAsynchronous())
+                BukkitTask task = Bukkit.getScheduler().runTaskTimerAsynchronously(Plex.get(), service::run, 0, 20L * service.repeatInSeconds());
+                service.setTaskId(task.getTaskId());
+            } else if (service.isRepeating() && !service.isAsynchronous())
             {
-                Bukkit.getScheduler().runTaskTimer(Plex.get(), service::run, 0, 20L * service.repeatInSeconds());
+                BukkitTask task = Bukkit.getScheduler().runTaskTimer(Plex.get(), service::run, 0, 20L * service.repeatInSeconds());
+                service.setTaskId(task.getTaskId());
             }
         }
+    }
+
+    public AbstractService getService(Class<? extends AbstractService> clazz)
+    {
+        return services.stream().filter(service -> service.getClass().isAssignableFrom(clazz)).findFirst().orElse(null);
+    }
+
+    public void startService(AbstractService service)
+    {
+        if (!service.isRepeating())
+        {
+            BukkitTask task = Bukkit.getScheduler().runTask(Plex.get(), service::run);
+            service.setTaskId(task.getTaskId());
+        } else if (service.isRepeating() && service.isAsynchronous())
+        {
+            BukkitTask task = Bukkit.getScheduler().runTaskTimerAsynchronously(Plex.get(), service::run, 0, 20L * service.repeatInSeconds());
+            service.setTaskId(task.getTaskId());
+        } else if (service.isRepeating() && !service.isAsynchronous())
+        {
+            BukkitTask task = Bukkit.getScheduler().runTaskTimer(Plex.get(), service::run, 0, 20L * service.repeatInSeconds());
+            service.setTaskId(task.getTaskId());
+        }
+    }
+
+    public void endService(AbstractService service)
+    {
+        Bukkit.getScheduler().cancelTask(service.getTaskId());
     }
 
     private void registerService(AbstractService service)
