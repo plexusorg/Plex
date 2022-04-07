@@ -5,6 +5,7 @@ import dev.plex.util.PlexUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.Dispenser;
 import org.bukkit.block.data.Directional;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -12,8 +13,10 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockDispenseEvent;
+import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Arrays;
@@ -27,7 +30,15 @@ public class SpawnListener extends PlexListener
     @EventHandler
     public void onEntitySpawn(EntitySpawnEvent event)
     {
-        if(plugin.config.getStringList("blockedEntities").stream().anyMatch(type -> type.equalsIgnoreCase(event.getEntityType().name())))
+        if (event.getEntity().getEntitySpawnReason() == CreatureSpawnEvent.SpawnReason.SPAWNER_EGG)
+        {
+            // for the future, we can instead filter and restrict nbt tags right here.
+            // currently, however, the entity from spawn eggs are spawned by other event handlers
+            event.setCancelled(true);
+            return;
+        }
+
+        if (plugin.config.getStringList("blockedEntities").stream().anyMatch(type -> type.equalsIgnoreCase(event.getEntityType().name())))
         {
             event.setCancelled(true);
             Location location = event.getLocation();
@@ -45,11 +56,6 @@ public class SpawnListener extends PlexListener
         {
             Block block = event.getBlock();
             Location blockLoc = block.getLocation().add(0.5,0.5,0.5).add(((Directional) block.getBlockData()).getFacing().getDirection().multiply(0.8));
-            event.setCancelled(true);
-            /*
-            item.setAmount(item.getAmount() - 1);
-            event.setItem(item);
-            */
             EntityType eggType = spawnEggToEntityType(itemType);
             if (eggType != null)
             {
