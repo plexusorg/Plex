@@ -25,7 +25,7 @@ pipeline {
         always {
             archiveArtifacts artifacts: "build/libs/*.jar", fingerprint: true
             javadoc javadocDir: 'build/docs/javadoc', keepAll: false
-            discordSend description: 'Build: ${}BUILD_NUMBER}', enableArtifactsList: true, footer: 'Built with Jenkins', link: env.BUILD_URL, result: currentBuild.currentResult, scmWebUrl: 'https://github.com/plexusorg/Plex', showChangeset: true, title: env.JOB_NAME, webhookURL: env.PLEX_WEBHOOK_URL
+            discordSend description: '**Build:** ${BUILD_NUMBER}\n**Status:**: ${currentBuild.currentResult}', enableArtifactsList: true, footer: 'Built with Jenkins', link: env.BUILD_URL, result: currentBuild.currentResult, scmWebUrl: 'https://github.com/plexusorg/Plex', showChangeset: true, title: env.JOB_NAME, webhookURL: env.PLEX_WEBHOOK_URL
             cleanWs()
         }
     }
