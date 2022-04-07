@@ -20,7 +20,7 @@ public class ServiceManager
         registerService(new BanService());
         registerService(new GameRuleService());
         registerService(new UpdateCheckerService());
-        if (Plex.get().config.getBoolean("autowipe.enabled")) registerService(new AutoWipeService());
+        registerService(new AutoWipeService());
     }
 
     public void startServices()

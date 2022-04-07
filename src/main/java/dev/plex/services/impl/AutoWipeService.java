@@ -1,5 +1,6 @@
 package dev.plex.services.impl;
 
+import dev.plex.Plex;
 import dev.plex.services.AbstractService;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -18,15 +19,18 @@ public class AutoWipeService extends AbstractService
     @Override
     public void run()
     {
-        List<String> entities = plugin.config.getStringList("autowipe.entities");
-
-        for (World world : Bukkit.getWorlds())
+        if (Plex.get().config.getBoolean("autowipe.enabled"))
         {
-            for (Entity entity : world.getEntities())
+            List<String> entities = plugin.config.getStringList("autowipe.entities");
+
+            for (World world : Bukkit.getWorlds())
             {
-                if (entities.stream().anyMatch(entityName -> entityName.equalsIgnoreCase(entity.getType().name())))
+                for (Entity entity : world.getEntities())
                 {
-                    entity.remove();
+                    if (entities.stream().anyMatch(entityName -> entityName.equalsIgnoreCase(entity.getType().name())))
+                    {
+                        entity.remove();
+                    }
                 }
             }
         }
