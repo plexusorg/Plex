@@ -57,6 +57,7 @@ public class BlockListener extends PlexListener
         if (blockedPlayers.contains(event.getPlayer().getName()))
         {
             event.setCancelled(true);
+            return;
         }
 
         if (blockedBlocks.contains(block.getType()))
@@ -67,7 +68,7 @@ public class BlockListener extends PlexListener
 
         if(SIGNS.contains(block.getType()))
         {
-            Sign sign = (Sign) block.getState(false);
+            Sign sign = (Sign) block.getState();
             boolean anythingChanged = false;
             for (int i = 0; i < sign.lines().size(); i++)
             {
@@ -96,6 +97,7 @@ public class BlockListener extends PlexListener
         if (blockedPlayers.contains(event.getPlayer().getName()))
         {
             event.setCancelled(true);
+            return;
         }
     }
 }
