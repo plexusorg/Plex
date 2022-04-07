@@ -8,6 +8,7 @@ import dev.plex.Plex;
 import dev.plex.PlexBase;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.apache.commons.io.FileUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -136,6 +137,23 @@ public class UpdateChecker extends PlexBase
 
     public void updateJar()
     {
+        updateJar(null);
+    }
+
+    private void sendOrLog(CommandSender sender, String message)
+    {
+        if (sender == null)
+        {
+            PlexLog.log(message);
+        }
+        else
+        {
+            sender.sendMessage(MiniMessage.miniMessage().deserialize(message));
+        }
+    }
+
+    public void updateJar(CommandSender sender)
+    {
         CloseableHttpClient client = HttpClients.createDefault();
         HttpGet get = new HttpGet(DOWNLOAD_PAGE + "job/master/lastSuccessfulBuild/api/json");
         try
@@ -144,7 +162,7 @@ public class UpdateChecker extends PlexBase
             JSONObject object = new JSONObject(EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8));
             JSONObject artifact = object.getJSONArray("artifacts").getJSONObject(0);
             String name = artifact.getString("fileName");
-            PlexLog.log("Downloading latest Plex jar file: " + name);
+            sendOrLog(sender, "Downloading latest Plex jar file: " + name);
             CompletableFuture.runAsync(() ->
             {
                 try
@@ -153,7 +171,7 @@ public class UpdateChecker extends PlexBase
                             new URL(DOWNLOAD_PAGE + "job/master/lastSuccessfulBuild/artifact/build/libs/" + name),
                             new File(Bukkit.getUpdateFolderFile(), name)
                     );
-                    PlexLog.log("Saved new jar. Please restart your server.");
+                    sendOrLog(sender, "Saved new jar. Please restart your server.");
                 }
                 catch (IOException e)
                 {

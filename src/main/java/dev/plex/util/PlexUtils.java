@@ -74,6 +74,15 @@ public class PlexUtils extends PlexBase
         player.playSound(location, org.bukkit.Sound.BLOCK_FIRE_EXTINGUISH, 0.5f, 0.5f);
     }
 
+    public static void disabledEffectMultiple(Player[] players, Location location)
+    {
+        Particle.CLOUD.builder().location(location).receivers(players).extra(0).offset(0.5,0.5,0.5).count(5).spawn();
+        Particle.FLAME.builder().location(location).receivers(players).extra(0).offset(0.5,0.5,0.5).count(3).spawn();
+        Particle.SOUL_FIRE_FLAME.builder().location(location).receivers(players).offset(0.5,0.5,0.5).extra(0).count(2).spawn();
+        // note that the sound is played to everyone who is close enough to hear it
+        players[0].getWorld().playSound(location, org.bukkit.Sound.BLOCK_FIRE_EXTINGUISH, 0.5f, 0.5f);
+    }
+
     public static ChatColor randomChatColor()
     {
         return CHAT_COLOR_POOL.get(RANDOM.nextInt(CHAT_COLOR_POOL.size()));

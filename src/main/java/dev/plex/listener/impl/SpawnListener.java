@@ -18,6 +18,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 public class SpawnListener extends PlexListener
@@ -31,10 +32,8 @@ public class SpawnListener extends PlexListener
         {
             event.setCancelled(true);
             Location location = event.getLocation();
-            for (Player player : location.getNearbyEntitiesByType(Player.class, 10))
-            {
-                PlexUtils.disabledEffect(player, location);
-            }
+            Collection<Player> coll = location.getNearbyEntitiesByType(Player.class, 10);
+            PlexUtils.disabledEffectMultiple(coll.toArray(new Player[coll.size()]), location); // dont let intellij auto correct toArray to an empty array (for efficiency)
         }
     }
 
