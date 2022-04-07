@@ -5,6 +5,7 @@ import dev.plex.Plex;
 import dev.plex.services.impl.AutoWipeService;
 import dev.plex.services.impl.BanService;
 import dev.plex.services.impl.GameRuleService;
+import dev.plex.services.impl.SpawnEggService;
 import dev.plex.services.impl.UpdateCheckerService;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitTask;
@@ -20,6 +21,7 @@ public class ServiceManager
         registerService(new BanService());
         registerService(new GameRuleService());
         registerService(new UpdateCheckerService());
+        registerService(new SpawnEggService());
         registerService(new AutoWipeService());
     }
 
