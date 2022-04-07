@@ -68,17 +68,17 @@ public class PlexUtils extends PlexBase
 
     public static void disabledEffect(Player player, Location location)
     {
-        Particle.CLOUD.builder().location(location).receivers(player).extra(0).offset(0.5,0.5,0.5).count(5).spawn();
-        Particle.FLAME.builder().location(location).receivers(player).extra(0).offset(0.5,0.5,0.5).count(3).spawn();
-        Particle.SOUL_FIRE_FLAME.builder().location(location).receivers(player).offset(0.5,0.5,0.5).extra(0).count(2).spawn();
+        Particle.CLOUD.builder().location(location).receivers(player).extra(0).offset(0.5, 0.5, 0.5).count(5).spawn();
+        Particle.FLAME.builder().location(location).receivers(player).extra(0).offset(0.5, 0.5, 0.5).count(3).spawn();
+        Particle.SOUL_FIRE_FLAME.builder().location(location).receivers(player).offset(0.5, 0.5, 0.5).extra(0).count(2).spawn();
         player.playSound(location, org.bukkit.Sound.BLOCK_FIRE_EXTINGUISH, 0.5f, 0.5f);
     }
 
     public static void disabledEffectMultiple(Player[] players, Location location)
     {
-        Particle.CLOUD.builder().location(location).receivers(players).extra(0).offset(0.5,0.5,0.5).count(5).spawn();
-        Particle.FLAME.builder().location(location).receivers(players).extra(0).offset(0.5,0.5,0.5).count(3).spawn();
-        Particle.SOUL_FIRE_FLAME.builder().location(location).receivers(players).offset(0.5,0.5,0.5).extra(0).count(2).spawn();
+        Particle.CLOUD.builder().location(location).receivers(players).extra(0).offset(0.5, 0.5, 0.5).count(5).spawn();
+        Particle.FLAME.builder().location(location).receivers(players).extra(0).offset(0.5, 0.5, 0.5).count(3).spawn();
+        Particle.SOUL_FIRE_FLAME.builder().location(location).receivers(players).offset(0.5, 0.5, 0.5).extra(0).count(2).spawn();
         // note that the sound is played to everyone who is close enough to hear it
         players[0].getWorld().playSound(location, org.bukkit.Sound.BLOCK_FIRE_EXTINGUISH, 0.5f, 0.5f);
     }
@@ -97,18 +97,21 @@ public class PlexUtils extends PlexBase
                 if (Plex.get().getStorageType() == StorageType.MARIADB)
                 {
                     PlexLog.log("Successfully enabled MySQL!");
-                } else if (Plex.get().getStorageType() == StorageType.SQLITE)
+                }
+                else if (Plex.get().getStorageType() == StorageType.SQLITE)
                 {
                     PlexLog.log("Successfully enabled SQLite!");
                 }
-            } catch (SQLException e)
+            }
+            catch (SQLException e)
             {
                 if (Plex.get().getMongoConnection().getDatastore() != null)
                 {
                     PlexLog.log("Successfully enabled MongoDB!");
                 }
             }
-        } else
+        }
+        else
         {
             if (Plex.get().getMongoConnection().getDatastore() != null)
             {
@@ -154,13 +157,9 @@ public class PlexUtils extends PlexBase
         {
             throw new NullPointerException();
         }
-        /*for (Object object : objects)
-        {
-            f = f.replaceFirst("<v>", String.valueOf(object));
-        }*/
         for (int i = 0; i < objects.length; i++)
         {
-            f = f.replace("{" + i + "}", PlainTextComponentSerializer.plainText().serialize(MiniMessage.miniMessage().deserialize(String.valueOf(objects[i]))));
+            f = f.replace("{" + i + "}", String.valueOf(objects[i]));
         }
         return f;
     }
@@ -219,10 +218,12 @@ public class PlexUtils extends PlexBase
         if (config.getString(path) == null)
         {
             color = def;
-        } else if (ChatColor.getByChar(config.getString(path)) == null)
+        }
+        else if (ChatColor.getByChar(config.getString(path)) == null)
         {
             color = def;
-        } else
+        }
+        else
         {
             color = ChatColor.getByChar(config.getString(path));
         }
@@ -268,13 +269,14 @@ public class PlexUtils extends PlexBase
     private static <T> void readGameRules(World world, String s)
     {
         String gameRule = s.split(";")[0];
-        T value = (T) s.split(";")[1];
-        GameRule<T> rule = (GameRule<T>) GameRule.getByName(gameRule);
+        T value = (T)s.split(";")[1];
+        GameRule<T> rule = (GameRule<T>)GameRule.getByName(gameRule);
         if (rule != null && check(value).getClass().equals(rule.getType()))
         {
             world.setGameRule(rule, value);
             PlexLog.debug("Setting game rule " + gameRule + " for world " + world.getName() + " with value " + value);
-        } else
+        }
+        else
         {
             PlexLog.error(String.format("Failed to set game rule %s for world %s with value %s!", gameRule, world.getName().toLowerCase(Locale.ROOT), value));
         }
@@ -314,7 +316,7 @@ public class PlexUtils extends PlexBase
         try
         {
             URL u = new URL(url);
-            HttpURLConnection connection = (HttpURLConnection) u.openConnection();
+            HttpURLConnection connection = (HttpURLConnection)u.openConnection();
             connection.setRequestMethod("GET");
             BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             String line;
@@ -326,7 +328,8 @@ public class PlexUtils extends PlexBase
             in.close();
             connection.disconnect();
             return new JSONParser().parse(content.toString());
-        } catch (IOException | ParseException ex)
+        }
+        catch (IOException | ParseException ex)
         {
             return null;
         }
@@ -335,13 +338,13 @@ public class PlexUtils extends PlexBase
     public static UUID getFromName(String name)
     {
         JSONObject profile;
-        profile = (JSONObject) simpleGET("https://api.ashcon.app/mojang/v2/user/" + name);
+        profile = (JSONObject)simpleGET("https://api.ashcon.app/mojang/v2/user/" + name);
         if (profile == null)
         {
             PlexLog.error("Profile from Ashcon API returned null!");
             return null;
         }
-        String uuidString = (String) profile.get("uuid");
+        String uuidString = (String)profile.get("uuid");
         return UUID.fromString(uuidString);
     }
 
@@ -359,12 +362,14 @@ public class PlexUtils extends PlexBase
                 {
                     Class<?> clazz = Class.forName(info.getName());
                     classes.add(clazz);
-                } catch (ClassNotFoundException ex)
+                }
+                catch (ClassNotFoundException ex)
                 {
                     PlexLog.error("Unable to find class " + info.getName() + " in " + packageName);
                 }
             });
-        } catch (IOException ex)
+        }
+        catch (IOException ex)
         {
             PlexLog.error("Something went wrong while fetching classes from " + packageName);
             throw new RuntimeException(ex);
@@ -381,7 +386,7 @@ public class PlexUtils extends PlexBase
         {
             if (clazz.getSuperclass() == subType || Arrays.asList(clazz.getInterfaces()).contains(subType))
             {
-                classes.add((Class<? extends T>) clazz);
+                classes.add((Class<? extends T>)clazz);
             }
         });
         return Collections.unmodifiableSet(classes);

@@ -56,32 +56,17 @@ public class NotesCMD extends PlexCommand
                             send(sender, mmString("<red>This player has no notes!"));
                             return;
                         }
-                        AtomicReference<Component> noteList = new AtomicReference<>(Component.text("Player notes for: " + plexPlayer.getName()).color(NamedTextColor.GREEN));
-                        for (Note note : notes)
-                        {
-                            Component noteLine = Component.text(note.getId() + " - Written by: " + DataUtils.getPlayer(note.getWrittenBy()).getName() + " on " + DATE_FORMAT.format(note.getTimestamp())).color(NamedTextColor.YELLOW).decoration(TextDecoration.ITALIC, false);
-                            noteLine = noteLine.append(Component.text(note.getNote())).color(NamedTextColor.GOLD).decoration(TextDecoration.ITALIC, true);
-                            noteList.set(noteList.get().append(Component.newline()));
-                            noteList.set(noteList.get().append(noteLine));
-                        }
-                        send(sender, noteList.get());
+                        readNotes(sender, plexPlayer, notes);
                     });
-                } else
+                }
+                else
                 {
                     List<Note> notes = plexPlayer.getNotes();
                     if (notes.size() == 0)
                     {
                         return mmString("<red>This player has no notes!");
                     }
-                    AtomicReference<Component> noteList = new AtomicReference<>(Component.text("Player notes for: " + plexPlayer.getName()).color(NamedTextColor.GREEN));
-                    for (Note note : notes)
-                    {
-                        Component noteLine = Component.text(note.getId() + " - Written by: " + DataUtils.getPlayer(note.getWrittenBy()).getName() + " on " + DATE_FORMAT.format(note.getTimestamp())).color(NamedTextColor.YELLOW).decoration(TextDecoration.ITALIC, false);
-                        noteLine = noteLine.append(Component.text(note.getNote())).color(NamedTextColor.GOLD).decoration(TextDecoration.ITALIC, true);
-                        noteList.set(noteList.get().append(Component.newline()));
-                        noteList.set(noteList.get().append(noteLine));
-                    }
-                    send(sender, noteList.get());
+                    readNotes(sender, plexPlayer, notes);
                 }
                 return null;
             }
@@ -99,7 +84,8 @@ public class NotesCMD extends PlexCommand
                     if (plugin.getStorageType() != StorageType.MONGODB)
                     {
                         plugin.getSqlNotes().addNote(note);
-                    } else
+                    }
+                    else
                     {
                         DataUtils.update(plexPlayer);
                     }
@@ -112,7 +98,8 @@ public class NotesCMD extends PlexCommand
                 try
                 {
                     id = Integer.parseInt(args[2]);
-                } catch (NumberFormatException ignored)
+                }
+                catch (NumberFormatException ignored)
                 {
                     return Component.text("Invalid number: " + args[2]).color(NamedTextColor.RED);
                 }
@@ -126,14 +113,16 @@ public class NotesCMD extends PlexCommand
                             {
                                 plugin.getSqlNotes().deleteNote(id, plexPlayer.getUuid()).whenComplete((notes1, ex1) ->
                                         send(sender, Component.text("Removed note with ID: " + id).color(NamedTextColor.GREEN)));
-                            } else
+                            }
+                            else
                             {
                                 send(sender, mmString("<red>A note with this ID could not be found"));
                             }
                         }
                         plexPlayer.getNotes().removeIf(note -> note.getId() == id);
                     });
-                } else
+                }
+                else
                 {
                     if (plexPlayer.getNotes().removeIf(note -> note.getId() == id))
                     {
@@ -155,7 +144,9 @@ public class NotesCMD extends PlexCommand
                         plexPlayer.getNotes().clear();
                         send(sender, Component.text("Cleared " + notes.size() + " note(s).").color(NamedTextColor.GREEN));
                     });
-                } else {
+                }
+                else
+                {
                     int count = plexPlayer.getNotes().size();
                     plexPlayer.getNotes().clear();
                     DataUtils.update(plexPlayer);
@@ -168,6 +159,19 @@ public class NotesCMD extends PlexCommand
                 return usage();
             }
         }
+    }
+
+    private void readNotes(@NotNull CommandSender sender, PlexPlayer plexPlayer, List<Note> notes)
+    {
+        AtomicReference<Component> noteList = new AtomicReference<>(Component.text("Player notes for: " + plexPlayer.getName()).color(NamedTextColor.GREEN));
+        for (Note note : notes)
+        {
+            Component noteLine = Component.text(note.getId() + " - Written by: " + DataUtils.getPlayer(note.getWrittenBy()).getName() + " on " + DATE_FORMAT.format(note.getTimestamp())).color(NamedTextColor.YELLOW).decoration(TextDecoration.ITALIC, false);
+            noteLine = noteLine.append(Component.text(note.getNote())).color(NamedTextColor.GOLD).decoration(TextDecoration.ITALIC, true);
+            noteList.set(noteList.get().append(Component.newline()));
+            noteList.set(noteList.get().append(noteLine));
+        }
+        send(sender, noteList.get());
     }
 
     @Override

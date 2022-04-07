@@ -33,7 +33,8 @@ public class PlayerListener extends PlexListener
         {
             player.setOp(true);
             PlexLog.debug("Automatically opped " + player.getName() + " since ranks are enabled.");
-        } else if (plugin.getSystem().equalsIgnoreCase("permissions"))
+        }
+        else if (plugin.getSystem().equalsIgnoreCase("permissions"))
         {
             player.setOp(false);
             PlexLog.debug("Automatically deopped " + player.getName() + " since ranks are disabled.");
@@ -46,7 +47,8 @@ public class PlayerListener extends PlexListener
             plexPlayer.setName(player.getName()); // set the name of the player
             plexPlayer.setIps(Arrays.asList(player.getAddress().getAddress().getHostAddress().trim())); // set the arraylist of ips
             DataUtils.insert(plexPlayer); // insert data in some wack db
-        } else
+        }
+        else
         {
             plexPlayer = DataUtils.getPlayer(player.getUniqueId());
             List<String> ips = plexPlayer.getIps();

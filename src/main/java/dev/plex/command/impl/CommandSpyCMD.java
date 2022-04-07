@@ -27,9 +27,9 @@ public class CommandSpyCMD extends PlexCommand
             PlexPlayer plexPlayer = DataUtils.getPlayer(playerSender.getUniqueId());
             plexPlayer.setCommandSpy(!plexPlayer.isCommandSpy());
             DataUtils.update(plexPlayer);
-            return Component.text(PlexUtils.messageString("toggleCommandSpy")).color(NamedTextColor.GRAY)
+            send(sender, messageComponent("toggleCommandSpy")
                     .append(Component.space())
-                    .append(Component.text(plexPlayer.isCommandSpy() ? PlexUtils.messageString("enabled") : PlexUtils.messageString("disabled")).color(NamedTextColor.GRAY));
+                    .append(plexPlayer.isCommandSpy() ? messageComponent("enabled") : messageComponent("disabled")));
         }
         return null;
     }

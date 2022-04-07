@@ -44,7 +44,6 @@ public class DataUtils
             return PlayerCache.getPlexPlayerMap().get(uuid);
         }
 
-
         if (Plex.get().getStorageType() == StorageType.MONGODB)
         {
             return Plex.get().getMongoPlayerData().getByUUID(uuid);

@@ -7,6 +7,9 @@ import dev.plex.command.annotation.System;
 import dev.plex.command.exception.CommandFailException;
 import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.rank.enums.Rank;
+import dev.plex.util.PlexUtils;
+import java.util.Collections;
+import java.util.List;
 import net.kyori.adventure.text.Component;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -40,5 +43,15 @@ public class RankCMD extends PlexCommand
             return messageComponent("otherRank", player.getName(), rank.getReadable());
         }
         return null;
+    }
+
+    @Override
+    public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
+    {
+        if (args.length == 1)
+        {
+            return PlexUtils.getPlayerNameList();
+        }
+        return Collections.emptyList();
     }
 }

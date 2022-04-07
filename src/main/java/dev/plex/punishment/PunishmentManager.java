@@ -135,6 +135,10 @@ public class PunishmentManager extends PlexBase
 
     public boolean isBanned(UUID uuid)
     {
+        /*if (!DataUtils.hasPlayedBefore(uuid))
+        {
+            return false;
+        }*/
         return DataUtils.getPlayer(uuid).getPunishments().stream().anyMatch(punishment -> punishment.getType() == PunishmentType.BAN && punishment.isActive());
     }
 

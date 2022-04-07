@@ -1,11 +1,14 @@
 package dev.plex.command.impl;
 
+import com.google.common.collect.ImmutableList;
 import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexUtils;
+import java.util.ArrayList;
+import java.util.Collections;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -34,7 +37,8 @@ public class EntityWipeCMD extends PlexCommand
         List<String> entityWhitelist = new LinkedList<>(Arrays.asList(args));
 
         EntityType[] entityTypes = EntityType.values();
-        entityWhitelist.removeIf(name -> {
+        entityWhitelist.removeIf(name ->
+        {
             boolean res = Arrays.stream(entityTypes).noneMatch(entityType -> name.equalsIgnoreCase(entityType.name()));
             if (res)
             {
@@ -53,18 +57,13 @@ public class EntityWipeCMD extends PlexCommand
             {
                 if (entity.getType() != EntityType.PLAYER)
                 {
-                    String type = entity.getType().name();
+                    String type = entity.getName();
 
                     if (useBlacklist ? entityBlacklist.stream().noneMatch(entityName -> entityName.equalsIgnoreCase(type)) : entityWhitelist.stream().anyMatch(entityName -> entityName.equalsIgnoreCase(type)))
                     {
-                        /*
-                        Location loc = entity.getLocation();
-                        loc.setY(-500);
-                        entity.teleportAsync(loc);
-                        */
                         entity.remove();
 
-                        entityCounts.put(type,entityCounts.getOrDefault(type, 0) + 1);
+                        entityCounts.put(type, entityCounts.getOrDefault(type, 0) + 1);
                     }
                 }
             }
@@ -88,9 +87,25 @@ public class EntityWipeCMD extends PlexCommand
             PlexUtils.broadcast(messageComponent("removedEntitiesOfTypes", sender.getName(), entityCount, list));
         }
 
-        entityCounts.forEach((entityName, numRemoved) -> {
+        /*entityCounts.forEach((entityName, numRemoved) -> {
             sender.sendMessage(messageComponent("removedEntitiesOfType", sender.getName(), numRemoved, entityName));
-        });
+        });*/
         return null;
+    }
+
+    public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
+    {
+        List<String> entities = new ArrayList<>();
+        for (World world : Bukkit.getWorlds())
+        {
+            for (Entity entity : world.getEntities())
+            {
+                if (entity.getType() != EntityType.PLAYER)
+                {
+                    entities.add(entity.getName());
+                }
+            }
+        }
+        return entities.stream().toList();
     }
 }

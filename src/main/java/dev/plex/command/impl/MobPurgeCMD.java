@@ -33,15 +33,9 @@ public class MobPurgeCMD extends PlexCommand
                 if (entity instanceof Mob)
                 {
                     String type = entity.getType().name();
-
-                    /*
-                    Location loc = entity.getLocation();
-                    loc.setY(-500);
-                    entity.teleportAsync(loc);
-                    */
                     entity.remove();
 
-                    entityCounts.put(type,entityCounts.getOrDefault(type, 0) + 1);
+                    entityCounts.put(type, entityCounts.getOrDefault(type, 0) + 1);
                 }
             }
         }
@@ -50,9 +44,9 @@ public class MobPurgeCMD extends PlexCommand
 
         PlexUtils.broadcast(messageComponent("removedMobs", sender.getName(), entityCount));
 
-        entityCounts.forEach((entityName, numRemoved) -> {
+        /*entityCounts.forEach((entityName, numRemoved) -> {
             sender.sendMessage(messageComponent("removedEntitiesOfType", sender.getName(), numRemoved, entityName));
-        });
+        });*/
         return null;
     }
 }
