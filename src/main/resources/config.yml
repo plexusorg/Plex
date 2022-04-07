@@ -164,6 +164,7 @@ blockedBlocks:
 blockedEntities:
   - "WITHER"
   - "ENDER_DRAGON"
+  - "MINECART_TNT"
 
 worlds:
   flatlands:
