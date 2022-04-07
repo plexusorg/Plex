@@ -17,8 +17,8 @@ import java.util.UUID;
 public class SQLPlayerData
 {
     private final String SELECT = "SELECT * FROM `players` WHERE uuid=?";
-    private final String UPDATE = "UPDATE `players` SET name=?, login_msg=?, prefix=?, rank=?, ips=?, coins=?, vanished=?, commandspy=? WHERE uuid=?";
-    private final String INSERT = "INSERT INTO `players` (`uuid`, `name`, `login_msg`, `prefix`, `rank`, `ips`, `coins`, `vanished`, `commandspy`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);";
+    private final String UPDATE = "UPDATE `players` SET name=?, login_msg=?, prefix=?, rank=?, adminActive=?, ips=?, coins=?, vanished=?, commandspy=? WHERE uuid=?";
+    private final String INSERT = "INSERT INTO `players` (`uuid`, `name`, `login_msg`, `prefix`, `rank`, `adminActive`, `ips`, `coins`, `vanished`, `commandspy`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
 
     /**
      * Checks if a player exists in the SQL database
@@ -68,6 +68,7 @@ public class SQLPlayerData
                 String loginMSG = set.getString("login_msg");
                 String prefix = set.getString("prefix");
                 String rankName = set.getString("rank").toUpperCase();
+                boolean adminActive = set.getBoolean("adminActive");
                 long coins = set.getLong("coins");
                 boolean vanished = set.getBoolean("vanished");
                 boolean commandspy = set.getBoolean("commandspy");
@@ -78,6 +79,7 @@ public class SQLPlayerData
                 plexPlayer.setLoginMessage(loginMSG);
                 plexPlayer.setPrefix(prefix);
                 plexPlayer.setRank(rankName);
+                plexPlayer.setAdminActive(adminActive);
                 plexPlayer.setIps(ips);
                 plexPlayer.setCoins(coins);
                 plexPlayer.setVanished(vanished);
@@ -110,6 +112,7 @@ public class SQLPlayerData
                 String loginMSG = set.getString("login_msg");
                 String prefix = set.getString("prefix");
                 String rankName = set.getString("rank").toUpperCase();
+                boolean adminActive = set.getBoolean("adminActive");
                 long coins = set.getLong("coins");
                 boolean vanished = set.getBoolean("vanished");
                 boolean commandspy = set.getBoolean("commandspy");
@@ -120,6 +123,7 @@ public class SQLPlayerData
                 plexPlayer.setLoginMessage(loginMSG);
                 plexPlayer.setPrefix(prefix);
                 plexPlayer.setRank(rankName);
+                plexPlayer.setAdminActive(adminActive);
                 plexPlayer.setIps(ips);
                 plexPlayer.setCoins(coins);
                 plexPlayer.setVanished(vanished);
@@ -165,6 +169,7 @@ public class SQLPlayerData
                 String loginMSG = set.getString("login_msg");
                 String prefix = set.getString("prefix");
                 String rankName = set.getString("rank").toUpperCase();
+                boolean adminActive = set.getBoolean("adminActive");
                 long coins = set.getLong("coins");
                 boolean vanished = set.getBoolean("vanished");
                 boolean commandspy = set.getBoolean("commandspy");
@@ -176,6 +181,7 @@ public class SQLPlayerData
                 plexPlayer.setLoginMessage(loginMSG);
                 plexPlayer.setPrefix(prefix);
                 plexPlayer.setRank(rankName);
+                plexPlayer.setAdminActive(adminActive);
                 plexPlayer.setIps(ips);
                 plexPlayer.setCoins(coins);
                 plexPlayer.setVanished(vanished);
@@ -205,11 +211,12 @@ public class SQLPlayerData
             statement.setString(2, player.getLoginMessage());
             statement.setString(3, player.getPrefix());
             statement.setString(4, player.getRank().toLowerCase());
-            statement.setString(5, new Gson().toJson(player.getIps()));
-            statement.setLong(6, player.getCoins());
-            statement.setBoolean(7, player.isVanished());
-            statement.setBoolean(8, player.isCommandSpy());
-            statement.setString(9, player.getUuid().toString());
+            statement.setBoolean(5, player.isAdminActive());
+            statement.setString(6, new Gson().toJson(player.getIps()));
+            statement.setLong(7, player.getCoins());
+            statement.setBoolean(8, player.isVanished());
+            statement.setBoolean(9, player.isCommandSpy());
+            statement.setString(10, player.getUuid().toString());
             statement.executeUpdate();
         }
         catch (SQLException throwables)
@@ -234,10 +241,11 @@ public class SQLPlayerData
             statement.setString(3, player.getLoginMessage());
             statement.setString(4, player.getPrefix());
             statement.setString(5, player.getRank().toLowerCase());
-            statement.setString(6, new Gson().toJson(player.getIps()));
-            statement.setLong(7, player.getCoins());
-            statement.setBoolean(8, player.isVanished());
-            statement.setBoolean(9, player.isCommandSpy());
+            statement.setBoolean(6, player.isAdminActive());
+            statement.setString(7, new Gson().toJson(player.getIps()));
+            statement.setLong(8, player.getCoins());
+            statement.setBoolean(9, player.isVanished());
+            statement.setBoolean(10, player.isCommandSpy());
             statement.execute();
         }
         catch (SQLException throwables)

@@ -65,13 +65,13 @@ public class AdminList extends PlexBase
         {
             Datastore store = plugin.getMongoConnection().getDatastore();
             Query<PlexPlayer> query = store.find(PlexPlayer.class);
-            admins.addAll(query.stream().filter(plexPlayer -> plexPlayer.getRankFromString().isAtLeast(Rank.ADMIN)).map(PlexPlayer::getName).collect(Collectors.toList()));
+            admins.addAll(query.stream().filter(plexPlayer -> plexPlayer.getRankFromString().isAtLeast(Rank.ADMIN) && plexPlayer.isAdminActive()).map(PlexPlayer::getName).toList());
         }
         else
         {
             try (Connection con = plugin.getSqlConnection().getCon())
             {
-                PreparedStatement statement = con.prepareStatement("SELECT * FROM `players` WHERE rank IN(?, ?, ?)");
+                PreparedStatement statement = con.prepareStatement("SELECT * FROM `players` WHERE rank IN(?, ?, ?) AND adminActive=true");
                 statement.setString(1, Rank.ADMIN.name().toLowerCase());
                 statement.setString(2, Rank.SENIOR_ADMIN.name().toLowerCase());
                 statement.setString(3, Rank.EXECUTIVE.name().toLowerCase());
@@ -108,7 +108,7 @@ public class AdminList extends PlexBase
         {
             try (Connection con = plugin.getSqlConnection().getCon())
             {
-                PreparedStatement statement = con.prepareStatement("SELECT * FROM `players` WHERE rank IN(?, ?, ?)");
+                PreparedStatement statement = con.prepareStatement("SELECT * FROM `players` WHERE rank IN(?, ?, ?) AND adminActive=true");
                 statement.setString(1, Rank.ADMIN.name().toLowerCase());
                 statement.setString(2, Rank.SENIOR_ADMIN.name().toLowerCase());
                 statement.setString(3, Rank.EXECUTIVE.name().toLowerCase());

@@ -109,6 +109,7 @@ public class Plex extends JavaPlugin
 
         system = config.getString("system");
 
+        PlexLog.log("Attempting to connect to DB: {0}", plugin.config.getString("data.central.storage"));
         try
         {
             PlexUtils.testConnections();
@@ -126,7 +127,7 @@ public class Plex extends JavaPlugin
         Metrics metrics = new Metrics(this, 14143);
         PlexLog.log("Enabled Metrics");
 
-        if (redisConnection.isEnabled())
+        if (redisConnection != null && redisConnection.isEnabled())
         {
             redisConnection.getJedis();
             PlexLog.log("Connected to Redis!");
@@ -188,7 +189,7 @@ public class Plex extends JavaPlugin
                 sqlPlayerData.update(plexPlayer);
             }
         });
-        if (redisConnection.isEnabled() && redisConnection.getJedis().isConnected())
+        if (redisConnection != null && redisConnection.isEnabled() && redisConnection.getJedis().isConnected())
         {
             PlexLog.log("Disabling Redis/Jedis. No memory leaks in this Anarchy server!");
             redisConnection.getJedis().close();

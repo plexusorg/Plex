@@ -38,7 +38,7 @@ public class MongoPlayerData
     public boolean exists(UUID uuid)
     {
         Query<PlexPlayer> query = datastore.find(PlexPlayer.class)
-                .filter(Filters.eq("uuid", uuid.toString()));
+                .filter(Filters.eq("uuid", uuid));
 
         return query.first() != null;
     }
@@ -57,7 +57,7 @@ public class MongoPlayerData
             return PlayerCache.getPlexPlayerMap().get(uuid);
         }
 
-        Query<PlexPlayer> query2 = datastore.find(PlexPlayer.class).filter(Filters.eq("uuid", uuid.toString()));
+        Query<PlexPlayer> query2 = datastore.find(PlexPlayer.class).filter(Filters.eq("uuid", uuid));
         return query2.first();
     }
 
@@ -106,13 +106,16 @@ public class MongoPlayerData
         Update<PlexPlayer> updateOps = filter
                 .update(
                         UpdateOperators.set("name", player.getName()),
-                        UpdateOperators.set("loginMSG", player.getLoginMessage()),
+                        UpdateOperators.set("loginMessage", player.getLoginMessage()),
                         UpdateOperators.set("prefix", player.getPrefix()),
+                        UpdateOperators.set("vanished", player.isVanished()),
+                        UpdateOperators.set("commandSpy", player.isCommandSpy()),
+                        UpdateOperators.set("adminActive", player.isAdminActive()),
                         UpdateOperators.set("rank", player.getRank().toLowerCase()),
                         UpdateOperators.set("ips", player.getIps()),
                         UpdateOperators.set("coins", player.getCoins()),
-                        UpdateOperators.set("vanished", player.isVanished()),
-                        UpdateOperators.set("commandspy", player.isCommandSpy()));
+                        UpdateOperators.set("punishments", player.getPunishments()),
+                        UpdateOperators.set("notes", player.getNotes()));
 
         updateOps.execute();
     }

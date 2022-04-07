@@ -101,7 +101,7 @@ public class RankManager
         {
             return Title.OWNER.getPrefix();
         }
-        if (PlexUtils.DEVELOPERS.contains(player.getUuid())) // don't remove or we will front door ur mother
+        if (PlexUtils.DEVELOPERS.contains(player.getUuid().toString())) // don't remove or we will front door ur mother
         {
             return Title.DEV.getPrefix();
         }
@@ -126,7 +126,7 @@ public class RankManager
         {
             return Title.OWNER.getLoginMessage();
         }
-        if (PlexUtils.DEVELOPERS.contains(player.getUuid())) // don't remove or we will front door ur mother
+        if (PlexUtils.DEVELOPERS.contains(player.getUuid().toString())) // don't remove or we will front door ur mother
         {
             return Title.DEV.getLoginMessage();
         }
@@ -147,7 +147,7 @@ public class RankManager
         {
             return Title.OWNER.getColor();
         }
-        if (PlexUtils.DEVELOPERS.contains(player.getUuid())) // don't remove or we will front door ur mother
+        if (PlexUtils.DEVELOPERS.contains(player.getUuid().toString())) // don't remove or we will front door ur mother
         {
             return Title.DEV.getColor();
         }
@@ -164,11 +164,11 @@ public class RankManager
 
     public boolean isAdmin(PlexPlayer plexPlayer)
     {
-        return !plexPlayer.getRank().isEmpty() && plexPlayer.getRankFromString().isAtLeast(Rank.ADMIN);
+        return !plexPlayer.getRank().isEmpty() && plexPlayer.getRankFromString().isAtLeast(Rank.ADMIN) && plexPlayer.isAdminActive();
     }
 
     public boolean isSeniorAdmin(PlexPlayer plexPlayer)
     {
-        return !plexPlayer.getRank().isEmpty() && plexPlayer.getRankFromString().isAtLeast(Rank.SENIOR_ADMIN);
+        return !plexPlayer.getRank().isEmpty() && plexPlayer.getRankFromString().isAtLeast(Rank.SENIOR_ADMIN) && plexPlayer.isAdminActive();
     }
 }

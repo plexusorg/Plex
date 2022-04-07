@@ -78,6 +78,9 @@ consoleMustDefinePlayer: "<red>You must define a player since you are running th
 newAdminAdded: "<aqua>{0} - Adding {1} to the admin list"
 # 0 - The command sender
 # 1 - The player
+adminReadded: "<aqua>{0} - Re-adding {1} to the admin list as rank: {2}"
+# 0 - The command sender
+# 1 - The player
 adminRemoved: "<red>{0} - Removing {1} from the admin list"
 # 0 - The command sender
 # 1 - The player

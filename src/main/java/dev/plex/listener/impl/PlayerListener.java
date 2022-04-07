@@ -4,11 +4,9 @@ import dev.plex.cache.DataUtils;
 import dev.plex.cache.player.PlayerCache;
 import dev.plex.listener.PlexListener;
 import dev.plex.player.PlexPlayer;
+import dev.plex.storage.StorageType;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -18,6 +16,9 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class PlayerListener extends PlexListener
 {
@@ -32,8 +33,7 @@ public class PlayerListener extends PlexListener
         {
             player.setOp(true);
             PlexLog.debug("Automatically opped " + player.getName() + " since ranks are enabled.");
-        }
-        else if (plugin.getSystem().equalsIgnoreCase("permissions"))
+        } else if (plugin.getSystem().equalsIgnoreCase("permissions"))
         {
             player.setOp(false);
             PlexLog.debug("Automatically deopped " + player.getName() + " since ranks are disabled.");
@@ -46,8 +46,7 @@ public class PlayerListener extends PlexListener
             plexPlayer.setName(player.getName()); // set the name of the player
             plexPlayer.setIps(Arrays.asList(player.getAddress().getAddress().getHostAddress().trim())); // set the arraylist of ips
             DataUtils.insert(plexPlayer); // insert data in some wack db
-        }
-        else
+        } else
         {
             plexPlayer = DataUtils.getPlayer(player.getUniqueId());
             List<String> ips = plexPlayer.getIps();
@@ -79,9 +78,13 @@ public class PlayerListener extends PlexListener
             PlexUtils.broadcast(MiniMessage.miniMessage().deserialize("<aqua>" + player.getName() + " is " + loginMessage));
         }
 
-        plexPlayer.loadNotes().whenComplete((notes, throwable) -> {
-           //TODO: Send note messages to admins
-        });
+        if (plugin.getStorageType() != StorageType.MONGODB)
+        {
+            plexPlayer.loadNotes().whenComplete((notes, throwable) ->
+            {
+                //TODO: Send note messages to admins
+            });
+        }
     }
 
     // saving the player's data

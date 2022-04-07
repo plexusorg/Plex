@@ -14,6 +14,7 @@ import dev.plex.event.AdminRemoveEvent;
 import dev.plex.event.AdminSetRankEvent;
 import dev.plex.player.PlexPlayer;
 import dev.plex.rank.enums.Rank;
+import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import java.util.Arrays;
 import java.util.List;
@@ -54,6 +55,11 @@ public class AdminCMD extends PlexCommand
             }
 
             UUID targetUUID = PlexUtils.getFromName(args[1]);
+
+            if (targetUUID != null)
+            {
+                PlexLog.debug("Admin Adding UUID: " + targetUUID);
+            }
 
             if (targetUUID == null || !DataUtils.hasPlayedBefore(targetUUID))
             {

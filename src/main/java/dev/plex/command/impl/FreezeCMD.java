@@ -9,14 +9,14 @@ import dev.plex.punishment.Punishment;
 import dev.plex.punishment.PunishmentType;
 import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexUtils;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
 import net.kyori.adventure.text.Component;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @CommandParameters(name = "freeze", description = "Freeze a player on the server", usage = "/<command> <player>", aliases = "fr")
 @CommandPermissions(level = Rank.ADMIN, permission = "plex.freeze")
@@ -43,7 +43,7 @@ public class FreezeCMD extends PlexCommand
             {
                 assert playerSender != null;
                 PlexPlayer plexPlayer1 = getPlexPlayer(playerSender);
-                if (!plexPlayer1.getRankFromString().isAtLeast(getPlexPlayer(player).getRankFromString()))
+                if (!plexPlayer1.getRankFromString().isAtLeast(getPlexPlayer(player).getRankFromString()) && getPlexPlayer(player).isAdminActive())
                 {
                     return messageComponent("higherRankThanYou");
                 }

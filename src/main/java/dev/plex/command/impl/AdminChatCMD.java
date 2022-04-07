@@ -39,7 +39,7 @@ public class AdminChatCMD extends PlexCommand
             if (plugin.getSystem().equalsIgnoreCase("ranks"))
             {
                 PlexPlayer plexPlayer = PlayerCache.getPlexPlayerMap().get(player.getUniqueId());
-                if (plexPlayer.getRankFromString().isAtLeast(Rank.ADMIN))
+                if (plexPlayer.getRankFromString().isAtLeast(Rank.ADMIN) && plexPlayer.isAdminActive())
                 {
                     player.sendMessage(PlexUtils.messageComponent("adminChatFormat", sender.getName(), message));
                 }

@@ -18,9 +18,16 @@ public class AdminListener extends PlexListener
     {
         String userSender = event.getSender().getName();
         PlexPlayer target = event.getPlexPlayer();
-        target.setRank(Rank.ADMIN.name());
+        if (!target.getRank().isEmpty())
+        {
+             PlexUtils.broadcast(messageComponent("adminReadded", userSender, target.getName(), target.getRankFromString().getReadable()));
+        } else {
+            target.setRank(Rank.ADMIN.name());
+            PlexUtils.broadcast(messageComponent("newAdminAdded", userSender, target.getName()));
+        }
+        target.setAdminActive(true);
         DataUtils.update(target);
-        PlexUtils.broadcast(messageComponent("newAdminAdded", userSender, target.getName()));
+
     }
 
     @EventHandler
@@ -28,7 +35,8 @@ public class AdminListener extends PlexListener
     {
         String userSender = event.getSender().getName();
         PlexPlayer target = event.getPlexPlayer();
-        target.setRank("");
+//        target.setRank("");
+        target.setAdminActive(false);
         DataUtils.update(target);
         PlexUtils.broadcast(messageComponent("adminRemoved", userSender, target.getName()));
     }

@@ -42,7 +42,7 @@ public class PlexPlayer
 
     @Indexed
     private String name;
-    private Player player;
+    private transient Player player;
 
     private String loginMessage;
     private String prefix;
@@ -54,6 +54,8 @@ public class PlexPlayer
     private transient boolean frozen;
     private transient boolean muted;
     private transient boolean lockedUp;
+
+    private boolean adminActive;
 
     private long coins;
 

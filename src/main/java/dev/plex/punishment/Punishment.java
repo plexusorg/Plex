@@ -1,6 +1,7 @@
 package dev.plex.punishment;
 
 import com.google.gson.GsonBuilder;
+import dev.morphia.annotations.Entity;
 import dev.plex.Plex;
 import dev.plex.util.MojangUtils;
 import dev.plex.util.PlexUtils;
@@ -15,6 +16,7 @@ import net.kyori.adventure.text.Component;
 
 @Getter
 @Setter
+@Entity
 public class Punishment
 {
     private static final String banUrl = Plex.get().config.getString("banning.ban_url");

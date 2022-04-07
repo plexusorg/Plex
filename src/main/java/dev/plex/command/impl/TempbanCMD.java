@@ -52,7 +52,7 @@ public class TempbanCMD extends PlexCommand
             {
                 assert playerSender != null;
                 PlexPlayer plexPlayer1 = getPlexPlayer(playerSender);
-                if (!plexPlayer1.getRankFromString().isAtLeast(plexPlayer.getRankFromString()))
+                if (!plexPlayer1.getRankFromString().isAtLeast(plexPlayer.getRankFromString()) && plexPlayer.isAdminActive())
                 {
                     return messageComponent("higherRankThanYou");
                 }

@@ -132,7 +132,7 @@ public class WorldListener extends PlexListener
                 switch (title)
                 {
                     case DEV -> {
-                        hasAccess = PlexUtils.DEVELOPERS.contains(player.getUuid());
+                        hasAccess = PlexUtils.DEVELOPERS.contains(player.getUuid().toString());
                     }
                     case MASTER_BUILDER -> {
                         hasAccess = Plex.get().config.contains("titles.masterbuilders") && Plex.get().config.getStringList("titles.masterbuilders").contains(player.getName());
@@ -149,7 +149,7 @@ public class WorldListener extends PlexListener
             {
                 String rankString = required.split("\\.")[1];
                 Rank rank = Rank.valueOf(rankString.toUpperCase(Locale.ROOT));
-                hasAccess = player.getRankFromString().isAtLeast(rank);
+                hasAccess = rank.isAtLeast(Rank.ADMIN) ? player.isAdminActive() && player.getRankFromString().isAtLeast(rank) : player.getRankFromString().isAtLeast(rank);
             }
         }
         return hasAccess;
