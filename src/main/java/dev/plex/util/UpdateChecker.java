@@ -80,45 +80,7 @@ public class UpdateChecker extends PlexBase
         }
     }
 
-    public boolean getUpdateStatus(boolean cached)
-    {
-        if (distance == -4)
-        {
-            distance = fetchDistanceFromGitHub("plexusorg/Plex", "master", Plex.build.head);
-            PlexLog.debug("Never checked for updates, checking now...");
-        }
-        else
-        {
-            // If the request isn't asked to be cached, fetch it
-            if (!cached)
-            {
-                distance = fetchDistanceFromGitHub("plexusorg/Plex", "master", Plex.build.head);
-                PlexLog.debug("We have checked for updates before, but this request was not asked to be cached.");
-            }
-            else
-            {
-                PlexLog.debug("We have checked for updates before, using cache.");
-            }
-        }
-
-        switch (distance)
-        {
-            case -1 -> {
-                return false;
-            }
-            case 0 -> {
-                return false;
-            }
-            case -2 -> {
-                return false;
-            }
-            default -> {
-                return true;
-            }
-        }
-    }
-
-    public boolean getUpdateStatusMessage(CommandSender sender, boolean cached)
+    public boolean getUpdateStatusMessage(CommandSender sender, boolean cached, boolean verbose)
     {
         // If it's -4, it hasn't checked for updates yet
         if (distance == -4)
@@ -143,15 +105,24 @@ public class UpdateChecker extends PlexBase
         switch (distance)
         {
             case -1 -> {
-                sender.sendMessage(Component.text("There was an error checking for updates.").color(NamedTextColor.RED));
+                if (verbose)
+                {
+                    sender.sendMessage(Component.text("There was an error checking for updates.").color(NamedTextColor.RED));
+                }
                 return false;
             }
             case 0 -> {
-                sender.sendMessage(Component.text("Your version of Plex is up to date!").color(NamedTextColor.GREEN));
+                if (verbose)
+                {
+                    sender.sendMessage(Component.text("Your version of Plex is up to date!").color(NamedTextColor.GREEN));
+                }
                 return false;
             }
             case -2 -> {
-                sender.sendMessage(Component.text("Unknown version, unable to check for updates.").color(NamedTextColor.RED));
+                if (verbose)
+                {
+                    sender.sendMessage(Component.text("Unknown version, unable to check for updates.").color(NamedTextColor.RED));
+                }
                 return false;
             }
             default -> {

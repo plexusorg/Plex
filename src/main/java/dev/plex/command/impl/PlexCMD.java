@@ -40,7 +40,7 @@ public class PlexCMD extends PlexCommand
             send(sender, mmString("<light_purple>Authors: <gold>Telesphoreo, Taahh"));
             send(sender, mmString("<light_purple>Built by: <gold>" + Plex.build.author + " <light_purple>on <gold>" + Plex.build.date));
             send(sender, mmString("<light_purple>Run <gold>/plex modules <light_purple>to see a list of modules."));
-            plugin.getUpdateChecker().getUpdateStatusMessage(sender, true);
+            plugin.getUpdateChecker().getUpdateStatusMessage(sender, true, true);
             return null;
         }
         if (args[0].equalsIgnoreCase("reload"))
@@ -88,7 +88,7 @@ public class PlexCMD extends PlexCommand
                 plugin.getModuleManager().loadAllModules();
                 plugin.getModuleManager().loadModules();
                 plugin.getModuleManager().enableModules();
-                return componentFromString("All modules reloaded!");
+                return mmString("<green>All modules reloaded!");
             }
         }
         else if (args[0].equalsIgnoreCase("update"))
@@ -97,9 +97,9 @@ public class PlexCMD extends PlexCommand
             {
                 return messageComponent("noPermissionConsole");
             }
-            if (!plugin.getUpdateChecker().getUpdateStatus(false))
+            if (!plugin.getUpdateChecker().getUpdateStatusMessage(sender, false, false))
             {
-                return MiniMessage.miniMessage().deserialize("<red>Plex is already up to date!");
+                return mmString("<red>Plex is already up to date!");
             }
             plugin.getUpdateChecker().updateJar();
             return null;
