@@ -137,20 +137,20 @@ public class UpdateChecker extends PlexBase
     public void updateJar()
     {
         CloseableHttpClient client = HttpClients.createDefault();
-        HttpGet get = new HttpGet(DOWNLOAD_PAGE + "lastSuccessfulBuild/api/json");
+        HttpGet get = new HttpGet(DOWNLOAD_PAGE + "job/master/lastSuccessfulBuild/api/json");
         try
         {
             HttpResponse response = client.execute(get);
             JSONObject object = new JSONObject(EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8));
             JSONObject artifact = object.getJSONArray("artifacts").getJSONObject(0);
-            String name = artifact.getString("displayPath");
+            String name = artifact.getString("fileName");
             PlexLog.log("Downloading latest Plex jar file: " + name);
             CompletableFuture.runAsync(() ->
             {
                 try
                 {
                     FileUtils.copyURLToFile(
-                            new URL(DOWNLOAD_PAGE + "lastSuccessfulBuild/artifact/build/libs/" + name),
+                            new URL(DOWNLOAD_PAGE + "job/master/lastSuccessfulBuild/artifact/build/libs/" + name),
                             new File(Bukkit.getUpdateFolderFile(), name)
                     );
                     PlexLog.log("Saved new jar. Please restart your server.");
