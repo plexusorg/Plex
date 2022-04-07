@@ -154,6 +154,12 @@ autowipe:
 # Should we allow drops from players?
 allowdrops: true
 
+# What blocks should be blocked?
+blockedBlocks:
+  - "SPAWNER"
+  - "STRUCTURE_BLOCK"
+  - "JIGSAW"
+
 worlds:
   flatlands:
     name: "Flatlands"
