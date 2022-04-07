@@ -99,7 +99,7 @@ public class PlexCMD extends PlexCommand
             {
                 return mmString("<red>Plex is already up to date!");
             }
-            plugin.getUpdateChecker().updateJar();
+            plugin.getUpdateChecker().updateJar(sender);
             return null;
         }
         else
