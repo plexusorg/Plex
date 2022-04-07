@@ -15,9 +15,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import dev.plex.util.PlexLog;
+import dev.plex.util.PlexUtils;
 import net.kyori.adventure.text.Component;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -87,6 +89,15 @@ public class PlexCMD extends PlexCommand
                 plugin.getModuleManager().enableModules();
                 return componentFromString("All modules reloaded!");
             }
+        }
+        else if (args[0].equalsIgnoreCase("update"))
+        {
+            if (sender instanceof Player player && !PlexUtils.DEVELOPERS.contains(player.getUniqueId().toString()))
+            {
+                return messageComponent("noPermissionConsole");
+            }
+            plugin.getUpdateChecker().updateJar();
+            return null;
         }
         else
         {
