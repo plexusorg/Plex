@@ -150,7 +150,7 @@ public class UpdateChecker extends PlexBase
                 try
                 {
                     FileUtils.copyURLToFile(
-                            new URL(DOWNLOAD_PAGE + "lastSuccessfulBuild/artifact/build/libs/" + name),
+                            new URL(DOWNLOAD_PAGE + "job/master/lastSuccessfulBuild/artifact/build/libs/" + name),
                             new File(Bukkit.getUpdateFolderFile(), name)
                     );
                     PlexLog.log("Saved new jar. Please restart your server.");
