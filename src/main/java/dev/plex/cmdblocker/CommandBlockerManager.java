@@ -88,6 +88,11 @@ public class CommandBlockerManager
                         for (Command command : commandList)
                         {
                             blockedCommands.add(new MatchCommand(command.getName(), rank, message));
+                            blockedCommands.add(new MatchCommand(pluginName + ":" + command.getName(), rank, message));
+                            for (String alias : command.getAliases()) {
+                                blockedCommands.add(new MatchCommand(alias, rank, message));
+                                blockedCommands.add(new MatchCommand(pluginName + ":" + alias, rank, message));
+                            }
                         }
                     }
                 }
@@ -96,11 +101,14 @@ public class CommandBlockerManager
                 PluginCommand pluginCommand = Plex.get().getServer().getPluginCommand(ind == -1 ? regexOrMatch : regexOrMatch.substring(0, ind));
                 if (pluginCommand != null)
                 {
+                    String pluginName = pluginCommand.getPlugin().getName();
                     blockedCommands.add(new MatchCommand(pluginCommand.getName() + blockedArgs, rank, message));
+                    blockedCommands.add(new MatchCommand(pluginName + ":" + pluginCommand.getName() + blockedArgs, rank, message));
                     List<String> aliases = pluginCommand.getAliases();
                     for (String alias : aliases)
                     {
                         blockedCommands.add(new MatchCommand(alias + blockedArgs, rank, message));
+                        blockedCommands.add(new MatchCommand(pluginName + ":" + alias + blockedArgs, rank, message));
                     }
                 }
             }
