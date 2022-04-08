@@ -15,6 +15,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 
+import java.util.regex.Matcher;
+
 public class CommandListener extends PlexListener
 {
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -45,10 +47,7 @@ public class CommandListener extends PlexListener
             boolean isBlocked = false;
             if (blockedCommand instanceof RegexCommand regexCommand)
             {
-                System.out.println(regexCommand.getRegex());
-                System.out.println(message);
-                System.out.println(regexCommand.getRegex().matcher(message).results());
-                if (regexCommand.getRegex().matcher(message).matches())
+                if (regexCommand.getRegex().matcher(message).lookingAt())
                 {
                     isBlocked = true;
                 }
