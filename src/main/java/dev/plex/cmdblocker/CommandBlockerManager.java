@@ -53,6 +53,7 @@ public class CommandBlockerManager extends PlexBase
                         case "e" -> Rank.IMPOSTOR;
                         case "a" -> Rank.ADMIN;
                         case "s" -> Rank.SENIOR_ADMIN;
+                        default -> Rank.IMPOSTOR;
                     };
 
             if (rawType.equals("r"))

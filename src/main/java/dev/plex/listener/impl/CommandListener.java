@@ -41,7 +41,7 @@ public class CommandListener extends PlexListener
         for (BaseCommand blockedCommand : plugin.getCommandBlockerManager().getBlockedCommands())
         {
             PlexPlayer plexPlayer = DataUtils.getPlayer(player.getUniqueId());
-            if (!plexPlayer.getRankFromString().isAtMost(blockedCommand.getRank()))
+            if (plexPlayer.getRankFromString().isAtLeast(blockedCommand.getRank()))
             {
                 continue;
             }
