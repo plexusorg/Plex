@@ -1,6 +1,5 @@
 package dev.plex.listener.impl;
 
-import com.google.gson.Gson;
 import dev.plex.cache.DataUtils;
 import dev.plex.cache.player.PlayerCache;
 import dev.plex.command.blocking.BlockedCommand;
@@ -19,7 +18,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 
-import java.util.Arrays;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
@@ -89,28 +87,19 @@ public class CommandListener extends PlexListener
         if (cmdRef.get() != null)
         {
             BlockedCommand cmd = cmdRef.get();
-            if (cmd.getRequiredLevel().equalsIgnoreCase("e"))
+            switch (cmd.getRequiredLevel().toLowerCase(Locale.ROOT))
             {
-                event.setCancelled(true);
-                event.getPlayer().sendMessage(Component.text(cmd.getMessage()).color(NamedTextColor.GRAY));
-                return;
-            }
-            if (cmd.getRequiredLevel().equalsIgnoreCase("a"))
-            {
-                if (plexPlayer.getRankFromString().isAtLeast(Rank.ADMIN) && plexPlayer.isAdminActive())
-                {
+                case "e" -> {
                     event.setCancelled(true);
                     event.getPlayer().sendMessage(Component.text(cmd.getMessage()).color(NamedTextColor.GRAY));
-                    return;
                 }
-            }
-            if (cmd.getRequiredLevel().equalsIgnoreCase("s"))
-            {
-                if (plexPlayer.getRankFromString().isAtLeast(Rank.SENIOR_ADMIN) && plexPlayer.isAdminActive())
-                {
+                case "a" -> {
                     event.setCancelled(true);
                     event.getPlayer().sendMessage(Component.text(cmd.getMessage()).color(NamedTextColor.GRAY));
-                    return;
+                }
+                case "s" -> {
+                    event.setCancelled(true);
+                    event.getPlayer().sendMessage(Component.text(cmd.getMessage()).color(NamedTextColor.GRAY));
                 }
             }
         }
