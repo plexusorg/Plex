@@ -25,26 +25,24 @@ public class CommandBlockerManager
 
         for (String cmd : raw)
         {
-            List<String> pieces = new ArrayList<>();
-
             int lastDelim = cmd.lastIndexOf(':');
 
             String cmdWithoutMsg = cmd.substring(0, lastDelim);
             String[] rawPieces = cmdWithoutMsg.split(":", 3);
 
-            pieces.add(rawPieces[0].toLowerCase()); // type
-            pieces.add(rawPieces[1].toLowerCase()); // rank
-            pieces.add(rawPieces[2]); // RegEx or match
-            pieces.add(cmd.substring(lastDelim + 1)); // Message (w/o : in it)
+            String rawType = rawPieces[0].toLowerCase();
+            String rawRank = rawPieces[1].toLowerCase();
+            String regexOrMatch = rawPieces[2];
+            String message = cmd.substring(lastDelim + 1);
 
-            if (pieces.get(3).equals("_"))
+            if (message.equals("_"))
             {
-                pieces.set(3, PlexUtils.messageString("commandBlocked"));
+                message = PlexUtils.messageString("commandBlocked");
             }
 
             Rank rank;
 
-            switch (pieces.get(1))
+            switch (rawRank)
             {
                 case "i":
                     rank = Rank.IMPOSTOR;
@@ -68,21 +66,21 @@ public class CommandBlockerManager
                     rank = Rank.EXECUTIVE;
             }
 
-            if (pieces.get(0).equals("r"))
+            if (rawType.equals("r"))
             {
-                blockedCommands.add(new RegexCommand(Pattern.compile(pieces.get(2), Pattern.CASE_INSENSITIVE), rank, pieces.get(3)));
+                blockedCommands.add(new RegexCommand(Pattern.compile(regexOrMatch, Pattern.CASE_INSENSITIVE), rank, message));
             }
-            else if (pieces.get(0).equals("m"))
+            else if (rawType.equals("m"))
             {
-                String blockedArgs = pieces.get(2).substring(pieces.get(2).indexOf(' ') + 1);
-                PluginCommand pluginCommand = Plex.get().getServer().getPluginCommand(pieces.get(2).substring(0, pieces.get(2).indexOf(' ')));
+                String blockedArgs = regexOrMatch.substring(regexOrMatch.indexOf(' ') + 1);
+                PluginCommand pluginCommand = Plex.get().getServer().getPluginCommand(regexOrMatch.substring(0, regexOrMatch.indexOf(' ')));
                 if (pluginCommand != null)
                 {
-                    blockedCommands.add(new MatchCommand(pluginCommand.getName() + " " + blockedArgs, rank, pieces.get(3)));
+                    blockedCommands.add(new MatchCommand(pluginCommand.getName() + " " + blockedArgs, rank, message));
                     List<String> aliases = pluginCommand.getAliases();
                     for (String alias : aliases)
                     {
-                        blockedCommands.add(new MatchCommand(alias + " " + blockedArgs, rank, pieces.get(3)));
+                        blockedCommands.add(new MatchCommand(alias + " " + blockedArgs, rank, message));
                     }
                 }
             }
