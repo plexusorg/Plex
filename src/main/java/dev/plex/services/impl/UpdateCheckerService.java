@@ -17,7 +17,7 @@ public class UpdateCheckerService extends AbstractService
     {
         if (!newVersion)
         {
-            if (plugin.getUpdateChecker().getUpdateStatusMessage(Bukkit.getConsoleSender(), false, false))
+            if (plugin.getUpdateChecker().getUpdateStatusMessage(Bukkit.getConsoleSender(), false, 1))
             {
                 newVersion = true;
             }

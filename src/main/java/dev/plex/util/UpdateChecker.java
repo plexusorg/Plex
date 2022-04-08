@@ -82,7 +82,10 @@ public class UpdateChecker extends PlexBase
         }
     }
 
-    public boolean getUpdateStatusMessage(CommandSender sender, boolean cached, boolean verbose)
+    // If verbose is 0, it will display nothing
+    // If verbose is 1, it will only display a message if there is an update available
+    // If verbose is 2, it will display all messages
+    public boolean getUpdateStatusMessage(CommandSender sender, boolean cached, int verbosity)
     {
         if (branch == null)
         {
@@ -112,30 +115,33 @@ public class UpdateChecker extends PlexBase
         switch (distance)
         {
             case -1 -> {
-                if (verbose)
+                if (verbosity == 2)
                 {
                     sender.sendMessage(Component.text("There was an error checking for updates.").color(NamedTextColor.RED));
                 }
                 return false;
             }
             case 0 -> {
-                if (verbose)
+                if (verbosity == 2)
                 {
-                    sender.sendMessage(Component.text("Your version of Plex is up to date!").color(NamedTextColor.GREEN));
+                    sender.sendMessage(Component.text("Plex is up to date!").color(NamedTextColor.GREEN));
                 }
                 return false;
             }
             case -2 -> {
-                if (verbose)
+                if (verbosity == 2)
                 {
                     sender.sendMessage(Component.text("Unknown version, unable to check for updates.").color(NamedTextColor.RED));
                 }
                 return false;
             }
             default -> {
-                sender.sendMessage(Component.text("Your version of Plex is not up to date!", NamedTextColor.RED));
-                sender.sendMessage(Component.text("Download a new version at: " + DOWNLOAD_PAGE).color(NamedTextColor.RED));
-                sender.sendMessage(Component.text("Or run: /plex update").color(NamedTextColor.RED));
+                if (verbosity >= 1)
+                {
+                    sender.sendMessage(Component.text("Plex is not up to date!", NamedTextColor.RED));
+                    sender.sendMessage(Component.text("Download a new version at: " + DOWNLOAD_PAGE).color(NamedTextColor.RED));
+                    sender.sendMessage(Component.text("Or run: /plex update").color(NamedTextColor.RED));
+                }
                 return true;
             }
         }
