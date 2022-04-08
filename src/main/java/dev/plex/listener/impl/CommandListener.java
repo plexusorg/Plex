@@ -52,7 +52,7 @@ public class CommandListener extends PlexListener
             }
             else if(blockedCommand instanceof MatchCommand matchCommand)
             {
-                if (message.equalsIgnoreCase(matchCommand.getMatch()) || message.toLowerCase().startsWith(matchCommand.getMatch().toLowerCase() + " "))
+                if (message.toLowerCase().startsWith(matchCommand.getMatch().toLowerCase()) /*message.equalsIgnoreCase(matchCommand.getMatch()) || message.toLowerCase().startsWith(matchCommand.getMatch().toLowerCase() + " ")*/)
                 {
                     isBlocked = true;
                 }
