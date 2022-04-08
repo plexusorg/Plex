@@ -164,6 +164,7 @@ public class Plex extends JavaPlugin
         PlexLog.log("Punishment System initialized");
 
         commandBlockerManager = new CommandBlockerManager();
+        getServer().getScheduler().scheduleSyncDelayedTask(this, () -> commandBlockerManager.syncCommands());
         PlexLog.log("Command Blocker initialized");
 
         generateWorlds();

@@ -4,7 +4,6 @@ import dev.plex.Plex;
 import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexUtils;
 import lombok.Getter;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.command.PluginCommand;
 
 import java.util.ArrayList;
@@ -15,6 +14,8 @@ import java.util.regex.Pattern;
 public class CommandBlockerManager
 {
     private List<BaseCommand> blockedCommands = new ArrayList<>();
+
+    public boolean loadedYet = false;
 
     public void syncCommands()
     {
@@ -41,7 +42,31 @@ public class CommandBlockerManager
                 pieces.set(3, PlexUtils.messageString("commandBlocked"));
             }
 
-            Rank rank = Plex.get().getRankManager().getRankFromString(pieces.get(1));
+            Rank rank;
+
+            switch (pieces.get(1))
+            {
+                case "i":
+                    rank = Rank.IMPOSTOR;
+                    break;
+                case "n":
+                    rank = Rank.NONOP;
+                    break;
+                case "o":
+                    rank = Rank.OP;
+                    break;
+                case "a":
+                    rank = Rank.ADMIN;
+                    break;
+                case "s":
+                    rank = Rank.SENIOR_ADMIN;
+                    break;
+                case "e":
+                    rank = Rank.EXECUTIVE;
+                    break;
+                default:
+                    rank = Rank.EXECUTIVE;
+            }
 
             if (pieces.get(0).equals("r"))
             {
@@ -49,11 +74,11 @@ public class CommandBlockerManager
             }
             else if (pieces.get(0).equals("m"))
             {
-                blockedCommands.add(new MatchCommand(pieces.get(2), rank, pieces.get(3)));
                 String blockedArgs = pieces.get(2).substring(pieces.get(2).indexOf(' ') + 1);
                 PluginCommand pluginCommand = Plex.get().getServer().getPluginCommand(pieces.get(2).substring(0, pieces.get(2).indexOf(' ')));
                 if (pluginCommand != null)
                 {
+                    blockedCommands.add(new MatchCommand(pluginCommand.getName() + " " + blockedArgs, rank, pieces.get(3)));
                     List<String> aliases = pluginCommand.getAliases();
                     for (String alias : aliases)
                     {
@@ -62,5 +87,7 @@ public class CommandBlockerManager
                 }
             }
         }
+
+        loadedYet = true;
     }
 }
