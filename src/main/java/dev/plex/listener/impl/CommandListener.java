@@ -36,7 +36,7 @@ public class CommandListener extends PlexListener
             return;
         }
         Player player = event.getPlayer();
-        String message = event.getMessage().substring(1);
+        String message = event.getMessage().substring(1).stripLeading(); // stripLeading() is VITAL for workaround blocking (/ minecraft:summon)
         for (BaseCommand blockedCommand : plugin.getCommandBlockerManager().getBlockedCommands()) {
             if (DataUtils.getPlayer(player.getUniqueId()).getRankFromString().ordinal() > blockedCommand.getRank().ordinal())
             {
