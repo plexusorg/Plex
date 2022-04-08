@@ -18,7 +18,7 @@ public class ServiceManager
         registerService(new GameRuleService());
         registerService(new UpdateCheckerService());
         registerService(new AutoWipeService());
-        registerService(new CmdBlockerService());
+        registerService(new CommandBlockerService());
     }
 
     public void startServices()

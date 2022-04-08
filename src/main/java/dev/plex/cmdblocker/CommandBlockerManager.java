@@ -1,10 +1,12 @@
 package dev.plex.cmdblocker;
 
 import dev.plex.Plex;
+import dev.plex.PlexBase;
 import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import lombok.Getter;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.command.PluginCommandYamlParser;
@@ -16,18 +18,18 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 @Getter
-public class CommandBlockerManager
+public class CommandBlockerManager extends PlexBase
 {
     private List<BaseCommand> blockedCommands = new ArrayList<>();
 
-    public boolean loadedYet = false;
+    public boolean loadedYet;
 
     public void syncCommands()
     {
         loadedYet = false;
         blockedCommands.clear();
 
-        List<String> raw = Plex.get().blockedCommands.getStringList("blockedCommands");
+        List<String> raw = plugin.blockedCommands.getStringList("blockedCommands");
 
         for (String cmd : raw)
         {
@@ -46,31 +48,12 @@ public class CommandBlockerManager
                 message = PlexUtils.messageString("commandBlocked");
             }
 
-            Rank rank;
-
-            switch (rawRank)
-            {
-                case "i":
-                    rank = Rank.IMPOSTOR;
-                    break;
-                case "n":
-                    rank = Rank.NONOP;
-                    break;
-                case "o":
-                    rank = Rank.OP;
-                    break;
-                case "a":
-                    rank = Rank.ADMIN;
-                    break;
-                case "s":
-                    rank = Rank.SENIOR_ADMIN;
-                    break;
-                case "e":
-                    rank = Rank.EXECUTIVE;
-                    break;
-                default:
-                    rank = Rank.EXECUTIVE;
-            }
+            Rank rank = switch (rawRank)
+                    {
+                        case "e" -> Rank.IMPOSTOR;
+                        case "a" -> Rank.ADMIN;
+                        case "s" -> Rank.SENIOR_ADMIN;
+                    };
 
             if (rawType.equals("r"))
             {
@@ -82,7 +65,7 @@ public class CommandBlockerManager
                 if (ind == -1 && regexOrMatch.endsWith(":"))
                 {
                     String pluginName = regexOrMatch.substring(0, regexOrMatch.length() - 1);
-                    Plugin plugin = Arrays.stream(Plex.get().getServer().getPluginManager().getPlugins()).filter(pl -> pl.getName().equalsIgnoreCase(pluginName)).findAny().orElse(null);
+                    Plugin plugin = Arrays.stream(Bukkit.getServer().getPluginManager().getPlugins()).filter(pl -> pl.getName().equalsIgnoreCase(pluginName)).findAny().orElse(null);
                     if (plugin != null)
                     {
                         List<Command> commandList = PluginCommandYamlParser.parse(plugin);
@@ -90,7 +73,8 @@ public class CommandBlockerManager
                         {
                             blockedCommands.add(new MatchCommand(command.getName(), rank, message));
                             blockedCommands.add(new MatchCommand(pluginName + ":" + command.getName(), rank, message));
-                            for (String alias : command.getAliases()) {
+                            for (String alias : command.getAliases())
+                            {
                                 blockedCommands.add(new MatchCommand(alias, rank, message));
                                 blockedCommands.add(new MatchCommand(pluginName + ":" + alias, rank, message));
                             }
@@ -98,7 +82,10 @@ public class CommandBlockerManager
                     }
                 }
                 String blockedArgs = ind == -1 ? "" : regexOrMatch.substring(ind + 1);
-                if (!blockedArgs.isEmpty()) blockedArgs = " " + blockedArgs; // necessary in case no args
+                if (!blockedArgs.isEmpty())
+                {
+                    blockedArgs = " " + blockedArgs; // necessary in case no args
+                }
                 PluginCommand pluginCommand = Plex.get().getServer().getPluginCommand(ind == -1 ? regexOrMatch : regexOrMatch.substring(0, ind));
                 if (pluginCommand != null)
                 {
@@ -116,7 +103,8 @@ public class CommandBlockerManager
         }
 
         PlexLog.debug("Blocked commands:");
-        for (BaseCommand blockedCommand : blockedCommands) {
+        for (BaseCommand blockedCommand : blockedCommands)
+        {
             PlexLog.debug(" - {0}", blockedCommand);
         }
 

@@ -38,9 +38,10 @@ public class CommandListener extends PlexListener
         }
         Player player = event.getPlayer();
         String message = event.getMessage().substring(1).stripLeading(); // stripLeading() is VITAL for workaround blocking (/ minecraft:summon)
-        for (BaseCommand blockedCommand : plugin.getCommandBlockerManager().getBlockedCommands()) {
+        for (BaseCommand blockedCommand : plugin.getCommandBlockerManager().getBlockedCommands())
+        {
             PlexPlayer plexPlayer = DataUtils.getPlayer(player.getUniqueId());
-            if (!plexPlayer.getRepresentedRank().isAtMost(blockedCommand.getRank()))
+            if (!plexPlayer.getRankFromString().isAtMost(blockedCommand.getRank()))
             {
                 continue;
             }
@@ -53,9 +54,9 @@ public class CommandListener extends PlexListener
                     isBlocked = true;
                 }
             }
-            else if(blockedCommand instanceof MatchCommand matchCommand)
+            else if (blockedCommand instanceof MatchCommand matchCommand)
             {
-                if (message.toLowerCase().startsWith(matchCommand.getMatch().toLowerCase()) /*message.equalsIgnoreCase(matchCommand.getMatch()) || message.toLowerCase().startsWith(matchCommand.getMatch().toLowerCase() + " ")*/)
+                if (message.toLowerCase().startsWith(matchCommand.getMatch().toLowerCase()))
                 {
                     isBlocked = true;
                 }

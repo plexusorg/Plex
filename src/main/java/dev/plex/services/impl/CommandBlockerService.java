@@ -3,9 +3,9 @@ package dev.plex.services.impl;
 import dev.plex.services.AbstractService;
 import dev.plex.util.PlexLog;
 
-public class CmdBlockerService extends AbstractService
+public class CommandBlockerService extends AbstractService
 {
-    public CmdBlockerService()
+    public CommandBlockerService()
     {
         super(false, true);
     }

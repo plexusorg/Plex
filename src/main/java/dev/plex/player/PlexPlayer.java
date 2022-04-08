@@ -98,7 +98,7 @@ public class PlexPlayer
     public Rank getRankFromString()
     {
         OfflinePlayer player = Bukkit.getOfflinePlayer(uuid);
-        if (rank.isEmpty())
+        if (rank.isEmpty() || !isAdminActive())
         {
             if (player.isOp())
             {
@@ -113,13 +113,6 @@ public class PlexPlayer
         {
             return Rank.valueOf(rank.toUpperCase());
         }
-    }
-
-    public Rank getRepresentedRank()
-    {
-        int representedLevel = this.getRankFromString().getLevel();
-        if (!this.adminActive) representedLevel = Math.min(Rank.OP.getLevel(), representedLevel);
-        return Rank.values()[representedLevel];
     }
 
     public void loadPunishments()
