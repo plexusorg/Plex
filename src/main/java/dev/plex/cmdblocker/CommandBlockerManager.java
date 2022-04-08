@@ -80,8 +80,8 @@ public class CommandBlockerManager
                 int ind = regexOrMatch.indexOf(' ');
                 if (ind == -1 && regexOrMatch.endsWith(":"))
                 {
-                    //block all commands from this plugin for the specified rank
-                    Plugin plugin = Arrays.stream(Plex.get().getServer().getPluginManager().getPlugins()).findAny().orElse(null);
+                    String pluginName = regexOrMatch.substring(0, regexOrMatch.length() - 1);
+                    Plugin plugin = Arrays.stream(Plex.get().getServer().getPluginManager().getPlugins()).filter(pl -> pl.getName().equalsIgnoreCase(pluginName)).findAny().orElse(null);
                     if (plugin != null)
                     {
                         List<Command> commandList = PluginCommandYamlParser.parse(plugin);
