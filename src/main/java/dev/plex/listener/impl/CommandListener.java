@@ -15,8 +15,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 
-import java.util.regex.Matcher;
-
 public class CommandListener extends PlexListener
 {
     @EventHandler(priority = EventPriority.HIGHEST)
