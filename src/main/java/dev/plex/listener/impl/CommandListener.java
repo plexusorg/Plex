@@ -7,6 +7,7 @@ import dev.plex.cmdblocker.MatchCommand;
 import dev.plex.cmdblocker.RegexCommand;
 import dev.plex.listener.PlexListener;
 import dev.plex.player.PlexPlayer;
+import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
@@ -43,6 +44,7 @@ public class CommandListener extends PlexListener
             PlexPlayer plexPlayer = DataUtils.getPlayer(player.getUniqueId());
             if (plexPlayer.getRankFromString().isAtLeast(blockedCommand.getRank()))
             {
+                PlexLog.debug("we got here, continuing");
                 continue;
             }
 
@@ -51,6 +53,7 @@ public class CommandListener extends PlexListener
             {
                 if (regexCommand.getRegex().matcher(message).lookingAt())
                 {
+                    PlexLog.debug("command blocked");
                     isBlocked = true;
                 }
             }
@@ -58,6 +61,7 @@ public class CommandListener extends PlexListener
             {
                 if (message.toLowerCase().startsWith(matchCommand.getMatch().toLowerCase()))
                 {
+                    PlexLog.debug("command blocked");
                     isBlocked = true;
                 }
             }
