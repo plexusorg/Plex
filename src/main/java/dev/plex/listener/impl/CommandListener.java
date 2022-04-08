@@ -59,7 +59,6 @@ public class CommandListener extends PlexListener
             }
             if (isBlocked)
             {
-                System.out.println("BLOCKED?!??!???!!!");
                 event.setCancelled(true);
                 player.sendMessage(MiniMessage.miniMessage().deserialize(PlexUtils.messageString("blockedCommandColor") + blockedCommand.getMessage()));
                 return;
