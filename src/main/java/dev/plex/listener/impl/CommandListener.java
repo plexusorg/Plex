@@ -76,7 +76,7 @@ public class CommandListener extends PlexListener
             {
                 if (blockedCommand.getRegex() != null)
                 {
-                    Pattern pattern = Pattern.compile(blockedCommand.getRegex());
+                    Pattern pattern = Pattern.compile(blockedCommand.getRegex(), Pattern.CASE_INSENSITIVE);
                     Matcher matcher = pattern.matcher(event.getMessage().replace("/", ""));
                     if (matcher.find())
                     {
