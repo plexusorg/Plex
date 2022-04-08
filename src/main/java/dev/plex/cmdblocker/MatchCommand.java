@@ -13,4 +13,9 @@ public class MatchCommand extends BaseCommand
         super(r2, m1);
         match = r1;
     }
+
+    public String toString()
+    {
+        return "MatchCommand (Rank: " + getRank().name() + ", Match: " + match + ", Message: " + getMessage() + ")";
+    }
 }

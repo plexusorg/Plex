@@ -7,7 +7,6 @@ import dev.plex.cmdblocker.MatchCommand;
 import dev.plex.cmdblocker.RegexCommand;
 import dev.plex.listener.PlexListener;
 import dev.plex.player.PlexPlayer;
-import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexUtils;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
@@ -41,10 +40,11 @@ public class CommandListener extends PlexListener
         String message = event.getMessage().substring(1).stripLeading(); // stripLeading() is VITAL for workaround blocking (/ minecraft:summon)
         for (BaseCommand blockedCommand : plugin.getCommandBlockerManager().getBlockedCommands()) {
             PlexPlayer plexPlayer = DataUtils.getPlayer(player.getUniqueId());
-            if (Math.min(plexPlayer.getRankFromString().ordinal(), (plexPlayer.isAdminActive() ? Rank.EXECUTIVE : Rank.OP).ordinal()) > blockedCommand.getRank().ordinal())
+            if (!plexPlayer.getRepresentedRank().isAtMost(blockedCommand.getRank()))
             {
                 continue;
             }
+
             boolean isBlocked = false;
             if (blockedCommand instanceof RegexCommand regexCommand)
             {

@@ -115,6 +115,13 @@ public class PlexPlayer
         }
     }
 
+    public Rank getRepresentedRank()
+    {
+        int representedLevel = this.getRankFromString().getLevel();
+        if (!this.adminActive) representedLevel = Math.min(Rank.ADMIN.getLevel(), representedLevel);
+        return Rank.values()[representedLevel];
+    }
+
     public void loadPunishments()
     {
         if (Plex.get().getStorageType() != StorageType.MONGODB)

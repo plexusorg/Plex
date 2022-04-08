@@ -14,4 +14,9 @@ public class BaseCommand
         rank = r;
         message = m;
     }
+
+    public String toString()
+    {
+        return "BaseCommand (Rank: " + rank.name() + ", Message: " + message + ")";
+    }
 }

@@ -45,6 +45,11 @@ public enum Rank
         return this.level >= rank.getLevel();
     }
 
+    public boolean isAtMost(Rank rank)
+    {
+        return this.level <= rank.getLevel();
+    }
+
     public Component getPrefix()
     {
         return MiniMessage.miniMessage().deserialize(this.prefix);

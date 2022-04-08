@@ -15,4 +15,9 @@ public class RegexCommand extends BaseCommand
         super(r2, m1);
         regex = r1;
     }
+
+    public String toString()
+    {
+        return "RegexCommand (Rank: " + getRank().name() + ", Regex: " + regex.toString() + ", Message: " + getMessage() + ")";
+    }
 }

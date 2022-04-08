@@ -2,6 +2,7 @@ package dev.plex.cmdblocker;
 
 import dev.plex.Plex;
 import dev.plex.rank.enums.Rank;
+import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import lombok.Getter;
 import org.bukkit.command.Command;
@@ -112,6 +113,11 @@ public class CommandBlockerManager
                     }
                 }
             }
+        }
+
+        PlexLog.debug("Blocked commands:");
+        for (BaseCommand blockedCommand : blockedCommands) {
+            PlexLog.debug(" - {0}", blockedCommand);
         }
 
         loadedYet = true;
