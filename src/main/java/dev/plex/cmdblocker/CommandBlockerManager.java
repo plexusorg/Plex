@@ -19,6 +19,7 @@ public class CommandBlockerManager
 
     public void syncCommands()
     {
+        loadedYet = false;
         blockedCommands.clear();
 
         List<String> raw = Plex.get().blockedCommands.getStringList("blockedCommands");
