@@ -118,7 +118,7 @@ public class PlexPlayer
     public Rank getRepresentedRank()
     {
         int representedLevel = this.getRankFromString().getLevel();
-        if (!this.adminActive) representedLevel = Math.min(Rank.ADMIN.getLevel(), representedLevel);
+        if (!this.adminActive) representedLevel = Math.min(Rank.OP.getLevel(), representedLevel);
         return Rank.values()[representedLevel];
     }
 
