@@ -126,10 +126,21 @@ public class WorldListener extends PlexListener
     public void onWorldTeleport(PlayerTeleportEvent e)
     {
         final World adminworld = Bukkit.getWorld("adminworld");
-        PlexPlayer plexPlayer = DataUtils.getPlayer(e.getPlayer().getUniqueId());
-        if (e.getTo().getWorld().equals(adminworld) && !plexPlayer.isAdminActive())
+        if (adminworld == null)
         {
-            e.setCancelled(true);
+            return;
+        }
+        PlexPlayer plexPlayer = DataUtils.getPlayer(e.getPlayer().getUniqueId());
+        if (e.getTo().getWorld().equals(adminworld))
+        {
+            if (plugin.getSystem().equals("ranks") && !plexPlayer.isAdminActive())
+            {
+                e.setCancelled(true);
+            }
+            else if (plugin.getSystem().equals("permissions") && !e.getPlayer().hasPermission("plex.enter.adminworld"))
+            {
+                e.setCancelled(true);
+            }
         }
     }
 
