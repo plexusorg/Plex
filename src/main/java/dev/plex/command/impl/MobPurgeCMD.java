@@ -8,7 +8,6 @@ import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.*;

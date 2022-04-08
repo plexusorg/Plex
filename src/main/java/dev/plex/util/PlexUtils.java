@@ -9,7 +9,6 @@ import dev.plex.storage.StorageType;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.apache.commons.lang.math.NumberUtils;
 import org.bukkit.*;
 import org.bukkit.command.Command;
@@ -390,6 +389,11 @@ public class PlexUtils extends PlexBase
             }
         });
         return Collections.unmodifiableSet(classes);
+    }
+
+    public static boolean randomBoolean()
+    {
+        return ThreadLocalRandom.current().nextBoolean();
     }
 
     public static int randomNum()

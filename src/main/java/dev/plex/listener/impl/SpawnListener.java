@@ -5,8 +5,9 @@ import dev.plex.util.PlexUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.block.Dispenser;
 import org.bukkit.block.data.Directional;
+import org.bukkit.entity.Ageable;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -15,8 +16,8 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockDispenseEvent;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Arrays;
@@ -60,6 +61,27 @@ public class SpawnListener extends PlexListener
             if (eggType != null)
             {
                 blockLoc.getWorld().spawnEntity(blockLoc, eggType);
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onEntityClick(PlayerInteractEntityEvent event)
+    {
+        Material handItem = event.getPlayer().getEquipment().getItem(event.getHand()).getType();
+        if (event.getRightClicked() instanceof Ageable entity)
+        {
+            if (SPAWN_EGGS.contains(handItem))
+            {
+                EntityType eggType = spawnEggToEntityType(handItem);
+                if (eggType != null)
+                {
+                    Entity spawned = entity.getWorld().spawnEntity(entity.getLocation(), eggType);
+                    if (spawned instanceof Ageable ageable)
+                    {
+                        ageable.setBaby();
+                    }
+                }
             }
         }
     }
