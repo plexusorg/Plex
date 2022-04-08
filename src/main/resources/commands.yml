@@ -7,8 +7,7 @@
 # Symbols to use:
 #   - r for RegEx
 #   - m for matching
-#   - The ranks are "e" for executive and below, "a" for admin and below, "s" for senior admin and below,
-######## TODO: DOCUMENT ALL OTHER LETTERS!! ^^^^
+#   - The ranks are "e" for executive and below, "s" for senior admin and below, "a" for admin and below, "o" for op and below, "n" for nonop and below, and "i" for impostor
 #   - The command is just the command without slashes. Optional arguments are specified as well
 #   - Finally the block message. MUST NOT CONTAIN ":". Use _ to use the default command blocked message as specified in messages.yml, or you can optionally put your own in
 #
@@ -16,6 +15,6 @@
 #   - "m:e:mail sendall:You cannot send messages to everyone on the server"
 #   - "r:e:(.*:):Plugin specific commands are disabled"
 blockedCommands:
-  - "m:e:mail sendall:You cannot send messages to everyone on the server"
-  - "m:e:mail sendtempall:You cannot send messages to everyone on the server"
-  - "r:e:^[^ :]+::Plugin specific commands are disabled"
+  - "m:e:mail sendall:You cannot send messages to everyone on the server."
+  - "m:e:mail sendtempall:You cannot send messages to everyone on the server."
+  - "r:e:^[^ :]+::Plugin specific commands are disabled."
