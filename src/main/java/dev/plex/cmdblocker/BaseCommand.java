@@ -6,8 +6,8 @@ import lombok.Getter;
 @Getter
 public class BaseCommand
 {
-    public final Rank rank;
-    public final String message;
+    private final Rank rank;
+    private final String message;
 
     public BaseCommand(Rank r, String m)
     {

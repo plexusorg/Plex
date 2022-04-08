@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 @Getter
 public class RegexCommand extends BaseCommand
 {
-    public final Pattern regex;
+    private final Pattern regex;
 
     public RegexCommand(Pattern r1, Rank r2, String m1)
     {

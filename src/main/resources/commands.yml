@@ -16,4 +16,4 @@
 #   - "r:e:(.*:):Plugin specific commands are disabled"
 blockedCommands:
   - "m:e:mail sendall:You cannot send messages to everyone on the server"
-  - "r:e:(.*:):Plugin specific commands are disabled"
+  - "r:e:[^ ]+:.*:Plugin specific commands are disabled"

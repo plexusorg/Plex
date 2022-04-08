@@ -6,7 +6,7 @@ import lombok.Getter;
 @Getter
 public class MatchCommand extends BaseCommand
 {
-    public final String match;
+    private final String match;
 
     public MatchCommand(String r1, Rank r2, String m1)
     {
