@@ -1,6 +1,7 @@
 package dev.plex.listener.impl;
 
 import dev.plex.Plex;
+import dev.plex.cache.DataUtils;
 import dev.plex.cache.player.PlayerCache;
 import dev.plex.listener.PlexListener;
 import dev.plex.player.PlexPlayer;
@@ -12,6 +13,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -19,11 +21,12 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
+import org.bukkit.event.player.PlayerChangedWorldEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.jetbrains.annotations.NotNull;
 
 public class WorldListener extends PlexListener
 {
-
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent e)
     {
@@ -116,6 +119,29 @@ public class WorldListener extends PlexListener
             return;
         }
         e.setCancelled(true);
+    }
+
+    // TODO: Add an entry setting in the config.yml and allow checking for all worlds
+    @EventHandler
+    public void onWorldTeleport(PlayerTeleportEvent e)
+    {
+        final World adminworld = Bukkit.getWorld("adminworld");
+        if (adminworld == null)
+        {
+            return;
+        }
+        PlexPlayer plexPlayer = DataUtils.getPlayer(e.getPlayer().getUniqueId());
+        if (e.getTo().getWorld().equals(adminworld))
+        {
+            if (plugin.getSystem().equals("ranks") && !plexPlayer.isAdminActive())
+            {
+                e.setCancelled(true);
+            }
+            else if (plugin.getSystem().equals("permissions") && !e.getPlayer().hasPermission("plex.enter.adminworld"))
+            {
+                e.setCancelled(true);
+            }
+        }
     }
 
     private boolean checkLevel(PlexPlayer player, String[] requiredList)
