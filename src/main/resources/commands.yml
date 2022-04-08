@@ -1,0 +1,20 @@
+# Plex Command Blocking File
+# For documentation, please visit: https://plex.us.org
+
+# Format:
+#   - "<regex or match>:<rank>:command name no slash:Block message"
+#
+# Symbols to use:
+#   - r for RegEx
+#   - m for matching
+#   - The ranks are "e" for everyone, "a" for admin and "s" for senior admin
+#   - The command is just the command without slashes. Optional arguments are specified as well
+#   - Finally the block message. MUST NOT CONTAIN ":". Use _ to use the default command blocked message as specified in messages.yml, or you can optionally put your own in
+#
+# So these would be valid:
+#   - "m:e:mail sendall:You cannot send messages to everyone on the server"
+#   - "r:e:(.*:):Plugin specific commands are disabled"
+
+commands: # Regexes and commands can't contain ';'. Don't try, commands can't contain ';' by default.
+  - "r;(^\w+:);"Plugin specific commands are disabled
+  - 'm;e;mail sendall;You cannot send messages to everyone on the server'

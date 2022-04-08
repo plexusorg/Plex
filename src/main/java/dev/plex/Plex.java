@@ -44,6 +44,7 @@ public class Plex extends JavaPlugin
     public Config config;
     public Config messages;
     public Config indefBans;
+    public Config commands;
 
     public File modulesFolder;
     private StorageType storageType = StorageType.SQLITE;
@@ -79,6 +80,7 @@ public class Plex extends JavaPlugin
         config = new Config(this, "config.yml");
         messages = new Config(this, "messages.yml");
         indefBans = new Config(this, "indefbans.yml");
+        commands = new Config(this, "commands.yml");
         build.load(this);
 
         modulesFolder = new File(this.getDataFolder() + File.separator + "modules");
@@ -99,6 +101,7 @@ public class Plex extends JavaPlugin
         messages.load();
         // Don't add default entries to indefinite ban file
         indefBans.load(false);
+        commands.load(false);
 
         sqlConnection = new SQLConnection();
         mongoConnection = new MongoConnection();

@@ -2,10 +2,7 @@ package dev.plex.services;
 
 import com.google.common.collect.Lists;
 import dev.plex.Plex;
-import dev.plex.services.impl.AutoWipeService;
-import dev.plex.services.impl.BanService;
-import dev.plex.services.impl.GameRuleService;
-import dev.plex.services.impl.UpdateCheckerService;
+import dev.plex.services.impl.*;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -21,6 +18,7 @@ public class ServiceManager
         registerService(new GameRuleService());
         registerService(new UpdateCheckerService());
         registerService(new AutoWipeService());
+        registerService(new CommandBlockerService());
     }
 
     public void startServices()
