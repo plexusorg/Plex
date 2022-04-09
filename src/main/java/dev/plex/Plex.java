@@ -8,7 +8,7 @@ import dev.plex.cache.player.PlayerCache;
 import dev.plex.cache.player.SQLPlayerData;
 import dev.plex.cache.sql.SQLNotes;
 import dev.plex.cache.sql.SQLPunishment;
-import dev.plex.cmdblocker.CommandBlockerManager;
+import dev.plex.command.blocker.CommandBlockerManager;
 import dev.plex.config.Config;
 import dev.plex.handlers.CommandHandler;
 import dev.plex.handlers.ListenerHandler;

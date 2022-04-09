@@ -1,4 +1,4 @@
-package dev.plex.cmdblocker;
+package dev.plex.command.blocker;
 
 import dev.plex.rank.enums.Rank;
 import lombok.Getter;

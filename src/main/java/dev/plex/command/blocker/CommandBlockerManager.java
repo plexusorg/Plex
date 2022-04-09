@@ -1,4 +1,4 @@
-package dev.plex.cmdblocker;
+package dev.plex.command.blocker;
 
 import dev.plex.Plex;
 import dev.plex.PlexBase;
@@ -101,12 +101,6 @@ public class CommandBlockerManager extends PlexBase
                     }
                 }
             }
-        }
-
-        PlexLog.debug("Blocked commands:");
-        for (BaseCommand blockedCommand : blockedCommands)
-        {
-            PlexLog.debug(" - {0}", blockedCommand);
         }
 
         loadedYet = true;
