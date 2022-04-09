@@ -1,16 +1,16 @@
 package dev.plex.command.blocker;
 
-import dev.plex.Plex;
 import dev.plex.PlexBase;
 import dev.plex.rank.enums.Rank;
+import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import lombok.Getter;
 import org.bukkit.Bukkit;
-import org.bukkit.command.Command;
-import org.bukkit.command.PluginCommand;
-import org.bukkit.command.PluginCommandYamlParser;
+import org.bukkit.command.*;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.SimplePluginManager;
 
+import java.lang.reflect.Field;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -21,10 +21,29 @@ public class CommandBlockerManager extends PlexBase
 
     public boolean loadedYet;
 
+    private static CommandMap getCommandMap()
+    {
+        try
+        {
+            SimplePluginManager spm = (SimplePluginManager) Bukkit.getServer().getPluginManager();
+            Field cmf = SimplePluginManager.class.getDeclaredField("commandMap");
+            cmf.setAccessible(true);
+            return (SimpleCommandMap)cmf.get(spm);
+        }
+        catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException e)
+        {
+            PlexLog.error("Unable to get command map for command blocker.");
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public void syncCommands()
     {
         loadedYet = false;
         blockedCommands.clear();
+
+        CommandMap commandMap = getCommandMap();
 
         List<String> raw = plugin.blockedCommands.getStringList("blockedCommands");
 
@@ -84,18 +103,28 @@ public class CommandBlockerManager extends PlexBase
                 {
                     blockedArgs = " " + blockedArgs; // necessary in case no args
                 }
-                PluginCommand pluginCommand = Plex.get().getServer().getPluginCommand(ind == -1 ? regexOrMatch : regexOrMatch.substring(0, ind));
-                if (pluginCommand != null)
+                String cmdForSearch = ind == -1 ? regexOrMatch : regexOrMatch.substring(0, ind);
+                PluginCommand pluginCommand = Bukkit.getServer().getPluginCommand(cmdForSearch);
+                Plugin plugin = null;
+                if (pluginCommand != null) plugin = pluginCommand.getPlugin();
+                Command command = null;
+                if (commandMap != null) command = commandMap.getCommand(cmdForSearch);
+                if (command != null)
                 {
-                    String pluginName = pluginCommand.getPlugin().getName();
-                    blockedCommands.add(new MatchCommand(pluginCommand.getName() + blockedArgs, rank, message));
-                    blockedCommands.add(new MatchCommand(pluginName + ":" + pluginCommand.getName() + blockedArgs, rank, message));
-                    List<String> aliases = pluginCommand.getAliases();
+                    String pluginName = plugin == null ? null : plugin.getName();
+                    blockedCommands.add(new MatchCommand(command.getName() + blockedArgs, rank, message));
+                    if (pluginName != null) blockedCommands.add(new MatchCommand(pluginName + ":" + command.getName() + blockedArgs, rank, message));
+                    List<String> aliases = command.getAliases();
                     for (String alias : aliases)
                     {
                         blockedCommands.add(new MatchCommand(alias + blockedArgs, rank, message));
-                        blockedCommands.add(new MatchCommand(pluginName + ":" + alias + blockedArgs, rank, message));
+                        if (pluginName != null) blockedCommands.add(new MatchCommand(pluginName + ":" + alias + blockedArgs, rank, message));
                     }
+                }
+                else
+                {
+                    // fallback to basic blocking
+                    blockedCommands.add(new MatchCommand(cmdForSearch + blockedArgs, rank, message));
                 }
             }
         }
