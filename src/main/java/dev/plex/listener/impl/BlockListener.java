@@ -28,7 +28,7 @@ public class BlockListener extends PlexListener
     @EventHandler(priority = EventPriority.LOW)
     public void onBlockPlace(BlockPlaceEvent event)
     {
-        List<String> blockedBlocksConfig = plugin.config.getStringList("blockedBlocks");
+        List<String> blockedBlocksConfig = plugin.config.getStringList("blocked_blocks");
         if (blockedBlocksConfig != cachedBlockedBlocksConfig)
         {
             blockedBlocks.clear();
@@ -57,17 +57,17 @@ public class BlockListener extends PlexListener
         if (blockedBlocks.contains(block.getType()))
         {
             block.setType(Material.CAKE);
-            PlexUtils.disabledEffect(event.getPlayer(), block.getLocation().add(0.5,0.5,0.5));
+            PlexUtils.disabledEffect(event.getPlayer(), block.getLocation().add(0.5, 0.5, 0.5));
         }
 
-        if(SIGNS.contains(block.getType()))
+        if (SIGNS.contains(block.getType()))
         {
-            Sign sign = (Sign) block.getState();
+            Sign sign = (Sign)block.getState();
             boolean anythingChanged = false;
             for (int i = 0; i < sign.lines().size(); i++)
             {
                 Component line = sign.line(i);
-                if(line.clickEvent() != null)
+                if (line.clickEvent() != null)
                 {
                     anythingChanged = true;
                     sign.line(i, line.clickEvent(null));

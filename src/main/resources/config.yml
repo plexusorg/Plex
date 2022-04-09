@@ -139,13 +139,13 @@ autowipe:
 allowdrops: true
 
 # What blocks should be blocked?
-blockedBlocks:
+blocked_blocks:
   - "SPAWNER"
   - "STRUCTURE_BLOCK"
   - "JIGSAW"
 
 # What entities should be blocked?
-blockedEntities:
+blocked_entities:
   - "WITHER"
   - "ENDER_DRAGON"
   - "MINECART_TNT"

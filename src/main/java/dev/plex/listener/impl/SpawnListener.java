@@ -39,7 +39,7 @@ public class SpawnListener extends PlexListener
             return;
         }
 
-        if (plugin.config.getStringList("blockedEntities").stream().anyMatch(type -> type.equalsIgnoreCase(event.getEntityType().name())))
+        if (plugin.config.getStringList("blocked_entities").stream().anyMatch(type -> type.equalsIgnoreCase(event.getEntityType().name())))
         {
             event.setCancelled(true);
             Location location = event.getLocation();
@@ -56,7 +56,7 @@ public class SpawnListener extends PlexListener
         if (SPAWN_EGGS.contains(itemType))
         {
             Block block = event.getBlock();
-            Location blockLoc = block.getLocation().add(0.5,0.5,0.5).add(((Directional) block.getBlockData()).getFacing().getDirection().multiply(0.8));
+            Location blockLoc = block.getLocation().add(0.5, 0.5, 0.5).add(((Directional)block.getBlockData()).getFacing().getDirection().multiply(0.8));
             EntityType eggType = spawnEggToEntityType(itemType);
             if (eggType != null)
             {
@@ -109,7 +109,8 @@ public class SpawnListener extends PlexListener
         }
     }
 
-    private static EntityType spawnEggToEntityType(Material mat){
+    private static EntityType spawnEggToEntityType(Material mat)
+    {
         EntityType eggType;
         try
         {

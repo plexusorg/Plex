@@ -19,7 +19,7 @@ public class SQLConnection extends PlexBase
     {
         if (!plugin.config.getString("data.central.storage").equalsIgnoreCase("sqlite") && !plugin.config.getString("data.central.storage").equalsIgnoreCase("mariadb"))
         {
-             return;
+            return;
         }
 
         String host = plugin.config.getString("data.central.hostname");
@@ -45,7 +45,8 @@ public class SQLConnection extends PlexBase
             {
                 dataSource.setJdbcUrl("jdbc:sqlite:" + new File(plugin.getDataFolder(), "database.db").getAbsolutePath());
                 plugin.setStorageType(StorageType.SQLITE);
-            } else if (plugin.config.getString("data.central.storage").equalsIgnoreCase("mariadb"))
+            }
+            else if (plugin.config.getString("data.central.storage").equalsIgnoreCase("mariadb"))
             {
                 Class.forName("org.mariadb.jdbc.Driver");
                 dataSource.setJdbcUrl("jdbc:mariadb://" + host + ":" + port + "/" + database);
@@ -53,7 +54,8 @@ public class SQLConnection extends PlexBase
                 dataSource.setPassword(password);
                 Plex.get().setStorageType(StorageType.MARIADB);
             }
-        } catch (ClassNotFoundException throwables)
+        }
+        catch (ClassNotFoundException throwables)
         {
             throwables.printStackTrace();
         }
@@ -90,7 +92,8 @@ public class SQLConnection extends PlexBase
                     "`note` VARCHAR(2000), " +
                     "`timestamp` BIGINT" +
                     ");").execute();
-        } catch (SQLException throwables)
+        }
+        catch (SQLException throwables)
         {
             throwables.printStackTrace();
         }
@@ -105,7 +108,8 @@ public class SQLConnection extends PlexBase
         try
         {
             return dataSource.getConnection();
-        } catch (SQLException e)
+        }
+        catch (SQLException e)
         {
             e.printStackTrace();
         }
