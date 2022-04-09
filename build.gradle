@@ -53,7 +53,14 @@ description = "Plex"
 
 shadowJar {
     archiveClassifier.set("")
+    archiveBaseName.set("Plex")
+    archiveVersion.set("")
     relocate "org.bstats", "dev.plex"
+}
+
+tasks.jar {
+    archiveBaseName.set("Plex")
+    archiveVersion.set("")
 }
 
 bukkit {
