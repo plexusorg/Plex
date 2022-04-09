@@ -18,6 +18,6 @@ public class RegexCommand extends BaseCommand
 
     public String toString()
     {
-        return "RegexCommand (Rank: " + getRank().name() + ", Regex: " + regex.toString() + ", Message: " + getMessage() + ")";
+        return "RegexCommand (Rank: " + (getRank() == null ? "ALL" : getRank().name()) + ", Regex: " + regex.toString() + ", Message: " + getMessage() + ")";
     }
 }

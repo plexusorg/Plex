@@ -17,6 +17,6 @@ public class BaseCommand
 
     public String toString()
     {
-        return "BaseCommand (Rank: " + rank.name() + ", Message: " + message + ")";
+        return "BaseCommand (Rank: " + (rank == null ? "ALL" : rank.name()) + ", Message: " + message + ")";
     }
 }

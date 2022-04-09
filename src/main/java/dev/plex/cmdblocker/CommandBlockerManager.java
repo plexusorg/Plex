@@ -50,10 +50,10 @@ public class CommandBlockerManager extends PlexBase
 
             Rank rank = switch (rawRank)
                     {
-                        case "e" -> Rank.IMPOSTOR;
+                        case "e" -> null;
                         case "a" -> Rank.ADMIN;
                         case "s" -> Rank.SENIOR_ADMIN;
-                        default -> Rank.IMPOSTOR;
+                        default -> null;
                     };
 
             if (rawType.equals("r"))

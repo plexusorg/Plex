@@ -16,6 +16,6 @@ public class MatchCommand extends BaseCommand
 
     public String toString()
     {
-        return "MatchCommand (Rank: " + getRank().name() + ", Match: " + match + ", Message: " + getMessage() + ")";
+        return "MatchCommand (Rank: " + (getRank() == null ? "ALL" : getRank().name()) + ", Match: " + match + ", Message: " + getMessage() + ")";
     }
 }
