@@ -125,7 +125,8 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
                 {
                     send(sender, messageComponent("noPermissionRank", ChatColor.stripColor(getLevel().getLoginMessage())));
                     return true;
-                } else
+                }
+                else
                 {
                     if (getLevel().isAtLeast(Rank.ADMIN) && !plexPlayer.isAdminActive())
                     {
@@ -133,14 +134,16 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
                         return true;
                     }
                 }
-            } else if (plugin.getSystem().equalsIgnoreCase("permissions"))
+            }
+            else if (plugin.getSystem().equalsIgnoreCase("permissions"))
             {
                 if (!player.hasPermission(perms.permission()))
                 {
                     send(sender, messageComponent("noPermissionNode", perms.permission()));
                     return true;
                 }
-            } else
+            }
+            else
             {
                 PlexLog.error("Neither permissions or ranks were selected to be used in the configuration file!");
                 send(sender, "There is a server misconfiguration. Please alert a developer or the owner");
@@ -149,12 +152,13 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
         }
         try
         {
-            Component component = this.execute(sender, isConsole(sender) ? null : (Player) sender, args);
+            Component component = this.execute(sender, isConsole(sender) ? null : (Player)sender, args);
             if (component != null)
             {
                 send(sender, component);
             }
-        } catch (PlayerNotFoundException | CommandFailException | ConsoleOnlyException | ConsoleMustDefinePlayerException | PlayerNotBannedException ex)
+        }
+        catch (PlayerNotFoundException | CommandFailException | ConsoleOnlyException | ConsoleMustDefinePlayerException | PlayerNotBannedException ex)
         {
             send(sender, MiniMessage.miniMessage().deserialize(ex.getMessage()));
         }
@@ -178,7 +182,8 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
                     return true;
                 }
             }
-        } else if (params.aliases().split(",").length < 1)
+        }
+        else if (params.aliases().split(",").length < 1)
         {
             return getName().equalsIgnoreCase(label);
         }
@@ -232,7 +237,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
     {
         if (!isConsole(sender))
         {
-            return checkRank((Player) sender, rank, permission);
+            return checkRank((Player)sender, rank, permission);
         }
         return true;
     }
@@ -263,7 +268,8 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
             {
                 throw new CommandFailException(PlexUtils.messageString("noPermissionRank", ChatColor.stripColor(rank.getLoginMessage())));
             }
-        } else if (plugin.getSystem().equalsIgnoreCase("permissions"))
+        }
+        else if (plugin.getSystem().equalsIgnoreCase("permissions"))
         {
             if (!player.hasPermission(permission))
             {
@@ -283,7 +289,8 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
         if (plugin.getSystem().equalsIgnoreCase("ranks"))
         {
             return rank.isAtLeast(Rank.ADMIN) ? plexPlayer.isAdminActive() && plexPlayer.getRankFromString().isAtLeast(rank) : plexPlayer.getRankFromString().isAtLeast(rank);
-        } else if (plugin.getSystem().equalsIgnoreCase("permissions"))
+        }
+        else if (plugin.getSystem().equalsIgnoreCase("permissions"))
         {
             return player.hasPermission(permission);
         }
@@ -303,7 +310,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
     {
         if (!isConsole(sender))
         {
-            return checkTab((Player) sender, rank, permission);
+            return checkTab((Player)sender, rank, permission);
         }
         return true;
     }
@@ -323,7 +330,8 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
         if (plugin.getSystem().equalsIgnoreCase("ranks"))
         {
             return rank.isAtLeast(Rank.ADMIN) ? plexPlayer.isAdminActive() && plexPlayer.getRankFromString().isAtLeast(rank) : plexPlayer.getRankFromString().isAtLeast(rank);
-        } else if (plugin.getSystem().equalsIgnoreCase("permissions"))
+        }
+        else if (plugin.getSystem().equalsIgnoreCase("permissions"))
         {
             return player.hasPermission(permission);
         }

@@ -20,8 +20,10 @@ public class AdminListener extends PlexListener
         PlexPlayer target = event.getPlexPlayer();
         if (!target.getRank().isEmpty())
         {
-             PlexUtils.broadcast(messageComponent("adminReadded", userSender, target.getName(), target.getRankFromString().getReadable()));
-        } else {
+            PlexUtils.broadcast(messageComponent("adminReadded", userSender, target.getName(), target.getRankFromString().getReadable()));
+        }
+        else
+        {
             target.setRank(Rank.ADMIN.name());
             PlexUtils.broadcast(messageComponent("newAdminAdded", userSender, target.getName()));
         }

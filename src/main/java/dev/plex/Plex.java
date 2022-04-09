@@ -118,7 +118,8 @@ public class Plex extends JavaPlugin
         {
             PlexUtils.testConnections();
             PlexLog.log("Connected to " + storageType.name().toUpperCase());
-        } catch (Exception e)
+        }
+        catch (Exception e)
         {
             PlexLog.error("Failed to connect to " + storageType.name().toUpperCase());
             e.printStackTrace();
@@ -135,7 +136,8 @@ public class Plex extends JavaPlugin
         {
             redisConnection.getJedis();
             PlexLog.log("Connected to Redis!");
-        } else
+        }
+        else
         {
             PlexLog.log("Redis is disabled in the configuration file, not connecting.");
         }
@@ -143,7 +145,8 @@ public class Plex extends JavaPlugin
         if (storageType == StorageType.MONGODB)
         {
             mongoPlayerData = new MongoPlayerData();
-        } else
+        }
+        else
         {
             sqlPlayerData = new SQLPlayerData();
             sqlPunishment = new SQLPunishment();
@@ -191,7 +194,8 @@ public class Plex extends JavaPlugin
             if (mongoPlayerData != null) //back to mongo checking
             {
                 mongoPlayerData.update(plexPlayer); //update the player's document
-            } else if (sqlPlayerData != null) //sql checking
+            }
+            else if (sqlPlayerData != null) //sql checking
             {
                 sqlPlayerData.update(plexPlayer);
             }
@@ -254,7 +258,8 @@ public class Plex extends JavaPlugin
                 author = props.getProperty("buildAuthor", "unknown");
                 date = props.getProperty("buildDate", "unknown");
                 head = props.getProperty("buildHead", "unknown");
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 PlexLog.error("Could not load build properties! Did you compile with NetBeans/Maven?");
             }
