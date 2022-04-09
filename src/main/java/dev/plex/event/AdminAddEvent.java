@@ -8,7 +8,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
 /**
- * Event that is ran when a player is added to the admin list
+ * Event that is run when a player is added to the admin list
  */
 @EqualsAndHashCode(callSuper = false)
 @Data

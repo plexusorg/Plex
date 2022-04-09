@@ -9,7 +9,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
 /**
- * Event that is ran when an admin's rank is set
+ * Event that is run when an admins rank is set
  */
 @EqualsAndHashCode(callSuper = false)
 @Data
