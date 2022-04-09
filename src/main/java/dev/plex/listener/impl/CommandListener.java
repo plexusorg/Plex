@@ -1,7 +1,14 @@
 package dev.plex.listener.impl;
 
+import dev.plex.cache.DataUtils;
 import dev.plex.cache.player.PlayerCache;
+import dev.plex.command.blocker.BaseCommand;
+import dev.plex.command.blocker.MatchCommand;
+import dev.plex.command.blocker.RegexCommand;
 import dev.plex.listener.PlexListener;
+import dev.plex.player.PlexPlayer;
+import dev.plex.util.PlexUtils;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -23,5 +30,44 @@ public class CommandListener extends PlexListener
                 pl.sendMessage(ChatColor.GRAY + player.getName() + ": " + command);
             }
         });
+
+        if (!plugin.getCommandBlockerManager().loadedYet)
+        {
+            event.setCancelled(true);
+            return;
+        }
+        Player player = event.getPlayer();
+        String message = event.getMessage().substring(1).stripLeading(); // stripLeading() is VITAL for workaround blocking (/ minecraft:summon)
+        for (BaseCommand blockedCommand : plugin.getCommandBlockerManager().getBlockedCommands())
+        {
+            PlexPlayer plexPlayer = DataUtils.getPlayer(player.getUniqueId());
+            if (blockedCommand.getRank() != null && plexPlayer.getRankFromString().isAtLeast(blockedCommand.getRank()))
+            {
+                continue;
+            }
+
+            boolean isBlocked = false;
+            if (blockedCommand instanceof RegexCommand regexCommand)
+            {
+                if (regexCommand.getRegex().matcher(message).lookingAt())
+                {
+                    isBlocked = true;
+                }
+            }
+            else if (blockedCommand instanceof MatchCommand matchCommand)
+            {
+                if (message.toLowerCase().startsWith(matchCommand.getMatch().toLowerCase()))
+                {
+                    isBlocked = true;
+                }
+            }
+            if (isBlocked)
+            {
+                event.setCancelled(true);
+                //PlexLog.debug("Command blocked.");
+                player.sendMessage(MiniMessage.miniMessage().deserialize(PlexUtils.messageString("blockedCommandColor") + blockedCommand.getMessage()));
+                return;
+            }
+        }
     }
 }
