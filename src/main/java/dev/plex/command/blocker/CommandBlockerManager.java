@@ -3,7 +3,6 @@ package dev.plex.command.blocker;
 import dev.plex.Plex;
 import dev.plex.PlexBase;
 import dev.plex.rank.enums.Rank;
-import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import lombok.Getter;
 import org.bukkit.Bukkit;
@@ -12,15 +11,13 @@ import org.bukkit.command.PluginCommand;
 import org.bukkit.command.PluginCommandYamlParser;
 import org.bukkit.plugin.Plugin;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Pattern;
 
 @Getter
 public class CommandBlockerManager extends PlexBase
 {
-    private List<BaseCommand> blockedCommands = new ArrayList<>();
+    private Set<BaseCommand> blockedCommands = new HashSet<>();
 
     public boolean loadedYet;
 
