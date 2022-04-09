@@ -14,7 +14,7 @@
 #
 # So these would be valid:
 #   - "m:e:mail sendall:You cannot send messages to everyone on the server"
-#   - "r:e:(.*:):Plugin specific commands are disabled"
+#   - "r:e:^[^ :]+::Plugin specific commands are disabled"
 blockedCommands:
   - "r:e:^[^ :]+::Plugin specific commands are disabled."
   - "m:e:mail sendall:You cannot send messages to everyone on the server."
