@@ -99,7 +99,7 @@ public class EntityWipeCMD extends PlexCommand
             {
                 if (entity.getType() != EntityType.PLAYER)
                 {
-                    entities.add(entity.getName());
+                    entities.add(entity.getType().name());
                 }
             }
         }
