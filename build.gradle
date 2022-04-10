@@ -52,14 +52,15 @@ version = "1.0.1-SNAPSHOT"
 description = "Plex"
 
 shadowJar {
-    archiveClassifier.set("")
     archiveBaseName.set("Plex")
+    archiveClassifier.set("")
     archiveVersion.set("")
     relocate "org.bstats", "dev.plex"
 }
 
 tasks.jar {
     archiveBaseName.set("Plex")
+    archiveClassifier.set("notshaded")
     archiveVersion.set("")
 }
 
