@@ -2,7 +2,7 @@
 /.idea/codeStyles/codeStyleConfig.xml
 *.iml
 /target/
-Plex-Core/src/main/resources/build.properties
+src/main/resources/build.properties
 
 # OS
 .DS_Store
@@ -15,6 +15,3 @@ Thumbs.db
 # Gradle
 /build/
 /.gradle/
-Plex-Core/build/
-Plex-API/build/
-/jars/
