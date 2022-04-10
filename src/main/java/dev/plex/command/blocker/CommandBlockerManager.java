@@ -2,15 +2,11 @@ package dev.plex.command.blocker;
 
 import dev.plex.PlexBase;
 import dev.plex.rank.enums.Rank;
-import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.command.*;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.SimplePluginManager;
-
-import java.lang.reflect.Field;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -21,17 +17,10 @@ public class CommandBlockerManager extends PlexBase
 
     public boolean loadedYet;
 
-    private static CommandMap getCommandMap()
-    {
-        return plugin.getServer().getCommandMap();
-    }
-
     public void syncCommands()
     {
         loadedYet = false;
         blockedCommands.clear();
-
-        CommandMap commandMap = getCommandMap();
 
         List<String> raw = plugin.blockedCommands.getStringList("blockedCommands");
 
@@ -93,13 +82,12 @@ public class CommandBlockerManager extends PlexBase
                 }
                 String cmdForSearch = ind == -1 ? regexOrMatch : regexOrMatch.substring(0, ind);
                 PluginCommand pluginCommand = Bukkit.getServer().getPluginCommand(cmdForSearch);
-                Plugin plugin = null;
-                if (pluginCommand != null) plugin = pluginCommand.getPlugin();
-                Command command = null;
-                if (commandMap != null) command = commandMap.getCommand(cmdForSearch);
+                Plugin pl = null;
+                if (pluginCommand != null) pl = pluginCommand.getPlugin();
+                Command command = plugin.getServer().getCommandMap().getCommand(cmdForSearch);
                 if (command != null)
                 {
-                    String pluginName = plugin == null ? null : plugin.getName();
+                    String pluginName = pl == null ? null : pl.getName();
                     blockedCommands.add(new MatchCommand(command.getName() + blockedArgs, rank, message));
                     if (pluginName != null) blockedCommands.add(new MatchCommand(pluginName + ":" + command.getName() + blockedArgs, rank, message));
                     List<String> aliases = command.getAliases();

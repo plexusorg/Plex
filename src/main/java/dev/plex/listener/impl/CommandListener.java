@@ -55,7 +55,7 @@ public class CommandListener extends PlexListener
             }
             else if (blockedCommand instanceof MatchCommand matchCommand)
             {
-                if (message.toLowerCase().startsWith(matchCommand.getMatch().toLowerCase()))
+                if (message.equalsIgnoreCase(matchCommand.getMatch()) || message.toLowerCase().startsWith(matchCommand.getMatch().toLowerCase() + " "))
                 {
                     isBlocked = true;
                 }
@@ -63,8 +63,8 @@ public class CommandListener extends PlexListener
             if (isBlocked)
             {
                 event.setCancelled(true);
-                //PlexLog.debug("Command blocked.");
-                player.sendMessage(PlexUtils.mmDeserialize(PlexUtils.messageString("blockedCommandColor") + blockedCommand.getMessage()));
+                //PlexLog.debug("Command blocked: " + blockedCommand);
+                player.sendMessage(PlexUtils.mmDeserialize(blockedCommand.getMessage()));
                 return;
             }
         }
