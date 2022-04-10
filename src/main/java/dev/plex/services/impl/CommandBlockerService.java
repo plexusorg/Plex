@@ -39,10 +39,10 @@ public class CommandBlockerService extends AbstractService
                 command.setRequiredLevel(args[1]);
                 command.setRegex(args[2]);
                 command.setMessage(s.substring(lastDelim + 1));
-                PlexLog.debug("=Found regex blocked=");
+                /*PlexLog.debug("=Found regex blocked=");
                 PlexLog.debug(" Regex: " + command.getRegex());
                 PlexLog.debug(" Message: " + command.getMessage());
-                PlexLog.debug("====================");
+                PlexLog.debug("====================");*/
             } else if (s.toLowerCase(Locale.ROOT).startsWith("m"))
             {
                 command.setRequiredLevel(args[1]);
@@ -56,12 +56,12 @@ public class CommandBlockerService extends AbstractService
                 }
                 command.setCommandAliases(cmd.getAliases());
                 command.getCommandAliases().add(command.getCommand().split(" ")[0]);
-                PlexLog.debug("=Found command blocked=");
+                /*PlexLog.debug("=Found command blocked=");
                 PlexLog.debug(" Required Level: " + command.getRequiredLevel());
                 PlexLog.debug(" Command: " + command.getCommand());
                 PlexLog.debug(" Message: " + command.getMessage());
                 PlexLog.debug(" Aliases: " + Arrays.toString(command.getCommandAliases().toArray(new String[0])));
-                PlexLog.debug("====================");
+                PlexLog.debug("====================");*/
             }
             if (command.getMessage().equalsIgnoreCase("_"))
             {
@@ -69,6 +69,7 @@ public class CommandBlockerService extends AbstractService
             }
             BLOCKED_COMMANDS.add(command);
         });
+        PlexLog.log("Command Blocker has loaded {0} entries!", BLOCKED_COMMANDS.size());
     }
 
     @Override
