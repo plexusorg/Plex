@@ -64,7 +64,7 @@ public class CommandListener extends PlexListener
             {
                 event.setCancelled(true);
                 //PlexLog.debug("Command blocked.");
-                player.sendMessage(PlexUtils.mmDeserialize(PlexUtils.messageString("blockedCommandColor") + blockedCommand.getMessage()));
+                player.sendMessage(PlexUtils.mmDeserialize(blockedCommand.getMessage()));
                 return;
             }
         }
