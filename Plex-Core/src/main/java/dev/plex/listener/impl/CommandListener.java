@@ -8,7 +8,6 @@ import dev.plex.command.blocker.RegexCommand;
 import dev.plex.listener.PlexListener;
 import dev.plex.player.PlexPlayer;
 import dev.plex.util.PlexUtils;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -65,7 +64,7 @@ public class CommandListener extends PlexListener
             {
                 event.setCancelled(true);
                 //PlexLog.debug("Command blocked.");
-                player.sendMessage(MiniMessage.miniMessage().deserialize(PlexUtils.messageString("blockedCommandColor") + blockedCommand.getMessage()));
+                player.sendMessage(PlexUtils.mmDeserialize(PlexUtils.messageString("blockedCommandColor") + blockedCommand.getMessage()));
                 return;
             }
         }
