@@ -15,6 +15,7 @@ import net.kyori.adventure.text.minimessage.tag.resolver.ArgumentQueue;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.minimessage.tag.standard.*;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.apache.commons.lang.math.NumberUtils;
 import org.bukkit.*;
 import org.bukkit.command.Command;
@@ -153,27 +154,35 @@ public class PlexUtils extends PlexBase
         return ChatColor.translateAlternateColorCodes('&', string);
     }
 
-    private static final MiniMessage eggMessage = MiniMessage.builder().tags(new TagResolver()
-    {
-        @Override
-        public @Nullable Tag resolve(@NotNull String name, @NotNull ArgumentQueue arguments, @NotNull Context ctx) throws ParsingException
-        {
-            return StandardTags.rainbow().resolve("rainbow", arguments, ctx);
-        }
+    private static final MiniMessage safeMessage = MiniMessage.builder().tags(TagResolver.builder().resolvers(
+            StandardTags.color(),
+            StandardTags.decorations(),
+            StandardTags.gradient(),
+            StandardTags.rainbow(),
+            StandardTags.reset()
+    ).build()).build();
 
-        @Override
-        public boolean has(@NotNull String name)
-        {
-            return true;
-        }
-    }
+    private static final MiniMessage eggMessage = MiniMessage.builder().tags(new TagResolver()
+         {
+             @Override
+             public @Nullable Tag resolve(@NotNull String name, @NotNull ArgumentQueue arguments, @NotNull Context ctx) throws ParsingException
+             {
+                 return StandardTags.rainbow().resolve("rainbow", arguments, ctx);
+             }
+
+             @Override
+             public boolean has(@NotNull String name)
+             {
+                 return true;
+             }
+         }
     ).build();
 
     public static Component mmDeserialize(String input)
     {
         Calendar calendar = Calendar.getInstance();
-        MiniMessage mm = (calendar.get(Calendar.MONTH) == Calendar.APRIL && calendar.get(Calendar.DAY_OF_MONTH) == 1 && (!plugin.config.contains("april_fools") || plugin.config.getBoolean("april_fools"))) ? eggMessage : MiniMessage.miniMessage();
-        return mm.deserialize(input);
+        MiniMessage mm = (calendar.get(Calendar.MONTH) == Calendar.APRIL && calendar.get(Calendar.DAY_OF_MONTH) == 1 && (!plugin.config.contains("april_fools") || plugin.config.getBoolean("april_fools"))) ? eggMessage : safeMessage;
+        return mm.deserialize(PlainTextComponentSerializer.plainText().serialize(LegacyComponentSerializer.legacySection().deserialize(input)));
     }
 
     public static Component messageComponent(String entry, Object... objects)
