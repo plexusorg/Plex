@@ -7,6 +7,7 @@ import dev.plex.command.blocker.MatchCommand;
 import dev.plex.command.blocker.RegexCommand;
 import dev.plex.listener.PlexListener;
 import dev.plex.player.PlexPlayer;
+import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -55,7 +56,7 @@ public class CommandListener extends PlexListener
             }
             else if (blockedCommand instanceof MatchCommand matchCommand)
             {
-                if (message.toLowerCase().startsWith(matchCommand.getMatch().toLowerCase()))
+                if (message.equalsIgnoreCase(matchCommand.getMatch()) || message.toLowerCase().startsWith(matchCommand.getMatch().toLowerCase() + " "))
                 {
                     isBlocked = true;
                 }
@@ -63,7 +64,7 @@ public class CommandListener extends PlexListener
             if (isBlocked)
             {
                 event.setCancelled(true);
-                //PlexLog.debug("Command blocked.");
+                PlexLog.debug("Command blocked: " + blockedCommand);
                 player.sendMessage(PlexUtils.mmDeserialize(blockedCommand.getMessage()));
                 return;
             }
