@@ -37,6 +37,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.Month;
 import java.time.ZoneId;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
@@ -180,14 +181,27 @@ public class PlexUtils extends PlexBase
 
     public static Component mmDeserialize(String input)
     {
-        Calendar calendar = Calendar.getInstance();
+        /*Calendar calendar = Calendar.getInstance();
         MiniMessage mm = (calendar.get(Calendar.MONTH) == Calendar.APRIL && calendar.get(Calendar.DAY_OF_MONTH) == 1 && (!plugin.config.contains("april_fools") || plugin.config.getBoolean("april_fools"))) ? eggMessage : safeMessage;
-        return mm.deserialize(PlainTextComponentSerializer.plainText().serialize(LegacyComponentSerializer.legacySection().deserialize(input)));
+        return mm.deserialize(PlainTextComponentSerializer.plainText().serialize(LegacyComponentSerializer.legacySection().deserialize(input)));*/
+        boolean aprilFools = plugin.config.getBoolean("april_fools");
+        LocalDateTime date = LocalDateTime.now();
+        if (aprilFools && date.getMonth() == Month.APRIL && date.getDayOfMonth() == 1)
+        {
+            Component component = PlainTextComponentSerializer.plainText().deserialize(input);
+            return MiniMessage.miniMessage().deserialize("<rainbow>" + PlainTextComponentSerializer.plainText().serialize(component));
+        }
+        return MiniMessage.miniMessage().deserialize(input);
+    }
+
+    public static Component mmCustomDeserialize(String input, TagResolver... resolvers)
+    {
+        return MiniMessage.builder().tags(TagResolver.builder().resolvers(resolvers).build()).build().deserialize(input);
     }
 
     public static Component messageComponent(String entry, Object... objects)
     {
-        return mmDeserialize(messageString(entry, objects));
+        return MiniMessage.miniMessage().deserialize(messageString(entry, objects));
     }
 
     public static String messageString(String entry, Object... objects)

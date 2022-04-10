@@ -24,8 +24,8 @@ chat:
   # The maximum amount of characters a player can have for their tag
   # This does not include color tags such as <red> or <rainbow>
   max-tag-length: 64
-  # Color code for name color
-  name-color: 'f'
+  # Color tag for name color
+  name-color: '<white>'
 
 # Should Plex use a "true op" system with ranks or only permission nodes
 # Options are "permissions" or "ranks"

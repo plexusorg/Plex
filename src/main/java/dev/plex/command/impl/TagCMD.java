@@ -10,6 +10,8 @@ import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
+import net.kyori.adventure.text.minimessage.tag.standard.StandardTags;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.apache.commons.lang.StringUtils;
@@ -48,15 +50,15 @@ public class TagCMD extends PlexCommand
                 return usage("/tag set <prefix>");
             }
             String prefix = StringUtils.join(args, " ", 1, args.length);
-            Component convertedComponent = removeEvents(noColorComponentFromString(prefix));
-            convertedComponent = removeEvents(PlexUtils.mmDeserialize(LegacyComponentSerializer.legacySection().serialize(convertedComponent)));
+
+            Component convertedComponent = removeEvents(PlexUtils.mmCustomDeserialize(prefix = prefix.replace("<newline>", "").replace("<br>", ""), StandardTags.color(), StandardTags.rainbow(), StandardTags.decorations(), StandardTags.gradient(), StandardTags.transition())); //noColorComponentFromString(prefix)
 
             if (PlainTextComponentSerializer.plainText().serialize(convertedComponent).length() > plugin.config.getInt("chat.max-tag-length", 16))
             {
                 return messageComponent("maximumPrefixLength", plugin.config.getInt("chat.max-tag-length", 16));
             }
 
-            player.setPrefix(MiniMessage.miniMessage().serialize(convertedComponent));
+            player.setPrefix(prefix);
             DataUtils.update(player);
             return messageComponent("prefixSetTo", MiniMessage.miniMessage().serialize(convertedComponent));
         }

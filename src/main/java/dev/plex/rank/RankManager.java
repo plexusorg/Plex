@@ -15,6 +15,7 @@ import lombok.SneakyThrows;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.standard.StandardTags;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -95,7 +96,7 @@ public class RankManager
     {
         if (!player.getPrefix().equals(""))
         {
-            return PlexUtils.mmDeserialize(player.getPrefix());
+            return PlexUtils.mmCustomDeserialize(player.getPrefix(), StandardTags.color(), StandardTags.rainbow(), StandardTags.decorations(), StandardTags.gradient(), StandardTags.transition());
         }
         if (Plex.get().config.contains("titles.owners") && Plex.get().config.getStringList("titles.owners").contains(player.getName()))
         {

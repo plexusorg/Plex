@@ -23,19 +23,7 @@ public class CommandBlockerManager extends PlexBase
 
     private static CommandMap getCommandMap()
     {
-        try
-        {
-            SimplePluginManager spm = (SimplePluginManager) Bukkit.getServer().getPluginManager();
-            Field cmf = SimplePluginManager.class.getDeclaredField("commandMap");
-            cmf.setAccessible(true);
-            return (SimpleCommandMap)cmf.get(spm);
-        }
-        catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException e)
-        {
-            PlexLog.error("Unable to get command map for command blocker.");
-            e.printStackTrace();
-        }
-        return null;
+        return plugin.getServer().getCommandMap();
     }
 
     public void syncCommands()
