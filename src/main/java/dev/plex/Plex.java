@@ -79,10 +79,10 @@ public class Plex extends JavaPlugin
     public void onLoad()
     {
         plugin = this;
-        config = new Config(this, "config.yml");
-        messages = new Config(this, "messages.yml");
-        indefBans = new Config(this, "indefbans.yml");
-        blockedCommands = new Config(this, "commands.yml");
+        config = new Config(this, "resources/config.yml");
+        messages = new Config(this, "resources/messages.yml");
+        indefBans = new Config(this, "resources/indefbans.yml");
+        blockedCommands = new Config(this, "resources/commands.yml");
         build.load(this);
 
         modulesFolder = new File(this.getDataFolder() + File.separator + "modules");
@@ -248,7 +248,7 @@ public class Plex extends JavaPlugin
             {
                 final Properties props;
 
-                try (InputStream in = plugin.getResource("build.properties"))
+                try (InputStream in = plugin.getResource("resources/build.properties"))
                 {
                     props = new Properties();
                     props.load(in);
