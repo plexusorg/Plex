@@ -37,6 +37,10 @@ public class ListCMD extends PlexCommand
                 .append(Component.space())
                 .append(Component.text(Bukkit.getMaxPlayers() == 1 ? "player." : "players.").color(NamedTextColor.GRAY));
         send(sender, header);
+        if (players.size() == 0)
+        {
+            return null;
+        }
         for (int i = 0; i < players.size(); i++)
         {
             Player player = players.get(i);

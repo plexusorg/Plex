@@ -147,11 +147,6 @@ public class UpdateChecker extends PlexBase
         }
     }
 
-    private void sendMini(CommandSender sender, String message)
-    {
-        sender.sendMessage(MiniMessage.miniMessage().deserialize(message));
-    }
-
     public void updateJar(CommandSender sender)
     {
         CloseableHttpClient client = HttpClients.createDefault();
@@ -162,7 +157,7 @@ public class UpdateChecker extends PlexBase
             JSONObject object = new JSONObject(EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8));
             JSONObject artifact = object.getJSONArray("artifacts").getJSONObject(0);
             String name = artifact.getString("fileName");
-            sendMini(sender, "<green>Downloading latest Plex jar file: " + name);
+            sender.sendMessage(PlexUtils.mmDeserialize("<green>Downloading latest Plex jar file: " + name));
             CompletableFuture.runAsync(() ->
             {
                 try
@@ -171,7 +166,7 @@ public class UpdateChecker extends PlexBase
                             new URL(DOWNLOAD_PAGE + "job/" + branch + "/lastSuccessfulBuild/artifact/build/libs/" + name),
                             new File(Bukkit.getUpdateFolderFile(), name)
                     );
-                    sendMini(sender, "<green>Saved new jar. Please restart your server.");
+                    sender.sendMessage(PlexUtils.mmDeserialize("<green>Saved new jar. Please restart your server."));
                 }
                 catch (IOException e)
                 {

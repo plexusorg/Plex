@@ -13,9 +13,9 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-@CommandPermissions(level = Rank.SENIOR_ADMIN, permission = "plex.rawsay", source = RequiredCommandSource.ANY)
-@CommandParameters(name = "rawsay", usage = "/<command> <message>", description = "Displays a raw message to everyone")
-public class RawSayCMD extends PlexCommand
+@CommandPermissions(level = Rank.ADMIN, permission = "plex.say", source = RequiredCommandSource.ANY)
+@CommandParameters(name = "say", usage = "/<command> <message>", description = "Displays a message to everyone")
+public class SayCMD extends PlexCommand
 {
     @Override
     protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
@@ -25,7 +25,7 @@ public class RawSayCMD extends PlexCommand
             return usage();
         }
 
-        PlexUtils.broadcast(StringUtils.join(args, " "));
+        PlexUtils.broadcast(PlexUtils.messageComponent("sayCommand", sender.getName(), StringUtils.join(args, " ")));
         return null;
     }
 }

@@ -65,7 +65,7 @@ public class Config extends YamlConfiguration
             if (loadFromFile)
             {
                 YamlConfiguration externalYamlConfig = YamlConfiguration.loadConfiguration(file);
-                InputStreamReader internalConfigFileStream = new InputStreamReader(Plex.get().getResource(name), StandardCharsets.UTF_8);
+                InputStreamReader internalConfigFileStream = new InputStreamReader(plugin.getResource(name), StandardCharsets.UTF_8);
                 YamlConfiguration internalYamlConfig = YamlConfiguration.loadConfiguration(internalConfigFileStream);
 
                 // Gets all the keys inside the internal file and iterates through all of it's key pairs
@@ -76,6 +76,7 @@ public class Config extends YamlConfiguration
                     {
                         // If it doesn't contain the key, we set the key based off what was found inside the plugin jar
                         externalYamlConfig.setComments(string, internalYamlConfig.getComments(string));
+                        externalYamlConfig.setInlineComments(string, internalYamlConfig.getInlineComments(string));
                         externalYamlConfig.set(string, internalYamlConfig.get(string));
                         PlexLog.log("Setting key: " + string + " in " + this.name + " to the default value(s) since it does not exist!");
                         added = true;

@@ -51,13 +51,16 @@ public class PlexCMD extends PlexCommand
             plugin.indefBans.load(false);
             plugin.getPunishmentManager().mergeIndefiniteBans();
             send(sender, "Reloaded indefinite bans");
+            plugin.blockedCommands.load();
+            plugin.getCommandBlockerManager().syncCommands();
+            send(sender, "Reloaded blocked commands file");
             plugin.getRankManager().importDefaultRanks();
             send(sender, "Imported ranks");
-            send(sender, "Plex successfully reloaded.");
             plugin.setSystem(plugin.config.getString("system"));
             plugin.getServiceManager().endServices();
             plugin.getServiceManager().startServices();
             PlexLog.debug("Restarted services");
+            send(sender, "Plex successfully reloaded.");
             return null;
         }
         else if (args[0].equalsIgnoreCase("redis"))

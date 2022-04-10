@@ -1,6 +1,5 @@
 package dev.plex.command.impl;
 
-import com.google.common.collect.ImmutableList;
 import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
@@ -8,10 +7,8 @@ import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexUtils;
 import java.util.ArrayList;
-import java.util.Collections;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;

@@ -9,7 +9,10 @@ import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.jetbrains.annotations.NotNull;
@@ -51,14 +54,14 @@ public class ChatListener extends PlexListener
                 return Component.empty()
                         .append(prefix)
                         .append(Component.space())
-                        .append(LegacyComponentSerializer.legacyAmpersand().deserialize("&" + plugin.config.getString("chat.name-color") + LegacyComponentSerializer.legacyAmpersand().serialize(sourceDisplayName)))
+                        .append(MiniMessage.miniMessage().deserialize(plugin.config.getString("chat.name-color", "<white>"))).append(sourceDisplayName)
                         .append(Component.space())
                         .append(Component.text("»").color(NamedTextColor.GRAY))
                         .append(Component.space())
                         .append(message);
             }
             return Component.empty()
-                    .append(LegacyComponentSerializer.legacyAmpersand().deserialize("&" + plugin.config.getString("chat.name-color") + LegacyComponentSerializer.legacyAmpersand().serialize(sourceDisplayName)))
+                    .append(MiniMessage.miniMessage().deserialize(plugin.config.getString("chat.name-color", "<white>"))).append(sourceDisplayName)
                     .append(Component.space())
                     .append(Component.text("»").color(NamedTextColor.GRAY))
                     .append(Component.space())

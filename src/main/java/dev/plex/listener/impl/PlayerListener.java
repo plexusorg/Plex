@@ -77,7 +77,7 @@ public class PlayerListener extends PlexListener
         String loginMessage = plugin.getRankManager().getLoginMessage(plexPlayer);
         if (!loginMessage.isEmpty())
         {
-            PlexUtils.broadcast(MiniMessage.miniMessage().deserialize("<aqua>" + player.getName() + " is " + loginMessage));
+            PlexUtils.broadcast(PlexUtils.mmDeserialize("<aqua>" + player.getName() + " is " + loginMessage));
         }
 
         if (plugin.getStorageType() != StorageType.MONGODB)

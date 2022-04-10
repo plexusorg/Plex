@@ -43,7 +43,16 @@ public class ServiceManager
     {
         if (!service.isRepeating())
         {
-            BukkitTask task = Bukkit.getScheduler().runTask(Plex.get(), service::run);
+            int time = service.repeatInSeconds();
+            BukkitTask task;
+            if (time == 0)
+            {
+                task = Bukkit.getScheduler().runTask(Plex.get(), service::run);
+            }
+            else
+            {
+                task = Bukkit.getScheduler().runTaskLater(Plex.get(), service::run, time);
+            }
             service.setTaskId(task.getTaskId());
         }
         else if (service.isRepeating() && service.isAsynchronous())

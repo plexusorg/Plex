@@ -98,7 +98,7 @@ public class PlexPlayer
     public Rank getRankFromString()
     {
         OfflinePlayer player = Bukkit.getOfflinePlayer(uuid);
-        if (rank.isEmpty())
+        if (rank.isEmpty() || !isAdminActive())
         {
             if (player.isOp())
             {

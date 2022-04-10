@@ -1,6 +1,5 @@
 package dev.plex.storage;
 
-import com.mongodb.*;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import dev.morphia.Datastore;
@@ -32,10 +31,14 @@ public class MongoConnection extends PlexBase
             if (database != null && !database.isEmpty())
             {
                 connectionString = "mongodb://" + username + ":" + password + "@" + host + ":" + port + "/?authSource=" + database;
-            } else {
+            }
+            else
+            {
                 connectionString = "mongodb://" + username + ":" + password + "@" + host + ":" + port + "/";
             }
-        } else {
+        }
+        else
+        {
             connectionString = "mongodb://" + host + ":" + port + "/";
         }
         connectionString += "?uuidRepresentation=STANDARD";

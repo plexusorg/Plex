@@ -8,12 +8,15 @@ import dev.plex.command.annotation.System;
 import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
+
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
+import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -58,6 +61,16 @@ public class DebugCMD extends PlexCommand
                 }
             }
             return mmString("<aqua>Re-applied game all the game rules!");
+        }
+        if (args[0].equalsIgnoreCase("aliases"))
+        {
+            String commandName = args[1];
+            Command command = plugin.getServer().getCommandMap().getCommand(commandName);
+            if (command == null)
+            {
+                return mmString("<red>That command could not be found!");
+            }
+            return mmString("<aqua>Aliases for " + commandName + " are: " + Arrays.toString(command.getAliases().toArray(new String[0])));
         }
         return null;
     }
