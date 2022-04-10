@@ -1,6 +1,5 @@
 package dev.plex.storage;
 
-import com.mongodb.*;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import dev.morphia.Datastore;

@@ -1,7 +1,6 @@
 package dev.plex.event;
 
 import dev.plex.player.PlexPlayer;
-import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;

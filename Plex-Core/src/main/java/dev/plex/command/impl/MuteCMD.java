@@ -11,7 +11,6 @@ import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexUtils;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 import net.kyori.adventure.text.Component;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;

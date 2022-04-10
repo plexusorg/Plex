@@ -5,7 +5,6 @@ import dev.plex.cache.player.PlayerCache;
 import dev.plex.player.PlexPlayer;
 import dev.plex.storage.StorageType;
 import java.util.UUID;
-import org.bukkit.Bukkit;
 
 /**
  * Parent cache class
