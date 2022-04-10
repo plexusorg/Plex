@@ -153,7 +153,7 @@ public class PlexUtils extends PlexBase
         return ChatColor.translateAlternateColorCodes('&', string);
     }
 
-    private static MiniMessage eggMessage = MiniMessage.builder().tags(new TagResolver()
+    private static final MiniMessage eggMessage = MiniMessage.builder().tags(new TagResolver()
     {
         @Override
         public @Nullable Tag resolve(@NotNull String name, @NotNull ArgumentQueue arguments, @NotNull Context ctx) throws ParsingException
