@@ -8,7 +8,7 @@ pipeline {
                 }
             }
         }
-        /*stage("publish") {
+        stage("publish") {
             when {
                 branch "master"
             }
@@ -19,7 +19,7 @@ pipeline {
                     }
                 }
             }
-        }*/
+        }
     }
     post {
         always {

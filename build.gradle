@@ -28,20 +28,22 @@ allprojects {
         options.encoding = "UTF-8"
     }
 
-    publishing {
-        publications {
-            maven(MavenPublication) {
-                from(components.java)
+    afterEvaluate { project ->
+        publishing {
+            publications {
+                maven(MavenPublication) {
+                    from(components.java)
+                }
             }
-        }
-        repositories {
-            maven {
-                def releasesRepoUrl = uri("https://nexus.telesphoreo.me/repository/plex-releases/")
-                def snapshotsRepoUrl = uri("https://nexus.telesphoreo.me/repository/plex-snapshots/")
-                url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
-                credentials {
-                    username = System.getenv("plexUser")
-                    password = System.getenv("plexPassword")
+            repositories {
+                maven {
+                    def releasesRepoUrl = uri("https://nexus.telesphoreo.me/repository/plex-releases/")
+                    def snapshotsRepoUrl = uri("https://nexus.telesphoreo.me/repository/plex-snapshots/")
+                    url = version.endsWith('-SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+                    credentials {
+                        username = System.getenv("plexUser")
+                        password = System.getenv("plexPassword")
+                    }
                 }
             }
         }
