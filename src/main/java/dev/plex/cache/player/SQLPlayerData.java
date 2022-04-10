@@ -42,6 +42,22 @@ public class SQLPlayerData
         return false;
     }
 
+    public boolean exists(String username)
+    {
+        try (Connection con = Plex.get().getSqlConnection().getCon())
+        {
+            PreparedStatement statement = con.prepareStatement("SELECT * FROM `players` WHERE name=?");
+            statement.setString(1, username);
+            ResultSet set = statement.executeQuery();
+            return set.next();
+        }
+        catch (SQLException throwables)
+        {
+            throwables.printStackTrace();
+        }
+        return false;
+    }
+
     /**
      * Gets the player from cache or from the SQL database
      *

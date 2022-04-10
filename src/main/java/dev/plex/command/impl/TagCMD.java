@@ -88,7 +88,7 @@ public class TagCMD extends PlexCommand
             PlexPlayer plexTarget = DataUtils.getPlayer(target.getUniqueId());
             plexTarget.setPrefix("");
             DataUtils.update(plexTarget);
-            messageComponent("otherPrefixCleared");
+            return messageComponent("otherPrefixCleared", target.getName());
         }
         return usage();
     }

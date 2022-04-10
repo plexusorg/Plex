@@ -33,14 +33,14 @@ public class RankCMD extends PlexCommand
             if (!(playerSender == null))
             {
                 Rank rank = getPlexPlayer(playerSender).getRankFromString();
-                return messageComponent("yourRank", rank.getReadable());
+                return messageComponent("yourRank", rank.isAtLeast(Rank.ADMIN) && !getPlexPlayer(playerSender).isAdminActive() ? (playerSender.isOp() ? Rank.OP.getReadable() : Rank.NONOP.getReadable()) : rank.getReadable());
             }
         }
         else
         {
             Player player = getNonNullPlayer(args[0]);
             Rank rank = getPlexPlayer(player).getRankFromString();
-            return messageComponent("otherRank", player.getName(), rank.getReadable());
+            return messageComponent("otherRank", player.getName(), rank.isAtLeast(Rank.ADMIN) && !getPlexPlayer(player).isAdminActive() ? (player.isOp() ? Rank.OP.getReadable() : Rank.NONOP.getReadable()) : rank.getReadable());
         }
         return null;
     }

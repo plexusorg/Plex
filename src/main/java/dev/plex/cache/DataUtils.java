@@ -29,6 +29,18 @@ public class DataUtils
         }
     }
 
+    public static boolean hasPlayedBefore(String username)
+    {
+        if (Plex.get().getStorageType() == StorageType.MONGODB)
+        {
+            return Plex.get().getMongoPlayerData().exists(username);
+        }
+        else
+        {
+            return Plex.get().getSqlPlayerData().exists(username);
+        }
+    }
+
     /**
      * Gets a player from cache or from the database
      *

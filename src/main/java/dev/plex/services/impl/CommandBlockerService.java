@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import dev.plex.command.blocking.BlockedCommand;
 import dev.plex.services.AbstractService;
 import dev.plex.util.PlexLog;
+import dev.plex.util.PlexUtils;
 import lombok.Getter;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.command.Command;
@@ -38,7 +39,7 @@ public class CommandBlockerService extends AbstractService
             {
                 command.setRequiredLevel(args[1]);
                 command.setRegex(args[2]);
-                command.setMessage(s.substring(lastDelim + 1));
+                command.setMessage(s.substring(lastDelim + 1).equalsIgnoreCase("_") ? PlexUtils.messageComponent("commandBlocked") : PlexUtils.mmDeserialize(s.substring(lastDelim + 1)));
                 /*PlexLog.debug("=Found regex blocked=");
                 PlexLog.debug(" Regex: " + command.getRegex());
                 PlexLog.debug(" Message: " + command.getMessage());
@@ -47,7 +48,7 @@ public class CommandBlockerService extends AbstractService
             {
                 command.setRequiredLevel(args[1]);
                 command.setCommand(args[2]);
-                command.setMessage(s.substring(lastDelim + 1));
+                command.setMessage(s.substring(lastDelim + 1).equalsIgnoreCase("_") ? PlexUtils.messageComponent("commandBlocked") : PlexUtils.mmDeserialize(s.substring(lastDelim + 1)));
                 Command cmd = plugin.getServer().getCommandMap().getCommand(command.getCommand().split(" ")[0]);
                 if (cmd == null)
                 {
@@ -62,10 +63,6 @@ public class CommandBlockerService extends AbstractService
                 PlexLog.debug(" Message: " + command.getMessage());
                 PlexLog.debug(" Aliases: " + Arrays.toString(command.getCommandAliases().toArray(new String[0])));
                 PlexLog.debug("====================");*/
-            }
-            if (command.getMessage().equalsIgnoreCase("_"))
-            {
-                command.setMessage("This command is blocked.");
             }
             BLOCKED_COMMANDS.add(command);
         });

@@ -94,6 +94,10 @@ public class NotesCMD extends PlexCommand
             }
             case "remove":
             {
+                if (args.length < 3)
+                {
+                    return usage();
+                }
                 int id;
                 try
                 {
@@ -107,17 +111,19 @@ public class NotesCMD extends PlexCommand
                 {
                     plugin.getSqlNotes().getNotes(plexPlayer.getUuid()).whenComplete((notes, ex) ->
                     {
+                        boolean deleted = false;
                         for (Note note : notes)
                         {
                             if (note.getId() == id)
                             {
                                 plugin.getSqlNotes().deleteNote(id, plexPlayer.getUuid()).whenComplete((notes1, ex1) ->
                                         send(sender, Component.text("Removed note with ID: " + id).color(NamedTextColor.GREEN)));
+                                deleted = true;
                             }
-                            else
-                            {
-                                send(sender, mmString("<red>A note with this ID could not be found"));
-                            }
+                        }
+                        if (!deleted)
+                        {
+                            send(sender, mmString("<red>A note with this ID could not be found"));
                         }
                         plexPlayer.getNotes().removeIf(note -> note.getId() == id);
                     });
@@ -130,6 +136,7 @@ public class NotesCMD extends PlexCommand
                     }
                     return mmString("<red>A note with this ID could not be found");
                 }
+                return null;
             }
             case "clear":
             {
@@ -167,7 +174,7 @@ public class NotesCMD extends PlexCommand
         for (Note note : notes)
         {
             Component noteLine = Component.text(note.getId() + " - Written by: " + DataUtils.getPlayer(note.getWrittenBy()).getName() + " on " + DATE_FORMAT.format(note.getTimestamp())).color(NamedTextColor.YELLOW).decoration(TextDecoration.ITALIC, false);
-            noteLine = noteLine.append(Component.text(note.getNote())).color(NamedTextColor.GOLD).decoration(TextDecoration.ITALIC, true);
+            noteLine = noteLine.append(Component.space()).append(Component.text(note.getNote())).color(NamedTextColor.YELLOW).decoration(TextDecoration.ITALIC, true);
             noteList.set(noteList.get().append(Component.newline()));
             noteList.set(noteList.get().append(noteLine));
         }

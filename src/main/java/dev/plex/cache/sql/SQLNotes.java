@@ -47,6 +47,7 @@ public class SQLNotes
             catch (SQLException e)
             {
                 e.printStackTrace();
+                return notes;
             }
             return notes;
         });

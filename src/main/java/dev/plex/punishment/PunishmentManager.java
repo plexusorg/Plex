@@ -159,10 +159,14 @@ public class PunishmentManager extends PlexBase
         }
         else
         {
+            PlexLog.debug("Checking active bans mysql");
             CompletableFuture<List<Punishment>> future = new CompletableFuture<>();
             Plex.get().getSqlPunishment().getPunishments().whenComplete((punishments, throwable) ->
             {
-                future.complete(punishments.stream().filter(Punishment::isActive).filter(punishment -> punishment.getType() == PunishmentType.BAN).toList());
+                PlexLog.debug("Received Punishments");
+                List<Punishment> punishmentList = punishments.stream().filter(Punishment::isActive).filter(punishment -> punishment.getType() == PunishmentType.BAN).toList();
+                PlexLog.debug("Completing with {0} punishments", punishmentList.size());
+                future.complete(punishmentList);
             });
             return future;
         }

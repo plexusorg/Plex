@@ -43,6 +43,14 @@ public class MongoPlayerData
         return query.first() != null;
     }
 
+    public boolean exists(String username)
+    {
+        Query<PlexPlayer> query = datastore.find(PlexPlayer.class)
+                .filter(Filters.regex("name").caseInsensitive().pattern(username));
+
+        return query.first() != null;
+    }
+
     /**
      * Gets the player from cache or from mongo's database
      *

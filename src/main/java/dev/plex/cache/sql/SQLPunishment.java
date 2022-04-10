@@ -50,6 +50,7 @@ public class SQLPunishment
             catch (SQLException e)
             {
                 e.printStackTrace();
+                return punishments;
             }
             return punishments;
         });

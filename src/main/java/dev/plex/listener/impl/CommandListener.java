@@ -45,22 +45,16 @@ public class CommandListener extends PlexListener
     {
         Player player = event.getPlayer();
         PlexPlayer plexPlayer = DataUtils.getPlayer(player.getUniqueId());
-        String commandName = StringUtils.normalizeSpace(event.getMessage()).split(" ")[0].replace("/", "");
+        String commandName = StringUtils.normalizeSpace(event.getMessage()).split(" ")[0].replaceFirst("/", "");
         String arguments = StringUtils.normalizeSpace(StringUtils.normalizeSpace(event.getMessage()).replace(event.getMessage().split(" ")[0], ""));
         PlexLog.debug("Checking Command: {0} with args {1}", commandName, arguments);
         AtomicReference<BlockedCommand> cmdRef = new AtomicReference<>();
         PlexLog.debug("Blocked Commands List: " + CommandBlockerService.getBLOCKED_COMMANDS().size());
         CommandBlockerService.getBLOCKED_COMMANDS().stream().filter(blockedCommand -> blockedCommand.getCommand() != null).forEach(blockedCommand ->
         {
-            /*if (event.getMessage().replace("/", "").toLowerCase(Locale.ROOT).startsWith(blockedCommand.getCommand().toLowerCase(Locale.ROOT)))
-            {
-                PlexLog.debug("Used blocked command exactly matched");
-                cmdRef.set(blockedCommand);
-                return;
-            }*/
             boolean matches = true;
             String[] args = blockedCommand.getCommand().split(" ");
-            String[] cmdArgs = event.getMessage().replace("/", "").split(" ");
+            String[] cmdArgs = event.getMessage().replaceFirst("/", "").split(" ");
             for (int i = 0; i < args.length; i++)
             {
                 if (i+1 > cmdArgs.length)
@@ -99,10 +93,10 @@ public class CommandListener extends PlexListener
                 if (blockedCommand.getRegex() != null)
                 {
                     Pattern pattern = Pattern.compile(blockedCommand.getRegex(), Pattern.CASE_INSENSITIVE);
-                    Matcher matcher = pattern.matcher(event.getMessage().replace("/", ""));
+                    Matcher matcher = pattern.matcher(event.getMessage().replaceFirst("/", ""));
                     if (matcher.find())
                     {
-                        PlexLog.debug("Found blocked regexed command");
+                        PlexLog.debug("Player attempted to use a blocked regex");
                         cmdRef.set(blockedCommand);
                     }
                 }
@@ -115,15 +109,23 @@ public class CommandListener extends PlexListener
             {
                 case "e" -> {
                     event.setCancelled(true);
-                    event.getPlayer().sendMessage(PlexUtils.messageComponent("commandBlocked"));
+                    event.getPlayer().sendMessage(cmd.getMessage());
                 }
                 case "a" -> {
+                    if (plexPlayer.isAdminActive() && plexPlayer.getRankFromString().isAtLeast(Rank.ADMIN))
+                    {
+                        return;
+                    }
                     event.setCancelled(true);
-                    event.getPlayer().sendMessage(PlexUtils.messageComponent("commandBlocked"));
+                    event.getPlayer().sendMessage(cmd.getMessage());
                 }
                 case "s" -> {
+                    if (plexPlayer.isAdminActive() && plexPlayer.getRankFromString().isAtLeast(Rank.SENIOR_ADMIN))
+                    {
+                        return;
+                    }
                     event.setCancelled(true);
-                    event.getPlayer().sendMessage(PlexUtils.messageComponent("commandBlocked"));
+                    event.getPlayer().sendMessage(cmd.getMessage());
                 }
             }
         }

@@ -54,18 +54,18 @@ public class AdminCMD extends PlexCommand
                 throw new ConsoleOnlyException();
             }
 
-            UUID targetUUID = PlexUtils.getFromName(args[1]);
+            /*UUID targetUUID = PlexUtils.getFromName(args[1]);
 
             if (targetUUID != null)
             {
                 PlexLog.debug("Admin Adding UUID: " + targetUUID);
-            }
+            }*/
 
-            if (targetUUID == null || !DataUtils.hasPlayedBefore(targetUUID))
+            if (!DataUtils.hasPlayedBefore(args[1]))
             {
                 throw new PlayerNotFoundException();
             }
-            PlexPlayer plexPlayer = DataUtils.getPlayer(targetUUID);
+            PlexPlayer plexPlayer = DataUtils.getPlayer(args[1]);
 
             if (isAdmin(plexPlayer))
             {
@@ -87,13 +87,13 @@ public class AdminCMD extends PlexCommand
                 throw new ConsoleOnlyException();
             }
 
-            UUID targetUUID = PlexUtils.getFromName(args[1]);
+//            UUID targetUUID = PlexUtils.getFromName(args[1]);
 
-            if (targetUUID == null || !DataUtils.hasPlayedBefore(targetUUID))
+            if (!DataUtils.hasPlayedBefore(args[1]))
             {
                 throw new PlayerNotFoundException();
             }
-            PlexPlayer plexPlayer = DataUtils.getPlayer(targetUUID);
+            PlexPlayer plexPlayer = DataUtils.getPlayer(args[1]);
 
             if (!isAdmin(plexPlayer))
             {
@@ -116,9 +116,9 @@ public class AdminCMD extends PlexCommand
                 throw new ConsoleOnlyException();
             }
 
-            UUID targetUUID = PlexUtils.getFromName(args[1]);
+//            UUID targetUUID = PlexUtils.getFromName(args[1]);
 
-            if (targetUUID == null || !DataUtils.hasPlayedBefore(targetUUID))
+            if (!DataUtils.hasPlayedBefore(args[1]))
             {
                 throw new PlayerNotFoundException();
             }
@@ -135,7 +135,7 @@ public class AdminCMD extends PlexCommand
                 return messageComponent("rankMustBeHigherThanAdmin");
             }
 
-            PlexPlayer plexPlayer = DataUtils.getPlayer(targetUUID);
+            PlexPlayer plexPlayer = DataUtils.getPlayer(args[1]);
 
             if (!isAdmin(plexPlayer))
             {
