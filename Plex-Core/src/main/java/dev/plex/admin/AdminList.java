@@ -54,7 +54,7 @@ public class AdminList extends PlexBase
     }
 
     /**
-     * Gathers every admin's username (cached and in the database)
+     * Gathers every admins username (cached and in the database)
      *
      * @return An array list of the names of every admin
      */

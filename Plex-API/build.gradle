@@ -2,6 +2,11 @@ group = "dev.plex"
 version = rootProject.version
 description = "Plex-API"
 
+dependencies {
+    implementation project(":Plex-Core")
+    compileOnly "io.papermc.paper:paper-api:1.18.2-R0.1-SNAPSHOT"
+}
+
 tasks.jar {
     archiveBaseName.set("Plex-API")
     archiveVersion.set("")
