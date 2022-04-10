@@ -248,7 +248,7 @@ public class Plex extends JavaPlugin
             {
                 final Properties props;
 
-                try (InputStream in = plugin.getResource("resources/build.properties"))
+                try (InputStream in = plugin.getResource("build.properties"))
                 {
                     props = new Properties();
                     props.load(in);
