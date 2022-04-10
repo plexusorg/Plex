@@ -120,8 +120,19 @@ java {
 }
 
 publishing {
+    def config = configurations.getByName("library")
     publications {
         maven(MavenPublication) {
+            pom.withXml {
+                config.getAllDependencies().each { dependency ->
+                    asNode().dependencies[0].appendNode("dependency").with {
+                        it.appendNode("groupId", dependency.group)
+                        it.appendNode("artifactId", dependency.name)
+                        it.appendNode("version", dependency.version)
+                        it.appendNode("scope", "provided")
+                    }
+                }
+            }
             from(components.java)
         }
     }
