@@ -1,0 +1,29 @@
+name: Plex
+version: 1.0.1-SNAPSHOT
+main: dev.plex.Plex
+description: Plex provides a new experience for freedom servers.
+authors:
+ - Telesphoreo
+ - taahanis
+ - super
+website: https://plex.us.org
+libraries:
+ - org.projectlombok:lombok:1.18.22
+ - org.json:json:20220320
+ - commons-io:commons-io:2.11.0
+ - dev.morphia.morphia:morphia-core:2.2.6
+ - redis.clients:jedis:4.2.1
+ - org.mariadb.jdbc:mariadb-java-client:3.0.4
+ - com.zaxxer:HikariCP:5.0.1
+ - org.apache.httpcomponents:httpclient:4.5.13
+ - org.apache.commons:commons-lang3:3.12.0
+ - org.apache.maven.resolver:maven-resolver-api:1.7.3
+ - org.apache.maven.resolver:maven-resolver-impl:1.7.3
+ - org.apache.maven.resolver:maven-resolver-connector-basic:1.7.3
+ - org.apache.maven.resolver:maven-resolver-transport-http:1.7.3
+ - org.apache.maven:maven-resolver-provider:3.8.5
+ - org.eclipse.jetty:jetty-server:11.0.9
+ - org.eclipse.jetty:jetty-servlet:11.0.9
+ - org.eclipse.jetty:jetty-proxy:11.0.9
+ - com.google.code.gson:gson:2.9.0
+api-version: 1.18

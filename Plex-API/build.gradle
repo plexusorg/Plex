@@ -1,0 +1,9 @@
+group = "dev.plex"
+version = rootProject.version
+description = "Plex-API"
+
+tasks.jar {
+    archiveBaseName.set("Plex-API")
+    archiveVersion.set("")
+}
+
