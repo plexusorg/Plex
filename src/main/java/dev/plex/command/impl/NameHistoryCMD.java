@@ -24,8 +24,6 @@ import org.jetbrains.annotations.Nullable;
 @CommandPermissions(level = Rank.OP, permission = "plex.namehistory")
 public class NameHistoryCMD extends PlexCommand
 {
-    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("MM/dd/yyyy 'at' hh:mm:ss a");
-
     @Override
     protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
     {
@@ -50,7 +48,7 @@ public class NameHistoryCMD extends PlexCommand
                 historyList.add(
                         messageComponent("nameHistoryBody",
                                 history.getUsername(),
-                                DATE_FORMAT.format(history.getLocalDateTime())));
+                                PlexUtils.useTimezone(history.getLocalDateTime())));
             }
             else
             {

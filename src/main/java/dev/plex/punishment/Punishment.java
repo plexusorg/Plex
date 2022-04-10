@@ -8,7 +8,6 @@ import dev.plex.util.PlexUtils;
 import dev.plex.util.adapter.LocalDateTimeDeserializer;
 import dev.plex.util.adapter.LocalDateTimeSerializer;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,7 +19,6 @@ import net.kyori.adventure.text.Component;
 public class Punishment
 {
     private static final String banUrl = Plex.get().config.getString("banning.ban_url");
-    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("MM/dd/yyyy 'at' hh:mm:ss a");
     private final UUID punished;
     private final UUID punisher;
     private String ip;
@@ -45,8 +43,10 @@ public class Punishment
 
     public static Component generateBanMessage(Punishment punishment)
     {
+
         return PlexUtils.messageComponent("banMessage", banUrl, punishment.getReason(),
-                DATE_FORMAT.format(punishment.getEndDate()), punishment.getPunisher() == null ? "CONSOLE" : MojangUtils.getInfo(punishment.getPunisher().toString()).getUsername());
+                PlexUtils.useTimezone(punishment.getEndDate()),
+                punishment.getPunisher() == null ? "CONSOLE" : MojangUtils.getInfo(punishment.getPunisher().toString()).getUsername());
     }
 
     public static Component generateIndefBanMessage(String type)

@@ -6,11 +6,11 @@ import dev.plex.Plex;
 import dev.plex.PlexBase;
 import dev.plex.config.Config;
 import dev.plex.storage.StorageType;
+import java.time.format.DateTimeFormatter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.minimessage.tag.standard.*;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.apache.commons.lang.math.NumberUtils;
 import org.bukkit.*;
@@ -58,6 +58,9 @@ public class PlexUtils extends PlexBase
                     "ca83b658-c03b-4106-9edc-72f70a80656d", // ayunami2000
                     "2e06e049-24c8-42e4-8bcf-d35372af31e6" //Fleek
             );
+    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("MM/dd/yyyy 'at' hh:mm:ss a z");
+    private static final Set<String> TIMEZONES = Set.of(TimeZone.getAvailableIDs());
+    private static String TIMEZONE = Plex.get().config.getString("server.timezone");
 
     static
     {
@@ -238,6 +241,16 @@ public class PlexUtils extends PlexBase
             }
         }
         return (unit != null) ? unit : TimeUnit.DAY;
+    }
+
+    public static String useTimezone(LocalDateTime date)
+    {
+        // Use UTC if the timezone is null or not set correctly
+        if (TIMEZONE == null || !TIMEZONES.contains(TIMEZONE))
+        {
+            TIMEZONE = "Etc/UTC";
+        }
+        return DATE_FORMAT.withZone(ZoneId.of(TIMEZONE)).format(date);
     }
 
     public static LocalDateTime parseDateOffset(String... time)

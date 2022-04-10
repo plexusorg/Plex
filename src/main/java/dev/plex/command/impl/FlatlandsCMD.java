@@ -17,7 +17,6 @@ import org.jetbrains.annotations.Nullable;
 @CommandParameters(name = "flatlands", description = "Teleport to the flatlands")
 public class FlatlandsCMD extends PlexCommand
 {
-
     @Override
     protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
     {

@@ -30,8 +30,6 @@ import java.util.concurrent.atomic.AtomicReference;
 @CommandPermissions(level = Rank.ADMIN, permission = "plex.notes")
 public class NotesCMD extends PlexCommand
 {
-    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("MM/dd/yyyy 'at' hh:mm:ss a");
-
     @Override
     protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
     {
@@ -173,7 +171,7 @@ public class NotesCMD extends PlexCommand
         AtomicReference<Component> noteList = new AtomicReference<>(Component.text("Player notes for: " + plexPlayer.getName()).color(NamedTextColor.GREEN));
         for (Note note : notes)
         {
-            Component noteLine = mmString("<gold><!italic>" + note.getId() + " - Written by: " + DataUtils.getPlayer(note.getWrittenBy()).getName() + " on " + DATE_FORMAT.format(note.getTimestamp()));
+            Component noteLine = mmString("<gold><!italic>" + note.getId() + " - Written by: " + DataUtils.getPlayer(note.getWrittenBy()).getName() + " on " + PlexUtils.useTimezone(note.getTimestamp()));
             noteLine = noteLine.append(mmString("<newline><yellow># " + note.getNote()));
             noteList.set(noteList.get().append(Component.newline()));
             noteList.set(noteList.get().append(noteLine));

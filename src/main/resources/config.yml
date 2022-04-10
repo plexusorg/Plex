@@ -7,6 +7,8 @@ server:
   colorize_motd: true
   sample:
     - "&cForums: https://forum.plex.us.org"
+  # What timezone should various messages appear in (e.g. ban message end date)
+  timezone: Etc/UTC
 
 titles:
   masterbuilders: [ ]

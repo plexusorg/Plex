@@ -103,7 +103,7 @@ String getBuildNumber() {
 }
 
 static def getDate() {
-    return new Date().format("MM/dd/yyyy '<light_purple>at<gold>' hh:mm:ss a")
+    return new Date().format("MM/dd/yyyy '<light_purple>at<gold>' hh:mm:ss a z")
 }
 
 task buildProperties {
