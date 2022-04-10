@@ -165,7 +165,7 @@ public class PlexUtils extends PlexBase
             aprilFools = plugin.config.getBoolean("april_fools");
         }
         LocalDateTime date = LocalDateTime.now();
-        if (true/*aprilFools && date.getMonth() == Month.APRIL && date.getDayOfMonth() == 1*/)
+        if (aprilFools && date.getMonth() == Month.APRIL && date.getDayOfMonth() == 1)
         {
             Component component = MiniMessage.miniMessage().deserialize(input); // removes existing tags
             return MiniMessage.miniMessage().deserialize("<rainbow>" + PlainTextComponentSerializer.plainText().serialize(component));
