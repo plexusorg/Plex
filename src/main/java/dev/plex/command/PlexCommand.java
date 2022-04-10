@@ -14,7 +14,6 @@ import dev.plex.util.PlexUtils;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -125,8 +124,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
                 {
                     send(sender, messageComponent("noPermissionRank", ChatColor.stripColor(getLevel().getLoginMessage())));
                     return true;
-                }
-                else
+                } else
                 {
                     if (getLevel().isAtLeast(Rank.ADMIN) && !plexPlayer.isAdminActive())
                     {
@@ -134,16 +132,48 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
                         return true;
                     }
                 }
-            }
-            else if (plugin.getSystem().equalsIgnoreCase("permissions"))
+            } else if (plugin.getSystem().equalsIgnoreCase("permissions"))
             {
                 if (!player.hasPermission(perms.permission()))
                 {
                     send(sender, messageComponent("noPermissionNode", perms.permission()));
                     return true;
                 }
+            } else
+            {
+                PlexLog.error("Neither permissions or ranks were selected to be used in the configuration file!");
+                send(sender, "There is a server misconfiguration. Please alert a developer or the owner");
+                return true;
             }
-            else
+        }
+
+        if (sender instanceof ConsoleCommandSender && !sender.getName().equalsIgnoreCase("console")) //telnet
+        {
+            PlexPlayer plexPlayer = DataUtils.getPlayer(sender.getName());
+
+            if (plugin.getSystem().equalsIgnoreCase("ranks"))
+            {
+                if (!plexPlayer.getRankFromString().isAtLeast(getLevel()))
+                {
+                    send(sender, messageComponent("noPermissionRank", ChatColor.stripColor(getLevel().getLoginMessage())));
+                    return true;
+                } else
+                {
+                    if (getLevel().isAtLeast(Rank.ADMIN) && !plexPlayer.isAdminActive())
+                    {
+                        send(sender, messageComponent("noPermissionRank", ChatColor.stripColor(getLevel().getLoginMessage())));
+                        return true;
+                    }
+                }
+            } else if (plugin.getSystem().equalsIgnoreCase("permissions"))
+            {
+                /*if (!player.hasPermission(perms.permission()))
+                {
+                    send(sender, messageComponent("noPermissionNode", perms.permission()));
+                    return true;
+                }*/
+                //TODO: how do we check a bukkit telnet player's permissions? do we depend on vault?
+            } else
             {
                 PlexLog.error("Neither permissions or ranks were selected to be used in the configuration file!");
                 send(sender, "There is a server misconfiguration. Please alert a developer or the owner");
@@ -152,13 +182,12 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
         }
         try
         {
-            Component component = this.execute(sender, isConsole(sender) ? null : (Player)sender, args);
+            Component component = this.execute(sender, isConsole(sender) ? null : (Player) sender, args);
             if (component != null)
             {
                 send(sender, component);
             }
-        }
-        catch (PlayerNotFoundException | CommandFailException | ConsoleOnlyException | ConsoleMustDefinePlayerException | PlayerNotBannedException ex)
+        } catch (PlayerNotFoundException | CommandFailException | ConsoleOnlyException | ConsoleMustDefinePlayerException | PlayerNotBannedException ex)
         {
             send(sender, PlexUtils.mmDeserialize(ex.getMessage()));
         }
@@ -182,8 +211,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
                     return true;
                 }
             }
-        }
-        else if (params.aliases().split(",").length < 1)
+        } else if (params.aliases().split(",").length < 1)
         {
             return getName().equalsIgnoreCase(label);
         }
@@ -237,7 +265,29 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
     {
         if (!isConsole(sender))
         {
-            return checkRank((Player)sender, rank, permission);
+            return checkRank((Player) sender, rank, permission);
+        }
+        if (!sender.getName().equalsIgnoreCase("console"))
+        {
+            PlexPlayer plexPlayer = DataUtils.getPlayer(sender.getName());
+            if (plugin.getSystem().equalsIgnoreCase("ranks"))
+            {
+                if (!plexPlayer.getRankFromString().isAtLeast(rank))
+                {
+                    throw new CommandFailException(PlexUtils.messageString("noPermissionRank", ChatColor.stripColor(rank.getLoginMessage())));
+                }
+                if (rank.isAtLeast(Rank.ADMIN) && !plexPlayer.isAdminActive())
+                {
+                    throw new CommandFailException(PlexUtils.messageString("noPermissionRank", ChatColor.stripColor(rank.getLoginMessage())));
+                }
+            } else if (plugin.getSystem().equalsIgnoreCase("permissions"))
+            {
+                /*if (!player.hasPermission(permission))
+                {
+                    throw new CommandFailException(PlexUtils.messageString("noPermissionNode", permission));
+                }*/
+                //TODO: can't check telnet player's perms w/o something like vault being depended on
+            }
         }
         return true;
     }
@@ -268,8 +318,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
             {
                 throw new CommandFailException(PlexUtils.messageString("noPermissionRank", ChatColor.stripColor(rank.getLoginMessage())));
             }
-        }
-        else if (plugin.getSystem().equalsIgnoreCase("permissions"))
+        } else if (plugin.getSystem().equalsIgnoreCase("permissions"))
         {
             if (!player.hasPermission(permission))
             {
@@ -289,8 +338,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
         if (plugin.getSystem().equalsIgnoreCase("ranks"))
         {
             return rank.isAtLeast(Rank.ADMIN) ? plexPlayer.isAdminActive() && plexPlayer.getRankFromString().isAtLeast(rank) : plexPlayer.getRankFromString().isAtLeast(rank);
-        }
-        else if (plugin.getSystem().equalsIgnoreCase("permissions"))
+        } else if (plugin.getSystem().equalsIgnoreCase("permissions"))
         {
             return player.hasPermission(permission);
         }
@@ -310,7 +358,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
     {
         if (!isConsole(sender))
         {
-            return checkTab((Player)sender, rank, permission);
+            return checkTab((Player) sender, rank, permission);
         }
         return true;
     }
@@ -330,8 +378,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
         if (plugin.getSystem().equalsIgnoreCase("ranks"))
         {
             return rank.isAtLeast(Rank.ADMIN) ? plexPlayer.isAdminActive() && plexPlayer.getRankFromString().isAtLeast(rank) : plexPlayer.getRankFromString().isAtLeast(rank);
-        }
-        else if (plugin.getSystem().equalsIgnoreCase("permissions"))
+        } else if (plugin.getSystem().equalsIgnoreCase("permissions"))
         {
             return player.hasPermission(permission);
         }
