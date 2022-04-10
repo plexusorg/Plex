@@ -1,6 +1,6 @@
 pluginManagement {
     repositories {
-        maven { url = uri("https://nexus.taah.dev/extra") }
+        maven { url = uri("https://nexus.telesphoreo.me/repository/gradle-plugins-snapshots") }
         gradlePluginPortal()
     }
 }
