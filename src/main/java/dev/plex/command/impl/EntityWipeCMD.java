@@ -54,7 +54,7 @@ public class EntityWipeCMD extends PlexCommand
             {
                 if (entity.getType() != EntityType.PLAYER)
                 {
-                    String type = entity.getName();
+                    String type = entity.getType().name();
 
                     if (useBlacklist ? entityBlacklist.stream().noneMatch(entityName -> entityName.equalsIgnoreCase(type)) : entityWhitelist.stream().anyMatch(entityName -> entityName.equalsIgnoreCase(type)))
                     {
