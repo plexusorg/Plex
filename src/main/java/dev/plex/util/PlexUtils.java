@@ -7,11 +7,7 @@ import dev.plex.PlexBase;
 import dev.plex.config.Config;
 import dev.plex.storage.StorageType;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.Context;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.minimessage.ParsingException;
-import net.kyori.adventure.text.minimessage.tag.Tag;
-import net.kyori.adventure.text.minimessage.tag.resolver.ArgumentQueue;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.minimessage.tag.standard.*;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -22,8 +18,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.PluginCommandYamlParser;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -163,32 +157,17 @@ public class PlexUtils extends PlexBase
             StandardTags.reset()
     ).build()).build();
 
-    private static final MiniMessage eggMessage = MiniMessage.builder().tags(new TagResolver()
-         {
-             @Override
-             public @Nullable Tag resolve(@NotNull String name, @NotNull ArgumentQueue arguments, @NotNull Context ctx) throws ParsingException
-             {
-                 return StandardTags.rainbow().resolve("rainbow", arguments, ctx);
-             }
-
-             @Override
-             public boolean has(@NotNull String name)
-             {
-                 return true;
-             }
-         }
-    ).build();
-
     public static Component mmDeserialize(String input)
     {
-        /*Calendar calendar = Calendar.getInstance();
-        MiniMessage mm = (calendar.get(Calendar.MONTH) == Calendar.APRIL && calendar.get(Calendar.DAY_OF_MONTH) == 1 && (!plugin.config.contains("april_fools") || plugin.config.getBoolean("april_fools"))) ? eggMessage : safeMessage;
-        return mm.deserialize(PlainTextComponentSerializer.plainText().serialize(LegacyComponentSerializer.legacySection().deserialize(input)));*/
-        boolean aprilFools = plugin.config.getBoolean("april_fools");
-        LocalDateTime date = LocalDateTime.now();
-        if (aprilFools && date.getMonth() == Month.APRIL && date.getDayOfMonth() == 1)
+        boolean aprilFools = true; // true by default
+        if (plugin.config.contains("april_fools"))
         {
-            Component component = PlainTextComponentSerializer.plainText().deserialize(input);
+            aprilFools = plugin.config.getBoolean("april_fools");
+        }
+        LocalDateTime date = LocalDateTime.now();
+        if (true/*aprilFools && date.getMonth() == Month.APRIL && date.getDayOfMonth() == 1*/)
+        {
+            Component component = MiniMessage.miniMessage().deserialize(input); // removes existing tags
             return MiniMessage.miniMessage().deserialize("<rainbow>" + PlainTextComponentSerializer.plainText().serialize(component));
         }
         return MiniMessage.miniMessage().deserialize(input);
