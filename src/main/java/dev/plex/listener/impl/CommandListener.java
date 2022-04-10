@@ -48,7 +48,8 @@ public class CommandListener extends PlexListener
         String arguments = StringUtils.normalizeSpace(event.getMessage().replace(event.getMessage().split(" ")[0], ""));
         PlexLog.debug("Checking Command: {0} with args {1}", commandName, arguments);
         AtomicReference<BlockedCommand> cmdRef = new AtomicReference<>();
-        CommandBlockerService.getBLOCKED_COMMANDS().stream().filter(blockedCommand -> blockedCommand.getCommand() != null).findFirst().ifPresent(blockedCommand ->
+        PlexLog.debug("Blocked Commands List: " + CommandBlockerService.getBLOCKED_COMMANDS().size());
+        CommandBlockerService.getBLOCKED_COMMANDS().stream().filter(blockedCommand -> blockedCommand.getCommand() != null).forEach(blockedCommand ->
         {
             if (event.getMessage().replace("/", "").toLowerCase(Locale.ROOT).startsWith(blockedCommand.getCommand().toLowerCase(Locale.ROOT)))
             {

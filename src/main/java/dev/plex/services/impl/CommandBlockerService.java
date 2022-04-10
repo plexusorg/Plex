@@ -27,14 +27,18 @@ public class CommandBlockerService extends AbstractService
     {
         BLOCKED_COMMANDS.clear();
         PlexLog.debug("RUNNING COMMAND BLOCKING SERVICE");
-        plugin.commands.getStringList("commands").forEach(s -> {
+        plugin.commands.getStringList("commands").forEach(s ->
+        {
             BlockedCommand command = new BlockedCommand();
-            String[] args = s.split(";");
+            int lastDelim = s.lastIndexOf(':');
+
+            String cmdWithoutMsg = s.substring(0, lastDelim);
+            String[] args = cmdWithoutMsg.split(":", 3); // Delimiter code by ayunami
             if (s.toLowerCase(Locale.ROOT).startsWith("r"))
             {
                 command.setRequiredLevel(args[1]);
                 command.setRegex(args[2]);
-                command.setMessage(StringUtils.join(args, ";", 3, args.length));
+                command.setMessage(s.substring(lastDelim + 1));
                 PlexLog.debug("=Found regex blocked=");
                 PlexLog.debug(" Regex: " + command.getRegex());
                 PlexLog.debug(" Message: " + command.getMessage());
@@ -43,7 +47,7 @@ public class CommandBlockerService extends AbstractService
             {
                 command.setRequiredLevel(args[1]);
                 command.setCommand(args[2]);
-                command.setMessage(StringUtils.join(args, ";", 3, args.length));
+                command.setMessage(s.substring(lastDelim + 1));
                 Command cmd = plugin.getServer().getCommandMap().getCommand(command.getCommand().split(" ")[0]);
                 if (cmd == null)
                 {
@@ -58,6 +62,10 @@ public class CommandBlockerService extends AbstractService
                 PlexLog.debug(" Message: " + command.getMessage());
                 PlexLog.debug(" Aliases: " + Arrays.toString(command.getCommandAliases().toArray(new String[0])));
                 PlexLog.debug("====================");
+            }
+            if (command.getMessage().equalsIgnoreCase("_"))
+            {
+                command.setMessage("This command is blocked.");
             }
             BLOCKED_COMMANDS.add(command);
         });

@@ -51,8 +51,8 @@ public class PlexCMD extends PlexCommand
             plugin.indefBans.load(false);
             plugin.getPunishmentManager().mergeIndefiniteBans();
             send(sender, "Reloaded indefinite bans");
-            plugin.blockedCommands.load();
-            plugin.getCommandBlockerManager().syncCommands();
+            plugin.commands.load();
+//            plugin.getCommandBlockerManager().syncCommands();
             send(sender, "Reloaded blocked commands file");
             plugin.getRankManager().importDefaultRanks();
             send(sender, "Imported ranks");
