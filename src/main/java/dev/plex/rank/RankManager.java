@@ -95,7 +95,7 @@ public class RankManager
     {
         if (!player.getPrefix().equals(""))
         {
-            return MiniMessage.miniMessage().deserialize(player.getPrefix());
+            return PlexUtils.mmDeserialize(player.getPrefix());
         }
         if (Plex.get().config.contains("titles.owners") && Plex.get().config.getStringList("titles.owners").contains(player.getName()))
         {

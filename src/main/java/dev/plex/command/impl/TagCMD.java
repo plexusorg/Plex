@@ -7,6 +7,7 @@ import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.player.PlexPlayer;
 import dev.plex.rank.enums.Rank;
+import dev.plex.util.PlexUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -48,7 +49,7 @@ public class TagCMD extends PlexCommand
             }
             String prefix = StringUtils.join(args, " ", 1, args.length);
             Component convertedComponent = removeEvents(noColorComponentFromString(prefix));
-            convertedComponent = removeEvents(MiniMessage.miniMessage().deserialize(LegacyComponentSerializer.legacySection().serialize(convertedComponent)));
+            convertedComponent = removeEvents(PlexUtils.mmDeserialize(LegacyComponentSerializer.legacySection().serialize(convertedComponent)));
 
             if (PlainTextComponentSerializer.plainText().serialize(convertedComponent).length() > plugin.config.getInt("chat.max-tag-length", 16))
             {

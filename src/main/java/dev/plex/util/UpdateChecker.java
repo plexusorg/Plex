@@ -149,7 +149,7 @@ public class UpdateChecker extends PlexBase
 
     private void sendMini(CommandSender sender, String message)
     {
-        sender.sendMessage(MiniMessage.miniMessage().deserialize(message));
+        sender.sendMessage(PlexUtils.mmDeserialize(message));
     }
 
     public void updateJar(CommandSender sender)

@@ -47,7 +47,7 @@ public class UnbanCMD extends PlexCommand
                 PlexPlayer plexPlayer = getOfflinePlexPlayer(targetUUID);
                 if (!aBoolean)
                 {
-                    send(sender, MiniMessage.miniMessage().deserialize(new PlayerNotBannedException().getMessage()));
+                    send(sender, PlexUtils.mmDeserialize(new PlayerNotBannedException().getMessage()));
                     return;
                 }
                 plugin.getPunishmentManager().unban(targetUUID);

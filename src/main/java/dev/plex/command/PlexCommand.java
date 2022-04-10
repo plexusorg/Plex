@@ -160,7 +160,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
         }
         catch (PlayerNotFoundException | CommandFailException | ConsoleOnlyException | ConsoleMustDefinePlayerException | PlayerNotBannedException ex)
         {
-            send(sender, MiniMessage.miniMessage().deserialize(ex.getMessage()));
+            send(sender, PlexUtils.mmDeserialize(ex.getMessage()));
         }
         return true;
     }
@@ -544,7 +544,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
      */
     protected Component mmString(String s)
     {
-        return MiniMessage.miniMessage().deserialize(s);
+        return PlexUtils.mmDeserialize(s);
     }
 
     public Rank getLevel()

@@ -7,7 +7,13 @@ import dev.plex.PlexBase;
 import dev.plex.config.Config;
 import dev.plex.storage.StorageType;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.Context;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.ParsingException;
+import net.kyori.adventure.text.minimessage.tag.Tag;
+import net.kyori.adventure.text.minimessage.tag.resolver.ArgumentQueue;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
+import net.kyori.adventure.text.minimessage.tag.standard.*;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.apache.commons.lang.math.NumberUtils;
 import org.bukkit.*;
@@ -15,6 +21,8 @@ import org.bukkit.command.Command;
 import org.bukkit.command.PluginCommandYamlParser;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -145,9 +153,32 @@ public class PlexUtils extends PlexBase
         return ChatColor.translateAlternateColorCodes('&', string);
     }
 
+    private static MiniMessage eggMessage = MiniMessage.builder().tags(new TagResolver()
+    {
+        @Override
+        public @Nullable Tag resolve(@NotNull String name, @NotNull ArgumentQueue arguments, @NotNull Context ctx) throws ParsingException
+        {
+            return StandardTags.rainbow().resolve("rainbow", arguments, ctx);
+        }
+
+        @Override
+        public boolean has(@NotNull String name)
+        {
+            return true;
+        }
+    }
+    ).build();
+
+    public static Component mmDeserialize(String input)
+    {
+        Calendar calendar = Calendar.getInstance();
+        MiniMessage mm = (calendar.get(Calendar.MONTH) == Calendar.APRIL && calendar.get(Calendar.DAY_OF_MONTH) == 1 && (!plugin.config.contains("april_fools") || plugin.config.getBoolean("april_fools"))) ? eggMessage : MiniMessage.miniMessage();
+        return mm.deserialize(input);
+    }
+
     public static Component messageComponent(String entry, Object... objects)
     {
-        return MiniMessage.miniMessage().deserialize(messageString(entry, objects));
+        return mmDeserialize(messageString(entry, objects));
     }
 
     public static String messageString(String entry, Object... objects)
