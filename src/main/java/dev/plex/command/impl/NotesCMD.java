@@ -173,8 +173,8 @@ public class NotesCMD extends PlexCommand
         AtomicReference<Component> noteList = new AtomicReference<>(Component.text("Player notes for: " + plexPlayer.getName()).color(NamedTextColor.GREEN));
         for (Note note : notes)
         {
-            Component noteLine = Component.text(note.getId() + " - Written by: " + DataUtils.getPlayer(note.getWrittenBy()).getName() + " on " + DATE_FORMAT.format(note.getTimestamp())).color(NamedTextColor.YELLOW).decoration(TextDecoration.ITALIC, false);
-            noteLine = noteLine.append(Component.space()).append(Component.text(note.getNote())).color(NamedTextColor.YELLOW).decoration(TextDecoration.ITALIC, true);
+            Component noteLine = mmString("<gold><!italic>" + note.getId() + " - Written by: " + DataUtils.getPlayer(note.getWrittenBy()).getName() + " on " + DATE_FORMAT.format(note.getTimestamp()));
+            noteLine = noteLine.append(mmString("<newline><yellow># " + note.getNote()));
             noteList.set(noteList.get().append(Component.newline()));
             noteList.set(noteList.get().append(noteLine));
         }

@@ -3,6 +3,7 @@ package dev.plex.menu;
 import com.google.common.collect.Lists;
 import dev.plex.cache.DataUtils;
 import dev.plex.player.PlexPlayer;
+import dev.plex.util.PlexUtils;
 import dev.plex.util.menu.AbstractMenu;
 import java.util.List;
 import org.bukkit.Bukkit;
@@ -27,15 +28,15 @@ public class PunishmentMenu extends AbstractMenu
         super("§c§lPunishments");
         for (int i = 0; i <= Bukkit.getOnlinePlayers().size() / 53; i++)
         {
-            Inventory inventory = Bukkit.createInventory(null, 54, "Punishments Page " + (i + 1));
+            Inventory inventory = Bukkit.createInventory(null, 54, PlexUtils.mmDeserialize("Punishments Page " + (i + 1)));
             ItemStack nextPage = new ItemStack(Material.FEATHER);
             ItemMeta meta = nextPage.getItemMeta();
-            meta.setDisplayName(ChatColor.LIGHT_PURPLE + "Next Page");
+            meta.displayName(PlexUtils.mmDeserialize("<light_purple>Next Page"));
             nextPage.setItemMeta(meta);
 
             ItemStack previousPage = new ItemStack(Material.FEATHER);
             ItemMeta meta2 = previousPage.getItemMeta();
-            meta2.setDisplayName(ChatColor.LIGHT_PURPLE + "Previous Page");
+            meta2.displayName(PlexUtils.mmDeserialize("<light_purple>Previous Page"));
             previousPage.setItemMeta(meta2);
 
             inventory.setItem(50, nextPage);
@@ -72,7 +73,7 @@ public class PunishmentMenu extends AbstractMenu
             ItemStack item = new ItemStack(Material.PLAYER_HEAD);
             SkullMeta meta = (SkullMeta)item.getItemMeta();
             meta.setOwningPlayer(players);
-            meta.setDisplayName(ChatColor.YELLOW + players.getName());
+            meta.displayName(PlexUtils.mmDeserialize("<!italic><yellow>" + players.getName()));
             item.setItemMeta(meta);
 
             inv.setItem(currentItemIndex, item);
@@ -98,11 +99,19 @@ public class PunishmentMenu extends AbstractMenu
         {
             return;
         }
+        if (!event.getCurrentItem().hasItemMeta())
+        {
+            return;
+        }
+        if (!event.getCurrentItem().getItemMeta().hasDisplayName())
+        {
+            return;
+        }
         ItemStack item = event.getCurrentItem();
         event.setCancelled(true);
         if (item.getType() == Material.FEATHER)
         {
-            if (item.getItemMeta().getDisplayName().equalsIgnoreCase(ChatColor.LIGHT_PURPLE + "Next Page"))
+            if (item.getItemMeta().displayName().equals(PlexUtils.mmDeserialize("<light_purple>Next Page")))
             {
                 if (getCurrentInventoryIndex(inv) + 1 > inventories.size() - 1)
                 {
@@ -114,7 +123,7 @@ public class PunishmentMenu extends AbstractMenu
                 }
                 openInv((Player)event.getWhoClicked(), getCurrentInventoryIndex(inv) + 1);
             }
-            else if (item.getItemMeta().getDisplayName().equalsIgnoreCase(ChatColor.LIGHT_PURPLE + "Previous Page"))
+            else if (item.getItemMeta().displayName().equals(PlexUtils.mmDeserialize("<light_purple>Previous Page")))
             {
                 if (getCurrentInventoryIndex(inv) - 1 < 0)
                 {

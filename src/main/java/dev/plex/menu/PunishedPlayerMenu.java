@@ -5,6 +5,7 @@ import dev.plex.cache.DataUtils;
 import dev.plex.cache.player.PlayerCache;
 import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.Punishment;
+import dev.plex.util.PlexUtils;
 import dev.plex.util.menu.AbstractMenu;
 import java.util.Collections;
 import java.util.List;
@@ -34,7 +35,7 @@ public class PunishedPlayerMenu extends AbstractMenu
         this.punishedPlayer = player;
         for (int i = 0; i <= punishedPlayer.getPunishments().size() / 53; i++)
         {
-            Inventory inventory = Bukkit.createInventory(null, 54, "Punishments Page " + (i + 1));
+            Inventory inventory = Bukkit.createInventory(null, 54, PlexUtils.mmDeserialize("Punishments Page " + (i + 1)));
             ItemStack nextPage = new ItemStack(Material.FEATHER);
             ItemMeta meta = nextPage.getItemMeta();
             meta.displayName(Component.text("Next Page").color(NamedTextColor.LIGHT_PURPLE));

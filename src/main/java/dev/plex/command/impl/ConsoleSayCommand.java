@@ -7,16 +7,15 @@ import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexUtils;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-@CommandPermissions(level = Rank.ADMIN, permission = "plex.say", source = RequiredCommandSource.ANY)
-@CommandParameters(name = "say", usage = "/<command> <message>", description = "Displays a message to everyone")
-public class SayCMD extends PlexCommand
+@CommandPermissions(level = Rank.ADMIN, permission = "plex.consolesay", source = RequiredCommandSource.CONSOLE)
+@CommandParameters(name = "consolesay", usage = "/<command> <message>", description = "Displays a message to everyone", aliases = "csay")
+public class ConsoleSayCommand extends PlexCommand
 {
     @Override
     protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
@@ -26,7 +25,7 @@ public class SayCMD extends PlexCommand
             return usage();
         }
 
-        PlexUtils.broadcast(PlexUtils.messageComponent("sayCommand", sender.getName(), PlexUtils.mmStripColor(StringUtils.join(args, " "))));
+        PlexUtils.broadcast(PlexUtils.messageComponent("consoleSayCommand", sender.getName(), PlexUtils.mmStripColor(StringUtils.join(args, " "))));
         return null;
     }
 }

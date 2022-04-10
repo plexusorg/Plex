@@ -157,6 +157,11 @@ public class PlexUtils extends PlexBase
             StandardTags.reset()
     ).build()).build();
 
+    public static String mmStripColor(String input)
+    {
+        return PlainTextComponentSerializer.plainText().serialize(mmDeserialize(input));
+    }
+
     public static Component mmDeserialize(String input)
     {
         boolean aprilFools = true; // true by default
@@ -336,7 +341,7 @@ public class PlexUtils extends PlexBase
 
     public static void broadcast(String s)
     {
-        Bukkit.broadcast(LegacyComponentSerializer.legacyAmpersand().deserialize(s));
+        Bukkit.broadcast(MiniMessage.miniMessage().deserialize(s));
     }
 
     public static void broadcast(Component component)
