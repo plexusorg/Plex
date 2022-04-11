@@ -26,8 +26,10 @@ import dev.plex.util.UpdateChecker;
 import dev.plex.world.CustomWorld;
 import lombok.Getter;
 import lombok.Setter;
+import net.milkbowl.vault.permission.Permission;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -67,6 +69,8 @@ public class Plex extends JavaPlugin
     private AdminList adminList;
     private UpdateChecker updateChecker;
     private String system;
+
+    private Permission permissions;
 
     public static Plex get()
     {
@@ -120,6 +124,11 @@ public class Plex extends JavaPlugin
         {
             PlexLog.error("Failed to connect to " + storageType.name().toUpperCase());
             e.printStackTrace();
+        }
+
+        if (!setupPermissions() && system.equalsIgnoreCase("permissions") && !getServer().getPluginManager().isPluginEnabled("Vault"))
+        {
+            throw new RuntimeException("Vault is required to run on the server if you use 'permissions!'");
         }
 
         updateChecker = new UpdateChecker();
@@ -254,5 +263,12 @@ public class Plex extends JavaPlugin
                 PlexLog.error("Could not load build properties! Did you compile with NetBeans/Maven?");
             }
         }
+    }
+
+    public boolean setupPermissions()
+    {
+        RegisteredServiceProvider<Permission> rsp = Bukkit.getServicesManager().getRegistration(Permission.class);
+        permissions = rsp.getProvider();
+        return permissions != null;
     }
 }

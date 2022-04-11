@@ -43,6 +43,7 @@ dependencies {
     library "org.eclipse.jetty:jetty-proxy:11.0.9"
     library "com.google.code.gson:gson:2.9.0"
     compileOnly "io.papermc.paper:paper-api:1.18.2-R0.1-SNAPSHOT"
+    compileOnly "com.github.MilkBowl:VaultAPI:1.7"
     implementation "org.bstats:bstats-base:3.0.0"
     implementation "org.bstats:bstats-bukkit:3.0.0"
 }
@@ -71,6 +72,7 @@ bukkit {
     main = "dev.plex.Plex"
     website = "https://plex.us.org"
     authors = ["Telesphoreo", "taahanis", "super"]
+    softDepend = ["Vault"]
     apiVersion = "1.18"
 }
 
@@ -124,17 +126,27 @@ publishing {
     publications {
         maven(MavenPublication) {
             pom.withXml {
+                def dependenciesNode = asNode().appendNode("dependencies")
                 config.getAllDependencies().each { dependency ->
-                    asNode().dependencies[0].appendNode("dependency").with {
+                    dependenciesNode.appendNode("dependency").with {
                         it.appendNode("groupId", dependency.group)
                         it.appendNode("artifactId", dependency.name)
                         it.appendNode("version", dependency.version)
                         it.appendNode("scope", "provided")
                     }
                 }
+                configurations.getByName("implementation").getAllDependencies().each { dependency ->
+                    dependenciesNode.appendNode("dependency").with {
+                        it.appendNode("groupId", dependency.group)
+                        it.appendNode("artifactId", dependency.name)
+                        it.appendNode("version", dependency.version)
+                        it.appendNode("scope", "runtime")
+                    }
+                }
             }
-            from(components.java)
+            artifacts = [shadowJar]
         }
+
     }
     repositories {
         maven {

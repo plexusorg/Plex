@@ -167,12 +167,11 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
                 }
             } else if (plugin.getSystem().equalsIgnoreCase("permissions"))
             {
-                /*if (!player.hasPermission(perms.permission()))
+                if (!plugin.getPermissions().playerHas(null, Bukkit.getOfflinePlayer(plexPlayer.getUuid()), perms.permission()))
                 {
                     send(sender, messageComponent("noPermissionNode", perms.permission()));
                     return true;
-                }*/
-                //TODO: how do we check a bukkit telnet player's permissions? do we depend on vault?
+                }
             } else
             {
                 PlexLog.error("Neither permissions or ranks were selected to be used in the configuration file!");
@@ -282,11 +281,10 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
                 }
             } else if (plugin.getSystem().equalsIgnoreCase("permissions"))
             {
-                /*if (!player.hasPermission(permission))
+                if (!plugin.getPermissions().playerHas(null, Bukkit.getOfflinePlayer(plexPlayer.getUuid()), permission))
                 {
                     throw new CommandFailException(PlexUtils.messageString("noPermissionNode", permission));
-                }*/
-                //TODO: can't check telnet player's perms w/o something like vault being depended on
+                }
             }
         }
         return true;

@@ -9,11 +9,6 @@ import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.module.PlexModule;
 import dev.plex.module.PlexModuleFile;
 import dev.plex.rank.enums.Rank;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import net.kyori.adventure.text.Component;
@@ -22,6 +17,11 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @CommandPermissions(level = Rank.OP, permission = "plex.plex", source = RequiredCommandSource.ANY)
 @CommandParameters(name = "plex", usage = "/<command> [reload | redis | modules [reload]]", description = "Show information about Plex or reload it")
@@ -57,13 +57,16 @@ public class PlexCMD extends PlexCommand
             plugin.getRankManager().importDefaultRanks();
             send(sender, "Imported ranks");
             plugin.setSystem(plugin.config.getString("system"));
+            if (!plugin.setupPermissions() && plugin.getSystem().equalsIgnoreCase("permissions") && !plugin.getServer().getPluginManager().isPluginEnabled("Vault"))
+            {
+                throw new RuntimeException("Vault is required to run on the server if you use 'permissions!'");
+            }
             plugin.getServiceManager().endServices();
             plugin.getServiceManager().startServices();
             PlexLog.debug("Restarted services");
             send(sender, "Plex successfully reloaded.");
             return null;
-        }
-        else if (args[0].equalsIgnoreCase("redis"))
+        } else if (args[0].equalsIgnoreCase("redis"))
         {
             checkRank(sender, Rank.SENIOR_ADMIN, "plex.redis");
             if (!plugin.getRedisConnection().isEnabled())
@@ -75,8 +78,7 @@ public class PlexCMD extends PlexCommand
             send(sender, plugin.getRedisConnection().getJedis().get("test"));
             plugin.getRedisConnection().getJedis().close();
             return null;
-        }
-        else if (args[0].equalsIgnoreCase("modules"))
+        } else if (args[0].equalsIgnoreCase("modules"))
         {
             if (args.length == 1)
             {
@@ -91,8 +93,7 @@ public class PlexCMD extends PlexCommand
                 plugin.getModuleManager().enableModules();
                 return mmString("<green>All modules reloaded!");
             }
-        }
-        else if (args[0].equalsIgnoreCase("update"))
+        } else if (args[0].equalsIgnoreCase("update"))
         {
             if (sender instanceof Player player && !PlexUtils.DEVELOPERS.contains(player.getUniqueId().toString()))
             {
@@ -104,8 +105,7 @@ public class PlexCMD extends PlexCommand
             }
             plugin.getUpdateChecker().updateJar(sender);
             return null;
-        }
-        else
+        } else
         {
             return usage();
         }
@@ -118,8 +118,7 @@ public class PlexCMD extends PlexCommand
         if (args.length == 1)
         {
             return Arrays.asList("reload", "redis", "modules");
-        }
-        else if (args[0].equalsIgnoreCase("modules"))
+        } else if (args[0].equalsIgnoreCase("modules"))
         {
             return List.of("reload");
         }
