@@ -4,7 +4,10 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.reflect.ClassPath;
 import dev.plex.Plex;
 import dev.plex.PlexBase;
+import dev.plex.cache.DataUtils;
 import dev.plex.config.Config;
+import dev.plex.permission.Permission;
+import dev.plex.player.PlexPlayer;
 import dev.plex.storage.StorageType;
 import java.time.format.DateTimeFormatter;
 import net.kyori.adventure.text.Component;
@@ -17,7 +20,9 @@ import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.PluginCommandYamlParser;
 import org.bukkit.entity.Player;
+import org.bukkit.permissions.PermissionAttachment;
 import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.NotNull;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -71,6 +76,63 @@ public class PlexUtils extends PlexBase
         {
             CHAT_COLOR_NAMES.put(chatColor.name().toLowerCase().replace("_", ""), chatColor);
         }
+    }
+
+    public static void setupPermissions(@NotNull Player player)
+    {
+        PlexPlayer plexPlayer = DataUtils.getPlayer(player.getUniqueId());
+        PermissionAttachment attachment = player.addAttachment(Plex.get());
+        plexPlayer.getPermissions().forEach(permission -> attachment.setPermission(permission.getPermission(), permission.isAllowed()));
+        plexPlayer.setPermissionAttachment(attachment);
+    }
+
+    public static void addPermission(PlexPlayer player, Permission permission)
+    {
+        Plex.get().getSqlPermissions().addPermission(addToArrayList(player.getPermissions(), permission));
+        Player p = Bukkit.getPlayer(player.getUuid());
+        if (p == null)
+        {
+            return;
+        }
+        player.getPermissionAttachment().setPermission(permission.getPermission(), permission.isAllowed());
+    }
+
+    public static void addPermission(PlexPlayer player, String permission)
+    {
+        addPermission(player, new Permission(player.getUuid(), permission));
+    }
+
+    public static void removePermission(PlexPlayer player, String permission)
+    {
+        Plex.get().getSqlPermissions().removePermission(player.getUuid(), permission);
+        player.getPermissions().removeIf(permission1 -> permission1.getPermission().equalsIgnoreCase(permission));
+        Player p = Bukkit.getPlayer(player.getUuid());
+        if (p == null)
+        {
+            return;
+        }
+        player.getPermissionAttachment().unsetPermission(permission);
+    }
+
+    public static void updatePermission(PlexPlayer player, String permission, boolean newValue)
+    {
+        player.getPermissions().stream().filter(permission1 -> permission.equalsIgnoreCase(permission)).findFirst().ifPresent(permission1 -> {
+            Plex.get().getSqlPermissions().updatePermission(permission1, newValue);
+        });
+        player.getPermissions().removeIf(permission1 -> permission1.getPermission().equalsIgnoreCase(permission));
+        Player p = Bukkit.getPlayer(player.getUuid());
+        if (p == null)
+        {
+            return;
+        }
+        player.getPermissionAttachment().unsetPermission(permission);
+
+    }
+
+    public static <T> T addToArrayList(List<T> list, T object)
+    {
+        list.add(object);
+        return object;
     }
 
     public static void disabledEffect(Player player, Location location)

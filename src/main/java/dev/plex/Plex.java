@@ -3,11 +3,12 @@ package dev.plex;
 import dev.plex.admin.Admin;
 import dev.plex.admin.AdminList;
 import dev.plex.cache.DataUtils;
-import dev.plex.cache.player.MongoPlayerData;
-import dev.plex.cache.player.PlayerCache;
-import dev.plex.cache.player.SQLPlayerData;
-import dev.plex.cache.sql.SQLNotes;
-import dev.plex.cache.sql.SQLPunishment;
+import dev.plex.storage.permission.SQLPermissions;
+import dev.plex.storage.player.MongoPlayerData;
+import dev.plex.cache.PlayerCache;
+import dev.plex.storage.player.SQLPlayerData;
+import dev.plex.storage.punishment.SQLNotes;
+import dev.plex.storage.punishment.SQLPunishment;
 import dev.plex.config.Config;
 import dev.plex.handlers.CommandHandler;
 import dev.plex.handlers.ListenerHandler;
@@ -60,6 +61,7 @@ public class Plex extends JavaPlugin
 
     private SQLPunishment sqlPunishment;
     private SQLNotes sqlNotes;
+    private SQLPermissions sqlPermissions;
 
     private ModuleManager moduleManager;
     private RankManager rankManager;
@@ -155,6 +157,7 @@ public class Plex extends JavaPlugin
             sqlPlayerData = new SQLPlayerData();
             sqlPunishment = new SQLPunishment();
             sqlNotes = new SQLNotes();
+            sqlPermissions = new SQLPermissions();
         }
 
         new ListenerHandler();

@@ -1,7 +1,6 @@
 package dev.plex.cache;
 
 import dev.plex.Plex;
-import dev.plex.cache.player.PlayerCache;
 import dev.plex.player.PlexPlayer;
 import dev.plex.storage.StorageType;
 import java.util.UUID;

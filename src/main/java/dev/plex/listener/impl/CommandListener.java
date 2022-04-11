@@ -1,16 +1,13 @@
 package dev.plex.listener.impl;
 
 import dev.plex.cache.DataUtils;
-import dev.plex.cache.player.PlayerCache;
+import dev.plex.cache.PlayerCache;
 import dev.plex.command.blocking.BlockedCommand;
 import dev.plex.listener.PlexListener;
 import dev.plex.player.PlexPlayer;
 import dev.plex.rank.enums.Rank;
 import dev.plex.services.impl.CommandBlockerService;
 import dev.plex.util.PlexLog;
-import dev.plex.util.PlexUtils;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;

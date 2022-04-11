@@ -92,6 +92,11 @@ public class SQLConnection extends PlexBase
                     "`note` VARCHAR(2000), " +
                     "`timestamp` BIGINT" +
                     ");").execute();
+            con.prepareStatement("CREATE TABLE IF NOT EXISTS `permissions` (" +
+                    "`uuid` VARCHAR(46) NOT NULL," +
+                    "`permission` VARCHAR(1000) NOT NULL," +
+                    "`allowed` BOOLEAN" +
+                    ");");
         }
         catch (SQLException throwables)
         {

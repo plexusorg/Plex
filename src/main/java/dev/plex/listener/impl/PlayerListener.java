@@ -1,13 +1,12 @@
 package dev.plex.listener.impl;
 
 import dev.plex.cache.DataUtils;
-import dev.plex.cache.player.PlayerCache;
+import dev.plex.cache.PlayerCache;
 import dev.plex.listener.PlexListener;
 import dev.plex.player.PlexPlayer;
 import dev.plex.storage.StorageType;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -20,7 +19,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import java.util.Arrays;
 import java.util.List;
 
-public class PlayerListener extends PlexListener
+public class PlayerListener<T> extends PlexListener
 {
     // setting up a player's data
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -73,19 +72,17 @@ public class PlayerListener extends PlexListener
             player.openInventory(player.getInventory());
         }
 
-        assert plexPlayer != null;
         String loginMessage = plugin.getRankManager().getLoginMessage(plexPlayer);
         if (!loginMessage.isEmpty())
         {
             PlexUtils.broadcast(PlexUtils.mmDeserialize("<aqua>" + player.getName() + " is " + loginMessage));
         }
 
+        PlexUtils.setupPermissions(player);
+
         if (plugin.getStorageType() != StorageType.MONGODB)
         {
-            plexPlayer.loadNotes().whenComplete((notes, throwable) ->
-            {
-                //TODO: Send note messages to admins
-            });
+            plexPlayer.loadNotes();
         }
     }
 

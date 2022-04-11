@@ -47,7 +47,9 @@ dependencies {
     library "org.eclipse.jetty:jetty-proxy:11.0.9"
     library "com.google.code.gson:gson:2.9.0"
     compileOnly "io.papermc.paper:paper-api:1.18.2-R0.1-SNAPSHOT"
-    compileOnly "com.github.MilkBowl:VaultAPI:1.7"
+    compileOnly ("com.github.MilkBowl:VaultAPI:1.7") {
+        exclude group: "org.bukkit", module: "bukkit"
+    }
     implementation "org.bstats:bstats-base:3.0.0"
     implementation "org.bstats:bstats-bukkit:3.0.0"
 }

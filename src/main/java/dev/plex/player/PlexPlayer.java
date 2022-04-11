@@ -7,6 +7,7 @@ import dev.morphia.annotations.Id;
 import dev.morphia.annotations.IndexOptions;
 import dev.morphia.annotations.Indexed;
 import dev.plex.Plex;
+import dev.plex.permission.Permission;
 import dev.plex.punishment.Punishment;
 import dev.plex.punishment.extra.Note;
 import dev.plex.rank.enums.Rank;
@@ -26,6 +27,7 @@ import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
+import org.bukkit.permissions.PermissionAttachment;
 
 @Getter
 @Setter
@@ -64,6 +66,9 @@ public class PlexPlayer
     private List<String> ips = Lists.newArrayList();
     private List<Punishment> punishments = Lists.newArrayList();
     private List<Note> notes = Lists.newArrayList();
+    private List<Permission> permissions = Lists.newArrayList();
+
+    private transient PermissionAttachment permissionAttachment;
 
     public PlexPlayer()
     {
@@ -88,6 +93,10 @@ public class PlexPlayer
 
         this.rank = "";
         this.loadPunishments();
+        if (Plex.get().getStorageType() != StorageType.MONGODB)
+        {
+            this.permissions.addAll(Plex.get().getSqlPermissions().getPermissions(this.uuid));
+        }
     }
 
     public String displayName()

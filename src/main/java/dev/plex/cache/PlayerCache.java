@@ -1,4 +1,4 @@
-package dev.plex.cache.player;
+package dev.plex.cache;
 
 import com.google.common.collect.Maps;
 import dev.plex.player.PlexPlayer;

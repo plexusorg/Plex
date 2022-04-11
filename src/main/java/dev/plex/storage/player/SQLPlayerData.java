@@ -1,8 +1,9 @@
-package dev.plex.cache.player;
+package dev.plex.storage.player;
 
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import dev.plex.Plex;
+import dev.plex.cache.PlayerCache;
 import dev.plex.player.PlexPlayer;
 import java.sql.Connection;
 import java.sql.PreparedStatement;

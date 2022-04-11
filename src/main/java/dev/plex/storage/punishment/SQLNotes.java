@@ -1,4 +1,4 @@
-package dev.plex.cache.sql;
+package dev.plex.storage.punishment;
 
 import com.google.common.collect.Lists;
 import dev.plex.Plex;
