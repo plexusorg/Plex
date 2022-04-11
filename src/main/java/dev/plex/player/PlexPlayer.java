@@ -119,7 +119,7 @@ public class PlexPlayer
     {
         if (Plex.get().getStorageType() != StorageType.MONGODB)
         {
-            this.setPunishments(Plex.get().getSqlPunishment().getPunishments(this.getUuid()).stream().filter(punishment -> punishment.getPunished().equals(this.getUuid())).collect(Collectors.toList()));
+            this.setPunishments(Plex.get().getSqlPunishment().getPunishments(this.getUuid()));
         }
     }
 

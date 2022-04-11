@@ -14,9 +14,6 @@ import dev.plex.punishment.PunishmentType;
 import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
 import net.kyori.adventure.text.Component;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
@@ -24,6 +21,10 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
 
 @CommandParameters(name = "ban", usage = "/<command> <player> [reason]", aliases = "offlineban,gtfo", description = "Bans a player, offline or online")
 @CommandPermissions(level = Rank.ADMIN, permission = "plex.ban", source = RequiredCommandSource.ANY)
@@ -47,15 +48,18 @@ public class BanCMD extends PlexCommand
         PlexPlayer plexPlayer = DataUtils.getPlayer(targetUUID);
         Player player = Bukkit.getPlayer(targetUUID);
 
-        if (isAdmin(plexPlayer))
+        if (plugin.getSystem().equalsIgnoreCase("ranks"))
         {
-            if (!isConsole(sender))
+            if (isAdmin(plexPlayer))
             {
-                assert playerSender != null;
-                PlexPlayer plexPlayer1 = getPlexPlayer(playerSender);
-                if (!plexPlayer1.getRankFromString().isAtLeast(plexPlayer.getRankFromString()))
+                if (!isConsole(sender))
                 {
-                    return messageComponent("higherRankThanYou");
+                    assert playerSender != null;
+                    PlexPlayer plexPlayer1 = getPlexPlayer(playerSender);
+                    if (!plexPlayer1.getRankFromString().isAtLeast(plexPlayer.getRankFromString()))
+                    {
+                        return messageComponent("higherRankThanYou");
+                    }
                 }
             }
         }
@@ -74,8 +78,7 @@ public class BanCMD extends PlexCommand
             {
                 reason = StringUtils.join(args, " ", 1, args.length);
                 punishment.setReason(reason);
-            }
-            else
+            } else
             {
                 punishment.setReason("No reason provided.");
             }
