@@ -131,12 +131,11 @@ java {
 }
 
 publishing {
-    def config = configurations.getByName("library")
     publications {
         maven(MavenPublication) {
             pom.withXml {
                 def dependenciesNode = asNode().appendNode("dependencies")
-                config.getAllDependencies().each { dependency ->
+                configurations.getByName("library").getAllDependencies().each { dependency ->
                     dependenciesNode.appendNode("dependency").with {
                         it.appendNode("groupId", dependency.group)
                         it.appendNode("artifactId", dependency.name)
@@ -155,7 +154,6 @@ publishing {
             }
             artifacts = [shadowJar]
         }
-
     }
     repositories {
         maven {
