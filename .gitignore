@@ -1,5 +1,4 @@
 /.idea/
-/.idea/codeStyles/codeStyleConfig.xml
 *.iml
 /target/
 src/main/resources/build.properties
