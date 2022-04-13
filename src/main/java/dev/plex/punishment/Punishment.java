@@ -43,7 +43,6 @@ public class Punishment
 
     public static Component generateBanMessage(Punishment punishment)
     {
-
         return PlexUtils.messageComponent("banMessage", banUrl, punishment.getReason(),
                 PlexUtils.useTimezone(punishment.getEndDate()),
                 punishment.getPunisher() == null ? "CONSOLE" : MojangUtils.getInfo(punishment.getPunisher().toString()).getUsername());

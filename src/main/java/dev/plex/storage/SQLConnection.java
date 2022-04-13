@@ -96,7 +96,7 @@ public class SQLConnection extends PlexBase
                     "`uuid` VARCHAR(46) NOT NULL," +
                     "`permission` VARCHAR(1000) NOT NULL," +
                     "`allowed` BOOLEAN" +
-                    ");");
+                    ");").execute();
         }
         catch (SQLException throwables)
         {

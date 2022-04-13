@@ -7,6 +7,9 @@ import dev.plex.player.PlexPlayer;
 import dev.plex.storage.StorageType;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -84,6 +87,16 @@ public class PlayerListener<T> extends PlexListener
         {
             plexPlayer.loadNotes();
         }
+
+        plugin.getSqlNotes().getNotes(plexPlayer.getUuid()).whenComplete((notes, ex) ->
+        {
+            String plural = notes.size() == 1 ? "note." : "notes.";
+            if (!notes.isEmpty())
+            {
+                PlexUtils.broadcastToAdmins(Component.text(plexPlayer.getName() + " has " + notes.size() + " " + plural).color(NamedTextColor.GOLD));
+                PlexUtils.broadcastToAdmins(Component.text("Click to view their " + plural).clickEvent(ClickEvent.runCommand("/notes " + plexPlayer.getName() + " list")).color(NamedTextColor.GOLD));
+            }
+        });
     }
 
     // saving the player's data

@@ -5,6 +5,7 @@ import com.google.common.reflect.ClassPath;
 import dev.plex.Plex;
 import dev.plex.PlexBase;
 import dev.plex.cache.DataUtils;
+import dev.plex.cache.PlayerCache;
 import dev.plex.config.Config;
 import dev.plex.permission.Permission;
 import dev.plex.player.PlexPlayer;
@@ -116,7 +117,8 @@ public class PlexUtils extends PlexBase
 
     public static void updatePermission(PlexPlayer player, String permission, boolean newValue)
     {
-        player.getPermissions().stream().filter(permission1 -> permission.equalsIgnoreCase(permission)).findFirst().ifPresent(permission1 -> {
+        player.getPermissions().stream().filter(permission1 -> permission.equalsIgnoreCase(permission)).findFirst().ifPresent(permission1 ->
+        {
             Plex.get().getSqlPermissions().updatePermission(permission1, newValue);
         });
         player.getPermissions().removeIf(permission1 -> permission1.getPermission().equalsIgnoreCase(permission));
@@ -423,6 +425,13 @@ public class PlexUtils extends PlexBase
     {
         Bukkit.broadcast(component);
     }
+
+    public static void broadcastToAdmins(Component component)
+    {
+        Bukkit.getOnlinePlayers().stream().filter(pl -> PlayerCache.getPlexPlayer(pl.getUniqueId()).isAdminActive()).forEach(pl ->
+                Bukkit.broadcast(component));
+    }
+
 
     public static Object simpleGET(String url)
     {
