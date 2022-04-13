@@ -432,7 +432,6 @@ public class PlexUtils extends PlexBase
                 Bukkit.broadcast(component));
     }
 
-
     public static Object simpleGET(String url)
     {
         try

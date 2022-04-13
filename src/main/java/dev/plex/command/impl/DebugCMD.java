@@ -22,7 +22,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-@CommandParameters(name = "pdebug", description = "Plex's debug command", usage = "/<command> <redis-reset <player> | gamerules>")
+@CommandParameters(name = "pdebug", description = "Plex's debug command", usage = "/<command> <aliases <command> | redis-reset <player> | gamerules>")
 @CommandPermissions(level = Rank.EXECUTIVE, permission = "plex.debug")
 @System(debug = true)
 public class DebugCMD extends PlexCommand

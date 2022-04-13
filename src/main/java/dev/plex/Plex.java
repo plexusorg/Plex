@@ -130,7 +130,7 @@ public class Plex extends JavaPlugin
 
         if (!setupPermissions() && system.equalsIgnoreCase("permissions") && !getServer().getPluginManager().isPluginEnabled("Vault"))
         {
-            throw new RuntimeException("Vault is required to run on the server if you use 'permissions!'");
+            throw new RuntimeException("Vault is required to run on the server if you use permissions!");
         }
 
         updateChecker = new UpdateChecker();

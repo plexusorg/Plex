@@ -26,7 +26,7 @@ public class SayCMD extends PlexCommand
             return usage();
         }
 
-        PlexUtils.broadcast(PlexUtils.messageComponent("sayCommand", sender.getName(), PlexUtils.mmStripColor(StringUtils.join(args, " "))));
+        PlexUtils.broadcast(PlexUtils.messageComponent("sayMessage", sender.getName(), PlexUtils.mmStripColor(StringUtils.join(args, " "))));
         return null;
     }
 }

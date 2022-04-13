@@ -25,7 +25,7 @@ public class ConsoleSayCommand extends PlexCommand
             return usage();
         }
 
-        PlexUtils.broadcast(PlexUtils.messageComponent("consoleSayCommand", sender.getName(), PlexUtils.mmStripColor(StringUtils.join(args, " "))));
+        PlexUtils.broadcast(PlexUtils.messageComponent("consoleSayMessage", sender.getName(), PlexUtils.mmStripColor(StringUtils.join(args, " "))));
         return null;
     }
 }

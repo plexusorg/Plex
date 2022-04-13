@@ -27,7 +27,6 @@ public class CommandBlockerService extends AbstractService
     public void run()
     {
         BLOCKED_COMMANDS.clear();
-        PlexLog.debug("RUNNING COMMAND BLOCKING SERVICE");
         plugin.commands.getStringList("commands").forEach(s ->
         {
             BlockedCommand command = new BlockedCommand();
@@ -44,7 +43,8 @@ public class CommandBlockerService extends AbstractService
                 PlexLog.debug(" Regex: " + command.getRegex());
                 PlexLog.debug(" Message: " + command.getMessage());
                 PlexLog.debug("====================");*/
-            } else if (s.toLowerCase(Locale.ROOT).startsWith("m"))
+            }
+            else if (s.toLowerCase(Locale.ROOT).startsWith("m"))
             {
                 command.setRequiredLevel(args[1]);
                 command.setCommand(args[2]);
@@ -52,7 +52,7 @@ public class CommandBlockerService extends AbstractService
                 Command cmd = plugin.getServer().getCommandMap().getCommand(command.getCommand().split(" ")[0]);
                 if (cmd == null)
                 {
-                    PlexLog.error("Command '{0}' specified in the configuration was null!", command.getCommand().split(" ")[0]);
+                    PlexLog.error("Command '{0}' does not belong to any plugin!", command.getCommand().split(" ")[0]);
                     return;
                 }
                 command.setCommandAliases(cmd.getAliases());
