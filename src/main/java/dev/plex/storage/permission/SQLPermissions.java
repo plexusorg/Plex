@@ -3,7 +3,6 @@ package dev.plex.storage.permission;
 import com.google.common.collect.Lists;
 import dev.plex.Plex;
 import dev.plex.permission.Permission;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -33,7 +32,8 @@ public class SQLPermissions
                 permission.setAllowed(set.getBoolean("allowed"));
                 permissions.add(permission);
             }
-        } catch (SQLException e)
+        }
+        catch (SQLException e)
         {
             e.printStackTrace();
         }
@@ -49,7 +49,8 @@ public class SQLPermissions
             statement.setString(2, permission.getPermission().toLowerCase(Locale.ROOT));
             statement.setBoolean(3, permission.isAllowed());
             statement.execute();
-        } catch (SQLException e)
+        }
+        catch (SQLException e)
         {
             e.printStackTrace();
         }
@@ -64,7 +65,8 @@ public class SQLPermissions
             statement.setString(2, permission.getUuid().toString());
             statement.setString(3, permission.getPermission().toLowerCase(Locale.ROOT));
             statement.executeUpdate();
-        } catch (SQLException e)
+        }
+        catch (SQLException e)
         {
             e.printStackTrace();
         }
@@ -83,7 +85,8 @@ public class SQLPermissions
             statement.setString(1, uuid.toString());
             statement.setString(2, permission.toLowerCase(Locale.ROOT));
             statement.execute();
-        } catch (SQLException e)
+        }
+        catch (SQLException e)
         {
             e.printStackTrace();
         }

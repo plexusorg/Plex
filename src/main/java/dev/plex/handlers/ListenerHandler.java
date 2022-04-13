@@ -34,7 +34,8 @@ public class ListenerHandler extends PlexBase
                     listeners.add(clazz.getConstructor().newInstance());
                 }
             }
-            catch (InvocationTargetException | InstantiationException | IllegalAccessException | NoSuchMethodException ex)
+            catch (InvocationTargetException | InstantiationException | IllegalAccessException |
+                   NoSuchMethodException ex)
             {
                 PlexLog.error("Failed to register " + clazz.getSimpleName() + " as a listener!");
             }

@@ -3,7 +3,6 @@ package dev.plex.storage.punishment;
 import com.google.common.collect.Lists;
 import dev.plex.Plex;
 import dev.plex.punishment.extra.Note;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

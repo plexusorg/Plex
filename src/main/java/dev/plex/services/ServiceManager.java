@@ -2,11 +2,14 @@ package dev.plex.services;
 
 import com.google.common.collect.Lists;
 import dev.plex.Plex;
-import dev.plex.services.impl.*;
+import dev.plex.services.impl.AutoWipeService;
+import dev.plex.services.impl.BanService;
+import dev.plex.services.impl.CommandBlockerService;
+import dev.plex.services.impl.GameRuleService;
+import dev.plex.services.impl.UpdateCheckerService;
+import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitTask;
-
-import java.util.List;
 
 public class ServiceManager
 {

@@ -5,7 +5,6 @@ import dev.plex.Plex;
 import dev.plex.punishment.Punishment;
 import dev.plex.punishment.PunishmentType;
 import dev.plex.util.PlexLog;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -47,7 +46,8 @@ public class SQLPunishment
                     punishment.setIp(set.getString("ip"));
                     punishments.add(punishment);
                 }
-            } catch (SQLException e)
+            }
+            catch (SQLException e)
             {
                 e.printStackTrace();
                 return punishments;
@@ -76,7 +76,8 @@ public class SQLPunishment
                 punishment.setIp(set.getString("ip"));
                 punishments.add(punishment);
             }
-        } catch (SQLException e)
+        }
+        catch (SQLException e)
         {
             e.printStackTrace();
         }
@@ -103,7 +104,8 @@ public class SQLPunishment
                 statement.setLong(9, punishment.getEndDate().toInstant(ZoneOffset.UTC).toEpochMilli());
                 PlexLog.debug("Executing punishment");
                 statement.execute();
-            } catch (SQLException e)
+            }
+            catch (SQLException e)
             {
                 e.printStackTrace();
             }
@@ -119,7 +121,8 @@ public class SQLPunishment
             statement.setBoolean(2, true);
             statement.setString(3, uuid.toString());
             statement.setString(4, PunishmentType.BAN.name());
-        } catch (SQLException e)
+        }
+        catch (SQLException e)
         {
             e.printStackTrace();
         }
@@ -137,7 +140,8 @@ public class SQLPunishment
                 statement.setString(3, uuid.toString());
                 statement.setString(4, PunishmentType.BAN.name());
                 statement.executeUpdate();
-            } catch (SQLException e)
+            }
+            catch (SQLException e)
             {
                 e.printStackTrace();
             }

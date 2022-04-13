@@ -8,6 +8,10 @@ import dev.plex.player.PlexPlayer;
 import dev.plex.rank.enums.Rank;
 import dev.plex.services.impl.CommandBlockerService;
 import dev.plex.util.PlexLog;
+import java.util.Locale;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -15,11 +19,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
-
-import java.util.Locale;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class CommandListener extends PlexListener
 {
@@ -54,7 +53,7 @@ public class CommandListener extends PlexListener
             String[] cmdArgs = event.getMessage().replaceFirst("/", "").split(" ");
             for (int i = 0; i < args.length; i++)
             {
-                if (i+1 > cmdArgs.length)
+                if (i + 1 > cmdArgs.length)
                 {
                     matches = false;
                     break;
@@ -104,11 +103,13 @@ public class CommandListener extends PlexListener
             BlockedCommand cmd = cmdRef.get();
             switch (cmd.getRequiredLevel().toLowerCase(Locale.ROOT))
             {
-                case "e" -> {
+                case "e" ->
+                {
                     event.setCancelled(true);
                     event.getPlayer().sendMessage(cmd.getMessage());
                 }
-                case "a" -> {
+                case "a" ->
+                {
                     if (plexPlayer.isAdminActive() && plexPlayer.getRankFromString().isAtLeast(Rank.ADMIN))
                     {
                         return;
@@ -116,7 +117,8 @@ public class CommandListener extends PlexListener
                     event.setCancelled(true);
                     event.getPlayer().sendMessage(cmd.getMessage());
                 }
-                case "s" -> {
+                case "s" ->
+                {
                     if (plexPlayer.isAdminActive() && plexPlayer.getRankFromString().isAtLeast(Rank.SENIOR_ADMIN))
                     {
                         return;

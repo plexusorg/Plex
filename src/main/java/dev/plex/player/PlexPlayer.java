@@ -12,14 +12,11 @@ import dev.plex.punishment.Punishment;
 import dev.plex.punishment.extra.Note;
 import dev.plex.rank.enums.Rank;
 import dev.plex.storage.StorageType;
-
+import dev.plex.util.adapter.LocalDateTimeSerializer;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
-
-import dev.plex.util.adapter.LocalDateTimeSerializer;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;

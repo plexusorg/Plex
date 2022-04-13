@@ -8,7 +8,6 @@ import dev.plex.command.annotation.System;
 import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;

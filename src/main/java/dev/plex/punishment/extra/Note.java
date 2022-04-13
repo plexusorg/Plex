@@ -3,10 +3,9 @@ package dev.plex.punishment.extra;
 import com.google.gson.GsonBuilder;
 import dev.morphia.annotations.Entity;
 import dev.plex.util.adapter.LocalDateTimeSerializer;
-import lombok.Data;
-
 import java.time.LocalDateTime;
 import java.util.UUID;
+import lombok.Data;
 
 @Data
 @Entity

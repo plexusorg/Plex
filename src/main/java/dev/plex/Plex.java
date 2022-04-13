@@ -3,12 +3,7 @@ package dev.plex;
 import dev.plex.admin.Admin;
 import dev.plex.admin.AdminList;
 import dev.plex.cache.DataUtils;
-import dev.plex.storage.permission.SQLPermissions;
-import dev.plex.storage.player.MongoPlayerData;
 import dev.plex.cache.PlayerCache;
-import dev.plex.storage.player.SQLPlayerData;
-import dev.plex.storage.punishment.SQLNotes;
-import dev.plex.storage.punishment.SQLPunishment;
 import dev.plex.config.Config;
 import dev.plex.handlers.CommandHandler;
 import dev.plex.handlers.ListenerHandler;
@@ -21,10 +16,18 @@ import dev.plex.storage.MongoConnection;
 import dev.plex.storage.RedisConnection;
 import dev.plex.storage.SQLConnection;
 import dev.plex.storage.StorageType;
+import dev.plex.storage.permission.SQLPermissions;
+import dev.plex.storage.player.MongoPlayerData;
+import dev.plex.storage.player.SQLPlayerData;
+import dev.plex.storage.punishment.SQLNotes;
+import dev.plex.storage.punishment.SQLPunishment;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.UpdateChecker;
 import dev.plex.world.CustomWorld;
+import java.io.File;
+import java.io.InputStream;
+import java.util.Properties;
 import lombok.Getter;
 import lombok.Setter;
 import net.milkbowl.vault.permission.Permission;
@@ -32,10 +35,6 @@ import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import java.io.File;
-import java.io.InputStream;
-import java.util.Properties;
 
 @Getter
 @Setter
@@ -122,7 +121,8 @@ public class Plex extends JavaPlugin
         {
             PlexUtils.testConnections();
             PlexLog.log("Connected to " + storageType.name().toUpperCase());
-        } catch (Exception e)
+        }
+        catch (Exception e)
         {
             PlexLog.error("Failed to connect to " + storageType.name().toUpperCase());
             e.printStackTrace();
@@ -144,7 +144,8 @@ public class Plex extends JavaPlugin
         {
             redisConnection.getJedis();
             PlexLog.log("Connected to Redis!");
-        } else
+        }
+        else
         {
             PlexLog.log("Redis is disabled in the configuration file, not connecting.");
         }
@@ -152,7 +153,8 @@ public class Plex extends JavaPlugin
         if (storageType == StorageType.MONGODB)
         {
             mongoPlayerData = new MongoPlayerData();
-        } else
+        }
+        else
         {
             sqlPlayerData = new SQLPlayerData();
             sqlPunishment = new SQLPunishment();
@@ -198,7 +200,8 @@ public class Plex extends JavaPlugin
             if (mongoPlayerData != null) //back to mongo checking
             {
                 mongoPlayerData.update(plexPlayer); //update the player's document
-            } else if (sqlPlayerData != null) //sql checking
+            }
+            else if (sqlPlayerData != null) //sql checking
             {
                 sqlPlayerData.update(plexPlayer);
             }
@@ -261,7 +264,8 @@ public class Plex extends JavaPlugin
                 author = props.getProperty("buildAuthor", "unknown");
                 date = props.getProperty("buildDate", "unknown");
                 head = props.getProperty("buildHead", "unknown");
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 PlexLog.error("Could not load build properties! Did you compile with NetBeans/Maven?");
             }

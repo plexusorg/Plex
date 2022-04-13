@@ -10,7 +10,6 @@ import dev.plex.util.AshconInfo;
 import dev.plex.util.MojangUtils;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
-import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import net.kyori.adventure.text.Component;

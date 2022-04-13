@@ -4,11 +4,10 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import dev.plex.Plex;
 import dev.plex.PlexBase;
-import lombok.Getter;
-
 import java.io.File;
 import java.sql.Connection;
 import java.sql.SQLException;
+import lombok.Getter;
 
 @Getter
 public class SQLConnection extends PlexBase

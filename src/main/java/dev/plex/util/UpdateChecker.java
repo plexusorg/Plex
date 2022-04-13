@@ -6,9 +6,17 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import dev.plex.Plex;
 import dev.plex.PlexBase;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.concurrent.CompletableFuture;
+import javax.annotation.Nonnull;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.apache.commons.io.FileUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -18,16 +26,6 @@ import org.apache.http.util.EntityUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.json.JSONObject;
-
-import javax.annotation.Nonnull;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.util.concurrent.CompletableFuture;
 
 public class UpdateChecker extends PlexBase
 {
@@ -114,28 +112,32 @@ public class UpdateChecker extends PlexBase
 
         switch (distance)
         {
-            case -1 -> {
+            case -1 ->
+            {
                 if (verbosity == 2)
                 {
                     sender.sendMessage(Component.text("There was an error checking for updates.").color(NamedTextColor.RED));
                 }
                 return false;
             }
-            case 0 -> {
+            case 0 ->
+            {
                 if (verbosity == 2)
                 {
                     sender.sendMessage(Component.text("Plex is up to date!").color(NamedTextColor.GREEN));
                 }
                 return false;
             }
-            case -2 -> {
+            case -2 ->
+            {
                 if (verbosity == 2)
                 {
                     sender.sendMessage(Component.text("Unknown version, unable to check for updates.").color(NamedTextColor.RED));
                 }
                 return false;
             }
-            default -> {
+            default ->
+            {
                 if (verbosity >= 1)
                 {
                     sender.sendMessage(Component.text("Plex is not up to date!", NamedTextColor.RED));

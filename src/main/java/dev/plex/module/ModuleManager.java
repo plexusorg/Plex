@@ -82,7 +82,8 @@ public class ModuleManager
                     plexModule.setLogger(LogManager.getLogger(plexModuleFile.getName()));
                     modules.add(plexModule);
                 }
-                catch (MalformedURLException | ClassNotFoundException | InvocationTargetException | InstantiationException | IllegalAccessException | NoSuchMethodException e)
+                catch (MalformedURLException | ClassNotFoundException | InvocationTargetException |
+                       InstantiationException | IllegalAccessException | NoSuchMethodException e)
                 {
                     e.printStackTrace();
                 }

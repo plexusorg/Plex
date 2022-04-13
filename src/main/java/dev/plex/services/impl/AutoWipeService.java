@@ -2,11 +2,10 @@ package dev.plex.services.impl;
 
 import dev.plex.Plex;
 import dev.plex.services.AbstractService;
+import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
-
-import java.util.List;
 
 public class AutoWipeService extends AbstractService
 {

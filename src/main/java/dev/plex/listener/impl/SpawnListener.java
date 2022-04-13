@@ -2,6 +2,9 @@ package dev.plex.listener.impl;
 
 import dev.plex.listener.PlexListener;
 import dev.plex.util.PlexUtils;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -19,10 +22,6 @@ import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
-
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
 
 public class SpawnListener extends PlexListener
 {

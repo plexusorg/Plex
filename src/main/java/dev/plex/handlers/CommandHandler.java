@@ -39,7 +39,8 @@ public class CommandHandler extends PlexBase
                     commands.add(clazz.getConstructor().newInstance());
                 }
             }
-            catch (InvocationTargetException | InstantiationException | IllegalAccessException | NoSuchMethodException ex)
+            catch (InvocationTargetException | InstantiationException | IllegalAccessException |
+                   NoSuchMethodException ex)
             {
                 PlexLog.error("Failed to register " + clazz.getSimpleName() + " as a command!");
             }

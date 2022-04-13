@@ -156,16 +156,20 @@ public class WorldListener extends PlexListener
                 Title title = Title.valueOf(titleString.toUpperCase(Locale.ROOT));
                 switch (title)
                 {
-                    case DEV -> {
+                    case DEV ->
+                    {
                         hasAccess = PlexUtils.DEVELOPERS.contains(player.getUuid().toString());
                     }
-                    case MASTER_BUILDER -> {
+                    case MASTER_BUILDER ->
+                    {
                         hasAccess = Plex.get().config.contains("titles.masterbuilders") && Plex.get().config.getStringList("titles.masterbuilders").contains(player.getName());
                     }
-                    case OWNER -> {
+                    case OWNER ->
+                    {
                         hasAccess = Plex.get().config.contains("titles.owners") && Plex.get().config.getStringList("titles.owners").contains(player.getName());
                     }
-                    default -> {
+                    default ->
+                    {
                         return false;
                     }
                 }

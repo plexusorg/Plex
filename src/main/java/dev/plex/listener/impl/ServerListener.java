@@ -1,7 +1,6 @@
 package dev.plex.listener.impl;
 
 import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
-import com.destroystokyo.paper.event.server.ServerTickEndEvent;
 import dev.plex.listener.PlexListener;
 import dev.plex.util.PlexUtils;
 import java.util.List;
@@ -9,7 +8,6 @@ import java.util.stream.Collectors;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.player.PlayerKickEvent;
 
 public class ServerListener extends PlexListener
 {
