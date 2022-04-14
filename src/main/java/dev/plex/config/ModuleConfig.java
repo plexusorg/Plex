@@ -23,27 +23,27 @@ public class ModuleConfig extends YamlConfiguration
     private File file;
 
     /**
-     * The file name
+     * Where the file is in the module JAR
      */
-    private String name;
+    private String from;
 
     /**
-     * The folder in which the module files are in
+     * Where it should be copied to in the module folder
      */
-    private String folder;
+    private String to;
 
     /**
      * Creates a config object
      *
      * @param module The module instance
-     * @param name   The file name
+     * @param to     The file name
      */
-    public ModuleConfig(PlexModule module, String name, String folder)
+    public ModuleConfig(PlexModule module, String from, String to)
     {
         this.module = module;
-        this.file = new File(module.getDataFolder(), name);
-        this.name = name;
-        this.folder = folder;
+        this.file = new File(module.getDataFolder(), to);
+        this.to = to;
+        this.from = from;
 
         if (!file.exists())
         {
@@ -85,7 +85,7 @@ public class ModuleConfig extends YamlConfiguration
     {
         try
         {
-            Files.copy(module.getClass().getResourceAsStream("/" + folder), this.file.toPath());
+            Files.copy(module.getClass().getResourceAsStream("/" + from), this.file.toPath());
         }
         catch (IOException e)
         {
