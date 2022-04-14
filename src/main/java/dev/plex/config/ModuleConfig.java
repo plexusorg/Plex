@@ -28,16 +28,22 @@ public class ModuleConfig extends YamlConfiguration
     private String name;
 
     /**
+     * The folder in which the module files are in
+     */
+    private String folder;
+
+    /**
      * Creates a config object
      *
      * @param module The module instance
      * @param name   The file name
      */
-    public ModuleConfig(PlexModule module, String name)
+    public ModuleConfig(PlexModule module, String name, String folder)
     {
         this.module = module;
         this.file = new File(module.getDataFolder(), name);
         this.name = name;
+        this.folder = folder;
 
         if (!file.exists())
         {
@@ -79,45 +85,11 @@ public class ModuleConfig extends YamlConfiguration
     {
         try
         {
-            Files.copy(module.getClass().getResourceAsStream("/" + name), this.file.toPath());
+            Files.copy(module.getClass().getResourceAsStream("/" + folder), this.file.toPath());
         }
         catch (IOException e)
         {
             e.printStackTrace();
         }
-        /*if (name == null || name.equals("")) {
-            throw new IllegalArgumentException("ResourcePath cannot be null or empty");
-        }
-
-        name = name.replace('\\', '/');
-        InputStream in = module.getResource("/" + name);
-        if (in == null) {
-            throw new IllegalArgumentException("The embedded resource '" + name + "'");
-        }
-
-        File outFile = new File(module.getDataFolder(), name);
-        int lastIndex = name.lastIndexOf('/');
-        File outDir = new File(module.getDataFolder(), name.substring(0, lastIndex >= 0 ? lastIndex : 0));
-
-        if (!outDir.exists()) {
-            outDir.mkdirs();
-        }
-
-        try {
-            if (!outFile.exists()) {
-                OutputStream out = new FileOutputStream(outFile);
-                byte[] buf = new byte[1024];
-                int len;
-                while ((len = in.read(buf)) > 0) {
-                    out.write(buf, 0, len);
-                }
-                out.close();
-                in.close();
-            } else {
-                module.getLogger().log(org.apache.logging.log4j.Level.INFO, "Could not save " + outFile.getName() + " to " + outFile + " because " + outFile.getName() + " already exists.");
-            }
-        } catch (IOException ex) {
-            module.getLogger().log(Level.ERROR, "Could not save " + outFile.getName() + " to " + outFile, ex);
-        }*/
     }
 }
