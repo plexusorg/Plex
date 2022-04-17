@@ -27,7 +27,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.json.JSONObject;
 
-public class UpdateChecker extends PlexBase
+public class UpdateChecker implements PlexBase
 {
     /*
      * -4 = Never checked for updates

@@ -60,7 +60,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-public class PlexUtils extends PlexBase
+public class PlexUtils implements PlexBase
 {
     private static final Random RANDOM;
     private static final List<String> regxList = new ArrayList<>()
@@ -446,7 +446,9 @@ public class PlexUtils extends PlexBase
     public static void broadcastToAdmins(Component component)
     {
         Bukkit.getOnlinePlayers().stream().filter(pl -> PlayerCache.getPlexPlayer(pl.getUniqueId()).isAdminActive()).forEach(pl ->
-                Bukkit.broadcast(component));
+        {
+            pl.sendMessage(component);
+        });
     }
 
     public static Object simpleGET(String url)

@@ -10,7 +10,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Set;
 
-public class ListenerHandler extends PlexBase
+public class ListenerHandler implements PlexBase
 {
     public ListenerHandler()
     {

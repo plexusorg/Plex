@@ -26,7 +26,7 @@ import org.apache.commons.io.FileUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitRunnable;
 
-public class PunishmentManager extends PlexBase
+public class PunishmentManager implements PlexBase
 {
     @Getter
     private final List<IndefiniteBan> indefiniteBans = Lists.newArrayList();

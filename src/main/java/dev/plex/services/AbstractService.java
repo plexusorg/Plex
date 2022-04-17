@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Getter
-public abstract class AbstractService extends PlexBase implements IService
+public abstract class AbstractService implements IService, PlexBase
 {
     private boolean asynchronous;
     private boolean repeating;

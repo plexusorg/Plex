@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
  * @see Admin
  */
 
-public class AdminList extends PlexBase
+public class AdminList implements PlexBase
 {
     /**
      * Key / Value storage, where the key is the unique ID of the admin

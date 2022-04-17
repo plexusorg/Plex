@@ -10,7 +10,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Set;
 
-public class CommandHandler extends PlexBase
+public class CommandHandler implements PlexBase
 {
     public CommandHandler()
     {

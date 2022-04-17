@@ -1,6 +1,6 @@
 package dev.plex;
 
-public class PlexBase
+public interface PlexBase
 {
-    protected final static Plex plugin = Plex.get();
+    Plex plugin = Plex.get();
 }

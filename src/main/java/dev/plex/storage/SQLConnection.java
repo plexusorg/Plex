@@ -10,7 +10,7 @@ import java.sql.SQLException;
 import lombok.Getter;
 
 @Getter
-public class SQLConnection extends PlexBase
+public class SQLConnection implements PlexBase
 {
     private HikariDataSource dataSource;
 

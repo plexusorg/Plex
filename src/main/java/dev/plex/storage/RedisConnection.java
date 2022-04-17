@@ -5,7 +5,7 @@ import dev.plex.util.PlexLog;
 import java.util.function.Consumer;
 import redis.clients.jedis.Jedis;
 
-public class RedisConnection extends PlexBase
+public class RedisConnection implements PlexBase
 {
     private Jedis jedis;
 

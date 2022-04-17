@@ -9,7 +9,7 @@ import dev.plex.PlexBase;
 import dev.plex.player.PlexPlayer;
 import dev.plex.util.PlexLog;
 
-public class MongoConnection extends PlexBase
+public class MongoConnection implements PlexBase
 {
     // USE MORPHIA API FOR MONGO <3
 
