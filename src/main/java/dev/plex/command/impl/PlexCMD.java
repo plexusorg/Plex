@@ -1,6 +1,5 @@
 package dev.plex.command.impl;
 
-import dev.plex.Plex;
 import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
@@ -9,6 +8,7 @@ import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.module.PlexModule;
 import dev.plex.module.PlexModuleFile;
 import dev.plex.rank.enums.Rank;
+import dev.plex.util.BuildInfo;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import java.util.Arrays;
@@ -34,9 +34,9 @@ public class PlexCMD extends PlexCommand
         if (args.length == 0)
         {
             send(sender, mmString("<light_purple>Plex - A new freedom plugin."));
-            send(sender, mmString("<light_purple>Plugin version: <gold>" + plugin.getDescription().getVersion() + " #" + Plex.build.number + " <light_purple>Git: <gold>" + Plex.build.head));
+            send(sender, mmString("<light_purple>Plugin version: <gold>" + plugin.getDescription().getVersion() + " #" + BuildInfo.getNumber() + " <light_purple>Git: <gold>" + BuildInfo.getHead()));
             send(sender, mmString("<light_purple>Authors: <gold>Telesphoreo, Taahh"));
-            send(sender, mmString("<light_purple>Built by: <gold>" + Plex.build.author + " <light_purple>on <gold>" + Plex.build.date));
+            send(sender, mmString("<light_purple>Built by: <gold>" + BuildInfo.getAuthor() + " <light_purple>on <gold>" + BuildInfo.getDate()));
             send(sender, mmString("<light_purple>Run <gold>/plex modules <light_purple>to see a list of modules."));
             plugin.getUpdateChecker().getUpdateStatusMessage(sender, true, 2);
             return null;

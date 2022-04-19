@@ -21,13 +21,12 @@ import dev.plex.storage.player.MongoPlayerData;
 import dev.plex.storage.player.SQLPlayerData;
 import dev.plex.storage.punishment.SQLNotes;
 import dev.plex.storage.punishment.SQLPunishment;
+import dev.plex.util.BuildInfo;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.UpdateChecker;
 import dev.plex.world.CustomWorld;
 import java.io.File;
-import java.io.InputStream;
-import java.util.Properties;
 import lombok.Getter;
 import lombok.Setter;
 import net.milkbowl.vault.permission.Permission;
@@ -40,7 +39,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 @Setter
 public class Plex extends JavaPlugin
 {
-    public static final BuildProperties build = new BuildProperties();
     private static Plex plugin;
 
     public Config config;
@@ -50,6 +48,8 @@ public class Plex extends JavaPlugin
 
     public File modulesFolder;
     private StorageType storageType = StorageType.SQLITE;
+
+    public static final BuildInfo build = new BuildInfo();
 
     private SQLConnection sqlConnection;
     private MongoConnection mongoConnection;
@@ -239,37 +239,6 @@ public class Plex extends JavaPlugin
                 plugin.getAdminList().addToCache(admin);
             }
         });
-    }
-
-    public static class BuildProperties
-    {
-        public String number;
-        public String author;
-        public String date;
-        public String head;
-
-        public void load(Plex plugin)
-        {
-            try
-            {
-                final Properties props;
-
-                try (InputStream in = plugin.getResource("build.properties"))
-                {
-                    props = new Properties();
-                    props.load(in);
-                }
-
-                number = props.getProperty("buildNumber", "unknown");
-                author = props.getProperty("buildAuthor", "unknown");
-                date = props.getProperty("buildDate", "unknown");
-                head = props.getProperty("buildHead", "unknown");
-            }
-            catch (Exception ex)
-            {
-                PlexLog.error("Could not load build properties! Did you compile with NetBeans/Maven?");
-            }
-        }
     }
 
     public boolean setupPermissions()
