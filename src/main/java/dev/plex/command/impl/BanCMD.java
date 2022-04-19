@@ -14,6 +14,7 @@ import dev.plex.punishment.PunishmentType;
 import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
+import dev.plex.util.WebUtils;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -38,7 +39,7 @@ public class BanCMD extends PlexCommand
             return usage();
         }
 
-        UUID targetUUID = PlexUtils.getFromName(args[0]);
+        UUID targetUUID = WebUtils.getFromName(args[0]);
 
         if (targetUUID == null || !DataUtils.hasPlayedBefore(targetUUID))
         {

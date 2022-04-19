@@ -5,7 +5,7 @@ import dev.plex.PlexBase;
 import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.System;
 import dev.plex.util.PlexLog;
-import dev.plex.util.PlexUtils;
+import dev.plex.util.ReflectionsUtil;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Set;
@@ -14,7 +14,7 @@ public class CommandHandler implements PlexBase
 {
     public CommandHandler()
     {
-        Set<Class<? extends PlexCommand>> commandSet = PlexUtils.getClassesBySubType("dev.plex.command.impl", PlexCommand.class);
+        Set<Class<? extends PlexCommand>> commandSet = ReflectionsUtil.getClassesBySubType("dev.plex.command.impl", PlexCommand.class);
         List<PlexCommand> commands = Lists.newArrayList();
 
         commandSet.forEach(clazz ->

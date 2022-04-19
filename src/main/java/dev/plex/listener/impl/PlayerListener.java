@@ -5,6 +5,7 @@ import dev.plex.cache.PlayerCache;
 import dev.plex.listener.PlexListener;
 import dev.plex.player.PlexPlayer;
 import dev.plex.storage.StorageType;
+import dev.plex.util.PermissionsUtil;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import java.util.Arrays;
@@ -80,7 +81,7 @@ public class PlayerListener<T> extends PlexListener
             PlexUtils.broadcast(PlexUtils.mmDeserialize("<aqua>" + player.getName() + " is " + loginMessage));
         }
 
-        PlexUtils.setupPermissions(player);
+        PermissionsUtil.setupPermissions(player);
 
         if (plugin.getStorageType() != StorageType.MONGODB)
         {

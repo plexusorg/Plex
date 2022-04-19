@@ -1,6 +1,7 @@
 package dev.plex.services.impl;
 
 import dev.plex.services.AbstractService;
+import dev.plex.util.GameRuleUtil;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import java.util.Locale;
@@ -19,7 +20,7 @@ public class GameRuleService extends AbstractService
     {
         for (World world : Bukkit.getWorlds())
         {
-            PlexUtils.commitGlobalGameRules(world);
+            GameRuleUtil.commitGlobalGameRules(world);
             PlexLog.log("Set global gamerules for world: " + world.getName());
         }
         for (String world : plugin.config.getConfigurationSection("worlds").getKeys(false))
@@ -27,7 +28,7 @@ public class GameRuleService extends AbstractService
             World bukkitWorld = Bukkit.getWorld(world);
             if (bukkitWorld != null)
             {
-                PlexUtils.commitSpecificGameRules(bukkitWorld);
+                GameRuleUtil.commitSpecificGameRules(bukkitWorld);
                 PlexLog.log("Set specific gamerules for world: " + world.toLowerCase(Locale.ROOT));
             }
         }

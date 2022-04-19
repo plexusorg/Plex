@@ -11,6 +11,7 @@ import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.player.PlexPlayer;
 import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexUtils;
+import dev.plex.util.WebUtils;
 import java.util.List;
 import java.util.UUID;
 import net.kyori.adventure.text.Component;
@@ -34,7 +35,7 @@ public class UnbanCMD extends PlexCommand
 
         if (args.length == 1)
         {
-            UUID targetUUID = PlexUtils.getFromName(args[0]);
+            UUID targetUUID = WebUtils.getFromName(args[0]);
 
             if (targetUUID == null || !DataUtils.hasPlayedBefore(targetUUID))
             {

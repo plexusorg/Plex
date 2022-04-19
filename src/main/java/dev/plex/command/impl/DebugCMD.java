@@ -6,6 +6,7 @@ import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.annotation.System;
 import dev.plex.rank.enums.Rank;
+import dev.plex.util.GameRuleUtil;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import java.util.Arrays;
@@ -47,7 +48,7 @@ public class DebugCMD extends PlexCommand
         {
             for (World world : Bukkit.getWorlds())
             {
-                PlexUtils.commitGlobalGameRules(world);
+                GameRuleUtil.commitGlobalGameRules(world);
                 PlexLog.log("Set global gamerules for world: " + world.getName());
             }
             for (String world : plugin.config.getConfigurationSection("worlds").getKeys(false))
@@ -55,7 +56,7 @@ public class DebugCMD extends PlexCommand
                 World bukkitWorld = Bukkit.getWorld(world);
                 if (bukkitWorld != null)
                 {
-                    PlexUtils.commitSpecificGameRules(bukkitWorld);
+                    GameRuleUtil.commitSpecificGameRules(bukkitWorld);
                     PlexLog.log("Set specific gamerules for world: " + world.toLowerCase(Locale.ROOT));
                 }
             }

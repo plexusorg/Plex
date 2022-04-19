@@ -11,6 +11,7 @@ import dev.plex.punishment.Punishment;
 import dev.plex.punishment.PunishmentType;
 import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexUtils;
+import dev.plex.util.WebUtils;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import net.kyori.adventure.text.Component;
@@ -33,7 +34,7 @@ public class KickCMD extends PlexCommand
             return usage();
         }
 
-        UUID targetUUID = PlexUtils.getFromName(args[0]);
+        UUID targetUUID = WebUtils.getFromName(args[0]);
         String reason = "No reason provided";
 
         if (targetUUID == null || !DataUtils.hasPlayedBefore(targetUUID))

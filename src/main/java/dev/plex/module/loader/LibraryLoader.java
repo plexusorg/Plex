@@ -47,7 +47,6 @@ import org.jetbrains.annotations.Nullable;
 
 public class LibraryLoader
 {
-
     private final Logger logger;
     private final RepositorySystem repository;
     private final DefaultRepositorySystemSession session;
