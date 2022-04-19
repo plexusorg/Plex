@@ -129,7 +129,7 @@ public class PunishmentManager implements PlexBase
         {
             PlexPlayer player = DataUtils.getPlayer(uuid);
             player.loadPunishments();
-            return player.getPunishments().stream().anyMatch(punishment -> punishment.getType() == PunishmentType.BAN && punishment.isActive());
+            return player.getPunishments().stream().anyMatch(punishment -> (punishment.getType() == PunishmentType.BAN || punishment.getType() == PunishmentType.TEMPBAN) && punishment.isActive());
         });
     }
 
@@ -139,7 +139,7 @@ public class PunishmentManager implements PlexBase
         {
             return false;
         }*/
-        return DataUtils.getPlayer(uuid).getPunishments().stream().anyMatch(punishment -> punishment.getType() == PunishmentType.BAN && punishment.isActive());
+        return DataUtils.getPlayer(uuid).getPunishments().stream().anyMatch(punishment -> (punishment.getType() == PunishmentType.BAN || punishment.getType() == PunishmentType.TEMPBAN) && punishment.isActive());
     }
 
     public boolean isBanned(PlexPlayer player)
@@ -154,7 +154,7 @@ public class PunishmentManager implements PlexBase
             return CompletableFuture.supplyAsync(() ->
             {
                 List<PlexPlayer> players = Plex.get().getMongoPlayerData().getPlayers();
-                return players.stream().map(PlexPlayer::getPunishments).flatMap(Collection::stream).filter(Punishment::isActive).filter(punishment -> punishment.getType() == PunishmentType.BAN).toList();
+                return players.stream().map(PlexPlayer::getPunishments).flatMap(Collection::stream).filter(Punishment::isActive).filter(punishment -> punishment.getType() == PunishmentType.BAN || punishment.getType() == PunishmentType.TEMPBAN).toList();
             });
         }
         else
@@ -164,7 +164,7 @@ public class PunishmentManager implements PlexBase
             Plex.get().getSqlPunishment().getPunishments().whenComplete((punishments, throwable) ->
             {
                 PlexLog.debug("Received Punishments");
-                List<Punishment> punishmentList = punishments.stream().filter(Punishment::isActive).filter(punishment -> punishment.getType() == PunishmentType.BAN).toList();
+                List<Punishment> punishmentList = punishments.stream().filter(Punishment::isActive).filter(punishment -> punishment.getType() == PunishmentType.BAN || punishment.getType() == PunishmentType.TEMPBAN).toList();
                 PlexLog.debug("Completing with {0} punishments", punishmentList.size());
                 future.complete(punishmentList);
             });
@@ -184,7 +184,7 @@ public class PunishmentManager implements PlexBase
             return CompletableFuture.runAsync(() ->
             {
                 PlexPlayer plexPlayer = DataUtils.getPlayer(uuid);
-                plexPlayer.setPunishments(plexPlayer.getPunishments().stream().filter(Punishment::isActive).filter(punishment -> punishment.getType() == PunishmentType.BAN)
+                plexPlayer.setPunishments(plexPlayer.getPunishments().stream().filter(Punishment::isActive).filter(punishment -> punishment.getType() == PunishmentType.BAN || punishment.getType() == PunishmentType.TEMPBAN)
                         .peek(punishment -> punishment.setActive(false)).collect(Collectors.toList()));
                 DataUtils.update(plexPlayer);
             });

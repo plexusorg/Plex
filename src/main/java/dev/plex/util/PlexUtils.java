@@ -63,7 +63,7 @@ import org.json.simple.parser.ParseException;
 public class PlexUtils implements PlexBase
 {
     private static final Random RANDOM;
-    private static final List<String> regxList = new ArrayList<>()
+    public static final List<String> timeUnits = new ArrayList<>()
     {{
         add("y");
         add("mo");
@@ -290,7 +290,7 @@ public class PlexUtils implements PlexBase
     {
         StringBuilder sb = new StringBuilder();
 
-        regxList.forEach(obj ->
+        timeUnits.forEach(obj ->
         {
             if (parse.endsWith(obj))
             {
@@ -301,27 +301,36 @@ public class PlexUtils implements PlexBase
         return Long.parseLong(sb.toString());
     }
 
-    private static TimeUnit verify(String arg)
+    public static int parseInteger(String s) throws NumberFormatException
     {
-        TimeUnit unit = null;
-        for (String c : regxList)
+        if (!NumberUtils.isNumber(s))
         {
-            if (arg.endsWith(c))
+            throw new NumberFormatException(messageString("unableToParseNumber", s));
+        }
+        return Integer.parseInt(s);
+    }
+
+    public static LocalDateTime createDate(String arg)
+    {
+        LocalDateTime time = LocalDateTime.now();
+        for (String unit : PlexUtils.timeUnits)
+        {
+            if (arg.endsWith(unit))
             {
-                switch (c)
+                int duration = parseInteger(arg.replace(unit, ""));
+                switch (unit)
                 {
-                    case "y" -> unit = TimeUnit.YEAR;
-                    case "mo" -> unit = TimeUnit.MONTH;
-                    case "w" -> unit = TimeUnit.WEEK;
-                    case "d" -> unit = TimeUnit.DAY;
-                    case "h" -> unit = TimeUnit.HOUR;
-                    case "m" -> unit = TimeUnit.MINUTE;
-                    case "s" -> unit = TimeUnit.SECOND;
+                    case "y" -> time = time.plusYears(duration);
+                    case "mo" -> time = time.plusMonths(duration);
+                    case "w" -> time = time.plusWeeks(duration);
+                    case "d" -> time = time.plusDays(duration);
+                    case "h" -> time = time.plusHours(duration);
+                    case "m" -> time = time.plusMinutes(duration);
+                    case "s" -> time = time.plusSeconds(duration);
                 }
-                break;
             }
         }
-        return (unit != null) ? unit : TimeUnit.DAY;
+        return time;
     }
 
     public static String useTimezone(LocalDateTime date)
@@ -332,16 +341,6 @@ public class PlexUtils implements PlexBase
             TIMEZONE = "Etc/UTC";
         }
         return DATE_FORMAT.withZone(ZoneId.of(TIMEZONE)).format(date);
-    }
-
-    public static LocalDateTime parseDateOffset(String... time)
-    {
-        Instant instant = Instant.now();
-        for (String arg : time)
-        {
-            instant = instant.plusSeconds(verify(arg).get() * a(arg));
-        }
-        return LocalDateTime.ofInstant(instant, ZoneId.systemDefault().getRules().getOffset(instant));
     }
 
     public static ChatColor getChatColorFromConfig(Config config, ChatColor def, String path)

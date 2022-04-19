@@ -201,7 +201,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
             }
         }
         catch (PlayerNotFoundException | CommandFailException | ConsoleOnlyException |
-               ConsoleMustDefinePlayerException | PlayerNotBannedException ex)
+               ConsoleMustDefinePlayerException | PlayerNotBannedException | NumberFormatException ex)
         {
             send(sender, PlexUtils.mmDeserialize(ex.getMessage()));
         }
