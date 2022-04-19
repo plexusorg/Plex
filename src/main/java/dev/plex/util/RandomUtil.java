@@ -1,5 +1,6 @@
 package dev.plex.util;
 
+import java.util.Arrays;
 import java.util.concurrent.ThreadLocalRandom;
 import net.kyori.adventure.text.format.NamedTextColor;
 
@@ -8,7 +9,7 @@ public class RandomUtil
 
     public static NamedTextColor getRandomColor()
     {
-        NamedTextColor[] colors = NamedTextColor.NAMES.values().toArray(NamedTextColor[]::new);
+        NamedTextColor[] colors = NamedTextColor.NAMES.values().stream().filter(namedTextColor -> namedTextColor != NamedTextColor.BLACK && namedTextColor != NamedTextColor.DARK_BLUE).toArray(NamedTextColor[]::new);
         return colors[randomNum(colors.length)];
     }
 

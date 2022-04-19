@@ -25,8 +25,8 @@ public class ServerListener extends PlexListener
             AtomicReference<Component> motd = new AtomicReference<>(Component.empty());
             for (final String word : baseMotd.split(" "))
             {
-                motd.get().append(Component.text(word).color(RandomUtil.getRandomColor()));
-                motd.get().append(Component.space());
+                motd.set(motd.get().append(Component.text(word).color(RandomUtil.getRandomColor())));
+                motd.set(motd.get().append(Component.space()));
             }
             event.motd(motd.get());
         }
