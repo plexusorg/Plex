@@ -1,6 +1,5 @@
 package dev.plex.util;
 
-import java.util.Arrays;
 import java.util.concurrent.ThreadLocalRandom;
 import net.kyori.adventure.text.format.NamedTextColor;
 
