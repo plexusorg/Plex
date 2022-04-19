@@ -66,7 +66,7 @@ public class TempbanCMD extends PlexCommand
             return messageComponent("playerBanned");
         }
         Punishment punishment = new Punishment(targetUUID, getUUID(sender));
-        punishment.setType(PunishmentType.BAN);
+        punishment.setType(PunishmentType.TEMPBAN);
         if (args.length > 2)
         {
             reason = StringUtils.join(args, " ", 2, args.length);
