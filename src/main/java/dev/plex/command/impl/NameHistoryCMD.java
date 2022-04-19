@@ -10,6 +10,7 @@ import dev.plex.util.AshconInfo;
 import dev.plex.util.MojangUtils;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
+import dev.plex.util.TimeUtils;
 import java.util.Arrays;
 import java.util.List;
 import net.kyori.adventure.text.Component;
@@ -47,7 +48,7 @@ public class NameHistoryCMD extends PlexCommand
                 historyList.add(
                         messageComponent("nameHistoryBody",
                                 history.getUsername(),
-                                PlexUtils.useTimezone(history.getLocalDateTime())));
+                                TimeUtils.useTimezone(history.getLocalDateTime())));
             }
             else
             {

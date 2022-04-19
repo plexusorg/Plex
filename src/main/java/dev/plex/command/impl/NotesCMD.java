@@ -9,6 +9,7 @@ import dev.plex.punishment.extra.Note;
 import dev.plex.rank.enums.Rank;
 import dev.plex.storage.StorageType;
 import dev.plex.util.PlexUtils;
+import dev.plex.util.TimeUtils;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
@@ -168,7 +169,7 @@ public class NotesCMD extends PlexCommand
         AtomicReference<Component> noteList = new AtomicReference<>(Component.text("Player notes for: " + plexPlayer.getName()).color(NamedTextColor.GREEN));
         for (Note note : notes)
         {
-            Component noteLine = mmString("<gold><!italic>" + note.getId() + " - Written by: " + DataUtils.getPlayer(note.getWrittenBy()).getName() + " on " + PlexUtils.useTimezone(note.getTimestamp()));
+            Component noteLine = mmString("<gold><!italic>" + note.getId() + " - Written by: " + DataUtils.getPlayer(note.getWrittenBy()).getName() + " on " + TimeUtils.useTimezone(note.getTimestamp()));
             noteLine = noteLine.append(mmString("<newline><yellow># " + note.getNote()));
             noteList.set(noteList.get().append(Component.newline()));
             noteList.set(noteList.get().append(noteLine));

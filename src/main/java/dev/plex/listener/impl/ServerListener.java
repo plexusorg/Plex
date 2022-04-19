@@ -2,7 +2,7 @@ package dev.plex.listener.impl;
 
 import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
 import dev.plex.listener.PlexListener;
-import dev.plex.util.PlexUtils;
+import dev.plex.util.RandomUtil;
 import java.util.List;
 import java.util.stream.Collectors;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -23,7 +23,7 @@ public class ServerListener extends PlexListener
             final StringBuilder motd = new StringBuilder();
             for (final String word : baseMotd.split(" "))
             {
-                motd.append(PlexUtils.randomChatColor()).append(word).append(" ");
+                motd.append(RandomUtil.getRandomColor()).append(word).append(" ");
             }
             event.motd(LegacyComponentSerializer.legacyAmpersand().deserialize(motd.toString().trim()));
         }
