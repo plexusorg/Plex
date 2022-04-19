@@ -5,6 +5,7 @@ import dev.morphia.annotations.Entity;
 import dev.plex.Plex;
 import dev.plex.util.MojangUtils;
 import dev.plex.util.PlexUtils;
+import dev.plex.util.TimeUtils;
 import dev.plex.util.adapter.LocalDateTimeDeserializer;
 import dev.plex.util.adapter.LocalDateTimeSerializer;
 import java.time.LocalDateTime;
@@ -43,9 +44,7 @@ public class Punishment
 
     public static Component generateBanMessage(Punishment punishment)
     {
-        return PlexUtils.messageComponent("banMessage", banUrl, punishment.getReason(),
-                PlexUtils.useTimezone(punishment.getEndDate()),
-                punishment.getPunisher() == null ? "CONSOLE" : MojangUtils.getInfo(punishment.getPunisher().toString()).getUsername());
+        return PlexUtils.messageComponent("banMessage", banUrl, punishment.getReason(), TimeUtils.useTimezone(punishment.getEndDate()), punishment.getPunisher() == null ? "CONSOLE" : MojangUtils.getInfo(punishment.getPunisher().toString()).getUsername());
     }
 
     public static Component generateIndefBanMessage(String type)

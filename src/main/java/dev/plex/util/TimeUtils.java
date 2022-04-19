@@ -1,13 +1,21 @@
 package dev.plex.util;
 
+import dev.plex.Plex;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
+import java.util.TimeZone;
 import org.apache.commons.lang.math.NumberUtils;
 
 public class TimeUtils
 {
+    private static String TIMEZONE = Plex.get().config.getString("server.timezone");
+    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("MM/dd/yyyy 'at' hh:mm:ss a z");
+    private static final Set<String> TIMEZONES = Set.of(TimeZone.getAvailableIDs());
     private static final List<String> timeUnits = new ArrayList<>()
     {{
         add("s");
@@ -51,23 +59,13 @@ public class TimeUtils
         return time;
     }
 
-    public static long getDateNow()
+    public static String useTimezone(LocalDateTime date)
     {
-        return new Date().getTime();
-    }
-
-    public static Date getDateFromLong(long epoch)
-    {
-        return new Date(epoch);
-    }
-
-    public static long hoursToSeconds(long hours)
-    {
-        return hours * 3600;
-    }
-
-    public static long minutesToSeconds(long minutes)
-    {
-        return minutes * 60;
+        // Use UTC if the timezone is null or not set correctly
+        if (TIMEZONE == null || !TIMEZONES.contains(TIMEZONE))
+        {
+            TIMEZONE = "Etc/UTC";
+        }
+        return DATE_FORMAT.withZone(ZoneId.of(TIMEZONE)).format(date);
     }
 }
