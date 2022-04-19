@@ -5,14 +5,15 @@ import dev.plex.Plex;
 import dev.plex.punishment.Punishment;
 import dev.plex.punishment.PunishmentType;
 import dev.plex.util.PlexLog;
+import dev.plex.util.TimeUtils;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -41,13 +42,12 @@ public class SQLPunishment
                     punishment.setType(PunishmentType.valueOf(set.getString("type")));
                     punishment.setCustomTime(set.getBoolean("customTime"));
                     punishment.setPunishedUsername(set.getString("punishedUsername"));
-                    punishment.setEndDate(LocalDateTime.ofInstant(Instant.ofEpochMilli(set.getLong("endDate")), ZoneId.systemDefault()));
+                    punishment.setEndDate(ZonedDateTime.ofInstant(Instant.ofEpochMilli(set.getLong("endDate")), ZoneId.of(TimeUtils.TIMEZONE)));
                     punishment.setReason(set.getString("reason"));
                     punishment.setIp(set.getString("ip"));
                     punishments.add(punishment);
                 }
-            }
-            catch (SQLException e)
+            } catch (SQLException e)
             {
                 e.printStackTrace();
                 return punishments;
@@ -71,13 +71,12 @@ public class SQLPunishment
                 punishment.setType(PunishmentType.valueOf(set.getString("type")));
                 punishment.setCustomTime(set.getBoolean("customTime"));
                 punishment.setPunishedUsername(set.getString("punishedUsername"));
-                punishment.setEndDate(LocalDateTime.ofInstant(Instant.ofEpochMilli(set.getLong("endDate")), ZoneId.systemDefault()));
+                punishment.setEndDate(ZonedDateTime.ofInstant(Instant.ofEpochMilli(set.getLong("endDate")), ZoneId.of(TimeUtils.TIMEZONE)));
                 punishment.setReason(set.getString("reason"));
                 punishment.setIp(set.getString("ip"));
                 punishments.add(punishment);
             }
-        }
-        catch (SQLException e)
+        } catch (SQLException e)
         {
             e.printStackTrace();
         }
@@ -101,11 +100,10 @@ public class SQLPunishment
                 statement.setString(6, punishment.getReason());
                 statement.setBoolean(7, punishment.isCustomTime());
                 statement.setBoolean(8, punishment.isActive());
-                statement.setLong(9, punishment.getEndDate().toInstant(ZoneOffset.UTC).toEpochMilli());
+                statement.setLong(9, punishment.getEndDate().toInstant().toEpochMilli());
                 PlexLog.debug("Executing punishment");
                 statement.execute();
-            }
-            catch (SQLException e)
+            } catch (SQLException e)
             {
                 e.printStackTrace();
             }
@@ -121,8 +119,14 @@ public class SQLPunishment
             statement.setBoolean(2, true);
             statement.setString(3, uuid.toString());
             statement.setString(4, PunishmentType.BAN.name());
-        }
-        catch (SQLException e)
+
+            PreparedStatement statement1 = con.prepareStatement(UPDATE_BAN);
+            statement1.setBoolean(1, false);
+            statement1.setBoolean(2, true);
+            statement1.setString(3, uuid.toString());
+            statement1.setString(4, PunishmentType.TEMPBAN.name());
+            statement1.executeUpdate();
+        } catch (SQLException e)
         {
             e.printStackTrace();
         }
@@ -140,8 +144,14 @@ public class SQLPunishment
                 statement.setString(3, uuid.toString());
                 statement.setString(4, PunishmentType.BAN.name());
                 statement.executeUpdate();
-            }
-            catch (SQLException e)
+
+                PreparedStatement statement1 = con.prepareStatement(UPDATE_BAN);
+                statement1.setBoolean(1, false);
+                statement1.setBoolean(2, true);
+                statement1.setString(3, uuid.toString());
+                statement1.setString(4, PunishmentType.TEMPBAN.name());
+                statement1.executeUpdate();
+            } catch (SQLException e)
             {
                 e.printStackTrace();
             }

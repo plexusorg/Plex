@@ -11,6 +11,8 @@ import dev.plex.storage.StorageType;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.TimeUtils;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -75,7 +77,7 @@ public class NotesCMD extends PlexCommand
                 String content = StringUtils.join(ArrayUtils.subarray(args, 2, args.length), " ");
                 if (playerSender != null)
                 {
-                    Note note = new Note(plexPlayer.getUuid(), content, playerSender.getUniqueId(), LocalDateTime.now());
+                    Note note = new Note(plexPlayer.getUuid(), content, playerSender.getUniqueId(), ZonedDateTime.now(ZoneId.of(TimeUtils.TIMEZONE)));
                     plexPlayer.getNotes().add(note);
                     if (plugin.getStorageType() != StorageType.MONGODB)
                     {

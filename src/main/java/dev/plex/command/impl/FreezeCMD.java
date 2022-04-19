@@ -10,7 +10,11 @@ import dev.plex.punishment.PunishmentType;
 import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexUtils;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
+
+import dev.plex.util.TimeUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -51,7 +55,7 @@ public class FreezeCMD extends PlexCommand
 
         Punishment punishment = new Punishment(punishedPlayer.getUuid(), getUUID(sender));
         punishment.setCustomTime(false);
-        LocalDateTime date = LocalDateTime.now();
+        ZonedDateTime date = ZonedDateTime.now(ZoneId.of(TimeUtils.TIMEZONE));
         punishment.setEndDate(date.plusMinutes(5));
         punishment.setType(PunishmentType.FREEZE);
         punishment.setPunishedUsername(player.getName());

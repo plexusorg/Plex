@@ -43,12 +43,12 @@ public class NameHistoryCMD extends PlexCommand
         List<Component> historyList = Lists.newArrayList();
         Arrays.stream(info.getUsernameHistories()).forEach(history ->
         {
-            if (history.getLocalDateTime() != null)
+            if (history.getZonedDateTime() != null)
             {
                 historyList.add(
                         messageComponent("nameHistoryBody",
                                 history.getUsername(),
-                                TimeUtils.useTimezone(history.getLocalDateTime())));
+                                TimeUtils.useTimezone(history.getZonedDateTime())));
             }
             else
             {

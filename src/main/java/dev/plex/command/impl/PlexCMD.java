@@ -1,5 +1,6 @@
 package dev.plex.command.impl;
 
+import dev.plex.Plex;
 import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
@@ -15,6 +16,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import dev.plex.util.TimeUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.apache.commons.lang.StringUtils;
@@ -63,6 +66,8 @@ public class PlexCMD extends PlexCommand
             plugin.getServiceManager().endServices();
             plugin.getServiceManager().startServices();
             PlexLog.debug("Restarted services");
+            TimeUtils.TIMEZONE = plugin.config.getString("server.timezone");
+            send(sender, "Set timezone to: " + TimeUtils.TIMEZONE);
             send(sender, "Plex successfully reloaded.");
             return null;
         }

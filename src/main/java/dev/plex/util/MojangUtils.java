@@ -7,8 +7,11 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+
+import dev.plex.Plex;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -37,16 +40,16 @@ public class MojangUtils
                 return null;
             }
             client.close();
-            AshconInfo ashconInfo = new GsonBuilder().registerTypeAdapter(LocalDateTime.class, (JsonDeserializer<LocalDateTime>)(json1, typeOfT, context) ->
-                    LocalDateTime.ofInstant(Instant.from(DateTimeFormatter.ISO_INSTANT.parse(json1.getAsJsonPrimitive().getAsString())), ZoneId.systemDefault())).create().fromJson(json, AshconInfo.class);
+            AshconInfo ashconInfo = new GsonBuilder().registerTypeAdapter(ZonedDateTime.class, (JsonDeserializer<ZonedDateTime>)(json1, typeOfT, context) ->
+                    ZonedDateTime.ofInstant(Instant.from(DateTimeFormatter.ISO_INSTANT.parse(json1.getAsJsonPrimitive().getAsString())), ZoneId.of(Plex.get().config.getString("server.timezone")))).create().fromJson(json, AshconInfo.class);
 
             Arrays.sort(ashconInfo.getUsernameHistories(), (o1, o2) ->
             {
-                if (o1.getLocalDateTime() == null || o2.getLocalDateTime() == null)
+                if (o1.getZonedDateTime() == null || o2.getZonedDateTime() == null)
                 {
                     return 1;
                 }
-                return o1.getLocalDateTime().compareTo(o2.getLocalDateTime());
+                return o1.getZonedDateTime().compareTo(o2.getZonedDateTime());
             });
 
             return ashconInfo;

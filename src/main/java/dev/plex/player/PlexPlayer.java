@@ -12,11 +12,13 @@ import dev.plex.punishment.Punishment;
 import dev.plex.punishment.extra.Note;
 import dev.plex.rank.enums.Rank;
 import dev.plex.storage.StorageType;
-import dev.plex.util.adapter.LocalDateTimeSerializer;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+
+import dev.plex.util.adapter.ZonedDateTimeSerializer;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -140,6 +142,6 @@ public class PlexPlayer
 
     public String toJSON()
     {
-        return new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new LocalDateTimeSerializer()).create().toJson(this);
+        return new GsonBuilder().registerTypeAdapter(ZonedDateTime.class, new ZonedDateTimeSerializer()).create().toJson(this);
     }
 }

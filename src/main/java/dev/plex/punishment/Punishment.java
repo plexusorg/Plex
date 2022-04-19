@@ -6,10 +6,11 @@ import dev.plex.Plex;
 import dev.plex.util.MojangUtils;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.TimeUtils;
-import dev.plex.util.adapter.LocalDateTimeDeserializer;
-import dev.plex.util.adapter.LocalDateTimeSerializer;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.UUID;
+
+import dev.plex.util.adapter.ZonedDateTimeDeserializer;
+import dev.plex.util.adapter.ZonedDateTimeSerializer;
 import lombok.Getter;
 import lombok.Setter;
 import net.kyori.adventure.text.Component;
@@ -28,7 +29,7 @@ public class Punishment
     private String reason;
     private boolean customTime;
     private boolean active; // Field is only for bans
-    private LocalDateTime endDate;
+    private ZonedDateTime endDate;
 
     public Punishment()
     {
@@ -54,11 +55,11 @@ public class Punishment
 
     public static Punishment fromJson(String json)
     {
-        return new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new LocalDateTimeDeserializer()).create().fromJson(json, Punishment.class);
+        return new GsonBuilder().registerTypeAdapter(ZonedDateTime.class, new ZonedDateTimeDeserializer()).create().fromJson(json, Punishment.class);
     }
 
     public String toJSON()
     {
-        return new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new LocalDateTimeSerializer()).create().toJson(this);
+        return new GsonBuilder().registerTypeAdapter(ZonedDateTime.class, new ZonedDateTimeSerializer()).create().toJson(this);
     }
 }

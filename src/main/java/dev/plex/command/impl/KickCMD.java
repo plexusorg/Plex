@@ -11,8 +11,11 @@ import dev.plex.punishment.Punishment;
 import dev.plex.punishment.PunishmentType;
 import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexUtils;
+import dev.plex.util.TimeUtils;
 import dev.plex.util.WebUtils;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.UUID;
 import net.kyori.adventure.text.Component;
 import org.apache.commons.lang.StringUtils;
@@ -57,7 +60,7 @@ public class KickCMD extends PlexCommand
         }
 
         punishment.setPunishedUsername(plexPlayer.getName());
-        punishment.setEndDate(LocalDateTime.now());
+        punishment.setEndDate(ZonedDateTime.now(ZoneId.of(TimeUtils.TIMEZONE)));
         punishment.setCustomTime(false);
         punishment.setActive(false);
         punishment.setIp(player.getAddress().getAddress().getHostAddress().trim());

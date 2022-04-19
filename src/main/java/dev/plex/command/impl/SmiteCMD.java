@@ -10,8 +10,12 @@ import dev.plex.punishment.PunishmentType;
 import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexUtils;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.List;
+
+import dev.plex.util.TimeUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.title.Title;
@@ -125,7 +129,7 @@ public class SmiteCMD extends PlexCommand
 
         Punishment punishment = new Punishment(plexPlayer.getUuid(), getUUID(sender));
         punishment.setCustomTime(false);
-        punishment.setEndDate(LocalDateTime.now());
+        punishment.setEndDate(ZonedDateTime.now(ZoneId.of(TimeUtils.TIMEZONE)));
         punishment.setType(PunishmentType.SMITE);
         punishment.setPunishedUsername(player.getName());
         punishment.setIp(player.getAddress().getAddress().getHostAddress().trim());

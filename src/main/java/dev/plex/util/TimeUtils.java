@@ -3,9 +3,9 @@ package dev.plex.util;
 import dev.plex.Plex;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.TimeZone;
@@ -13,7 +13,7 @@ import org.apache.commons.lang.math.NumberUtils;
 
 public class TimeUtils
 {
-    private static String TIMEZONE = Plex.get().config.getString("server.timezone");
+    public static String TIMEZONE = Plex.get().config.getString("server.timezone");
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("MM/dd/yyyy 'at' hh:mm:ss a z");
     private static final Set<String> TIMEZONES = Set.of(TimeZone.getAvailableIDs());
     private static final List<String> timeUnits = new ArrayList<>()
@@ -36,9 +36,9 @@ public class TimeUtils
         return Integer.parseInt(s);
     }
 
-    public static LocalDateTime createDate(String arg)
+    public static ZonedDateTime createDate(String arg)
     {
-        LocalDateTime time = LocalDateTime.now();
+        ZonedDateTime time = ZonedDateTime.now(ZoneId.of(TimeUtils.TIMEZONE));
         for (String unit : timeUnits)
         {
             if (arg.endsWith(unit))
@@ -60,6 +60,16 @@ public class TimeUtils
     }
 
     public static String useTimezone(LocalDateTime date)
+    {
+        // Use UTC if the timezone is null or not set correctly
+        if (TIMEZONE == null || !TIMEZONES.contains(TIMEZONE))
+        {
+            TIMEZONE = "Etc/UTC";
+        }
+        return DATE_FORMAT.withZone(ZoneId.of(TIMEZONE)).format(date);
+    }
+
+    public static String useTimezone(ZonedDateTime date)
     {
         // Use UTC if the timezone is null or not set correctly
         if (TIMEZONE == null || !TIMEZONES.contains(TIMEZONE))

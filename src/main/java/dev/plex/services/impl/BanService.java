@@ -3,6 +3,10 @@ package dev.plex.services.impl;
 import dev.plex.Plex;
 import dev.plex.services.AbstractService;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+
+import dev.plex.util.TimeUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 
@@ -20,7 +24,7 @@ public class BanService extends AbstractService
         {
             punishments.forEach(punishment ->
             {
-                if (LocalDateTime.now().isAfter(punishment.getEndDate()))
+                if (ZonedDateTime.now(ZoneId.of(TimeUtils.TIMEZONE)).isAfter(punishment.getEndDate()))
                 {
                     Plex.get().getPunishmentManager().unban(punishment);
                     Bukkit.broadcast(Component.text("Plex - Unbanned " + Bukkit.getOfflinePlayer(punishment.getPunished()).getName()));

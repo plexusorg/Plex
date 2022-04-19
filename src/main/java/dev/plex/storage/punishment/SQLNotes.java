@@ -3,14 +3,13 @@ package dev.plex.storage.punishment;
 import com.google.common.collect.Lists;
 import dev.plex.Plex;
 import dev.plex.punishment.extra.Note;
+import dev.plex.util.TimeUtils;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
+import java.time.*;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -37,7 +36,7 @@ public class SQLNotes
                             uuid,
                             set.getString("note"),
                             UUID.fromString(set.getString("written_by")),
-                            LocalDateTime.ofInstant(Instant.ofEpochMilli(set.getLong("timestamp")), ZoneId.systemDefault())
+                            ZonedDateTime.ofInstant(Instant.ofEpochMilli(set.getLong("timestamp")), ZoneId.of(TimeUtils.TIMEZONE))
                     );
                     note.setId(set.getInt("id"));
                     notes.add(note);
@@ -83,7 +82,7 @@ public class SQLNotes
                     statement.setString(2, note.getUuid().toString());
                     statement.setString(3, note.getWrittenBy().toString());
                     statement.setString(4, note.getNote());
-                    statement.setLong(5, note.getTimestamp().toInstant(ZoneOffset.UTC).toEpochMilli());
+                    statement.setLong(5, note.getTimestamp().toInstant().toEpochMilli());
                     statement.execute();
                     note.setId(notes.size());
                 }

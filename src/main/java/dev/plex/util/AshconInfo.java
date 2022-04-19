@@ -2,6 +2,8 @@ package dev.plex.util;
 
 import com.google.gson.annotations.SerializedName;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -25,7 +27,7 @@ public class AshconInfo
     {
         private String username;
         @SerializedName("changed_at")
-        private LocalDateTime localDateTime;
+        private ZonedDateTime zonedDateTime;
     }
 
     @Getter

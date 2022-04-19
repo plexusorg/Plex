@@ -14,12 +14,16 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
+
+import dev.plex.util.TimeUtils;
 import lombok.Data;
 import lombok.Getter;
 import org.apache.commons.io.FileUtils;
@@ -200,8 +204,8 @@ public class PunishmentManager implements PlexBase
         if (punishment.getType() == PunishmentType.FREEZE)
         {
             player.setFrozen(true);
-            LocalDateTime now = LocalDateTime.now();
-            LocalDateTime then = punishment.getEndDate();
+            ZonedDateTime now = ZonedDateTime.now(ZoneId.of(TimeUtils.TIMEZONE));
+            ZonedDateTime then = punishment.getEndDate();
             long seconds = ChronoUnit.SECONDS.between(now, then);
             new BukkitRunnable()
             {
@@ -221,8 +225,8 @@ public class PunishmentManager implements PlexBase
         else if (punishment.getType() == PunishmentType.MUTE)
         {
             player.setMuted(true);
-            LocalDateTime now = LocalDateTime.now();
-            LocalDateTime then = punishment.getEndDate();
+            ZonedDateTime now = ZonedDateTime.now(ZoneId.of(TimeUtils.TIMEZONE));
+            ZonedDateTime then = punishment.getEndDate();
             long seconds = ChronoUnit.SECONDS.between(now, then);
             new BukkitRunnable()
             {

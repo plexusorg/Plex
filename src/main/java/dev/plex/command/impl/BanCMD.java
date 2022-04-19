@@ -14,8 +14,11 @@ import dev.plex.punishment.PunishmentType;
 import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
+import dev.plex.util.TimeUtils;
 import dev.plex.util.WebUtils;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
 import net.kyori.adventure.text.Component;
@@ -84,7 +87,7 @@ public class BanCMD extends PlexCommand
                 punishment.setReason("No reason provided.");
             }
             punishment.setPunishedUsername(plexPlayer.getName());
-            LocalDateTime date = LocalDateTime.now();
+            ZonedDateTime date = ZonedDateTime.now(ZoneId.of(TimeUtils.TIMEZONE));
             punishment.setEndDate(date.plusDays(1));
             punishment.setCustomTime(false);
             punishment.setActive(!isAdmin(plexPlayer));
