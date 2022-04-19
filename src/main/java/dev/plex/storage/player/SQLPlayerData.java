@@ -5,6 +5,9 @@ import com.google.gson.Gson;
 import dev.plex.Plex;
 import dev.plex.cache.PlayerCache;
 import dev.plex.player.PlexPlayer;
+import dev.plex.storage.StorageType;
+import dev.plex.util.PlexLog;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -35,8 +38,7 @@ public class SQLPlayerData
             statement.setString(1, uuid.toString());
             ResultSet set = statement.executeQuery();
             return set.next();
-        }
-        catch (SQLException throwables)
+        } catch (SQLException throwables)
         {
             throwables.printStackTrace();
         }
@@ -51,8 +53,7 @@ public class SQLPlayerData
             statement.setString(1, username);
             ResultSet set = statement.executeQuery();
             return set.next();
-        }
-        catch (SQLException throwables)
+        } catch (SQLException throwables)
         {
             throwables.printStackTrace();
         }
@@ -103,8 +104,7 @@ public class SQLPlayerData
                 plexPlayer.setCommandSpy(commandspy);
             }
             return plexPlayer;
-        }
-        catch (SQLException throwables)
+        } catch (SQLException throwables)
         {
             throwables.printStackTrace();
         }
@@ -148,8 +148,7 @@ public class SQLPlayerData
                 return plexPlayer;
             }
             return null;
-        }
-        catch (SQLException throwables)
+        } catch (SQLException throwables)
         {
             throwables.printStackTrace();
         }
@@ -171,44 +170,90 @@ public class SQLPlayerData
             return player;
         }
 
-        try (Connection con = Plex.get().getSqlConnection().getCon())
+        if (Plex.get().getStorageType() == StorageType.MARIADB)
         {
-            PreparedStatement statement = con.prepareStatement("select * from `players` where json_search(ips, ?, ?) IS NOT NULL LIMIT 1");
-            statement.setString(1, "one");
-            statement.setString(2, ip);
-            ResultSet set = statement.executeQuery();
-
-            PlexPlayer plexPlayer = null;
-            while (set.next())
+            try (Connection con = Plex.get().getSqlConnection().getCon())
             {
-                String uuid = set.getString("uuid");
-                String name = set.getString("name");
-                String loginMSG = set.getString("login_msg");
-                String prefix = set.getString("prefix");
-                String rankName = set.getString("rank").toUpperCase();
-                boolean adminActive = set.getBoolean("adminActive");
-                long coins = set.getLong("coins");
-                boolean vanished = set.getBoolean("vanished");
-                boolean commandspy = set.getBoolean("commandspy");
-                List<String> ips = new Gson().fromJson(set.getString("ips"), new TypeToken<List<String>>()
+                PreparedStatement statement = con.prepareStatement("select * from `players` where json_search(ips, ?, ?) IS NOT NULL LIMIT 1");
+                statement.setString(1, "one");
+                statement.setString(2, ip);
+                ResultSet set = statement.executeQuery();
+
+                PlexPlayer plexPlayer = null;
+                while (set.next())
                 {
-                }.getType());
-                plexPlayer = new PlexPlayer(UUID.fromString(uuid));
-                plexPlayer.setName(name);
-                plexPlayer.setLoginMessage(loginMSG);
-                plexPlayer.setPrefix(prefix);
-                plexPlayer.setRank(rankName);
-                plexPlayer.setAdminActive(adminActive);
-                plexPlayer.setIps(ips);
-                plexPlayer.setCoins(coins);
-                plexPlayer.setVanished(vanished);
-                plexPlayer.setCommandSpy(commandspy);
+                    String uuid = set.getString("uuid");
+                    String name = set.getString("name");
+                    String loginMSG = set.getString("login_msg");
+                    String prefix = set.getString("prefix");
+                    String rankName = set.getString("rank").toUpperCase();
+                    boolean adminActive = set.getBoolean("adminActive");
+                    long coins = set.getLong("coins");
+                    boolean vanished = set.getBoolean("vanished");
+                    boolean commandspy = set.getBoolean("commandspy");
+                    List<String> ips = new Gson().fromJson(set.getString("ips"), new TypeToken<List<String>>()
+                    {
+                    }.getType());
+                    plexPlayer = new PlexPlayer(UUID.fromString(uuid));
+                    plexPlayer.setName(name);
+                    plexPlayer.setLoginMessage(loginMSG);
+                    plexPlayer.setPrefix(prefix);
+                    plexPlayer.setRank(rankName);
+                    plexPlayer.setAdminActive(adminActive);
+                    plexPlayer.setIps(ips);
+                    plexPlayer.setCoins(coins);
+                    plexPlayer.setVanished(vanished);
+                    plexPlayer.setCommandSpy(commandspy);
+                }
+                return plexPlayer;
+            } catch (SQLException throwables)
+            {
+                throwables.printStackTrace();
             }
-            return plexPlayer;
-        }
-        catch (SQLException throwables)
+        } else if (Plex.get().getStorageType() == StorageType.SQLITE)
         {
-            throwables.printStackTrace();
+            PlexLog.warn("Querying a user by IP running SQLite can cause performance issues! Please try to switch to a remote DB ASAP!");
+            try (Connection con = Plex.get().getSqlConnection().getCon())
+            {
+                PreparedStatement statement = con.prepareStatement("select * from `players`");
+                ResultSet set = statement.executeQuery();
+
+                PlexPlayer plexPlayer = null;
+                while (set.next())
+                {
+                    List<String> ips = new Gson().fromJson(set.getString("ips"), new TypeToken<List<String>>()
+                    {
+                    }.getType());
+                    if (!ips.contains(ip))
+                    {
+                        continue;
+                    }
+                    String uuid = set.getString("uuid");
+                    String name = set.getString("name");
+                    String loginMSG = set.getString("login_msg");
+                    String prefix = set.getString("prefix");
+                    String rankName = set.getString("rank").toUpperCase();
+                    boolean adminActive = set.getBoolean("adminActive");
+                    long coins = set.getLong("coins");
+                    boolean vanished = set.getBoolean("vanished");
+                    boolean commandspy = set.getBoolean("commandspy");
+
+                    plexPlayer = new PlexPlayer(UUID.fromString(uuid));
+                    plexPlayer.setName(name);
+                    plexPlayer.setLoginMessage(loginMSG);
+                    plexPlayer.setPrefix(prefix);
+                    plexPlayer.setRank(rankName);
+                    plexPlayer.setAdminActive(adminActive);
+                    plexPlayer.setIps(ips);
+                    plexPlayer.setCoins(coins);
+                    plexPlayer.setVanished(vanished);
+                    plexPlayer.setCommandSpy(commandspy);
+                }
+                return plexPlayer;
+            } catch (SQLException throwables)
+            {
+                throwables.printStackTrace();
+            }
         }
         return null;
     }
@@ -235,8 +280,7 @@ public class SQLPlayerData
             statement.setBoolean(9, player.isCommandSpy());
             statement.setString(10, player.getUuid().toString());
             statement.executeUpdate();
-        }
-        catch (SQLException throwables)
+        } catch (SQLException throwables)
         {
             throwables.printStackTrace();
         }
@@ -264,8 +308,7 @@ public class SQLPlayerData
             statement.setBoolean(9, player.isVanished());
             statement.setBoolean(10, player.isCommandSpy());
             statement.execute();
-        }
-        catch (SQLException throwables)
+        } catch (SQLException throwables)
         {
             throwables.printStackTrace();
         }
