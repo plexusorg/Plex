@@ -72,7 +72,7 @@ bukkit {
     description = "Plex provides a new experience for freedom servers."
     main = "dev.plex.Plex"
     website = "https://plex.us.org"
-    authors = ["Telesphoreo", "taahanis", "super"]
+    authors = ["Telesphoreo", "taahanis", "supernt"]
     softDepend = ["Vault"]
     apiVersion = "1.18"
 }
