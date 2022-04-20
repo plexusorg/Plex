@@ -2,11 +2,9 @@ package dev.plex.services.impl;
 
 import dev.plex.Plex;
 import dev.plex.services.AbstractService;
-import java.time.LocalDateTime;
+import dev.plex.util.TimeUtils;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-
-import dev.plex.util.TimeUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 
@@ -36,7 +34,7 @@ public class BanService extends AbstractService
     @Override
     public int repeatInSeconds()
     {
-        // Every 5 minutes
-        return 300;
+        // Every 30 seconds
+        return 30;
     }
 }

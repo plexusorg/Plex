@@ -15,7 +15,7 @@ import org.jetbrains.annotations.Nullable;
 
 @CommandPermissions(level = Rank.ADMIN, permission = "plex.consolesay", source = RequiredCommandSource.CONSOLE)
 @CommandParameters(name = "consolesay", usage = "/<command> <message>", description = "Displays a message to everyone", aliases = "csay")
-public class ConsoleSayCommand extends PlexCommand
+public class ConsoleSayCMD extends PlexCommand
 {
     @Override
     protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)

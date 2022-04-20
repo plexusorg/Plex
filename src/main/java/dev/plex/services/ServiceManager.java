@@ -5,6 +5,7 @@ import dev.plex.Plex;
 import dev.plex.services.impl.AutoWipeService;
 import dev.plex.services.impl.BanService;
 import dev.plex.services.impl.CommandBlockerService;
+import dev.plex.services.impl.CommandFetcherService;
 import dev.plex.services.impl.GameRuleService;
 import dev.plex.services.impl.UpdateCheckerService;
 import java.util.List;
@@ -17,11 +18,12 @@ public class ServiceManager
 
     public ServiceManager()
     {
+        registerService(new AutoWipeService());
         registerService(new BanService());
+        registerService(new CommandBlockerService());
+        registerService(new CommandFetcherService());
         registerService(new GameRuleService());
         registerService(new UpdateCheckerService());
-        registerService(new AutoWipeService());
-        registerService(new CommandBlockerService());
     }
 
     public void startServices()

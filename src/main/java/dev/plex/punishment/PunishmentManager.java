@@ -139,6 +139,7 @@ public class PunishmentManager implements PlexBase
 
     public boolean isBanned(UUID uuid)
     {
+        // TODO: If a person is using MongoDB, this will error out because it is checking for bans on a player that doesn't exist yet
         /*if (!DataUtils.hasPlayedBefore(uuid))
         {
             return false;
@@ -163,13 +164,13 @@ public class PunishmentManager implements PlexBase
         }
         else
         {
-            PlexLog.debug("Checking active bans mysql");
+            //PlexLog.debug("Checking active bans mysql");
             CompletableFuture<List<Punishment>> future = new CompletableFuture<>();
             Plex.get().getSqlPunishment().getPunishments().whenComplete((punishments, throwable) ->
             {
-                PlexLog.debug("Received Punishments");
+                //PlexLog.debug("Received Punishments");
                 List<Punishment> punishmentList = punishments.stream().filter(Punishment::isActive).filter(punishment -> punishment.getType() == PunishmentType.BAN || punishment.getType() == PunishmentType.TEMPBAN).toList();
-                PlexLog.debug("Completing with {0} punishments", punishmentList.size());
+                //PlexLog.debug("Completing with {0} punishments", punishmentList.size());
                 future.complete(punishmentList);
             });
             return future;
