@@ -17,7 +17,8 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
-import org.bukkit.command.CommandMap;
+import org.bukkit.command.Command;
+import org.bukkit.command.PluginIdentifiableCommand;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -34,7 +35,7 @@ public class WorldListener extends PlexListener
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent e)
     {
-        if (!checkPermission(e.getPlayer()))
+        if (!checkPermission(e.getPlayer(), true))
         {
             e.setCancelled(true);
         }
@@ -43,7 +44,7 @@ public class WorldListener extends PlexListener
     @EventHandler
     public void onBlockBreak(BlockBreakEvent e)
     {
-        if (!checkPermission(e.getPlayer()))
+        if (!checkPermission(e.getPlayer(), true))
         {
             e.setCancelled(true);
         }
@@ -63,30 +64,24 @@ public class WorldListener extends PlexListener
     public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event)
     {
         // If the person has permission to modify the world, we don't need to block WorldEdit
-        if (!checkPermission(event.getPlayer()))
+        if (checkPermission(event.getPlayer(), false))
         {
-            PlexLog.debug("We got here");
-            String message = event.getMessage();
-            message = message.replaceAll("\\s.*", "").replaceAll("/", "");
+            return;
+        }
 
-            CommandMap commandMap = plugin.getServer().getCommandMap();
-            String finalMessage = message;
-            commandMap.getKnownCommands().values().stream().filter(cmd -> cmd.getName().toLowerCase().startsWith("fastasyncworldedit:"))
-                    .forEach(cmd ->
-                    {
-                        PlexLog.debug("Matches a command");
-                        for (String commandAliases : cmd.getAliases())
-                        {
-                            PlexLog.debug("Matches an alias");
-                            if (finalMessage.equalsIgnoreCase(cmd.getName()) || finalMessage.equalsIgnoreCase(commandAliases))
-                            {
-                                PlexLog.debug("Blocking it");
-                                event.getPlayer().sendMessage(Component.text("You do not have permission to use WorldEdit in this world.").color(NamedTextColor.RED));
-                                event.setCancelled(true);
-                                break;
-                            }
-                        }
-                    });
+        String message = event.getMessage();
+        // Don't check the arguments
+        message = message.replaceAll("\\s.*", "").replaceFirst("/", "");
+        Command command = Bukkit.getCommandMap().getCommand(message);
+        if (command != null)
+        {
+            // This does check for aliases
+            boolean isWeCommand = command instanceof PluginIdentifiableCommand && ((PluginIdentifiableCommand)command).getPlugin().equals(Bukkit.getPluginManager().getPlugin("FastAsyncWorldEdit"));
+            if (isWeCommand)
+            {
+                event.getPlayer().sendMessage(Component.text("You do not have permission to use WorldEdit in this world!").color(NamedTextColor.RED));
+                event.setCancelled(true);
+            }
         }
     }
 
@@ -154,13 +149,13 @@ public class WorldListener extends PlexListener
         return hasAccess;
     }
 
-    private boolean checkPermission(Player player)
+    private boolean checkPermission(Player player, boolean showMessage)
     {
         PlexPlayer plexPlayer = PlayerCache.getPlexPlayerMap().get(player.getUniqueId());
         World world = player.getWorld();
         if (plugin.getSystem().equalsIgnoreCase("permissions"))
         {
-            String permission = plugin.config.getString("plex." + world.getName().toLowerCase() + ".modify");
+            String permission = plugin.config.getString("plex." + world.getName().toLowerCase() + ".permission");
             if (permission == null)
             {
                 return true;
@@ -186,10 +181,13 @@ public class WorldListener extends PlexListener
             }
         }
 
-        String noEdit = plugin.config.getString("worlds." + world.getName().toLowerCase() + ".noEdit");
-        if (noEdit != null)
+        if (showMessage)
         {
-            player.sendMessage(LegacyComponentSerializer.legacyAmpersand().deserialize(noEdit));
+            String noEdit = plugin.config.getString("worlds." + world.getName().toLowerCase() + ".noEdit");
+            if (noEdit != null)
+            {
+                player.sendMessage(LegacyComponentSerializer.legacyAmpersand().deserialize(noEdit));
+            }
         }
         return false;
     }
