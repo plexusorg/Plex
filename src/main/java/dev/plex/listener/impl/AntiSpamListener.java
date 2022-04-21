@@ -15,7 +15,7 @@ public class AntiSpamListener extends PlexListener
     @EventHandler
     public void onChat(AsyncChatEvent event)
     {
-        TimingService.cooldowns.merge(event.getPlayer().getUniqueId(), 1L, Long::sum);
+        TimingService.spamCooldown.merge(event.getPlayer().getUniqueId(), 1L, Long::sum);
         if (getCount(event.getPlayer().getUniqueId()) > 8L)
         {
             event.getPlayer().sendMessage(Component.text("Please refrain from spamming messages.").color(NamedTextColor.GRAY));
@@ -26,7 +26,7 @@ public class AntiSpamListener extends PlexListener
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event)
     {
-        TimingService.cooldowns.merge(event.getPlayer().getUniqueId(), 1L, Long::sum);
+        TimingService.spamCooldown.merge(event.getPlayer().getUniqueId(), 1L, Long::sum);
         if (getCount(event.getPlayer().getUniqueId()) > 8L)
         {
             event.getPlayer().sendMessage(Component.text("Please refrain from spamming commands.").color(NamedTextColor.GRAY));
@@ -36,6 +36,6 @@ public class AntiSpamListener extends PlexListener
 
     public long getCount(UUID uuid)
     {
-        return TimingService.cooldowns.getOrDefault(uuid, 1L);
+        return TimingService.spamCooldown.getOrDefault(uuid, 1L);
     }
 }
