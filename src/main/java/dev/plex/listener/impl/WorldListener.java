@@ -32,6 +32,9 @@ import org.jetbrains.annotations.NotNull;
 
 public class WorldListener extends PlexListener
 {
+    private final List<String> EDIT_COMMANDS = Arrays.asList("bigtree", "ebigtree", "largetree", "elargetree",
+            "break", "ebreak", "antioch", "nuke", "editsign", "tree", "etree");
+
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent e)
     {
@@ -76,10 +79,11 @@ public class WorldListener extends PlexListener
         if (command != null)
         {
             // This does check for aliases
-            boolean isWeCommand = command instanceof PluginIdentifiableCommand && ((PluginIdentifiableCommand)command).getPlugin().equals(Bukkit.getPluginManager().getPlugin("FastAsyncWorldEdit"));
-            if (isWeCommand)
+            boolean isWeCommand = command instanceof PluginIdentifiableCommand && ((PluginIdentifiableCommand)command).getPlugin().equals(Bukkit.getPluginManager().getPlugin("WorldEdit"));
+            boolean isFaweCommand = command instanceof PluginIdentifiableCommand && ((PluginIdentifiableCommand)command).getPlugin().equals(Bukkit.getPluginManager().getPlugin("FastAsyncWorldEdit"));
+            if (isWeCommand || isFaweCommand || EDIT_COMMANDS.contains(message.toLowerCase()))
             {
-                event.getPlayer().sendMessage(Component.text("You do not have permission to use WorldEdit in this world!").color(NamedTextColor.RED));
+                event.getPlayer().sendMessage(Component.text("You do not have permission to use that command in this world.").color(NamedTextColor.RED));
                 event.setCancelled(true);
             }
         }
