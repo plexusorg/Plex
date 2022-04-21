@@ -58,7 +58,7 @@ dependencies {
 }
 
 group = "dev.plex"
-version = "1.0.2-SNAPSHOT"
+version = "1.0.2"
 description = "Plex"
 
 shadowJar {
