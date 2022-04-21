@@ -51,6 +51,7 @@ public class TimingService extends AbstractService
             else if (map.getValue() == 4)
             {
                 issueBan(map, "24h");
+                map.setValue(0L);
             }
         }
     }
