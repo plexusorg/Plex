@@ -82,10 +82,6 @@ public class EntityWipeCMD extends PlexCommand
             list = list.replaceAll("(, )(?!.*\1)", (list.indexOf(", ") == list.lastIndexOf(", ") ? "" : ",") + " and ");
             PlexUtils.broadcast(messageComponent("removedEntitiesOfTypes", sender.getName(), entityCount, list));
         }
-
-        /*entityCounts.forEach((entityName, numRemoved) -> {
-            sender.sendMessage(messageComponent("removedEntitiesOfType", sender.getName(), numRemoved, entityName));
-        });*/
         return null;
     }
 

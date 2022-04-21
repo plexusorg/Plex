@@ -37,7 +37,7 @@ public class BanListener extends PlexListener
         if (plugin.getPunishmentManager().isBanned(event.getUniqueId()))
         {
             PlexPlayer player = DataUtils.getPlayer(event.getUniqueId());
-            player.getPunishments().stream().filter(punishment -> punishment.getType() == PunishmentType.BAN && punishment.isActive()).findFirst().ifPresent(punishment ->
+            player.getPunishments().stream().filter(punishment -> (punishment.getType() == PunishmentType.BAN || punishment.getType() == PunishmentType.TEMPBAN) && punishment.isActive()).findFirst().ifPresent(punishment ->
                     event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED,
                             Punishment.generateBanMessage(punishment)));
         }
