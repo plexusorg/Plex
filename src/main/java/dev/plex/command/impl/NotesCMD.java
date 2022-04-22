@@ -20,8 +20,6 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -39,12 +37,12 @@ public class NotesCMD extends PlexCommand
             return usage();
         }
 
-        OfflinePlayer player = Bukkit.getPlayer(args[0]);
-        if (!player.hasPlayedBefore())
+        PlexPlayer plexPlayer = DataUtils.getPlayer(args[0]);
+
+        if (plexPlayer == null)
         {
             return messageComponent("playerNotFound");
         }
-        PlexPlayer plexPlayer = getPlexPlayer(player.getPlayer());
 
         switch (args[1].toLowerCase())
         {
