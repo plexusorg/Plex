@@ -141,4 +141,12 @@ public class ModuleManager
             }
         });
     }
+
+    public void reloadModules()
+    {
+        unloadModules();
+        loadAllModules();
+        loadModules();
+        enableModules();
+    }
 }

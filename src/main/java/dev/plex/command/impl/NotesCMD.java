@@ -10,7 +10,6 @@ import dev.plex.rank.enums.Rank;
 import dev.plex.storage.StorageType;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.TimeUtils;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
@@ -21,6 +20,8 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -38,8 +39,12 @@ public class NotesCMD extends PlexCommand
             return usage();
         }
 
-        Player player = getNonNullPlayer(args[0]);
-        PlexPlayer plexPlayer = getPlexPlayer(player);
+        OfflinePlayer player = Bukkit.getPlayer(args[0]);
+        if (!player.hasPlayedBefore())
+        {
+            return messageComponent("playerNotFound");
+        }
+        PlexPlayer plexPlayer = getPlexPlayer(player.getPlayer());
 
         switch (args[1].toLowerCase())
         {
@@ -51,7 +56,7 @@ public class NotesCMD extends PlexCommand
                     {
                         if (notes.size() == 0)
                         {
-                            send(sender, mmString("<red>This player has no notes!"));
+                            send(sender, messageComponent("noNotes"));
                             return;
                         }
                         readNotes(sender, plexPlayer, notes);
@@ -62,7 +67,7 @@ public class NotesCMD extends PlexCommand
                     List<Note> notes = plexPlayer.getNotes();
                     if (notes.size() == 0)
                     {
-                        return mmString("<red>This player has no notes!");
+                        return messageComponent("noNotes");
                     }
                     readNotes(sender, plexPlayer, notes);
                 }
@@ -87,7 +92,7 @@ public class NotesCMD extends PlexCommand
                     {
                         DataUtils.update(plexPlayer);
                     }
-                    return Component.text("Note added.").color(NamedTextColor.GREEN);
+                    return messageComponent("noteAdded");
                 }
             }
             case "remove":
@@ -103,7 +108,7 @@ public class NotesCMD extends PlexCommand
                 }
                 catch (NumberFormatException ignored)
                 {
-                    return Component.text("Invalid number: " + args[2]).color(NamedTextColor.RED);
+                    return messageComponent("unableToParseNumber", args[2]);
                 }
                 if (plugin.getStorageType() != StorageType.MONGODB)
                 {
@@ -115,13 +120,13 @@ public class NotesCMD extends PlexCommand
                             if (note.getId() == id)
                             {
                                 plugin.getSqlNotes().deleteNote(id, plexPlayer.getUuid()).whenComplete((notes1, ex1) ->
-                                        send(sender, Component.text("Removed note with ID: " + id).color(NamedTextColor.GREEN)));
+                                        send(sender, messageComponent("removedNote", id)));
                                 deleted = true;
                             }
                         }
                         if (!deleted)
                         {
-                            send(sender, mmString("<red>A note with this ID could not be found"));
+                            send(sender, messageComponent("noteNotFound"));
                         }
                         plexPlayer.getNotes().removeIf(note -> note.getId() == id);
                     });
@@ -130,9 +135,9 @@ public class NotesCMD extends PlexCommand
                 {
                     if (plexPlayer.getNotes().removeIf(note -> note.getId() == id))
                     {
-                        return Component.text("Removed note with ID: " + id).color(NamedTextColor.GREEN);
+                        return messageComponent("removedNote", id);
                     }
-                    return mmString("<red>A note with this ID could not be found");
+                    return messageComponent("noteNotFound");
                 }
                 return null;
             }
@@ -147,7 +152,7 @@ public class NotesCMD extends PlexCommand
                             plugin.getSqlNotes().deleteNote(note.getId(), plexPlayer.getUuid());
                         }
                         plexPlayer.getNotes().clear();
-                        send(sender, Component.text("Cleared " + notes.size() + " note(s).").color(NamedTextColor.GREEN));
+                        send(sender, messageComponent("clearedNotes", notes.size()));
                     });
                 }
                 else
@@ -155,7 +160,7 @@ public class NotesCMD extends PlexCommand
                     int count = plexPlayer.getNotes().size();
                     plexPlayer.getNotes().clear();
                     DataUtils.update(plexPlayer);
-                    return Component.text("Cleared " + count + " note(s).").color(NamedTextColor.GREEN);
+                    return messageComponent("clearedNotes", count);
                 }
                 return null;
             }

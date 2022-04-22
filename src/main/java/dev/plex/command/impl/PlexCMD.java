@@ -1,6 +1,5 @@
 package dev.plex.command.impl;
 
-import dev.plex.Plex;
 import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
@@ -10,16 +9,13 @@ import dev.plex.module.PlexModule;
 import dev.plex.module.PlexModuleFile;
 import dev.plex.rank.enums.Rank;
 import dev.plex.util.BuildInfo;
-import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
+import dev.plex.util.TimeUtils;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import dev.plex.util.TimeUtils;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -65,7 +61,7 @@ public class PlexCMD extends PlexCommand
             }
             plugin.getServiceManager().endServices();
             plugin.getServiceManager().startServices();
-            PlexLog.debug("Restarted services");
+            send(sender, "Restarted services.");
             TimeUtils.TIMEZONE = plugin.config.getString("server.timezone");
             send(sender, "Set timezone to: " + TimeUtils.TIMEZONE);
             send(sender, "Plex successfully reloaded.");
@@ -92,17 +88,27 @@ public class PlexCMD extends PlexCommand
             }
             if (args[1].equalsIgnoreCase("reload"))
             {
-                checkRank(sender, Rank.SENIOR_ADMIN, "plex.modules.reload");
-                plugin.getModuleManager().unloadModules();
-                plugin.getModuleManager().loadAllModules();
-                plugin.getModuleManager().loadModules();
-                plugin.getModuleManager().enableModules();
+                checkRank(sender, Rank.EXECUTIVE, "plex.modules.reload");
+                plugin.getModuleManager().reloadModules();
                 return mmString("<green>All modules reloaded!");
+            }
+            else if (args[1].equalsIgnoreCase("update"))
+            {
+                if (sender instanceof Player && !PlexUtils.DEVELOPERS.contains(playerSender.getUniqueId().toString()))
+                {
+                    return messageComponent("noPermissionRank", "a developer");
+                }
+                for (PlexModule module : plugin.getModuleManager().getModules())
+                {
+                    plugin.getUpdateChecker().updateJar(sender, module.getPlexModuleFile().getName(), true);
+                }
+                plugin.getModuleManager().reloadModules();
+                return mmString("<green>All modules updated and reloaded!");
             }
         }
         else if (args[0].equalsIgnoreCase("update"))
         {
-            if (sender instanceof Player player && !PlexUtils.DEVELOPERS.contains(player.getUniqueId().toString()))
+            if (sender instanceof Player && !PlexUtils.DEVELOPERS.contains(playerSender.getUniqueId().toString()))
             {
                 return messageComponent("noPermissionRank", "a developer");
             }
@@ -110,8 +116,8 @@ public class PlexCMD extends PlexCommand
             {
                 return mmString("<red>Plex is already up to date!");
             }
-            plugin.getUpdateChecker().updateJar(sender);
-            return null;
+            plugin.getUpdateChecker().updateJar(sender, "Plex", false);
+            return mmString("<red>Alert: Restart the server for the new JAR file to be applied.");
         }
         else
         {

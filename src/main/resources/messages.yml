@@ -176,3 +176,10 @@ sayMessage: "<blue>[Server: {0}] {1}"
 consoleSayMessage: "<gray>[Console: {0}] <white>{1}"
 # 0 - The number attempted to be parsed
 unableToParseNumber: "<red>Unable to parse {0} as a number!"
+noNotes: "<red>This player has no notes!"
+noteAdded: "<green>Note added."
+noteNotFound: "<red>A note with this ID could not be found."
+# 0 - The ID of the note removed
+removedNote: "<green>Removed note with ID: {0}"
+# 0 - The number of notes cleared
+clearedNotes: "<green>Cleared {0} notes."

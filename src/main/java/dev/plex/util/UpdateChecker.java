@@ -4,7 +4,6 @@ import com.google.common.base.Charsets;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
-import dev.plex.Plex;
 import dev.plex.PlexBase;
 import java.io.BufferedReader;
 import java.io.File;
@@ -14,6 +13,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicReference;
 import javax.annotation.Nonnull;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -37,7 +37,7 @@ public class UpdateChecker implements PlexBase
      * 0 = Up to date
      * > 0 = Number of commits behind
      */
-    private final String DOWNLOAD_PAGE = "https://ci.plex.us.org/job/Plex/";
+    private final String DOWNLOAD_PAGE = "https://ci.plex.us.org/job/";
     private String branch = plugin.config.getString("update_branch");
     private int distance = -4;
 
@@ -93,7 +93,7 @@ public class UpdateChecker implements PlexBase
         // If it's -4, it hasn't checked for updates yet
         if (distance == -4)
         {
-            distance = fetchDistanceFromGitHub("plexusorg/Plex", branch, Plex.build.head);
+            distance = fetchDistanceFromGitHub("plexusorg/Plex", branch, BuildInfo.getHead());
             PlexLog.debug("Never checked for updates, checking now...");
         }
         else
@@ -101,7 +101,7 @@ public class UpdateChecker implements PlexBase
             // If the request isn't asked to be cached, fetch it
             if (!cached)
             {
-                distance = fetchDistanceFromGitHub("plexusorg/Plex", branch, Plex.build.head);
+                distance = fetchDistanceFromGitHub("plexusorg/Plex", branch, BuildInfo.getHead());
                 PlexLog.debug("We have checked for updates before, but this request was not asked to be cached.");
             }
             else
@@ -149,26 +149,41 @@ public class UpdateChecker implements PlexBase
         }
     }
 
-    public void updateJar(CommandSender sender)
+    public void updateJar(CommandSender sender, String name, boolean module)
     {
         CloseableHttpClient client = HttpClients.createDefault();
-        HttpGet get = new HttpGet(DOWNLOAD_PAGE + "job/" + branch + "/lastSuccessfulBuild/api/json");
+        AtomicReference<String> url = new AtomicReference<>(DOWNLOAD_PAGE + name);
+        if (!module)
+        {
+            url.set(url.get() + "/job/" + branch);
+        }
+        PlexLog.debug(url.toString());
+        HttpGet get = new HttpGet(url + "/lastSuccessfulBuild/api/json");
         try
         {
             HttpResponse response = client.execute(get);
             JSONObject object = new JSONObject(EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8));
             JSONObject artifact = object.getJSONArray("artifacts").getJSONObject(0);
-            String name = artifact.getString("fileName");
-            sender.sendMessage(PlexUtils.mmDeserialize("<green>Downloading latest Plex jar file: " + name));
+            String jarFile = artifact.getString("fileName");
+            sender.sendMessage(PlexUtils.mmDeserialize("<green>Downloading latest JAR file: " + jarFile));
+            File copyTo;
+            if (!module)
+            {
+                copyTo = new File(Bukkit.getUpdateFolderFile(), jarFile);
+            }
+            else
+            {
+                copyTo = new File(plugin.getModulesFolder().getPath(), jarFile);
+            }
             CompletableFuture.runAsync(() ->
             {
                 try
                 {
                     FileUtils.copyURLToFile(
-                            new URL(DOWNLOAD_PAGE + "job/" + branch + "/lastSuccessfulBuild/artifact/build/libs/" + name),
-                            new File(Bukkit.getUpdateFolderFile(), name)
+                            new URL(url + "/lastSuccessfulBuild/artifact/build/libs/" + jarFile),
+                            copyTo
                     );
-                    sender.sendMessage(PlexUtils.mmDeserialize("<green>Saved new jar. Please restart your server."));
+                    sender.sendMessage(PlexUtils.mmDeserialize("<green>New JAR file downloaded successfully."));
                 }
                 catch (IOException e)
                 {
