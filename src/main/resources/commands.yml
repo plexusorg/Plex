@@ -52,6 +52,4 @@ commands:
   - "m:e:weather:_"
   - "m:e:worldborder:<gray>The worldborder does not need to be changed. This command is disabled."
   - "r:a:^(co|core|coreprotect) (rb|rollback|l|lookup|rl|reload):_"
-  - "r:a:^(gamemode|gm) [^ ]+ .*:<gray>You cannot change the gamemode of other players!"
-  - "r:a:^(gamemode|gm|egamemode|egm) (spectator|sp|3):<gray>You cannot use spectator mode!"
   - "r:e:^[A-z]*:[A-z]*::<gray>Plugin specific commands are disabled."
