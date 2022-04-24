@@ -19,7 +19,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @CommandPermissions(level = Rank.OP, permission = "plex.gamemode.creative", source = RequiredCommandSource.ANY)
-@CommandParameters(name = "creative", aliases = "gmc", description = "Set your own or another player's gamemode to creative mode")
+@CommandParameters(name = "creative", aliases = "gmc,ecreative,eecreative,creativemode,ecreativemode", description = "Set your own or another player's gamemode to creative mode")
 public class CreativeCMD extends PlexCommand
 {
     @Override

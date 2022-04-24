@@ -19,7 +19,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @CommandPermissions(level = Rank.ADMIN, permission = "plex.gamemode.spectator", source = RequiredCommandSource.ANY)
-@CommandParameters(name = "spectator", aliases = "gmsp", description = "Set your own or another player's gamemode to spectator mode")
+@CommandParameters(name = "spectator", aliases = "gmsp,egmsp,spec", description = "Set your own or another player's gamemode to spectator mode")
 public class SpectatorCMD extends PlexCommand
 {
     @Override

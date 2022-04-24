@@ -19,7 +19,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @CommandPermissions(level = Rank.OP, permission = "plex.gamemode.survival", source = RequiredCommandSource.ANY)
-@CommandParameters(name = "survival", aliases = "gms", description = "Set your own or another player's gamemode to survival mode")
+@CommandParameters(name = "survival", aliases = "gms,egms,esurvival,survivalmode,esurvivalmode", description = "Set your own or another player's gamemode to survival mode")
 public class SurvivalCMD extends PlexCommand
 {
     @Override

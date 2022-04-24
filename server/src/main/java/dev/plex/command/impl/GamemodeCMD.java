@@ -19,7 +19,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-@CommandParameters(name = "gamemode", usage = "/<command> <creative | survival | adventure | default | spectator> [player]", description = "Change your gamemode", aliases = "gm, egamemode, egamemode")
+@CommandParameters(name = "gamemode", usage = "/<command> <creative | survival | adventure | default | spectator> [player]", description = "Change your gamemode", aliases = "gm,egamemode,gmt,egmt")
 @CommandPermissions(level = Rank.OP, permission = "plex.gamemode", source = RequiredCommandSource.ANY)
 public class GamemodeCMD extends PlexCommand
 {
@@ -34,16 +34,16 @@ public class GamemodeCMD extends PlexCommand
         }
         switch (args[0].toLowerCase())
         {
-            case "creative", "c", "1" ->
-            {
-                gamemode = GameMode.CREATIVE;
-                update(sender, playerSender, GameMode.CREATIVE);
-                return null;
-            }
             case "survival", "s", "0" ->
             {
                 gamemode = GameMode.SURVIVAL;
                 update(sender, playerSender, GameMode.SURVIVAL);
+                return null;
+            }
+            case "creative", "c", "1" ->
+            {
+                gamemode = GameMode.CREATIVE;
+                update(sender, playerSender, GameMode.CREATIVE);
                 return null;
             }
             case "adventure", "a", "2" ->
