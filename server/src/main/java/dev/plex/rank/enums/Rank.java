@@ -46,6 +46,11 @@ public enum Rank implements IRank
         return this.level >= rank.getLevel();
     }
 
+    public boolean isAtLeast(Rank rank)
+    {
+        return this.level >= rank.getLevel();
+    }
+
     public Component getPrefix()
     {
         return PlexUtils.mmDeserialize(this.prefix);
