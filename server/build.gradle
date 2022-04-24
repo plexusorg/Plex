@@ -1,32 +1,6 @@
 plugins {
-    id "java"
-    id "maven-publish"
     id "net.minecrell.plugin-yml.bukkit" version "0.6.1-SNAPSHOT"
     id "com.github.johnrengelman.shadow" version "7.1.2"
-}
-
-repositories {
-    mavenLocal()
-    maven {
-        url = uri("https://papermc.io/repo/repository/maven-public/")
-    }
-
-    maven {
-        url = uri("https://repository.apache.org/content/repositories/snapshots/")
-    }
-
-    maven {
-        url = uri("https://repo.maven.apache.org/maven2/")
-    }
-
-    maven {
-        url = uri("https://jitpack.io")
-        content {
-            includeGroup("com.github.MilkBowl")
-        }
-    }
-
-    mavenCentral()
 }
 
 dependencies {
@@ -132,5 +106,31 @@ tasks {
 
     javadoc {
         options.memberLevel = JavadocMemberLevel.PRIVATE
+    }
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            pom.withXml {
+                def dependenciesNode = asNode().appendNode("dependencies")
+                configurations.getByName("library").getAllDependencies().each { dependency ->
+                    dependenciesNode.appendNode("dependency").with {
+                        it.appendNode("groupId", dependency.group)
+                        it.appendNode("artifactId", dependency.name)
+                        it.appendNode("version", dependency.version)
+                        it.appendNode("scope", "provided")
+                    }
+                }
+                configurations.getByName("implementation").getAllDependencies().each { dependency ->
+                    dependenciesNode.appendNode("dependency").with {
+                        it.appendNode("groupId", dependency.group)
+                        it.appendNode("artifactId", dependency.name)
+                        it.appendNode("version", dependency.version)
+                        it.appendNode("scope", "runtime")
+                    }
+                }
+            }
+        }
     }
 }

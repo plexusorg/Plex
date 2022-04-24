@@ -1,54 +1,57 @@
 plugins {
     id "java"
     id "maven-publish"
-    id "com.github.johnrengelman.shadow" version "7.1.2"
 }
 
 group = "dev.plex"
 version = "1.1-SNAPSHOT"
 description = "Plex"
 
-java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(17))
-}
+subprojects {
+    apply plugin: "java"
+    apply plugin: "maven-publish"
 
-tasks.withType(JavaCompile) {
-    options.encoding = "UTF-8"
-}
-
-publishing {
-    publications {
-        maven(MavenPublication) {
-            pom.withXml {
-                def dependenciesNode = asNode().appendNode("dependencies")
-                configurations.getByName("library").getAllDependencies().each { dependency ->
-                    dependenciesNode.appendNode("dependency").with {
-                        it.appendNode("groupId", dependency.group)
-                        it.appendNode("artifactId", dependency.name)
-                        it.appendNode("version", dependency.version)
-                        it.appendNode("scope", "provided")
-                    }
-                }
-                configurations.getByName("implementation").getAllDependencies().each { dependency ->
-                    dependenciesNode.appendNode("dependency").with {
-                        it.appendNode("groupId", dependency.group)
-                        it.appendNode("artifactId", dependency.name)
-                        it.appendNode("version", dependency.version)
-                        it.appendNode("scope", "runtime")
-                    }
-                }
-            }
-            artifacts = [shadowJar]
-        }
-    }
     repositories {
         maven {
-            def releasesRepoUrl = uri("https://nexus.telesphoreo.me/repository/plex-releases/")
-            def snapshotsRepoUrl = uri("https://nexus.telesphoreo.me/repository/plex-snapshots/")
-            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
-            credentials {
-                username = System.getenv("plexUser")
-                password = System.getenv("plexPassword")
+            url = uri("https://papermc.io/repo/repository/maven-public/")
+        }
+
+        maven {
+            url = uri("https://repository.apache.org/content/repositories/snapshots/")
+        }
+
+        maven {
+            url = uri("https://repo.maven.apache.org/maven2/")
+        }
+
+        maven {
+            url = uri("https://jitpack.io")
+            content {
+                includeGroup("com.github.MilkBowl")
+            }
+        }
+
+        mavenCentral()
+    }
+
+    java {
+        toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+    }
+
+    tasks.withType(JavaCompile) {
+        options.encoding = "UTF-8"
+    }
+
+    publishing {
+        repositories {
+            maven {
+                def releasesRepoUrl = uri("https://nexus.telesphoreo.me/repository/plex-releases/")
+                def snapshotsRepoUrl = uri("https://nexus.telesphoreo.me/repository/plex-snapshots/")
+                url = rootProject.version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+                credentials {
+                    username = System.getenv("plexUser")
+                    password = System.getenv("plexPassword")
+                }
             }
         }
     }
