@@ -6,7 +6,6 @@ import org.json.JSONObject;
 
 public interface IRank
 {
-
     int getLevel();
 
     String getLoginMessage();

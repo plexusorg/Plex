@@ -7,7 +7,6 @@ import org.bukkit.permissions.PermissionAttachment;
 
 public interface IPlexPlayer
 {
-
     String getId();
 
     UUID getUuid();

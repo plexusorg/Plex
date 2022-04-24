@@ -36,5 +36,4 @@ public class AdminAddEvent extends Event
     {
         return handlers;
     }
-
 }

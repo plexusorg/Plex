@@ -1,6 +1,7 @@
 plugins {
     id "java"
     id "maven-publish"
+    id "com.github.johnrengelman.shadow" version "7.1.2"
 }
 
 group = "dev.plex"
@@ -10,6 +11,7 @@ description = "Plex"
 subprojects {
     apply plugin: "java"
     apply plugin: "maven-publish"
+    apply plugin: "com.github.johnrengelman.shadow"
 
     repositories {
         maven {
@@ -55,4 +57,10 @@ subprojects {
             }
         }
     }
+}
+
+task copyJars(type: Copy, dependsOn: subprojects.jar) {
+    from(subprojects.jar)
+    from(subprojects.shadowJar)
+    into project.file('build/libs')
 }

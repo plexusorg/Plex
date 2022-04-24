@@ -13,7 +13,6 @@ import org.jetbrains.annotations.NotNull;
 @Data
 public class GameModeUpdateEvent extends Event
 {
-
     private static final HandlerList handlers = new HandlerList();
 
     private final CommandSender sender;

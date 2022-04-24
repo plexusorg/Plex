@@ -11,7 +11,6 @@ import org.bukkit.event.HandlerList;
 @Getter
 public class PunishedPlayerMuteEvent extends PunishedPlayerEvent implements Cancellable
 {
-
     private static final HandlerList handlers = new HandlerList();
 
     /**

@@ -6,6 +6,16 @@ jar {
     archiveBaseName.set("Plex-API")
 }
 
+tasks {
+    jar {
+        finalizedBy(rootProject.tasks.copyJars)
+    }
+
+    shadowJar {
+        enabled = false
+    }
+}
+
 publishing {
     publications {
         maven(MavenPublication) {
