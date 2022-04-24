@@ -19,7 +19,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @CommandPermissions(level = Rank.OP, permission = "plex.gamemode.adventure", source = RequiredCommandSource.ANY)
-@CommandParameters(name = "adventure", aliases = "gma,eadventure,adventuremode,eadventuremode", description = "Set your own or another player's gamemode to adventure mode")
+@CommandParameters(name = "adventure", aliases = "gma,egma,eadventure,adventuremode,eadventuremode", description = "Set your own or another player's gamemode to adventure mode")
 public class AdventureCMD extends PlexCommand
 {
     @Override
