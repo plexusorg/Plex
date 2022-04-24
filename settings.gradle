@@ -5,3 +5,6 @@ pluginManagement {
     }
 }
 rootProject.name = "Plex"
+include 'api'
+include 'server'
+

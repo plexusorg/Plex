@@ -1,7 +1,7 @@
 /.idea/
 *.iml
 /target/
-src/main/resources/build.properties
+server/src/main/resources/build.properties
 
 # OS
 .DS_Store

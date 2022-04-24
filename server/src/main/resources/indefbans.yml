@@ -1,0 +1,21 @@
+# Plex Indefinite Bans File
+# Players with their UUID / IP / Usernames in here will be indefinitely banned until removed
+
+# If you want to get someone's UUID, use https://api.ashcon.app/mojang/v2/user/<username>
+griefers:
+  users:
+    - "badplayer123"
+    - "badplayer321"
+  uuids:
+    - 1dac0e92-f565-4479-afd5-38c7df5f9732 # badplayer123
+  ips:
+    - 123.123.123.123
+
+# Note that these keys can be anything, they are simply to help you keep things organized.
+# They are not used within the plugin. Duplicate keys are not allowed, and will not work.
+bypassers:
+  users:
+    - "bypasser1"
+  ips:
+    - 321.321.321.321
+    - 169.254.1.2
