@@ -25,7 +25,7 @@ public class CommandListener extends PlexListener
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event)
     {
-        Bukkit.getOnlinePlayers().stream().filter(pl -> PlayerCache.getPlexPlayer(pl.getUniqueId()).isCommandSpy()).forEach(pl ->
+        Bukkit.getOnlinePlayers().stream().filter(pl -> PlayerCache.getPlexPlayer(pl.getUniqueId()).isCommandSpy() && PlayerCache.getPlexPlayer(pl.getUniqueId()).isAdminActive()).forEach(pl ->
         {
             Player player = event.getPlayer();
             String command = event.getMessage();
