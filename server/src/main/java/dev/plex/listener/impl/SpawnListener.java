@@ -1,6 +1,7 @@
 package dev.plex.listener.impl;
 
 import dev.plex.listener.PlexListener;
+import dev.plex.util.BlockUtils;
 import dev.plex.util.PlexUtils;
 import java.util.Arrays;
 import java.util.Collection;
@@ -55,7 +56,7 @@ public class SpawnListener extends PlexListener
         if (SPAWN_EGGS.contains(itemType))
         {
             Block block = event.getBlock();
-            Location blockLoc = block.getLocation().add(0.5, 0.5, 0.5).add(((Directional)block.getBlockData()).getFacing().getDirection().multiply(0.8));
+            Location blockLoc = BlockUtils.relative(block.getLocation(), ((Directional)block.getBlockData()).getFacing()).add(.5, 0, .5);
             EntityType eggType = spawnEggToEntityType(itemType);
             if (eggType != null)
             {
