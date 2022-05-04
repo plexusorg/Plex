@@ -61,20 +61,15 @@ public class ChatListener extends PlexListener
         public @NotNull Component render(@NotNull Player source, @NotNull Component sourceDisplayName, @NotNull Component message, @NotNull Audience viewer)
         {
             String text = ((TextComponent)message).content();
+            Component component = Component.empty();
 
             if (hasPrefix)
             {
-                return Component.empty()
-                        .append(prefix)
-                        .append(Component.space())
-                        .append(PlexUtils.mmDeserialize(plugin.config.getString("chat.name-color", "<white>") + MiniMessage.builder().tags(TagResolver.resolver(StandardTags.color(), StandardTags.rainbow(), StandardTags.decorations(), StandardTags.gradient(), StandardTags.transition())).build().serialize(sourceDisplayName)))
-                        .append(Component.space())
-                        .append(Component.text("»").color(NamedTextColor.GRAY))
-                        .append(Component.space())
-                        .append(PlexUtils.mmDeserialize(text))
-                        .replaceText(URL_REPLACEMENT_CONFIG);
+                component = component.append(prefix);
             }
-            return Component.empty()
+
+            return component
+                    .append(Component.space())
                     .append(PlexUtils.mmDeserialize(plugin.config.getString("chat.name-color", "<white>") + MiniMessage.builder().tags(TagResolver.resolver(StandardTags.color(), StandardTags.rainbow(), StandardTags.decorations(), StandardTags.gradient(), StandardTags.transition())).build().serialize(sourceDisplayName)))
                     .append(Component.space())
                     .append(Component.text("»").color(NamedTextColor.GRAY))
