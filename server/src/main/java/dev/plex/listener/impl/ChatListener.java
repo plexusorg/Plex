@@ -60,7 +60,8 @@ public class ChatListener extends PlexListener
         @Override
         public @NotNull Component render(@NotNull Player source, @NotNull Component sourceDisplayName, @NotNull Component message, @NotNull Audience viewer)
         {
-            String text = ((TextComponent)message).content();
+            String text = PlexUtils.getTextFromComponent(message);
+
             Component component = Component.empty();
 
             if (hasPrefix)

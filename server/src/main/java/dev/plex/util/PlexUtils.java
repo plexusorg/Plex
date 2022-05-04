@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.minimessage.tag.standard.StandardTags;
@@ -164,6 +165,40 @@ public class PlexUtils implements PlexBase
             f = f.replace("{" + i + "}", String.valueOf(objects[i]));
         }
         return f;
+    }
+
+
+    public static String getTextFromComponent(Component component)
+    {
+        try
+        {
+            return ((TextComponent)component).content();
+        }
+        catch (Exception e)
+        {
+            PlexLog.warn("Unable to get text of component", e.getLocalizedMessage());
+            return "";
+        }
+    }
+
+    public static String getTextFromComponents(Component... components)
+    {
+        try
+        {
+            StringBuilder builder = new StringBuilder();
+
+            for (Component component : components)
+            {
+                builder.append(getTextFromComponent(component));
+            }
+
+            return builder.toString();
+        }
+        catch (Exception e)
+        {
+            PlexLog.warn("Unable to get text of components", e.getLocalizedMessage());
+            return "";
+        }
     }
 
     public static List<String> getPlayerNameList()
