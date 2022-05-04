@@ -34,7 +34,8 @@ public class PlexUtils implements PlexBase
                     "f5cd54c4-3a24-4213-9a56-c06c49594dff", // Taahh
                     "53b1512e-3481-4702-9f4f-63cb9c8be6a1", // supernt
                     "ca83b658-c03b-4106-9edc-72f70a80656d", // ayunami2000
-                    "2e06e049-24c8-42e4-8bcf-d35372af31e6" // Fleek
+                    "2e06e049-24c8-42e4-8bcf-d35372af31e6", // Fleek
+                    "a52f1f08-a398-400a-bca4-2b74b81feae6" // Allink
             );
 
     public static <T> T addToArrayList(List<T> list, T object)
