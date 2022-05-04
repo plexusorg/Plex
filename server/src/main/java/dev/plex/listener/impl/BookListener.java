@@ -1,0 +1,30 @@
+package dev.plex.listener.impl;
+
+import dev.plex.listener.PlexListener;
+import dev.plex.util.PlexUtils;
+import dev.plex.util.minimessage.SafeMiniMessage;
+import java.util.ArrayList;
+import java.util.List;
+import net.kyori.adventure.inventory.Book;
+import net.kyori.adventure.text.Component;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.player.PlayerEditBookEvent;
+import org.bukkit.inventory.meta.BookMeta;
+
+public class BookListener extends PlexListener
+{
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onBookEdit(PlayerEditBookEvent event)
+    {
+        List<Component> pages = new ArrayList<>();
+
+        for (Component page : event.getNewBookMeta().pages())
+        {
+            pages.add(SafeMiniMessage.mmDeserialize(PlexUtils.getTextFromComponent(page)));
+        }
+
+
+        event.setNewBookMeta((BookMeta)event.getNewBookMeta().pages(pages));
+    }
+}

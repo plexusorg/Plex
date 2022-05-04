@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.minimessage.tag.standard.StandardTags;
@@ -29,6 +30,8 @@ import org.bukkit.plugin.Plugin;
 
 public class PlexUtils implements PlexBase
 {
+    private static final MiniMessage MINI_MESSAGE = MiniMessage.miniMessage();
+
     public static List<String> DEVELOPERS =
             Arrays.asList("78408086-1991-4c33-a571-d8fa325465b2", // Telesphoreo
                     "f5cd54c4-3a24-4213-9a56-c06c49594dff", // Taahh
@@ -113,14 +116,6 @@ public class PlexUtils implements PlexBase
         return false;
     }
 
-    private static final MiniMessage safeMessage = MiniMessage.builder().tags(TagResolver.builder().resolvers(
-            StandardTags.color(),
-            StandardTags.decorations(),
-            StandardTags.gradient(),
-            StandardTags.rainbow(),
-            StandardTags.reset()
-    ).build()).build();
-
     public static String mmStripColor(String input)
     {
         return PlainTextComponentSerializer.plainText().serialize(mmDeserialize(input));
@@ -136,10 +131,10 @@ public class PlexUtils implements PlexBase
         ZonedDateTime date = ZonedDateTime.now(ZoneId.of(TimeUtils.TIMEZONE));
         if (aprilFools && date.getMonth() == Month.APRIL && date.getDayOfMonth() == 1)
         {
-            Component component = MiniMessage.miniMessage().deserialize(input); // removes existing tags
-            return MiniMessage.miniMessage().deserialize("<rainbow>" + PlainTextComponentSerializer.plainText().serialize(component));
+            Component component = MINI_MESSAGE.deserialize(input); // removes existing tags
+            return MINI_MESSAGE.deserialize("<rainbow>" + PlainTextComponentSerializer.plainText().serialize(component));
         }
-        return MiniMessage.miniMessage().deserialize(input);
+        return MINI_MESSAGE.deserialize(input);
     }
 
     public static Component mmCustomDeserialize(String input, TagResolver... resolvers)
@@ -149,7 +144,7 @@ public class PlexUtils implements PlexBase
 
     public static Component messageComponent(String entry, Object... objects)
     {
-        return MiniMessage.miniMessage().deserialize(messageString(entry, objects));
+        return MINI_MESSAGE.deserialize(messageString(entry, objects));
     }
 
     public static String messageString(String entry, Object... objects)
@@ -166,6 +161,40 @@ public class PlexUtils implements PlexBase
         return f;
     }
 
+
+    public static String getTextFromComponent(Component component)
+    {
+        try
+        {
+            return ((TextComponent)component).content();
+        }
+        catch (Exception e)
+        {
+            PlexLog.warn("Unable to get text of component", e.getLocalizedMessage());
+            return "";
+        }
+    }
+
+    public static String getTextFromComponents(Component... components)
+    {
+        try
+        {
+            StringBuilder builder = new StringBuilder();
+
+            for (Component component : components)
+            {
+                builder.append(getTextFromComponent(component));
+            }
+
+            return builder.toString();
+        }
+        catch (Exception e)
+        {
+            PlexLog.warn("Unable to get text of components", e.getLocalizedMessage());
+            return "";
+        }
+    }
+
     public static List<String> getPlayerNameList()
     {
         return Bukkit.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList());
@@ -173,7 +202,7 @@ public class PlexUtils implements PlexBase
 
     public static void broadcast(String s)
     {
-        Bukkit.broadcast(MiniMessage.miniMessage().deserialize(s));
+        Bukkit.broadcast(MINI_MESSAGE.deserialize(s));
     }
 
     public static void broadcast(Component component)

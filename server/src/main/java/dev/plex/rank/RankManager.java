@@ -5,6 +5,7 @@ import dev.plex.player.PlexPlayer;
 import dev.plex.rank.enums.Rank;
 import dev.plex.rank.enums.Title;
 import dev.plex.util.PlexUtils;
+import dev.plex.util.minimessage.SafeMiniMessage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
@@ -14,7 +15,6 @@ import java.util.stream.Collectors;
 import lombok.SneakyThrows;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.minimessage.tag.standard.StandardTags;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -95,7 +95,7 @@ public class RankManager
     {
         if (!player.getPrefix().equals(""))
         {
-            return PlexUtils.mmCustomDeserialize(player.getPrefix(), StandardTags.color(), StandardTags.rainbow(), StandardTags.decorations(), StandardTags.gradient(), StandardTags.transition());
+            return SafeMiniMessage.mmDeserializeWithoutEvents(player.getPrefix());
         }
         if (Plex.get().config.contains("titles.owners") && Plex.get().config.getStringList("titles.owners").contains(player.getName()))
         {

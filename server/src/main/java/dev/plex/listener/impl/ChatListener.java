@@ -5,6 +5,7 @@ import dev.plex.listener.PlexListener;
 import dev.plex.listener.annotation.Toggleable;
 import dev.plex.player.PlexPlayer;
 import dev.plex.util.PlexUtils;
+import dev.plex.util.minimessage.SafeMiniMessage;
 import io.papermc.paper.chat.ChatRenderer;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.audience.Audience;
@@ -59,25 +60,23 @@ public class ChatListener extends PlexListener
         @Override
         public @NotNull Component render(@NotNull Player source, @NotNull Component sourceDisplayName, @NotNull Component message, @NotNull Audience viewer)
         {
-            message = message.replaceText(URL_REPLACEMENT_CONFIG);
+            String text = PlexUtils.getTextFromComponent(message);
+
+            Component component = Component.empty();
 
             if (hasPrefix)
             {
-                return Component.empty()
-                        .append(prefix)
-                        .append(Component.space())
-                        .append(PlexUtils.mmDeserialize(plugin.config.getString("chat.name-color", "<white>") + MiniMessage.builder().tags(TagResolver.resolver(StandardTags.color(), StandardTags.rainbow(), StandardTags.decorations(), StandardTags.gradient(), StandardTags.transition())).build().serialize(sourceDisplayName)))
-                        .append(Component.space())
-                        .append(Component.text("»").color(NamedTextColor.GRAY))
-                        .append(Component.space())
-                        .append(message);
+                component = component.append(prefix);
             }
-            return Component.empty()
+
+            return component
+                    .append(Component.space())
                     .append(PlexUtils.mmDeserialize(plugin.config.getString("chat.name-color", "<white>") + MiniMessage.builder().tags(TagResolver.resolver(StandardTags.color(), StandardTags.rainbow(), StandardTags.decorations(), StandardTags.gradient(), StandardTags.transition())).build().serialize(sourceDisplayName)))
                     .append(Component.space())
                     .append(Component.text("»").color(NamedTextColor.GRAY))
                     .append(Component.space())
-                    .append(message);
+                    .append(SafeMiniMessage.mmDeserializeWithoutEvents(text))
+                    .replaceText(URL_REPLACEMENT_CONFIG);
         }
     }
 }
