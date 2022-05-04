@@ -62,7 +62,7 @@ subprojects {
 clean {
     dependsOn(":api:clean")
     dependsOn(":server:clean")
-    dependsOn(":proxy:clean")
+    //dependsOn(":proxy:clean")
 }
 
 task copyJars(type: Copy, dependsOn: subprojects.jar) {
