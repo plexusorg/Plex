@@ -7,10 +7,9 @@ import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.player.PlexPlayer;
 import dev.plex.rank.enums.Rank;
-import dev.plex.util.PlexUtils;
+import dev.plex.util.minimessage.SafeMiniMessage;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.minimessage.tag.standard.StandardTags;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.command.CommandSender;
@@ -49,7 +48,7 @@ public class TagCMD extends PlexCommand
             }
             String prefix = StringUtils.join(args, " ", 1, args.length);
 
-            Component convertedComponent = removeEvents(PlexUtils.mmCustomDeserialize(prefix = prefix.replace("<newline>", "").replace("<br>", ""), StandardTags.color(), StandardTags.rainbow(), StandardTags.decorations(), StandardTags.gradient(), StandardTags.transition())); //noColorComponentFromString(prefix)
+            Component convertedComponent = SafeMiniMessage.mmDeserializeWithoutEvents(prefix);
 
             if (PlainTextComponentSerializer.plainText().serialize(convertedComponent).length() > plugin.config.getInt("chat.max-tag-length", 16))
             {
@@ -89,19 +88,6 @@ public class TagCMD extends PlexCommand
             return messageComponent("otherPrefixCleared", target.getName());
         }
         return usage();
-    }
-
-    private Component removeEvents(Component component)
-    {
-        if (component.clickEvent() != null)
-        {
-            component = component.clickEvent(null);
-        }
-        if (component.hoverEvent() != null)
-        {
-            component = component.hoverEvent(null);
-        }
-        return component;
     }
 }
 

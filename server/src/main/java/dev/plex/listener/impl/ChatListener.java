@@ -5,11 +5,11 @@ import dev.plex.listener.PlexListener;
 import dev.plex.listener.annotation.Toggleable;
 import dev.plex.player.PlexPlayer;
 import dev.plex.util.PlexUtils;
+import dev.plex.util.minimessage.SafeMiniMessage;
 import io.papermc.paper.chat.ChatRenderer;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.TextReplacementConfig;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -75,7 +75,7 @@ public class ChatListener extends PlexListener
                     .append(Component.space())
                     .append(Component.text("»").color(NamedTextColor.GRAY))
                     .append(Component.space())
-                    .append(PlexUtils.mmDeserialize(text))
+                    .append(SafeMiniMessage.mmDeserializeWithoutEvents(text))
                     .replaceText(URL_REPLACEMENT_CONFIG);
         }
     }
