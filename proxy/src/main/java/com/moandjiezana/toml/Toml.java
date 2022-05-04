@@ -1,4 +1,4 @@
-package dev.plex.toml;
+package com.moandjiezana.toml;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
