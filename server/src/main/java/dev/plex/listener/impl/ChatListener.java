@@ -9,6 +9,7 @@ import io.papermc.paper.chat.ChatRenderer;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.TextReplacementConfig;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -59,7 +60,7 @@ public class ChatListener extends PlexListener
         @Override
         public @NotNull Component render(@NotNull Player source, @NotNull Component sourceDisplayName, @NotNull Component message, @NotNull Audience viewer)
         {
-            message = message.replaceText(URL_REPLACEMENT_CONFIG);
+            String text = ((TextComponent)message).content();
 
             if (hasPrefix)
             {
@@ -70,14 +71,16 @@ public class ChatListener extends PlexListener
                         .append(Component.space())
                         .append(Component.text("»").color(NamedTextColor.GRAY))
                         .append(Component.space())
-                        .append(message);
+                        .append(PlexUtils.mmDeserialize(text))
+                        .replaceText(URL_REPLACEMENT_CONFIG);
             }
             return Component.empty()
                     .append(PlexUtils.mmDeserialize(plugin.config.getString("chat.name-color", "<white>") + MiniMessage.builder().tags(TagResolver.resolver(StandardTags.color(), StandardTags.rainbow(), StandardTags.decorations(), StandardTags.gradient(), StandardTags.transition())).build().serialize(sourceDisplayName)))
                     .append(Component.space())
                     .append(Component.text("»").color(NamedTextColor.GRAY))
                     .append(Component.space())
-                    .append(message);
+                    .append(PlexUtils.mmDeserialize(text))
+                    .replaceText(URL_REPLACEMENT_CONFIG);
         }
     }
 }
