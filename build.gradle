@@ -59,7 +59,14 @@ subprojects {
     }
 }
 
+clean {
+    dependsOn(":api:clean")
+    dependsOn(":server:clean")
+    dependsOn(":proxy:clean")
+}
+
 task copyJars(type: Copy, dependsOn: subprojects.jar) {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     from(subprojects.jar)
     from(subprojects.shadowJar)
     into project.file('build/libs')
