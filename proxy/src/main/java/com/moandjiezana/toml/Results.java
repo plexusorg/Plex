@@ -1,4 +1,4 @@
-package dev.plex.toml;
+package com.moandjiezana.toml;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -55,7 +55,7 @@ class Results {
         .append(key);
     }
     
-    void invalidTextAfterIdentifier(dev.plex.toml.Identifier identifier, char text, int line) {
+    void invalidTextAfterIdentifier(Identifier identifier, char text, int line) {
       sb.append("Invalid text after key ")
         .append(identifier.getName())
         .append(" on line ")
@@ -124,23 +124,23 @@ class Results {
   
   final Errors errors = new Errors();
   private final Set<String> tables = new HashSet<String>();
-  private final Deque<dev.plex.toml.Container> stack = new ArrayDeque<dev.plex.toml.Container>();
+  private final Deque<Container> stack = new ArrayDeque<Container>();
 
   Results() {
-    stack.push(new dev.plex.toml.Container.Table(""));
+    stack.push(new Container.Table(""));
   }
 
   void addValue(String key, Object value, AtomicInteger line) {
-    dev.plex.toml.Container currentTable = stack.peek();
+    Container currentTable = stack.peek();
     
     if (value instanceof Map) {
       String path = getInlineTablePath(key);
       if (path == null) {
         startTable(key, line);
       } else if (path.isEmpty()) {
-        startTables(dev.plex.toml.Identifier.from(key, null), line);
+        startTables(Identifier.from(key, null), line);
       } else {
-        startTables(dev.plex.toml.Identifier.from(path, null), line);
+        startTables(Identifier.from(path, null), line);
       }
       @SuppressWarnings("unchecked")
       Map<String, Object> valueMap = (Map<String, Object>) value;
@@ -151,7 +151,7 @@ class Results {
     } else if (currentTable.accepts(key)) {
       currentTable.put(key, value);
     } else {
-      if (currentTable.get(key) instanceof dev.plex.toml.Container) {
+      if (currentTable.get(key) instanceof Container) {
         errors.keyDuplicatesTable(key, line);
       } else {
         errors.duplicateKey(key, line != null ? line.get() : -1);
@@ -159,37 +159,37 @@ class Results {
     }
   }
 
-  void startTableArray(dev.plex.toml.Identifier identifier, AtomicInteger line) {
+  void startTableArray(Identifier identifier, AtomicInteger line) {
     String tableName = identifier.getBareName();
     while (stack.size() > 1) {
       stack.pop();
     }
 
-    dev.plex.toml.Keys.Key[] tableParts = dev.plex.toml.Keys.split(tableName);
+    Keys.Key[] tableParts = Keys.split(tableName);
     for (int i = 0; i < tableParts.length; i++) {
       String tablePart = tableParts[i].name;
-      dev.plex.toml.Container currentContainer = stack.peek();
+      Container currentContainer = stack.peek();
 
-      if (currentContainer.get(tablePart) instanceof dev.plex.toml.Container.TableArray) {
-        dev.plex.toml.Container.TableArray currentTableArray = (dev.plex.toml.Container.TableArray) currentContainer.get(tablePart);
+      if (currentContainer.get(tablePart) instanceof Container.TableArray) {
+        Container.TableArray currentTableArray = (Container.TableArray) currentContainer.get(tablePart);
         stack.push(currentTableArray);
 
         if (i == tableParts.length - 1) {
-          currentTableArray.put(tablePart, new dev.plex.toml.Container.Table());
+          currentTableArray.put(tablePart, new Container.Table());
         }
 
         stack.push(currentTableArray.getCurrent());
         currentContainer = stack.peek();
-      } else if (currentContainer.get(tablePart) instanceof dev.plex.toml.Container.Table && i < tableParts.length - 1) {
-        dev.plex.toml.Container nextTable = (dev.plex.toml.Container) currentContainer.get(tablePart);
+      } else if (currentContainer.get(tablePart) instanceof Container.Table && i < tableParts.length - 1) {
+        Container nextTable = (Container) currentContainer.get(tablePart);
         stack.push(nextTable);
       } else if (currentContainer.accepts(tablePart)) {
-        dev.plex.toml.Container newContainer = i == tableParts.length - 1 ? new dev.plex.toml.Container.TableArray() : new dev.plex.toml.Container.Table();
+        Container newContainer = i == tableParts.length - 1 ? new Container.TableArray() : new Container.Table();
         addValue(tablePart, newContainer, line);
         stack.push(newContainer);
 
-        if (newContainer instanceof dev.plex.toml.Container.TableArray) {
-          stack.push(((dev.plex.toml.Container.TableArray) newContainer).getCurrent());
+        if (newContainer instanceof Container.TableArray) {
+          stack.push(((Container.TableArray) newContainer).getCurrent());
         }
       } else {
         errors.duplicateTable(tableName, line.get());
@@ -198,26 +198,26 @@ class Results {
     }
   }
 
-  void startTables(dev.plex.toml.Identifier id, AtomicInteger line) {
+  void startTables(Identifier id, AtomicInteger line) {
     String tableName = id.getBareName();
     
     while (stack.size() > 1) {
       stack.pop();
     }
 
-    dev.plex.toml.Keys.Key[] tableParts = dev.plex.toml.Keys.split(tableName);
+    Keys.Key[] tableParts = Keys.split(tableName);
     for (int i = 0; i < tableParts.length; i++) {
       String tablePart = tableParts[i].name;
-      dev.plex.toml.Container currentContainer = stack.peek();
-      if (currentContainer.get(tablePart) instanceof dev.plex.toml.Container) {
-        dev.plex.toml.Container nextTable = (dev.plex.toml.Container) currentContainer.get(tablePart);
+      Container currentContainer = stack.peek();
+      if (currentContainer.get(tablePart) instanceof Container) {
+        Container nextTable = (Container) currentContainer.get(tablePart);
         if (i == tableParts.length - 1 && !nextTable.isImplicit()) {
           errors.duplicateTable(tableName, line.get());
           return;
         }
         stack.push(nextTable);
-        if (stack.peek() instanceof dev.plex.toml.Container.TableArray) {
-          stack.push(((dev.plex.toml.Container.TableArray) stack.peek()).getCurrent());
+        if (stack.peek() instanceof Container.TableArray) {
+          stack.push(((Container.TableArray) stack.peek()).getCurrent());
         }
       } else if (currentContainer.accepts(tablePart)) {
         startTable(tablePart, i < tableParts.length - 1, line);
@@ -232,22 +232,22 @@ class Results {
    * Warning: After this method has been called, this instance is no longer usable.
    */
   Map<String, Object> consume() {
-    dev.plex.toml.Container values = stack.getLast();
+    Container values = stack.getLast();
     stack.clear();
 
-    return ((dev.plex.toml.Container.Table) values).consume();
+    return ((Container.Table) values).consume();
   }
 
-  private dev.plex.toml.Container startTable(String tableName, AtomicInteger line) {
-    dev.plex.toml.Container newTable = new dev.plex.toml.Container.Table(tableName);
+  private Container startTable(String tableName, AtomicInteger line) {
+    Container newTable = new Container.Table(tableName);
     addValue(tableName, newTable, line);
     stack.push(newTable);
 
     return newTable;
   }
 
-  private dev.plex.toml.Container startTable(String tableName, boolean implicit, AtomicInteger line) {
-    dev.plex.toml.Container newTable = new dev.plex.toml.Container.Table(tableName, implicit);
+  private Container startTable(String tableName, boolean implicit, AtomicInteger line) {
+    Container newTable = new Container.Table(tableName, implicit);
     addValue(tableName, newTable, line);
     stack.push(newTable);
 
@@ -255,16 +255,16 @@ class Results {
   }
   
   private String getInlineTablePath(String key) {
-    Iterator<dev.plex.toml.Container> descendingIterator = stack.descendingIterator();
+    Iterator<Container> descendingIterator = stack.descendingIterator();
     StringBuilder sb = new StringBuilder();
     
     while (descendingIterator.hasNext()) {
-      dev.plex.toml.Container next = descendingIterator.next();
-      if (next instanceof dev.plex.toml.Container.TableArray) {
+      Container next = descendingIterator.next();
+      if (next instanceof Container.TableArray) {
         return null;
       }
       
-      dev.plex.toml.Container.Table table = (dev.plex.toml.Container.Table) next;
+      Container.Table table = (Container.Table) next;
       
       if (table.name == null) {
         break;

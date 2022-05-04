@@ -1,4 +1,4 @@
-package dev.plex.toml;
+package com.moandjiezana.toml;
 
 
 import java.io.File;
@@ -29,7 +29,7 @@ class MapValueWriter implements ValueWriter
 
         Map<?, ?> from = (Map<?, ?>) value;
 
-        dev.plex.toml.Toml toml = null;
+        Toml toml = null;
 
         if (file != null)
         {

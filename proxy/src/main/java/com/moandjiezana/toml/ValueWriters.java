@@ -1,7 +1,7 @@
-package dev.plex.toml;
+package com.moandjiezana.toml;
 
-import static dev.plex.toml.MapValueWriter.MAP_VALUE_WRITER;
-import static dev.plex.toml.NumberValueReaderWriter.NUMBER_VALUE_READER_WRITER;
+import static com.moandjiezana.toml.MapValueWriter.MAP_VALUE_WRITER;
+import static com.moandjiezana.toml.NumberValueReaderWriter.NUMBER_VALUE_READER_WRITER;
 
 class ValueWriters {
 

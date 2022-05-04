@@ -1,4 +1,4 @@
-package dev.plex.toml;
+package com.moandjiezana.toml;
 
 public class Identifier
 {
@@ -170,7 +170,7 @@ public class Identifier
                 break;
             }
 
-            if (dev.plex.toml.Keys.isQuote(c))
+            if (Keys.isQuote(c))
             {
                 if (!quoteAllowed)
                 {

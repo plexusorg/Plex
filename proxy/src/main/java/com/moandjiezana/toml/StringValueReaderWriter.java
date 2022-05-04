@@ -1,4 +1,4 @@
-package dev.plex.toml;
+package com.moandjiezana.toml;
 
 import java.net.URI;
 import java.net.URL;
@@ -6,7 +6,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-class StringValueReaderWriter implements ValueReader, dev.plex.toml.ValueWriter
+class StringValueReaderWriter implements ValueReader, ValueWriter
 {
   
   static final StringValueReaderWriter STRING_VALUE_READER_WRITER = new StringValueReaderWriter();
@@ -98,7 +98,7 @@ class StringValueReaderWriter implements ValueReader, dev.plex.toml.ValueWriter
   }
 
   @Override
-  public void write(Object value, dev.plex.toml.WriterContext context) {
+  public void write(Object value, WriterContext context) {
     context.write('"');
     escapeUnicode(value.toString(), context);
     context.write('"');
@@ -109,7 +109,7 @@ class StringValueReaderWriter implements ValueReader, dev.plex.toml.ValueWriter
     return true;
   }
 
-  private void escapeUnicode(String in, dev.plex.toml.WriterContext context) {
+  private void escapeUnicode(String in, WriterContext context) {
     for (int i = 0; i < in.length(); i++) {
       int codePoint = in.codePointAt(i);
       if (codePoint < specialCharacterEscapes.length && specialCharacterEscapes[codePoint] != null) {

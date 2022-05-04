@@ -1,8 +1,8 @@
-package dev.plex.toml;
+package com.moandjiezana.toml;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-class MultilineStringValueReader implements dev.plex.toml.ValueReader
+class MultilineStringValueReader implements ValueReader
 {
 
   static final MultilineStringValueReader MULTILINE_STRING_VALUE_READER = new MultilineStringValueReader();
@@ -13,7 +13,7 @@ class MultilineStringValueReader implements dev.plex.toml.ValueReader
   }
 
   @Override
-  public Object read(String s, AtomicInteger index, dev.plex.toml.Context context) {
+  public Object read(String s, AtomicInteger index, Context context) {
     AtomicInteger line = context.line;
     int startLine = line.get();
     int originalStartIndex = index.get();
@@ -38,15 +38,15 @@ class MultilineStringValueReader implements dev.plex.toml.ValueReader
     }
     
     if (endIndex == -1) {
-      dev.plex.toml.Results.Errors errors = new dev.plex.toml.Results.Errors();
+      Results.Errors errors = new Results.Errors();
       errors.unterminated(context.identifier.getName(), s.substring(originalStartIndex), startLine);
       return errors;
     }
 
     s = s.substring(startIndex, endIndex);
     s = s.replaceAll("\\\\\\s+", "");
-    s = dev.plex.toml.StringValueReaderWriter.STRING_VALUE_READER_WRITER.replaceUnicodeCharacters(s);
-    s = dev.plex.toml.StringValueReaderWriter.STRING_VALUE_READER_WRITER.replaceSpecialCharacters(s);
+    s = StringValueReaderWriter.STRING_VALUE_READER_WRITER.replaceUnicodeCharacters(s);
+    s = StringValueReaderWriter.STRING_VALUE_READER_WRITER.replaceSpecialCharacters(s);
 
     return s;
   }

@@ -1,8 +1,8 @@
-package dev.plex.toml;
+package com.moandjiezana.toml;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-class MultilineLiteralStringValueReader implements dev.plex.toml.ValueReader
+class MultilineLiteralStringValueReader implements ValueReader
 {
   
   static final MultilineLiteralStringValueReader MULTILINE_LITERAL_STRING_VALUE_READER = new MultilineLiteralStringValueReader(); 
@@ -13,7 +13,7 @@ class MultilineLiteralStringValueReader implements dev.plex.toml.ValueReader
   }
 
   @Override
-  public Object read(String s, AtomicInteger index, dev.plex.toml.Context context) {
+  public Object read(String s, AtomicInteger index, Context context) {
     AtomicInteger line = context.line;
     int startLine = line.get();
     int originalStartIndex = index.get();

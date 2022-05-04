@@ -1,14 +1,14 @@
-package dev.plex.toml;
+package com.moandjiezana.toml;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.*;
 
-import static dev.plex.toml.MapValueWriter.MAP_VALUE_WRITER;
+import static com.moandjiezana.toml.MapValueWriter.MAP_VALUE_WRITER;
 
-class ObjectValueWriter implements dev.plex.toml.ValueWriter
+class ObjectValueWriter implements ValueWriter
 {
-  static final dev.plex.toml.ValueWriter OBJECT_VALUE_WRITER = new ObjectValueWriter();
+  static final ValueWriter OBJECT_VALUE_WRITER = new ObjectValueWriter();
 
   @Override
   public boolean canWrite(Object value) {
@@ -16,7 +16,7 @@ class ObjectValueWriter implements dev.plex.toml.ValueWriter
   }
 
   @Override
-  public void write(Object value, dev.plex.toml.WriterContext context) {
+  public void write(Object value, WriterContext context) {
     Map<String, Object> to = new LinkedHashMap<String, Object>();
     Set<Field> fields = getFields(value.getClass());
     for (Field field : fields) {

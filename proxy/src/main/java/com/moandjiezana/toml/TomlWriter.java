@@ -1,4 +1,4 @@
-package dev.plex.toml;
+package com.moandjiezana.toml;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
-import static dev.plex.toml.MapValueWriter.MAP_VALUE_WRITER;
-import static dev.plex.toml.ValueWriters.WRITERS;
+import static com.moandjiezana.toml.MapValueWriter.MAP_VALUE_WRITER;
+import static com.moandjiezana.toml.ValueWriters.WRITERS;
 
 /**
  * <p>Converts Objects to TOML</p>
@@ -82,7 +82,7 @@ public class TomlWriter
         }
     }
 
-    private final dev.plex.toml.IndentationPolicy indentationPolicy;
+    private final IndentationPolicy indentationPolicy;
     private final DatePolicy datePolicy;
 
     /**
@@ -95,7 +95,7 @@ public class TomlWriter
 
     private TomlWriter(int keyIndentation, int tableIndentation, int arrayDelimiterPadding, TimeZone timeZone, boolean showFractionalSeconds)
     {
-        this.indentationPolicy = new dev.plex.toml.IndentationPolicy(keyIndentation, tableIndentation, arrayDelimiterPadding);
+        this.indentationPolicy = new IndentationPolicy(keyIndentation, tableIndentation, arrayDelimiterPadding);
         this.datePolicy = new DatePolicy(timeZone, showFractionalSeconds);
     }
 

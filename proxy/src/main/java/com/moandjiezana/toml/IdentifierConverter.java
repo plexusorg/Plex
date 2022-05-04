@@ -1,4 +1,4 @@
-package dev.plex.toml;
+package com.moandjiezana.toml;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -6,7 +6,7 @@ public class IdentifierConverter {
   
   static final IdentifierConverter IDENTIFIER_CONVERTER = new IdentifierConverter();
 
-  dev.plex.toml.Identifier convert(String s, AtomicInteger index, dev.plex.toml.Context context) {
+  Identifier convert(String s, AtomicInteger index, Context context) {
     boolean quoted = false;
     StringBuilder name = new StringBuilder();
     boolean terminated = false;
@@ -16,7 +16,7 @@ public class IdentifierConverter {
     
     for (int i = index.get(); i < s.length(); i = index.incrementAndGet()) {
       char c = s.charAt(i);
-      if (dev.plex.toml.Keys.isQuote(c) && (i == 0 || s.charAt(i - 1) != '\\')) {
+      if (Keys.isQuote(c) && (i == 0 || s.charAt(i - 1) != '\\')) {
         quoted = !quoted;
         name.append(c);
       } else if (c == '\n') {
@@ -52,10 +52,10 @@ public class IdentifierConverter {
         context.errors.invalidKey(name.toString(), context.line.get());
       }
       
-      return dev.plex.toml.Identifier.INVALID;
+      return Identifier.INVALID;
     }
     
-    return dev.plex.toml.Identifier.from(name.toString(), context);
+    return Identifier.from(name.toString(), context);
   }
   
   private IdentifierConverter() {}

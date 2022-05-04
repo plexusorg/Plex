@@ -1,4 +1,4 @@
-package dev.plex.toml;
+package com.moandjiezana.toml;
 
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -28,7 +28,7 @@ class InlineTableValueReader implements ValueReader {
       char c = s.charAt(i);
       
       if (inValue && !Character.isWhitespace(c)) {
-        Object converted = ValueReaders.VALUE_READERS.convert(s, sharedIndex, context.with(dev.plex.toml.Identifier.from(currentKey.toString(), context)));
+        Object converted = ValueReaders.VALUE_READERS.convert(s, sharedIndex, context.with(Identifier.from(currentKey.toString(), context)));
         
         if (converted instanceof Results.Errors) {
           errors.add((Results.Errors) converted);

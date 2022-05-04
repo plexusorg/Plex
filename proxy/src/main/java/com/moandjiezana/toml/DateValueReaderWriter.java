@@ -1,4 +1,4 @@
-package dev.plex.toml;
+package com.moandjiezana.toml;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;

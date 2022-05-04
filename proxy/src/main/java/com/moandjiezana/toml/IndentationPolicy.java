@@ -1,4 +1,4 @@
-package dev.plex.toml;
+package com.moandjiezana.toml;
 
 /**
  * Controls how a {@link TomlWriter} indents tables and key/value pairs.

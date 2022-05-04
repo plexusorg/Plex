@@ -1,4 +1,4 @@
-package dev.plex.toml;
+package com.moandjiezana.toml;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,14 +14,14 @@ class WriterContext
     private final String currentTableIndent;
     private final String currentFieldIndent;
     private final Writer output;
-    private final dev.plex.toml.IndentationPolicy indentationPolicy;
+    private final IndentationPolicy indentationPolicy;
     private final DatePolicy datePolicy;
 
     public File file;
     public String parentName;
     public boolean hasRun = false;
 
-    WriterContext(dev.plex.toml.IndentationPolicy indentationPolicy, DatePolicy datePolicy, Writer output)
+    WriterContext(IndentationPolicy indentationPolicy, DatePolicy datePolicy, Writer output)
     {
         this("", "", output, indentationPolicy, datePolicy);
     }
@@ -157,7 +157,7 @@ class WriterContext
         return key.isEmpty() ? arrayKey : key + "." + arrayKey;
     }
 
-    private String growIndent(dev.plex.toml.IndentationPolicy indentationPolicy)
+    private String growIndent(IndentationPolicy indentationPolicy)
     {
         return currentTableIndent + fillStringWithSpaces(indentationPolicy.getTableIndent());
     }
@@ -170,7 +170,7 @@ class WriterContext
         return new String(chars);
     }
 
-    private WriterContext(String key, String tableIndent, Writer output, dev.plex.toml.IndentationPolicy indentationPolicy, DatePolicy datePolicy)
+    private WriterContext(String key, String tableIndent, Writer output, IndentationPolicy indentationPolicy, DatePolicy datePolicy)
     {
         this.key = key;
         this.output = output;

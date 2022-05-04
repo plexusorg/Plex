@@ -1,4 +1,4 @@
-package dev.plex.toml;
+package com.moandjiezana.toml;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -14,7 +14,7 @@ class TomlParser {
     AtomicInteger index = new AtomicInteger();
     boolean inComment = false;
     AtomicInteger line = new AtomicInteger(1);
-    dev.plex.toml.Identifier identifier = null;
+    Identifier identifier = null;
     Object value = null;
     
     for (int i = index.get(); i < tomlString.length(); i = index.incrementAndGet()) {
@@ -27,9 +27,9 @@ class TomlParser {
       if (c == '#' && !inComment) {
         inComment = true;
       } else if (!Character.isWhitespace(c) && !inComment && identifier == null) {
-        dev.plex.toml.Identifier id = IdentifierConverter.IDENTIFIER_CONVERTER.convert(tomlString, index, new dev.plex.toml.Context(null, line, results.errors));
+        Identifier id = IdentifierConverter.IDENTIFIER_CONVERTER.convert(tomlString, index, new Context(null, line, results.errors));
         
-        if (id != dev.plex.toml.Identifier.INVALID) {
+        if (id != Identifier.INVALID) {
           if (id.isKey()) {
             identifier = id;
           } else if (id.isTable()) {
@@ -44,7 +44,7 @@ class TomlParser {
         value = null;
         line.incrementAndGet();
       } else if (!inComment && identifier != null && identifier.isKey() && value == null && !Character.isWhitespace(c)) {
-        value = ValueReaders.VALUE_READERS.convert(tomlString, index, new dev.plex.toml.Context(identifier, line, results.errors));
+        value = ValueReaders.VALUE_READERS.convert(tomlString, index, new Context(identifier, line, results.errors));
         
         if (value instanceof Results.Errors) {
           results.errors.add((Results.Errors) value);

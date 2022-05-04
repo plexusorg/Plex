@@ -1,8 +1,8 @@
 package dev.plex.config;
 
 import dev.plex.Plex;
-import dev.plex.toml.Toml;
-import dev.plex.toml.TomlWriter;
+import com.moandjiezana.toml.Toml;
+import com.moandjiezana.toml.TomlWriter;
 import lombok.Getter;
 import lombok.Setter;
 

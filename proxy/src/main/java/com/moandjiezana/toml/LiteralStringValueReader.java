@@ -1,8 +1,8 @@
-package dev.plex.toml;
+package com.moandjiezana.toml;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class LiteralStringValueReader implements dev.plex.toml.ValueReader
+public class LiteralStringValueReader implements ValueReader
 {
     public static final LiteralStringValueReader LITERAL_STRING_VALUE_READER = new LiteralStringValueReader();
     @Override
