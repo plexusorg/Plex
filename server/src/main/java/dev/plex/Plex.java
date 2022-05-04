@@ -29,6 +29,7 @@ import dev.plex.world.CustomWorld;
 import java.io.File;
 import lombok.Getter;
 import lombok.Setter;
+import net.milkbowl.vault.chat.Chat;
 import net.milkbowl.vault.permission.Permission;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
@@ -71,7 +72,8 @@ public class Plex extends JavaPlugin
     private UpdateChecker updateChecker;
     private String system;
 
-    private Permission permissions;
+    public Permission permissions;
+    public Chat chat;
 
     public static Plex get()
     {
@@ -128,10 +130,13 @@ public class Plex extends JavaPlugin
             e.printStackTrace();
         }
 
-        if (system.equalsIgnoreCase("permissions") && !getServer().getPluginManager().isPluginEnabled("Vault") && !setupPermissions())
+        if (system.equalsIgnoreCase("permissions") && !getServer().getPluginManager().isPluginEnabled("Vault"))
         {
             throw new RuntimeException("Vault is required to run on the server if you use permissions!");
         }
+
+        permissions = setupPermissions();
+        chat = setupChat();
 
         updateChecker = new UpdateChecker();
         PlexLog.log("Update checking enabled");
@@ -241,10 +246,27 @@ public class Plex extends JavaPlugin
         });
     }
 
-    public boolean setupPermissions()
+    public Permission setupPermissions()
     {
         RegisteredServiceProvider<Permission> rsp = Bukkit.getServicesManager().getRegistration(Permission.class);
         permissions = rsp.getProvider();
-        return permissions != null;
+        return permissions;
+    }
+
+    public Chat setupChat()
+    {
+        RegisteredServiceProvider<Chat> rsp = Bukkit.getServicesManager().getRegistration(Chat.class);
+        chat = rsp.getProvider();
+        return chat;
+    }
+
+    public Permission getVaultPermissions()
+    {
+        return permissions;
+    }
+
+    public Chat getVaultChat()
+    {
+        return chat;
     }
 }

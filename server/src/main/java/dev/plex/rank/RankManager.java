@@ -15,6 +15,9 @@ import java.util.stream.Collectors;
 import lombok.SneakyThrows;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -112,6 +115,13 @@ public class RankManager
         if (Plex.get().getSystem().equalsIgnoreCase("ranks") && isAdmin(player))
         {
             return player.getRankFromString().getPrefix();
+        }
+        if (Plex.get().getSystem().equalsIgnoreCase("permissions"))
+        {
+            Player bukkitPlayer = Bukkit.getPlayer(player.getUuid());
+            String group = Plex.get().getVaultPermissions().getPrimaryGroup(bukkitPlayer);
+            String vaultPrefix = Plex.get().getVaultChat().getGroupPrefix(bukkitPlayer.getWorld(), group);
+            return LegacyComponentSerializer.legacyAmpersand().deserialize(vaultPrefix);
         }
         return null;
     }

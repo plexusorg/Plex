@@ -55,7 +55,7 @@ public class PlexCMD extends PlexCommand
             plugin.getRankManager().importDefaultRanks();
             send(sender, "Imported ranks");
             plugin.setSystem(plugin.config.getString("system"));
-            if (!plugin.setupPermissions() && plugin.getSystem().equalsIgnoreCase("permissions") && !plugin.getServer().getPluginManager().isPluginEnabled("Vault"))
+            if (plugin.getSystem().equalsIgnoreCase("permissions") && !plugin.getServer().getPluginManager().isPluginEnabled("Vault"))
             {
                 throw new RuntimeException("Vault is required to run on the server if you use permissions!");
             }
