@@ -14,8 +14,16 @@ import lombok.Getter;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.logging.Logger;
+
+/**
+ * Credits for TOML library go to https://github.com/mwanji/toml4j
+ * I was unable to add it back to the package without it glitching, so
+ * I kept it in a separate package.
+ *
+ * Modifications: Properly indent arrays in TOML as well as only append
+ * missing object fields into the file
+ */
 
 @Plugin(
         name = "Plex",
@@ -62,7 +70,7 @@ public class Plex
         {
             PlexLog.log("Loaded configuration 'config.toml'");
         });
-        this.config.create(false);
+        this.config.create(true);
         this.config.write(new ServerSettings());
         new ListenerHandler();
     }

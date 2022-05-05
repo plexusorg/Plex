@@ -1,0 +1,21 @@
+#############################
+#                           #
+#       Plex Velocity       #
+#           v0.1            #
+#                           #
+#############################
+
+[server]
+  name = "Plexus"
+  # Placeholders
+  # %mcversion% - The Velocity Version (i.e. 3.1.2-SNAPSHOT)
+  # %servername% - The name provided above
+  # %randomgradient% - Creates a random gradient every ping of two random colors for the whole string
+  # Supports MiniMessage strings, no legacy & and §
+  motd = "%randomgradient%%servername% - %mcversion%"
+  colorizeMotd = false
+  debug = false
+  # Due to game code only supporting legacy color codes for
+  # player samples and not components, you may only use § or & here
+  # for colors.
+  sample = ["example", "example"]

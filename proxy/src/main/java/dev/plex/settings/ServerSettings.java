@@ -13,8 +13,8 @@ public class ServerSettings
 
     @Data
     public static class Server {
-        private String name = "Plexus";
-        private String motd = "Test MOTD";
+        private String name = "Server";
+        private String motd = "%randomgradient%%servername% - %mcversion%";
         private boolean colorizeMotd = false;
         private boolean debug = false;
         private final List<String> sample = Lists.newArrayList("example", "example");

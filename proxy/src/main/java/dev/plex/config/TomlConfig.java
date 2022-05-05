@@ -1,8 +1,8 @@
 package dev.plex.config;
 
 import dev.plex.Plex;
-import com.moandjiezana.toml.Toml;
-import com.moandjiezana.toml.TomlWriter;
+import dev.plex.toml.Toml;
+import dev.plex.toml.TomlWriter;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -31,23 +31,24 @@ public class TomlConfig
 
     public void create(boolean loadFromFile)
     {
-        if (loadFromFile)
+        if (!this.file.exists())
         {
-            try
+            if (loadFromFile)
             {
-                Files.copy(Plex.get().getClass().getResourceAsStream("/" + this.file.getName()), this.file.toPath());
-                this.load();
-                if (this.onCreate != null)
+                try
                 {
-                    this.onCreate.accept(this.toml);
+                    Files.copy(Plex.get().getClass().getResourceAsStream("/" + this.file.getName()), this.file.toPath());
+                    this.load();
+                    if (this.onCreate != null)
+                    {
+                        this.onCreate.accept(this.toml);
+                    }
+                } catch (IOException e)
+                {
+                    e.printStackTrace();
                 }
-            } catch (IOException e)
-            {
-                e.printStackTrace();
+                return;
             }
-            return;
-        } else if (!this.file.exists())
-        {
             try
             {
                 this.file.createNewFile();
@@ -81,7 +82,9 @@ public class TomlConfig
 
     public <T> void write(T object)
     {
-        TomlWriter writer = new TomlWriter();
+        TomlWriter writer = new TomlWriter.Builder()
+                .indentValuesBy(2)
+                .build();
         try
         {
             writer.write(object, this.file);
