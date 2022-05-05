@@ -29,6 +29,8 @@ public class ServerListener extends PlexListener
         baseMotd = baseMotd.replace("%mcversion%", plugin.getServer().getVersion().getVersion().split(" ")[0]);
         baseMotd = baseMotd.replace("%randomgradient%", "<gradient:" + RandomUtil.getRandomColor().toString() + ":" + RandomUtil.getRandomColor().toString() + ">");
 
+        ServerPing.Builder builder = event.getPing().asBuilder();
+
         if (plugin.getConfig().as(ServerSettings.class).getServer().isColorizeMotd())
         {
             AtomicReference<Component> motd = new AtomicReference<>(Component.empty());
@@ -37,10 +39,20 @@ public class ServerListener extends PlexListener
                 motd.set(motd.get().append(Component.text(word).color(RandomUtil.getRandomColor())));
                 motd.set(motd.get().append(Component.space()));
             }
-            event.setPing(event.getPing().asBuilder().description(motd.get()).samplePlayers(plugin.getConfig().as(ServerSettings.class).getServer().getSample().stream().map(s -> new ServerPing.SamplePlayer(convertColorCodes(s), UUID.randomUUID())).toArray(ServerPing.SamplePlayer[]::new)).build());
+            builder.description(motd.get());
         } else {
-            event.setPing(event.getPing().asBuilder().description(MiniMessage.miniMessage().deserialize(baseMotd)).samplePlayers(plugin.getConfig().as(ServerSettings.class).getServer().getSample().stream().map(s -> new ServerPing.SamplePlayer(convertColorCodes(s), UUID.randomUUID())).toArray(ServerPing.SamplePlayer[]::new)).build());
+            builder.description(MiniMessage.miniMessage().deserialize(baseMotd));
         }
+
+        builder.samplePlayers(plugin.getConfig().as(ServerSettings.class).getServer().getSample().stream().map(s -> new ServerPing.SamplePlayer(convertColorCodes(s), UUID.randomUUID())).toArray(ServerPing.SamplePlayer[]::new));
+        builder.onlinePlayers(plugin.getServer().getPlayerCount() + plugin.getConfig().as(ServerSettings.class).getServer().getAddPlayerCount());
+        if (plugin.getConfig().as(ServerSettings.class).getServer().isPlusOneMaxPlayer())
+        {
+            builder.maximumPlayers(builder.getOnlinePlayers() + 1);
+        }
+
+        event.setPing(builder.build());
+
     }
 
     private String convertColorCodes(String code)

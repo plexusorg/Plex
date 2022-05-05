@@ -1,6 +1,7 @@
 package dev.plex.settings;
 
 import com.google.common.collect.Lists;
+import com.google.gson.annotations.SerializedName;
 import lombok.Data;
 import lombok.Getter;
 
@@ -18,5 +19,9 @@ public class ServerSettings
         private boolean colorizeMotd = false;
         private boolean debug = false;
         private final List<String> sample = Lists.newArrayList("example", "example");
+        @SerializedName(value = "add-player-count")
+        private int addPlayerCount = 0;
+        @SerializedName(value = "plus-one-max-count")
+        private boolean plusOneMaxPlayer = true;
     }
 }
