@@ -1,23 +1,13 @@
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-
 group = rootProject.group
 version = rootProject.version
-description = "Plex-API"
+description = "Plex-Velocity"
 
 repositories {
     maven { url = uri("https://papermc.io/repo/repository/maven-public/") }
 }
 
 tasks.getByName<Jar>("jar") {
-    archiveBaseName.set("Plex")
-    archiveClassifier.set("proxy")
-    val props = mapOf("version" to rootProject.version)
-//    filter<org.apache.tools.ant.filters.ReplaceTokens>("tokens" to props)
-}
-
-tasks.getByName<ShadowJar>("shadowJar") {
-    val props = mapOf("version" to rootProject.version)
-//    filter<org.apache.tools.ant.filters.ReplaceTokens>("tokens" to props)
+    archiveBaseName.set("Plex-Velocity")
 }
 
 tasks {
