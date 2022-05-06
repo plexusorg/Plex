@@ -114,8 +114,6 @@ public class Plex extends JavaPlugin
         mongoConnection = new MongoConnection();
         redisConnection = new RedisConnection();
 
-        moduleManager.enableModules();
-
         system = config.getString("system");
 
         PlexLog.log("Attempting to connect to DB: {0}", plugin.config.getString("data.central.db"));
@@ -188,6 +186,7 @@ public class Plex extends JavaPlugin
         PlexLog.log("Started " + serviceManager.serviceCount() + " services.");
 
         reloadPlayers();
+        moduleManager.enableModules();
     }
 
     @Override
