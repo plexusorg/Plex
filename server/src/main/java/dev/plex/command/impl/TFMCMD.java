@@ -16,7 +16,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-@CommandParameters(name = "totalfreedommod", usage = "/<command> [reload]", description = "Shows information about TotalFreedomMod or reloads it", aliases = "tfm")
+@CommandParameters(name = "totalfreedommod", usage = "/<command> [reload]", description = "You can't simpy do that.", aliases = "tfm")
 @CommandPermissions(level = Rank.OP, permission = "plex.tfm", source = RequiredCommandSource.ANY)
 
 public class TFMCMD extends PlexCommand
