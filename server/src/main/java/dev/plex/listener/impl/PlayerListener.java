@@ -88,6 +88,11 @@ public class PlayerListener<T> extends PlexListener
             plexPlayer.loadNotes();
         }
 
+        if (plugin.getStorageType() == StorageType.MONGODB)
+        {
+            plexPlayer.loadPunishments();
+        }
+
         plugin.getSqlNotes().getNotes(plexPlayer.getUuid()).whenComplete((notes, ex) ->
         {
             String plural = notes.size() == 1 ? "note." : "notes.";

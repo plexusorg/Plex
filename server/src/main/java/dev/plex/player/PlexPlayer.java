@@ -13,11 +13,6 @@ import dev.plex.punishment.Punishment;
 import dev.plex.punishment.extra.Note;
 import dev.plex.rank.enums.Rank;
 import dev.plex.storage.StorageType;
-import java.time.ZonedDateTime;
-import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-
 import dev.plex.util.adapter.ZonedDateTimeSerializer;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -27,6 +22,11 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachment;
+
+import java.time.ZonedDateTime;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 @Getter
 @Setter
@@ -73,7 +73,7 @@ public class PlexPlayer implements IPlexPlayer
     {
     }
 
-    public PlexPlayer(UUID playerUUID)
+    public PlexPlayer(UUID playerUUID, boolean loadExtraData)
     {
         this.uuid = playerUUID;
 
@@ -91,11 +91,19 @@ public class PlexPlayer implements IPlexPlayer
         this.coins = 0;
 
         this.rank = "";
-        this.loadPunishments();
-        if (Plex.get().getStorageType() != StorageType.MONGODB)
+        if (loadExtraData)
         {
-            this.permissions.addAll(Plex.get().getSqlPermissions().getPermissions(this.uuid));
+            this.loadPunishments();
+            if (Plex.get().getStorageType() != StorageType.MONGODB)
+            {
+                this.permissions.addAll(Plex.get().getSqlPermissions().getPermissions(this.uuid));
+            }
         }
+    }
+
+    public PlexPlayer(UUID playerUUID)
+    {
+        this(playerUUID, true);
     }
 
     public String displayName()
@@ -111,13 +119,11 @@ public class PlexPlayer implements IPlexPlayer
             if (player.isOp())
             {
                 return Rank.OP;
-            }
-            else
+            } else
             {
                 return Rank.NONOP;
             }
-        }
-        else
+        } else
         {
             return Rank.valueOf(rank.toUpperCase());
         }

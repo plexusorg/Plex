@@ -64,6 +64,23 @@ public class DataUtils
         }
     }
 
+    public static PlexPlayer getPlayer(UUID uuid, boolean loadExtraData)
+    {
+        if (PlayerCache.getPlexPlayerMap().containsKey(uuid))
+        {
+            return PlayerCache.getPlexPlayerMap().get(uuid);
+        }
+
+        if (Plex.get().getStorageType() == StorageType.MONGODB)
+        {
+            return Plex.get().getMongoPlayerData().getByUUID(uuid);
+        }
+        else
+        {
+            return Plex.get().getSqlPlayerData().getByUUID(uuid, loadExtraData);
+        }
+    }
+
     public static PlexPlayer getPlayer(String username)
     {
         if (Plex.get().getStorageType() == StorageType.MONGODB)

@@ -67,7 +67,7 @@ public class SQLPlayerData
      * @return a PlexPlayer object
      * @see PlexPlayer
      */
-    public PlexPlayer getByUUID(UUID uuid)
+    public PlexPlayer getByUUID(UUID uuid, boolean loadExtraData)
     {
         if (PlayerCache.getPlexPlayerMap().containsKey(uuid))
         {
@@ -79,7 +79,7 @@ public class SQLPlayerData
             PreparedStatement statement = con.prepareStatement(SELECT);
             statement.setString(1, uuid.toString());
             ResultSet set = statement.executeQuery();
-            PlexPlayer plexPlayer = new PlexPlayer(uuid);
+            PlexPlayer plexPlayer = new PlexPlayer(uuid, loadExtraData);
             while (set.next())
             {
                 String name = set.getString("name");
@@ -109,6 +109,11 @@ public class SQLPlayerData
             throwables.printStackTrace();
         }
         return null;
+    }
+
+    public PlexPlayer getByUUID(UUID uuid)
+    {
+        return this.getByUUID(uuid, true);
     }
 
     public PlexPlayer getByName(String username)
