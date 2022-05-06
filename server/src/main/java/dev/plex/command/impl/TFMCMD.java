@@ -16,8 +16,8 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-@CommandParameters(name = "totalfreedommod", usage = "/<command>", description = "You can't simpy do that.", aliases = "tfm")
-@CommandPermissions(level = Rank.OP, permission = "plex.tfm", source = RequiredCommandSource.ANY)
+@CommandParameters(name = "totalfreedommod", description = "You can't simpy do that.", aliases = "tfm")
+@CommandPermissions(level = Rank.OP, source = RequiredCommandSource.ANY)
 
 public class TFMCMD extends PlexCommand
 {
@@ -34,7 +34,6 @@ public class TFMCMD extends PlexCommand
             {
                 pageComponents.add(PlexUtils.mmDeserialize("<rainbow>" + page + "</rainbow>"));
             }
-
 
             playerSender.openBook(Book.builder()
                     .title(Component.text("TFM License"))
