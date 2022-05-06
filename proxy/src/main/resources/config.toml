@@ -13,7 +13,7 @@
   # %servername% - The name provided above
   # %randomgradient% - Creates a random gradient every ping of two random colors for the whole string
   # Supports MiniMessage strings, no legacy & and §
-  motd = "%randomgradient%%servername% - %mcversion%"
+  motd = ["%randomgradient%%servername% - %mcversion%", "Another motd"]
   colorizeMotd = false
 
   # Enables debug messages

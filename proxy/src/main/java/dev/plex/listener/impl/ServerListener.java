@@ -13,6 +13,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -23,7 +24,7 @@ public class ServerListener extends PlexListener
     @Subscribe(order = PostOrder.FIRST)
     public void onPing(ProxyPingEvent event)
     {
-        String baseMotd = plugin.getConfig().as(ServerSettings.class).getServer().getMotd();
+        String baseMotd = plugin.getConfig().as(ServerSettings.class).getServer().getMotd().get(ThreadLocalRandom.current().nextInt(plugin.getConfig().as(ServerSettings.class).getServer().getMotd().size()));
         baseMotd = baseMotd.replace("\\n", "\n");
         baseMotd = baseMotd.replace("%servername%", plugin.getConfig().as(ServerSettings.class).getServer().getName());
         baseMotd = baseMotd.replace("%mcversion%", plugin.getServer().getVersion().getVersion().split(" ")[0]);

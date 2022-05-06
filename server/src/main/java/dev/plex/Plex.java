@@ -7,8 +7,10 @@ import dev.plex.cache.PlayerCache;
 import dev.plex.config.Config;
 import dev.plex.handlers.CommandHandler;
 import dev.plex.handlers.ListenerHandler;
+import dev.plex.listener.impl.ChatListener;
 import dev.plex.module.ModuleManager;
 import dev.plex.player.PlexPlayer;
+import dev.plex.api.plugin.PlexPlugin;
 import dev.plex.punishment.PunishmentManager;
 import dev.plex.rank.RankManager;
 import dev.plex.services.ServiceManager;
@@ -34,11 +36,10 @@ import net.milkbowl.vault.permission.Permission;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.RegisteredServiceProvider;
-import org.bukkit.plugin.java.JavaPlugin;
 
 @Getter
 @Setter
-public class Plex extends JavaPlugin
+public class Plex extends PlexPlugin
 {
     private static Plex plugin;
 
@@ -83,6 +84,7 @@ public class Plex extends JavaPlugin
     @Override
     public void onLoad()
     {
+        super.onLoad();
         plugin = this;
         config = new Config(this, "config.yml");
         messages = new Config(this, "messages.yml");
@@ -99,6 +101,8 @@ public class Plex extends JavaPlugin
         moduleManager = new ModuleManager();
         moduleManager.loadAllModules();
         moduleManager.loadModules();
+
+        this.setChatHandler(new ChatListener.ChatHandlerImpl());
     }
 
     @Override

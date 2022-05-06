@@ -15,7 +15,7 @@ public class ServerSettings
     @Data
     public static class Server {
         private String name = "Server";
-        private String motd = "%randomgradient%%servername% - %mcversion%";
+        private List<String> motd = Lists.newArrayList("%randomgradient%%servername% - %mcversion%", "Another motd");
         private boolean colorizeMotd = false;
         private boolean debug = false;
         private final List<String> sample = Lists.newArrayList("example", "example");
