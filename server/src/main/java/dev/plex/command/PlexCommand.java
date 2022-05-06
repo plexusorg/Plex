@@ -66,7 +66,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
     /**
      * Creates an instance of the command
      */
-    public PlexCommand()
+    public PlexCommand(boolean register)
     {
         super("");
         this.params = getClass().getAnnotation(CommandParameters.class);
@@ -83,7 +83,15 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
         this.level = perms.level();
         this.commandSource = perms.source();
 
-        getMap().register("plex", this);
+        if (register)
+        {
+            getMap().register("plex", this);
+        }
+    }
+    
+    public PlexCommand()
+    {
+        this(true);
     }
 
     /**
