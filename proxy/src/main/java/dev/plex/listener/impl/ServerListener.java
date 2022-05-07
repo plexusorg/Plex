@@ -4,20 +4,16 @@ import com.velocitypowered.api.event.PostOrder;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyPingEvent;
 import com.velocitypowered.api.proxy.server.ServerPing;
-import dev.plex.Plex;
 import dev.plex.listener.PlexListener;
 import dev.plex.settings.ServerSettings;
-import dev.plex.util.PlexLog;
 import dev.plex.util.RandomUtil;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
-
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 
 public class ServerListener extends PlexListener
 {
@@ -41,7 +37,9 @@ public class ServerListener extends PlexListener
                 motd.set(motd.get().append(Component.space()));
             }
             builder.description(motd.get());
-        } else {
+        }
+        else
+        {
             builder.description(MiniMessage.miniMessage().deserialize(baseMotd));
         }
 
@@ -61,5 +59,4 @@ public class ServerListener extends PlexListener
         Matcher matcher = Pattern.compile("[&][0-9a-fk-or]{1}").matcher(code);
         return matcher.replaceAll(matchResult -> "§" + matcher.group().substring(1));
     }
-
 }

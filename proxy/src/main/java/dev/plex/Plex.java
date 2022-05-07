@@ -10,17 +10,16 @@ import dev.plex.config.TomlConfig;
 import dev.plex.handlers.ListenerHandler;
 import dev.plex.settings.ServerSettings;
 import dev.plex.util.PlexLog;
-import lombok.Getter;
-
 import java.io.File;
 import java.nio.file.Path;
 import java.util.logging.Logger;
+import lombok.Getter;
 
 /**
  * Credits for TOML library go to https://github.com/mwanji/toml4j
  * I was unable to add it back to the package without it glitching, so
  * I kept it in a separate package.
- *
+ * <p>
  * Modifications: Properly indent arrays in TOML as well as only append
  * missing object fields into the file
  */
@@ -38,7 +37,7 @@ public class Plex
 {
     private static Plex plugin;
 
-    private final ProxyServer server;
+    public final ProxyServer server;
     private final Logger logger;
     private final File dataFolder;
 
