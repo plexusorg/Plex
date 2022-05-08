@@ -1,7 +1,6 @@
 package dev.plex.util.minimessage;
 
 import com.google.common.collect.ImmutableList;
-import java.util.List;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.Context;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -11,6 +10,8 @@ import net.kyori.adventure.text.minimessage.tag.resolver.ArgumentQueue;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 public class SafeMiniMessage
 {
@@ -23,9 +24,17 @@ public class SafeMiniMessage
 
     public static Component mmDeserializeWithoutEvents(String text)
     {
-        return mmDeserialize(text)
-                .clickEvent(null)
-                .hoverEvent(null);
+        return mmDeserialize(text).clickEvent(null).hoverEvent(null);
+    }
+
+    public static String mmSerialize(Component component)
+    {
+        return MINI_MESSAGE.serialize(component);
+    }
+
+    public static String mmSerializeWithoutEvents(Component component)
+    {
+        return mmSerialize(component.clickEvent(null).hoverEvent(null));
     }
 
     public static class SafeMiniMessageTagResolver implements TagResolver
