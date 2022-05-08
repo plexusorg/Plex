@@ -21,7 +21,7 @@ public class BookListener extends PlexListener
 
         for (Component page : event.getNewBookMeta().pages())
         {
-            pages.add(SafeMiniMessage.mmDeserialize(PlexUtils.getTextFromComponent(page)));
+            pages.add(SafeMiniMessage.mmDeserializeWithoutEvents(PlexUtils.getTextFromComponent(page)));
         }
 
 
