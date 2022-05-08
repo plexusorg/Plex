@@ -71,7 +71,7 @@ public class ChatListener extends PlexListener
                 component = component.append(prefix);
             }
 
-            return component.append(Component.space()).append(PlexUtils.mmDeserialize(plugin.config.getString("chat.name-color", "<white>") + MiniMessage.builder().tags(TagResolver.resolver(StandardTags.color(), StandardTags.rainbow(), StandardTags.decorations(), StandardTags.gradient(), StandardTags.transition())).build().serialize(sourceDisplayName))).append(Component.space()).append(Component.text("»").color(NamedTextColor.GRAY)).append(Component.space()).append(SafeMiniMessage.mmSerializeWithoutEvents(text)).replaceText(URL_REPLACEMENT_CONFIG);
+            return component.append(Component.space()).append(PlexUtils.mmDeserialize(plugin.config.getString("chat.name-color", "<white>") + MiniMessage.builder().tags(TagResolver.resolver(StandardTags.color(), StandardTags.rainbow(), StandardTags.decorations(), StandardTags.gradient(), StandardTags.transition())).build().serialize(sourceDisplayName))).append(Component.space()).append(Component.text("»").color(NamedTextColor.GRAY)).append(Component.space()).append(SafeMiniMessage.mmDeserializeWithoutEvents(text)).replaceText(URL_REPLACEMENT_CONFIG);
         }
     }
 }
