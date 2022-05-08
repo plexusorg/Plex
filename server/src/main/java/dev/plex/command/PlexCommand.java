@@ -519,6 +519,18 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
     }
 
     /**
+     * Converts a message entry from the "messages.yml" to a Component
+     *
+     * @param s       The message entry
+     * @param objects Any objects to replace in order
+     * @return A Kyori Component
+     */
+    protected Component messageComponent(String s, Component... objects)
+    {
+        return PlexUtils.messageComponent(s, objects);
+    }
+
+    /**
      * Converts a message entry from the "messages.yml" to a String
      *
      * @param s       The message entry
