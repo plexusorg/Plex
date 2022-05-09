@@ -3,6 +3,8 @@ package dev.plex.cache;
 import dev.plex.Plex;
 import dev.plex.player.PlexPlayer;
 import dev.plex.storage.StorageType;
+
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -49,19 +51,7 @@ public class DataUtils
      */
     public static PlexPlayer getPlayer(UUID uuid)
     {
-        if (PlayerCache.getPlexPlayerMap().containsKey(uuid))
-        {
-            return PlayerCache.getPlexPlayerMap().get(uuid);
-        }
-
-        if (Plex.get().getStorageType() == StorageType.MONGODB)
-        {
-            return Plex.get().getMongoPlayerData().getByUUID(uuid);
-        }
-        else
-        {
-            return Plex.get().getSqlPlayerData().getByUUID(uuid);
-        }
+        return getPlayer(uuid, true);
     }
 
     public static PlexPlayer getPlayer(UUID uuid, boolean loadExtraData)
@@ -81,8 +71,19 @@ public class DataUtils
         }
     }
 
+    public static PlexPlayer getPlayer(String username)
+    {
+        return getPlayer(username, true);
+    }
+
     public static PlexPlayer getPlayer(String username, boolean loadExtraData)
     {
+        Optional<PlexPlayer> plexPlayer = PlayerCache.getPlexPlayerMap().values().stream().filter(player -> player.getName().equalsIgnoreCase(username)).findFirst();
+        if (plexPlayer.isPresent())
+        {
+            return plexPlayer.get();
+        }
+
         if (Plex.get().getStorageType() == StorageType.MONGODB)
         {
             return Plex.get().getMongoPlayerData().getByName(username);
