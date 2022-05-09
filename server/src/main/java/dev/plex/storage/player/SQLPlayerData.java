@@ -116,7 +116,7 @@ public class SQLPlayerData
         return this.getByUUID(uuid, true);
     }
 
-    public PlexPlayer getByName(String username)
+    public PlexPlayer getByName(String username, boolean loadExtraData)
     {
         PlexPlayer player = PlayerCache.getPlexPlayerMap().values().stream().filter(plexPlayer -> plexPlayer.getName().equalsIgnoreCase(username)).findFirst().orElse(null);
         if (player != null)
@@ -130,7 +130,7 @@ public class SQLPlayerData
             ResultSet set = statement.executeQuery();
             while (set.next())
             {
-                PlexPlayer plexPlayer = new PlexPlayer(UUID.fromString(set.getString("uuid")));
+                PlexPlayer plexPlayer = new PlexPlayer(UUID.fromString(set.getString("uuid")), loadExtraData);
                 String loginMSG = set.getString("login_msg");
                 String prefix = set.getString("prefix");
                 String rankName = set.getString("rank").toUpperCase();
@@ -158,6 +158,11 @@ public class SQLPlayerData
             throwables.printStackTrace();
         }
         return null;
+    }
+
+    public PlexPlayer getByName(String username)
+    {
+        return getByName(username, true);
     }
 
     /**

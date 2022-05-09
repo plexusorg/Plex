@@ -81,7 +81,7 @@ public class DataUtils
         }
     }
 
-    public static PlexPlayer getPlayer(String username)
+    public static PlexPlayer getPlayer(String username, boolean loadExtraData)
     {
         if (Plex.get().getStorageType() == StorageType.MONGODB)
         {
@@ -89,7 +89,7 @@ public class DataUtils
         }
         else
         {
-            return Plex.get().getSqlPlayerData().getByName(username);
+            return Plex.get().getSqlPlayerData().getByName(username, loadExtraData);
         }
     }
 
