@@ -15,6 +15,8 @@ import dev.plex.util.BungeeUtil;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.TimeUtils;
 import dev.plex.util.WebUtils;
+import java.util.List;
+import java.util.UUID;
 import net.kyori.adventure.text.Component;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
@@ -22,9 +24,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.List;
-import java.util.UUID;
 
 @CommandParameters(name = "tempban", usage = "/<command> <player> <time> [reason]", description = "Temporarily ban a player")
 @CommandPermissions(level = Rank.ADMIN, permission = "plex.tempban", source = RequiredCommandSource.ANY)
@@ -73,7 +72,8 @@ public class TempbanCMD extends PlexCommand
         {
             reason = StringUtils.join(args, " ", 2, args.length);
             punishment.setReason(reason);
-        } else
+        }
+        else
         {
             punishment.setReason("No reason provided.");
         }
@@ -89,13 +89,7 @@ public class TempbanCMD extends PlexCommand
         PlexUtils.broadcast(messageComponent("banningPlayer", sender.getName(), plexPlayer.getName()));
         if (player != null)
         {
-            if (BungeeUtil.isBungeeCord() || BungeeUtil.isVelocity())
-            {
-                BungeeUtil.kickPlayer(player, Punishment.generateBanMessage(punishment));
-            } else
-            {
-                player.kick(Punishment.generateBanMessage(punishment));
-            }
+            BungeeUtil.kickPlayer(player, Punishment.generateBanMessage(punishment));
         }
         return null;
     }

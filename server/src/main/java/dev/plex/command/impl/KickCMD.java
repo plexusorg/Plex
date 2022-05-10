@@ -67,13 +67,7 @@ public class KickCMD extends PlexCommand
         punishment.setIp(player.getAddress().getAddress().getHostAddress().trim());
         plugin.getPunishmentManager().punish(plexPlayer, punishment);
         PlexUtils.broadcast(messageComponent("kickedPlayer", sender.getName(), plexPlayer.getName()));
-        if (BungeeUtil.isBungeeCord() || BungeeUtil.isVelocity())
-        {
-            BungeeUtil.kickPlayer(player, Punishment.generateBanMessage(punishment));
-        } else
-        {
-            player.kick(Punishment.generateBanMessage(punishment));
-        }
+        BungeeUtil.kickPlayer(player, Punishment.generateBanMessage(punishment));
         return null;
     }
 }
