@@ -23,10 +23,7 @@ import dev.plex.storage.player.MongoPlayerData;
 import dev.plex.storage.player.SQLPlayerData;
 import dev.plex.storage.punishment.SQLNotes;
 import dev.plex.storage.punishment.SQLPunishment;
-import dev.plex.util.BuildInfo;
-import dev.plex.util.PlexLog;
-import dev.plex.util.PlexUtils;
-import dev.plex.util.UpdateChecker;
+import dev.plex.util.*;
 import dev.plex.world.CustomWorld;
 import java.io.File;
 import lombok.Getter;
@@ -103,6 +100,7 @@ public class Plex extends PlexPlugin
         moduleManager.loadModules();
 
         this.setChatHandler(new ChatListener.ChatHandlerImpl());
+
     }
 
     @Override
@@ -190,6 +188,15 @@ public class Plex extends PlexPlugin
         PlexLog.log("Started " + serviceManager.serviceCount() + " services.");
 
         reloadPlayers();
+        PlexLog.debug("Registered Bukkit -> BungeeCord Plugin Messaging Channel");
+        PlexLog.debug("Velocity Support? " + BungeeUtil.isVelocity());
+        PlexLog.debug("BungeeCord Support? " + BungeeUtil.isBungeeCord());
+        if (BungeeUtil.isBungeeCord() && BungeeUtil.isVelocity())
+        {
+            PlexLog.warn("It seems you have both velocity and bungeecord configuration options enabled! When running Velocity, you do NOT need to enable bungeecord.");
+        }
+        this.getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
+
         moduleManager.enableModules();
     }
 
@@ -219,6 +226,8 @@ public class Plex extends PlexPlugin
             PlexLog.log("Disabling Redis/Jedis. No memory leaks in this Anarchy server!");
             redisConnection.getJedis().close();
         }
+
+        this.getServer().getMessenger().unregisterOutgoingPluginChannel(this);
 
         moduleManager.disableModules();
     }

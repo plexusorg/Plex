@@ -12,10 +12,8 @@ import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.Punishment;
 import dev.plex.punishment.PunishmentType;
 import dev.plex.rank.enums.Rank;
-import dev.plex.util.PlexLog;
-import dev.plex.util.PlexUtils;
-import dev.plex.util.TimeUtils;
-import dev.plex.util.WebUtils;
+import dev.plex.util.*;
+
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -100,7 +98,12 @@ public class BanCMD extends PlexCommand
             {
                 if (player != null)
                 {
-                    player.kick(Punishment.generateBanMessage(punishment));
+                    if (BungeeUtil.isBungeeCord() || BungeeUtil.isVelocity())
+                    {
+                        BungeeUtil.kickPlayer(player, Punishment.generateBanMessage(punishment));
+                    } else {
+                        player.kick(Punishment.generateBanMessage(punishment));
+                    }
                 }
             });
             PlexLog.debug("(From /ban command) PunishedPlayer UUID: " + plexPlayer.getUuid());
