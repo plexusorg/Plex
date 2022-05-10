@@ -27,7 +27,7 @@ class MapValueWriter implements dev.plex.toml.ValueWriter
             file = context.file;
         }
 
-        Map<?, ?> from = (Map<?, ?>) value;
+        Map<?, ?> from = (Map<?, ?>)value;
 
         Toml toml = null;
 
@@ -46,7 +46,8 @@ class MapValueWriter implements dev.plex.toml.ValueWriter
                     {
                         context.writeKey();
                     }
-                } else
+                }
+                else
                 {
                     context.writeKey();
                 }
@@ -70,8 +71,14 @@ class MapValueWriter implements dev.plex.toml.ValueWriter
             {
                 if (context.key != null)
                 {
-                    if (key.toString().equalsIgnoreCase(context.key)) continue;
-                    if (toml.contains(context.key + "." + key)) continue;
+                    if (key.toString().equalsIgnoreCase(context.key))
+                    {
+                        continue;
+                    }
+                    if (toml.contains(context.key + "." + key))
+                    {
+                        continue;
+                    }
                 }
             }
 
@@ -82,7 +89,8 @@ class MapValueWriter implements dev.plex.toml.ValueWriter
                 context.write(quoteKey(key)).write(" = ");
                 valueWriter.write(fromValue, context);
                 context.write('\n');
-            } else if (valueWriter == dev.plex.toml.PrimitiveArrayValueWriter.PRIMITIVE_ARRAY_VALUE_WRITER)
+            }
+            else if (valueWriter == dev.plex.toml.PrimitiveArrayValueWriter.PRIMITIVE_ARRAY_VALUE_WRITER)
             {
                 context.indent();
                 context.setArrayKey(key.toString());
@@ -105,8 +113,14 @@ class MapValueWriter implements dev.plex.toml.ValueWriter
             {
                 if (context.key != null)
                 {
-                    if (key.toString().equalsIgnoreCase(context.key)) continue;
-                    if (toml.contains(context.key + "." + key)) continue;
+                    if (key.toString().equalsIgnoreCase(context.key))
+                    {
+                        continue;
+                    }
+                    if (toml.contains(context.key + "." + key))
+                    {
+                        continue;
+                    }
                 }
             }
 

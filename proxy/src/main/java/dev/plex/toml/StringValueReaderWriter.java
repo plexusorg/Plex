@@ -8,122 +8,147 @@ import java.util.regex.Pattern;
 
 class StringValueReaderWriter implements ValueReader, ValueWriter
 {
-  
-  static final StringValueReaderWriter STRING_VALUE_READER_WRITER = new StringValueReaderWriter();
-  private static final Pattern UNICODE_REGEX = Pattern.compile("\\\\[uU](.{4})");
 
-  static private final String[] specialCharacterEscapes = new String[93];
+    static final StringValueReaderWriter STRING_VALUE_READER_WRITER = new StringValueReaderWriter();
+    private static final Pattern UNICODE_REGEX = Pattern.compile("\\\\[uU](.{4})");
 
-  static {
-    specialCharacterEscapes['\b'] = "\\b";
-    specialCharacterEscapes['\t'] = "\\t";
-    specialCharacterEscapes['\n'] = "\\n";
-    specialCharacterEscapes['\f'] = "\\f";
-    specialCharacterEscapes['\r'] = "\\r";
-    specialCharacterEscapes['"'] = "\\\"";
-    specialCharacterEscapes['\\'] = "\\\\";
-  }
+    static private final String[] specialCharacterEscapes = new String[93];
 
-  @Override
-  public boolean canRead(String s) {
-    return s.startsWith("\"");
-  }
-
-  @Override
-  public Object read(String s, AtomicInteger index, Context context) {
-    int startIndex = index.incrementAndGet();
-    int endIndex = -1;
-
-    for (int i = index.get(); i < s.length(); i = index.incrementAndGet()) {
-      char ch = s.charAt(i);
-      if (ch == '"' && s.charAt(i - 1) != '\\') {
-        endIndex = i;
-        break;
-      }
+    static
+    {
+        specialCharacterEscapes['\b'] = "\\b";
+        specialCharacterEscapes['\t'] = "\\t";
+        specialCharacterEscapes['\n'] = "\\n";
+        specialCharacterEscapes['\f'] = "\\f";
+        specialCharacterEscapes['\r'] = "\\r";
+        specialCharacterEscapes['"'] = "\\\"";
+        specialCharacterEscapes['\\'] = "\\\\";
     }
 
-    if (endIndex == -1) {
-      Results.Errors errors = new Results.Errors();
-      errors.unterminated(context.identifier.getName(), s.substring(startIndex - 1), context.line.get());
-      return errors;
-    }
-    
-    String raw = s.substring(startIndex, endIndex);
-    s = replaceUnicodeCharacters(raw);
-    s = replaceSpecialCharacters(s);
-    
-    if (s == null) {
-      Results.Errors errors = new Results.Errors();
-      errors.invalidValue(context.identifier.getName(), raw, context.line.get());
-      return errors;
+    @Override
+    public boolean canRead(String s)
+    {
+        return s.startsWith("\"");
     }
 
-    return s;
-  }
+    @Override
+    public Object read(String s, AtomicInteger index, Context context)
+    {
+        int startIndex = index.incrementAndGet();
+        int endIndex = -1;
 
-  String replaceUnicodeCharacters(String value) {
-    Matcher unicodeMatcher = UNICODE_REGEX.matcher(value);
+        for (int i = index.get(); i < s.length(); i = index.incrementAndGet())
+        {
+            char ch = s.charAt(i);
+            if (ch == '"' && s.charAt(i - 1) != '\\')
+            {
+                endIndex = i;
+                break;
+            }
+        }
 
-    while (unicodeMatcher.find()) {
-      value = value.replace(unicodeMatcher.group(), new String(Character.toChars(Integer.parseInt(unicodeMatcher.group(1), 16))));
+        if (endIndex == -1)
+        {
+            Results.Errors errors = new Results.Errors();
+            errors.unterminated(context.identifier.getName(), s.substring(startIndex - 1), context.line.get());
+            return errors;
+        }
+
+        String raw = s.substring(startIndex, endIndex);
+        s = replaceUnicodeCharacters(raw);
+        s = replaceSpecialCharacters(s);
+
+        if (s == null)
+        {
+            Results.Errors errors = new Results.Errors();
+            errors.invalidValue(context.identifier.getName(), raw, context.line.get());
+            return errors;
+        }
+
+        return s;
     }
-    return value;
-  }
 
-  String replaceSpecialCharacters(String s) {
-    for (int i = 0; i < s.length() - 1; i++) {
-      char ch = s.charAt(i);
-      char next = s.charAt(i + 1);
+    String replaceUnicodeCharacters(String value)
+    {
+        Matcher unicodeMatcher = UNICODE_REGEX.matcher(value);
 
-      if (ch == '\\' && next == '\\') {
-        i++;
-      } else if (ch == '\\' && !(next == 'b' || next == 'f' || next == 'n' || next == 't' || next == 'r' || next == '"' || next == '\\')) {
-        return null;
-      }
+        while (unicodeMatcher.find())
+        {
+            value = value.replace(unicodeMatcher.group(), new String(Character.toChars(Integer.parseInt(unicodeMatcher.group(1), 16))));
+        }
+        return value;
     }
 
-    return s.replace("\\n", "\n")
-      .replace("\\\"", "\"")
-      .replace("\\t", "\t")
-      .replace("\\r", "\r")
-      .replace("\\\\", "\\")
-      .replace("\\/", "/")
-      .replace("\\b", "\b")
-      .replace("\\f", "\f");
-  }
+    String replaceSpecialCharacters(String s)
+    {
+        for (int i = 0; i < s.length() - 1; i++)
+        {
+            char ch = s.charAt(i);
+            char next = s.charAt(i + 1);
 
-  @Override
-  public boolean canWrite(Object value) {
-    return value instanceof String || value instanceof Character || value instanceof URL || value instanceof URI || value instanceof Enum;
-  }
+            if (ch == '\\' && next == '\\')
+            {
+                i++;
+            }
+            else if (ch == '\\' && !(next == 'b' || next == 'f' || next == 'n' || next == 't' || next == 'r' || next == '"' || next == '\\'))
+            {
+                return null;
+            }
+        }
 
-  @Override
-  public void write(Object value, WriterContext context) {
-    context.write('"');
-    escapeUnicode(value.toString(), context);
-    context.write('"');
-  }
-
-  @Override
-  public boolean isPrimitiveType() {
-    return true;
-  }
-
-  private void escapeUnicode(String in, WriterContext context) {
-    for (int i = 0; i < in.length(); i++) {
-      int codePoint = in.codePointAt(i);
-      if (codePoint < specialCharacterEscapes.length && specialCharacterEscapes[codePoint] != null) {
-        context.write(specialCharacterEscapes[codePoint]);
-      } else {
-        context.write(in.charAt(i));
-      }
+        return s.replace("\\n", "\n")
+                .replace("\\\"", "\"")
+                .replace("\\t", "\t")
+                .replace("\\r", "\r")
+                .replace("\\\\", "\\")
+                .replace("\\/", "/")
+                .replace("\\b", "\b")
+                .replace("\\f", "\f");
     }
-  }
 
-  private StringValueReaderWriter() {}
+    @Override
+    public boolean canWrite(Object value)
+    {
+        return value instanceof String || value instanceof Character || value instanceof URL || value instanceof URI || value instanceof Enum;
+    }
 
-  @Override
-  public String toString() {
-    return "string";
-  }
+    @Override
+    public void write(Object value, WriterContext context)
+    {
+        context.write('"');
+        escapeUnicode(value.toString(), context);
+        context.write('"');
+    }
+
+    @Override
+    public boolean isPrimitiveType()
+    {
+        return true;
+    }
+
+    private void escapeUnicode(String in, WriterContext context)
+    {
+        for (int i = 0; i < in.length(); i++)
+        {
+            int codePoint = in.codePointAt(i);
+            if (codePoint < specialCharacterEscapes.length && specialCharacterEscapes[codePoint] != null)
+            {
+                context.write(specialCharacterEscapes[codePoint]);
+            }
+            else
+            {
+                context.write(in.charAt(i));
+            }
+        }
+    }
+
+    private StringValueReaderWriter()
+    {
+    }
+
+    @Override
+    public String toString()
+    {
+        return "string";
+    }
 }

@@ -2,10 +2,9 @@ package dev.plex.settings;
 
 import com.google.common.collect.Lists;
 import com.google.gson.annotations.SerializedName;
+import java.util.List;
 import lombok.Data;
 import lombok.Getter;
-
-import java.util.List;
 
 @Getter
 public class ServerSettings
@@ -13,7 +12,8 @@ public class ServerSettings
     private final Server server = new Server();
 
     @Data
-    public static class Server {
+    public static class Server
+    {
         private String name = "Server";
         private List<String> motd = Lists.newArrayList("%randomgradient%%servername% - %mcversion%", "Another motd");
         private boolean colorizeMotd = false;

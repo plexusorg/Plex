@@ -25,6 +25,7 @@ import org.jetbrains.annotations.NotNull;
 public class ChatListener extends PlexListener
 {
     private final static TextReplacementConfig URL_REPLACEMENT_CONFIG = TextReplacementConfig.builder().match("(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]").replacement((matchResult, builder) -> Component.empty().content(matchResult.group()).clickEvent(ClickEvent.openUrl(matchResult.group()))).build();
+
     @EventHandler
     public void onChat(AsyncChatEvent event)
     {
@@ -34,6 +35,7 @@ public class ChatListener extends PlexListener
     public static class ChatHandlerImpl implements IChatHandler
     {
         private final PlexChatRenderer renderer = new PlexChatRenderer();
+
         @Override
         public void doChat(AsyncChatEvent event)
         {
@@ -44,7 +46,8 @@ public class ChatListener extends PlexListener
             {
                 renderer.hasPrefix = true;
                 renderer.prefix = prefix;
-            } else
+            }
+            else
             {
                 renderer.hasPrefix = false;
                 renderer.prefix = null;

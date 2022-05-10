@@ -5,7 +5,6 @@ import dev.plex.util.PlexUtils;
 import dev.plex.util.minimessage.SafeMiniMessage;
 import java.util.ArrayList;
 import java.util.List;
-import net.kyori.adventure.inventory.Book;
 import net.kyori.adventure.text.Component;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;

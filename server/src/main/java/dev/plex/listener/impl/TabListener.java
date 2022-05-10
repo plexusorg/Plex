@@ -1,9 +1,9 @@
 package dev.plex.listener.impl;
 
-import dev.plex.cache.DataUtils;
 import dev.plex.api.event.AdminAddEvent;
 import dev.plex.api.event.AdminRemoveEvent;
 import dev.plex.api.event.AdminSetRankEvent;
+import dev.plex.cache.DataUtils;
 import dev.plex.listener.PlexListener;
 import dev.plex.player.PlexPlayer;
 import net.kyori.adventure.text.Component;
@@ -25,7 +25,7 @@ public class TabListener extends PlexListener
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onAdminAdd(AdminAddEvent event)
     {
-        PlexPlayer plexPlayer = (PlexPlayer) event.getPlexPlayer();
+        PlexPlayer plexPlayer = (PlexPlayer)event.getPlexPlayer();
         Player player = event.getPlexPlayer().getPlayer();
         if (player == null)
         {
@@ -37,7 +37,7 @@ public class TabListener extends PlexListener
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onAdminRemove(AdminRemoveEvent event)
     {
-        PlexPlayer plexPlayer = (PlexPlayer) event.getPlexPlayer();
+        PlexPlayer plexPlayer = (PlexPlayer)event.getPlexPlayer();
         Player player = event.getPlexPlayer().getPlayer();
         if (player == null)
         {
@@ -49,7 +49,7 @@ public class TabListener extends PlexListener
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onAdminSetRank(AdminSetRankEvent event)
     {
-        PlexPlayer plexPlayer = (PlexPlayer) event.getPlexPlayer();
+        PlexPlayer plexPlayer = (PlexPlayer)event.getPlexPlayer();
         Player player = event.getPlexPlayer().getPlayer();
         if (player == null)
         {

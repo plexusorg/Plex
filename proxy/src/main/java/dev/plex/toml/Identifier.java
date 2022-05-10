@@ -19,11 +19,13 @@ public class Identifier
         {
             type = Type.TABLE_ARRAY;
             valid = isValidTableArray(name, context);
-        } else if (name.startsWith("["))
+        }
+        else if (name.startsWith("["))
         {
             type = Type.TABLE;
             valid = isValidTable(name, context);
-        } else
+        }
+        else
         {
             type = Type.KEY;
             valid = isValidKey(name, context);
@@ -78,9 +80,9 @@ public class Identifier
         return type == Type.TABLE_ARRAY;
     }
 
-    private static enum Type
+    private enum Type
     {
-        KEY, TABLE, TABLE_ARRAY;
+        KEY, TABLE, TABLE_ARRAY
     }
 
     private static String extractName(String raw)
@@ -95,7 +97,8 @@ public class Identifier
             {
                 quoted = !quoted;
                 sb.append('"');
-            } else if (quoted || !Character.isWhitespace(c))
+            }
+            else if (quoted || !Character.isWhitespace(c))
             {
                 sb.append(c);
             }
@@ -125,7 +128,8 @@ public class Identifier
                     return false;
                 }
                 quoted = !quoted;
-            } else if (!quoted && (ALLOWED_CHARS.indexOf(c) == -1))
+            }
+            else if (!quoted && (ALLOWED_CHARS.indexOf(c) == -1))
             {
                 context.errors.invalidKey(name, context.line.get());
                 return false;
@@ -137,12 +141,7 @@ public class Identifier
 
     private static boolean isValidTable(String name, Context context)
     {
-        boolean valid = true;
-
-        if (!name.endsWith("]"))
-        {
-            valid = false;
-        }
+        boolean valid = name.endsWith("]");
 
         String trimmed = name.substring(1, name.length() - 1).trim();
         if (trimmed.isEmpty() || trimmed.charAt(0) == '.' || trimmed.endsWith("."))
@@ -175,32 +174,38 @@ public class Identifier
                 if (!quoteAllowed)
                 {
                     valid = false;
-                } else if (quoted && trimmed.charAt(i - 1) != '\\')
+                }
+                else if (quoted && trimmed.charAt(i - 1) != '\\')
                 {
                     charAllowed = false;
                     dotAllowed = true;
                     quoteAllowed = false;
-                } else if (!quoted)
+                }
+                else if (!quoted)
                 {
                     quoted = true;
                     quoteAllowed = true;
                 }
-            } else if (quoted)
+            }
+            else if (quoted)
             {
                 continue;
-            } else if (c == '.')
+            }
+            else if (c == '.')
             {
                 if (dotAllowed)
                 {
                     charAllowed = true;
                     dotAllowed = false;
                     quoteAllowed = true;
-                } else
+                }
+                else
                 {
                     context.errors.emptyImplicitTable(name, context.line.get());
                     return false;
                 }
-            } else if (Character.isWhitespace(c))
+            }
+            else if (Character.isWhitespace(c))
             {
                 char prev = trimmed.charAt(i - 1);
                 if (!Character.isWhitespace(prev) && prev != '.')
@@ -209,14 +214,16 @@ public class Identifier
                     dotAllowed = true;
                     quoteAllowed = true;
                 }
-            } else
+            }
+            else
             {
                 if (charAllowed && ALLOWED_CHARS.indexOf(c) > -1)
                 {
                     charAllowed = true;
                     dotAllowed = true;
                     quoteAllowed = false;
-                } else
+                }
+                else
                 {
                     valid = false;
                 }
@@ -234,12 +241,7 @@ public class Identifier
 
     private static boolean isValidTableArray(String line, Context context)
     {
-        boolean valid = true;
-
-        if (!line.endsWith("]]"))
-        {
-            valid = false;
-        }
+        boolean valid = line.endsWith("]]");
 
         String trimmed = line.substring(2, line.length() - 2).trim();
         if (trimmed.isEmpty() || trimmed.charAt(0) == '.' || trimmed.endsWith("."))
@@ -272,32 +274,38 @@ public class Identifier
                 if (!quoteAllowed)
                 {
                     valid = false;
-                } else if (quoted && trimmed.charAt(i - 1) != '\\')
+                }
+                else if (quoted && trimmed.charAt(i - 1) != '\\')
                 {
                     charAllowed = false;
                     dotAllowed = true;
                     quoteAllowed = false;
-                } else if (!quoted)
+                }
+                else if (!quoted)
                 {
                     quoted = true;
                     quoteAllowed = true;
                 }
-            } else if (quoted)
+            }
+            else if (quoted)
             {
                 continue;
-            } else if (c == '.')
+            }
+            else if (c == '.')
             {
                 if (dotAllowed)
                 {
                     charAllowed = true;
                     dotAllowed = false;
                     quoteAllowed = true;
-                } else
+                }
+                else
                 {
                     context.errors.emptyImplicitTable(line, context.line.get());
                     return false;
                 }
-            } else if (Character.isWhitespace(c))
+            }
+            else if (Character.isWhitespace(c))
             {
                 char prev = trimmed.charAt(i - 1);
                 if (!Character.isWhitespace(prev) && prev != '.' && prev != '"')
@@ -306,14 +314,16 @@ public class Identifier
                     dotAllowed = true;
                     quoteAllowed = true;
                 }
-            } else
+            }
+            else
             {
                 if (charAllowed && ALLOWED_CHARS.indexOf(c) > -1)
                 {
                     charAllowed = true;
                     dotAllowed = true;
                     quoteAllowed = false;
-                } else
+                }
+                else
                 {
                     valid = false;
                 }

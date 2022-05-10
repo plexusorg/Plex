@@ -7,8 +7,8 @@ import lombok.Setter;
 @Getter
 public abstract class AbstractService implements IService, PlexBase
 {
-    private boolean asynchronous;
-    private boolean repeating;
+    private final boolean asynchronous;
+    private final boolean repeating;
 
     @Setter
     private int taskId;

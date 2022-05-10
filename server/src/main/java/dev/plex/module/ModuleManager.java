@@ -17,7 +17,6 @@ import java.util.Arrays;
 import java.util.List;
 import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
-import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 @Getter
@@ -124,7 +123,8 @@ public class ModuleManager
                 try
                 {
                     Plex.get().getServer().getCommandMap().getCommand(plexCommand.getName()).unregister(Plex.get().getServer().getCommandMap());
-                } catch (Exception ignored)
+                }
+                catch (Exception ignored)
                 {
 
                 }

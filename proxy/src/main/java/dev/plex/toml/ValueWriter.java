@@ -1,9 +1,10 @@
 package dev.plex.toml;
 
-interface ValueWriter {
-  boolean canWrite(Object value);
+interface ValueWriter
+{
+    boolean canWrite(Object value);
 
-  void write(Object value, WriterContext context);
+    void write(Object value, WriterContext context);
 
-  boolean isPrimitiveType();
+    boolean isPrimitiveType();
 }

@@ -30,7 +30,7 @@ public enum Rank implements IRank
     private String prefix;
 
     @Getter
-    private NamedTextColor color;
+    private final NamedTextColor color;
 
     Rank(int level, String loginMessage, String readable, String prefix, NamedTextColor color)
     {

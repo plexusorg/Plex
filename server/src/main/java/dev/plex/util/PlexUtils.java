@@ -4,6 +4,14 @@ import dev.plex.Plex;
 import dev.plex.PlexBase;
 import dev.plex.cache.PlayerCache;
 import dev.plex.storage.StorageType;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.time.Month;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -16,15 +24,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.PluginCommandYamlParser;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
-
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.time.Month;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class PlexUtils implements PlexBase
 {
@@ -71,18 +70,21 @@ public class PlexUtils implements PlexBase
                 if (Plex.get().getStorageType() == StorageType.MARIADB)
                 {
                     PlexLog.log("Successfully enabled MySQL!");
-                } else if (Plex.get().getStorageType() == StorageType.SQLITE)
+                }
+                else if (Plex.get().getStorageType() == StorageType.SQLITE)
                 {
                     PlexLog.log("Successfully enabled SQLite!");
                 }
-            } catch (SQLException e)
+            }
+            catch (SQLException e)
             {
                 if (Plex.get().getMongoConnection().getDatastore() != null)
                 {
                     PlexLog.log("Successfully enabled MongoDB!");
                 }
             }
-        } else
+        }
+        else
         {
             if (Plex.get().getMongoConnection().getDatastore() != null)
             {
@@ -172,8 +174,9 @@ public class PlexUtils implements PlexBase
     {
         try
         {
-            return ((TextComponent) component).content();
-        } catch (Exception e)
+            return ((TextComponent)component).content();
+        }
+        catch (Exception e)
         {
             PlexLog.warn("Unable to get text of component", e.getLocalizedMessage());
             return "";
@@ -192,7 +195,8 @@ public class PlexUtils implements PlexBase
             }
 
             return builder.toString();
-        } catch (Exception e)
+        }
+        catch (Exception e)
         {
             PlexLog.warn("Unable to get text of components", e.getLocalizedMessage());
             return "";

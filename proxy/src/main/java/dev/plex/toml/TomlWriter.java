@@ -1,12 +1,17 @@
 package dev.plex.toml;
 
-import org.jetbrains.annotations.Nullable;
-
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
-
+import org.jetbrains.annotations.Nullable;
 import static dev.plex.toml.ValueWriters.WRITERS;
 
 /**
@@ -112,7 +117,8 @@ public class TomlWriter
             write(from, output, null);
 
             return output.toString();
-        } catch (IOException e)
+        }
+        catch (IOException e)
         {
             throw new RuntimeException(e);
         }
@@ -131,7 +137,8 @@ public class TomlWriter
         try
         {
             write(from, outputStream, target);
-        } finally
+        }
+        finally
         {
             outputStream.close();
         }
@@ -146,7 +153,7 @@ public class TomlWriter
      */
     public void write(Object from, OutputStream target, @Nullable File file) throws IOException
     {
-        OutputStreamWriter writer = new OutputStreamWriter(target, "UTF-8");
+        OutputStreamWriter writer = new OutputStreamWriter(target, StandardCharsets.UTF_8);
         write(from, writer, file);
         writer.flush();
     }
@@ -170,7 +177,8 @@ public class TomlWriter
                 context.file = file;
             }
             valueWriter.write(from, context);
-        } else
+        }
+        else
         {
             throw new IllegalArgumentException("An object of class " + from.getClass().getSimpleName() + " cannot produce valid TOML. Please pass in a Map or a custom type.");
         }

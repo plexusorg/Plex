@@ -5,6 +5,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class LiteralStringValueReader implements ValueReader
 {
     public static final LiteralStringValueReader LITERAL_STRING_VALUE_READER = new LiteralStringValueReader();
+
     @Override
     public boolean canRead(String s)
     {

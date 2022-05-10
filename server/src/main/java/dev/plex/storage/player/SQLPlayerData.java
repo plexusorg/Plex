@@ -7,7 +7,6 @@ import dev.plex.cache.PlayerCache;
 import dev.plex.player.PlexPlayer;
 import dev.plex.storage.StorageType;
 import dev.plex.util.PlexLog;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -38,7 +37,8 @@ public class SQLPlayerData
             statement.setString(1, uuid.toString());
             ResultSet set = statement.executeQuery();
             return set.next();
-        } catch (SQLException throwables)
+        }
+        catch (SQLException throwables)
         {
             throwables.printStackTrace();
         }
@@ -53,7 +53,8 @@ public class SQLPlayerData
             statement.setString(1, username);
             ResultSet set = statement.executeQuery();
             return set.next();
-        } catch (SQLException throwables)
+        }
+        catch (SQLException throwables)
         {
             throwables.printStackTrace();
         }
@@ -104,7 +105,8 @@ public class SQLPlayerData
                 plexPlayer.setCommandSpy(commandspy);
             }
             return plexPlayer;
-        } catch (SQLException throwables)
+        }
+        catch (SQLException throwables)
         {
             throwables.printStackTrace();
         }
@@ -153,7 +155,8 @@ public class SQLPlayerData
                 return plexPlayer;
             }
             return null;
-        } catch (SQLException throwables)
+        }
+        catch (SQLException throwables)
         {
             throwables.printStackTrace();
         }
@@ -216,11 +219,13 @@ public class SQLPlayerData
                     plexPlayer.setCommandSpy(commandspy);
                 }
                 return plexPlayer;
-            } catch (SQLException throwables)
+            }
+            catch (SQLException throwables)
             {
                 throwables.printStackTrace();
             }
-        } else if (Plex.get().getStorageType() == StorageType.SQLITE)
+        }
+        else if (Plex.get().getStorageType() == StorageType.SQLITE)
         {
             PlexLog.warn("Querying a user by IP running SQLite can cause performance issues! Please try to switch to a remote DB ASAP!");
             try (Connection con = Plex.get().getSqlConnection().getCon())
@@ -260,7 +265,8 @@ public class SQLPlayerData
                     plexPlayer.setCommandSpy(commandspy);
                 }
                 return plexPlayer;
-            } catch (SQLException throwables)
+            }
+            catch (SQLException throwables)
             {
                 throwables.printStackTrace();
             }
@@ -290,7 +296,8 @@ public class SQLPlayerData
             statement.setBoolean(9, player.isCommandSpy());
             statement.setString(10, player.getUuid().toString());
             statement.executeUpdate();
-        } catch (SQLException throwables)
+        }
+        catch (SQLException throwables)
         {
             throwables.printStackTrace();
         }
@@ -318,7 +325,8 @@ public class SQLPlayerData
             statement.setBoolean(9, player.isVanished());
             statement.setBoolean(10, player.isCommandSpy());
             statement.execute();
-        } catch (SQLException throwables)
+        }
+        catch (SQLException throwables)
         {
             throwables.printStackTrace();
         }

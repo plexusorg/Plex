@@ -2,13 +2,22 @@ package dev.plex.toml;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import lombok.Getter;
-import org.json.JSONObject;
-
-import java.io.*;
-import java.lang.reflect.Field;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * <p>Provides access to the keys and tables in a TOML data source.</p>
@@ -64,8 +73,9 @@ public class Toml
     {
         try
         {
-            return read(new InputStreamReader(new FileInputStream(file), "UTF8"));
-        } catch (Exception e)
+            return read(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8));
+        }
+        catch (Exception e)
         {
             throw new RuntimeException(e);
         }
@@ -105,15 +115,18 @@ public class Toml
                 line = bufferedReader.readLine();
             }
             read(w.toString());
-        } catch (IOException e)
+        }
+        catch (IOException e)
         {
             throw new RuntimeException(e);
-        } finally
+        }
+        finally
         {
             try
             {
                 bufferedReader.close();
-            } catch (IOException e)
+            }
+            catch (IOException e)
             {
             }
         }
@@ -155,7 +168,7 @@ public class Toml
 
     public String getString(String key)
     {
-        return (String) get(key);
+        return (String)get(key);
     }
 
     public String getString(String key, String defaultValue)
@@ -166,7 +179,7 @@ public class Toml
 
     public Long getLong(String key)
     {
-        return (Long) get(key);
+        return (Long)get(key);
     }
 
     public Long getLong(String key, Long defaultValue)
@@ -183,7 +196,7 @@ public class Toml
     public <T> List<T> getList(String key)
     {
         @SuppressWarnings("unchecked")
-        List<T> list = (List<T>) get(key);
+        List<T> list = (List<T>)get(key);
 
         return list;
     }
@@ -203,7 +216,7 @@ public class Toml
 
     public Boolean getBoolean(String key)
     {
-        return (Boolean) get(key);
+        return (Boolean)get(key);
     }
 
     public Boolean getBoolean(String key, Boolean defaultValue)
@@ -214,7 +227,7 @@ public class Toml
 
     public Date getDate(String key)
     {
-        return (Date) get(key);
+        return (Date)get(key);
     }
 
     public Date getDate(String key, Date defaultValue)
@@ -225,7 +238,7 @@ public class Toml
 
     public Double getDouble(String key)
     {
-        return (Double) get(key);
+        return (Double)get(key);
     }
 
     public Double getDouble(String key, Double defaultValue)
@@ -241,7 +254,7 @@ public class Toml
     @SuppressWarnings("unchecked")
     public Toml getTable(String key)
     {
-        Map<String, Object> map = (Map<String, Object>) get(key);
+        Map<String, Object> map = (Map<String, Object>)get(key);
 
         return map != null ? new Toml(null, map) : null;
     }
@@ -253,7 +266,7 @@ public class Toml
     @SuppressWarnings("unchecked")
     public List<Toml> getTables(String key)
     {
-        List<Map<String, Object>> tableArray = (List<Map<String, Object>>) get(key);
+        List<Map<String, Object>> tableArray = (List<Map<String, Object>>)get(key);
 
         if (tableArray == null)
         {
@@ -386,17 +399,20 @@ public class Toml
             if (Map.class.isAssignableFrom(entryClass))
             {
                 entries.add(new Entry(entry.getKey(), getTable(entry.getKey())));
-            } else if (List.class.isAssignableFrom(entryClass))
+            }
+            else if (List.class.isAssignableFrom(entryClass))
             {
-                List<?> value = (List<?>) entry.getValue();
+                List<?> value = (List<?>)entry.getValue();
                 if (!value.isEmpty() && value.get(0) instanceof Map)
                 {
                     entries.add(new Entry(entry.getKey(), getTables(entry.getKey())));
-                } else
+                }
+                else
                 {
                     entries.add(new Entry(entry.getKey(), value));
                 }
-            } else
+            }
+            else
             {
                 entries.add(new Entry(entry.getKey(), entry.getValue()));
             }
@@ -450,21 +466,21 @@ public class Toml
 
         for (dev.plex.toml.Keys.Key k : keys)
         {
-            if (k.index == -1 && current instanceof Map && ((Map<String, Object>) current).containsKey(k.path))
+            if (k.index == -1 && current instanceof Map && ((Map<String, Object>)current).containsKey(k.path))
             {
-                return ((Map<String, Object>) current).get(k.path);
+                return ((Map<String, Object>)current).get(k.path);
             }
 
-            current = ((Map<String, Object>) current).get(k.name);
+            current = ((Map<String, Object>)current).get(k.name);
 
             if (k.index > -1 && current != null)
             {
-                if (k.index >= ((List<?>) current).size())
+                if (k.index >= ((List<?>)current).size())
                 {
                     return null;
                 }
 
-                current = ((List<?>) current).get(k.index);
+                current = ((List<?>)current).get(k.index);
             }
 
             if (current == null)

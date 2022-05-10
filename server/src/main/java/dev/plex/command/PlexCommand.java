@@ -88,7 +88,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
             getMap().register("plex", this);
         }
     }
-    
+
     public PlexCommand()
     {
         this(true);

@@ -26,7 +26,7 @@ public enum Title
     private String prefix;
 
     @Getter
-    private NamedTextColor color;
+    private final NamedTextColor color;
 
     Title(int level, String loginMessage, String readable, String prefix, NamedTextColor color)
     {

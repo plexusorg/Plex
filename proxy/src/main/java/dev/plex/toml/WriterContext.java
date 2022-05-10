@@ -68,7 +68,8 @@ class WriterContext
             }
 
             return this;
-        } catch (IOException e)
+        }
+        catch (IOException e)
         {
             throw new RuntimeException(e);
         }
@@ -90,7 +91,8 @@ class WriterContext
             empty = false;
 
             return this;
-        } catch (IOException e)
+        }
+        catch (IOException e)
         {
             throw new RuntimeException(e);
         }
@@ -113,7 +115,8 @@ class WriterContext
         if (isArrayOfTable)
         {
             write("[[").write(key).write("]]\n");
-        } else
+        }
+        else
         {
             write('[').write(key).write("]\n");
         }

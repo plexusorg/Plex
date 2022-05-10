@@ -3,13 +3,12 @@ package dev.plex.config;
 import dev.plex.Plex;
 import dev.plex.toml.Toml;
 import dev.plex.toml.TomlWriter;
-import lombok.Getter;
-import lombok.Setter;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.function.Consumer;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 public class TomlConfig
@@ -43,7 +42,8 @@ public class TomlConfig
                     {
                         this.onCreate.accept(this.toml);
                     }
-                } catch (IOException e)
+                }
+                catch (IOException e)
                 {
                     e.printStackTrace();
                 }
@@ -57,7 +57,8 @@ public class TomlConfig
                 {
                     this.onCreate.accept(this.toml);
                 }
-            } catch (IOException e)
+            }
+            catch (IOException e)
             {
                 e.printStackTrace();
             }
@@ -89,7 +90,8 @@ public class TomlConfig
         {
             writer.write(object, this.file);
             this.load();
-        } catch (IOException e)
+        }
+        catch (IOException e)
         {
             e.printStackTrace();
         }

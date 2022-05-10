@@ -1,12 +1,12 @@
 package dev.plex.command.impl;
 
 import com.google.common.collect.ImmutableList;
+import dev.plex.api.event.GameModeUpdateEvent;
 import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.exception.CommandFailException;
 import dev.plex.command.source.RequiredCommandSource;
-import dev.plex.api.event.GameModeUpdateEvent;
 import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexUtils;
 import java.util.List;

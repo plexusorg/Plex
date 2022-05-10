@@ -2,10 +2,9 @@ package dev.plex.punishment.extra;
 
 import com.google.gson.GsonBuilder;
 import dev.morphia.annotations.Entity;
+import dev.plex.util.adapter.ZonedDateTimeSerializer;
 import java.time.ZonedDateTime;
 import java.util.UUID;
-
-import dev.plex.util.adapter.ZonedDateTimeSerializer;
 import lombok.Data;
 
 @Data

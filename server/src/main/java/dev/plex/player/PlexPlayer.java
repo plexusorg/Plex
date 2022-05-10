@@ -14,6 +14,10 @@ import dev.plex.punishment.extra.Note;
 import dev.plex.rank.enums.Rank;
 import dev.plex.storage.StorageType;
 import dev.plex.util.adapter.ZonedDateTimeSerializer;
+import java.time.ZonedDateTime;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,11 +26,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachment;
-
-import java.time.ZonedDateTime;
-import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 
 @Getter
 @Setter
@@ -119,11 +118,13 @@ public class PlexPlayer implements IPlexPlayer
             if (player.isOp())
             {
                 return Rank.OP;
-            } else
+            }
+            else
             {
                 return Rank.NONOP;
             }
-        } else
+        }
+        else
         {
             return Rank.valueOf(rank.toUpperCase());
         }
