@@ -119,6 +119,10 @@ public class RankManager
         }
         if (Bukkit.getServer().getPluginManager().isPluginEnabled("Vault") && Plex.get().getSystem().equalsIgnoreCase("permissions"))
         {
+            if (VaultHook.getChat() == null || VaultHook.getPermission() == null)
+            {
+                return null;
+            }
             Player bukkitPlayer = Bukkit.getPlayer(player.getUuid());
             String group = VaultHook.getPermission().getPrimaryGroup(bukkitPlayer);
             String vaultPrefix = VaultHook.getChat().getGroupPrefix(bukkitPlayer.getWorld(), group);

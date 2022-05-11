@@ -3,7 +3,6 @@ package dev.plex.permission.handler;
 import dev.plex.api.permission.IPermissionHandler;
 import dev.plex.hook.VaultHook;
 import lombok.Getter;
-import net.milkbowl.vault.permission.Permission;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
@@ -16,6 +15,10 @@ public class VaultPermissionHandler implements IPermissionHandler
     public boolean hasPermission(@NotNull OfflinePlayer player, @Nullable String permission)
     {
         if (!Bukkit.getPluginManager().isPluginEnabled("Vault"))
+        {
+            return IPermissionHandler.super.hasPermission(player, permission);
+        }
+        if (VaultHook.getPermission() == null)
         {
             return IPermissionHandler.super.hasPermission(player, permission);
         }

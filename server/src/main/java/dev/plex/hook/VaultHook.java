@@ -19,6 +19,10 @@ public class VaultHook
     {
         if (!Bukkit.getPluginManager().isPluginEnabled("Vault")) return null;
         RegisteredServiceProvider<Chat> rsp = Bukkit.getServicesManager().getRegistration(Chat.class);
+        if (rsp == null)
+        {
+            return null;
+        }
         CHAT = rsp.getProvider();
         return CHAT;
     }
@@ -27,6 +31,10 @@ public class VaultHook
     {
         if (!Bukkit.getPluginManager().isPluginEnabled("Vault")) return null;
         RegisteredServiceProvider<Permission> rsp = Bukkit.getServicesManager().getRegistration(Permission.class);
+        if (rsp == null)
+        {
+            return null;
+        }
         PERMISSIONS = rsp.getProvider();
         return PERMISSIONS;
     }
