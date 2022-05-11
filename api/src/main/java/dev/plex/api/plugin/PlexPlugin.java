@@ -1,6 +1,7 @@
 package dev.plex.api.plugin;
 
 import dev.plex.api.chat.IChatHandler;
+import dev.plex.api.permission.IPermissionHandler;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,6 +15,7 @@ public abstract class PlexPlugin extends JavaPlugin
     private static PlexPlugin plugin;
 
     private IChatHandler chatHandler;
+    private IPermissionHandler permissionHandler;
 
     @Override
     public void onLoad()

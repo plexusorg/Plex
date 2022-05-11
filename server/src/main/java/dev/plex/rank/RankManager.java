@@ -1,6 +1,7 @@
 package dev.plex.rank;
 
 import dev.plex.Plex;
+import dev.plex.hook.VaultHook;
 import dev.plex.player.PlexPlayer;
 import dev.plex.rank.enums.Rank;
 import dev.plex.rank.enums.Title;
@@ -96,7 +97,7 @@ public class RankManager
 
     public Component getPrefix(PlexPlayer player)
     {
-        if (!player.getPrefix().equals(""))
+        if (player.getPrefix() != null && !player.getPrefix().isEmpty())
         {
             return SafeMiniMessage.mmDeserializeWithoutEvents(player.getPrefix());
         }
@@ -116,11 +117,11 @@ public class RankManager
         {
             return player.getRankFromString().getPrefix();
         }
-        if (Plex.get().getSystem().equalsIgnoreCase("permissions"))
+        if (Bukkit.getServer().getPluginManager().isPluginEnabled("Vault") && Plex.get().getSystem().equalsIgnoreCase("permissions"))
         {
             Player bukkitPlayer = Bukkit.getPlayer(player.getUuid());
-            String group = Plex.get().getVaultPermissions().getPrimaryGroup(bukkitPlayer);
-            String vaultPrefix = Plex.get().getVaultChat().getGroupPrefix(bukkitPlayer.getWorld(), group);
+            String group = VaultHook.getPermission().getPrimaryGroup(bukkitPlayer);
+            String vaultPrefix = VaultHook.getChat().getGroupPrefix(bukkitPlayer.getWorld(), group);
             return LegacyComponentSerializer.legacyAmpersand().deserialize(vaultPrefix);
         }
         return null;

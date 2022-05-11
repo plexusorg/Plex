@@ -17,9 +17,12 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.minimessage.tag.standard.StandardTags;
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.function.Supplier;
 
 @Toggleable("chat.enabled")
 public class ChatListener extends PlexListener
@@ -61,6 +64,7 @@ public class ChatListener extends PlexListener
     {
         public boolean hasPrefix;
         public Component prefix;
+        public Supplier<Component> before = null;
 
         @Override
         public @NotNull Component render(@NotNull Player source, @NotNull Component sourceDisplayName, @NotNull Component message, @NotNull Audience viewer)
@@ -69,12 +73,15 @@ public class ChatListener extends PlexListener
 
             Component component = Component.empty();
 
+            if (before != null)
+            {
+                component = component.append(before.get());
+            }
             if (hasPrefix)
             {
-                component = component.append(prefix);
+                component = component.append(prefix).append(Component.space());
             }
-
-            return component.append(Component.space()).append(PlexUtils.mmDeserialize(plugin.config.getString("chat.name-color", "<white>") + MiniMessage.builder().tags(TagResolver.resolver(StandardTags.color(), StandardTags.rainbow(), StandardTags.decorations(), StandardTags.gradient(), StandardTags.transition())).build().serialize(sourceDisplayName))).append(Component.space()).append(Component.text("»").color(NamedTextColor.GRAY)).append(Component.space()).append(SafeMiniMessage.mmDeserializeWithoutEvents(text)).replaceText(URL_REPLACEMENT_CONFIG);
+            return component.append(PlexUtils.mmDeserialize(plugin.config.getString("chat.name-color", "<white>") + MiniMessage.builder().tags(TagResolver.resolver(StandardTags.color(), StandardTags.rainbow(), StandardTags.decorations(), StandardTags.gradient(), StandardTags.transition())).build().serialize(sourceDisplayName))).append(Component.space()).append(Component.text("»").color(NamedTextColor.GRAY)).append(Component.space()).append(SafeMiniMessage.mmDeserializeWithoutEvents(text)).replaceText(URL_REPLACEMENT_CONFIG);
         }
     }
 }

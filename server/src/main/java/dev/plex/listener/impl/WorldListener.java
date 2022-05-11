@@ -105,7 +105,7 @@ public class WorldListener extends PlexListener
             {
                 e.setCancelled(true);
             }
-            else if (plugin.getSystem().equals("permissions") && !e.getPlayer().hasPermission("plex.adminworld.enter"))
+            else if (plugin.getSystem().equals("permissions") && !plugin.getPermissionHandler().hasPermission(e.getPlayer(), "plex.adminworld.enter"))
             {
                 e.setCancelled(true);
             }
@@ -164,7 +164,7 @@ public class WorldListener extends PlexListener
             {
                 return true;
             }
-            if (player.hasPermission(permission))
+            if (plugin.getPermissionHandler().hasPermission(player, permission))
             {
                 return true;
             }

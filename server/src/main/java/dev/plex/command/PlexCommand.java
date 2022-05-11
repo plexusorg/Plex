@@ -151,7 +151,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
             }
             else if (plugin.getSystem().equalsIgnoreCase("permissions"))
             {
-                if (!perms.permission().isEmpty() && !player.hasPermission(perms.permission()))
+                if (!perms.permission().isEmpty() && !plugin.getPermissionHandler().hasPermission(player, perms.permission()))
                 {
                     send(sender, messageComponent("noPermissionNode", perms.permission()));
                     return true;
@@ -187,7 +187,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
             }
             else if (plugin.getSystem().equalsIgnoreCase("permissions"))
             {
-                if (!perms.permission().isEmpty() && !plugin.getPermissions().playerHas(null, Bukkit.getOfflinePlayer(plexPlayer.getUuid()), perms.permission()))
+                if (!perms.permission().isEmpty() && !plugin.getPermissionHandler().hasPermission(Bukkit.getOfflinePlayer(plexPlayer.getName()), perms.permission()))
                 {
                     send(sender, messageComponent("noPermissionNode", perms.permission()));
                     return true;
@@ -306,7 +306,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
             }
             else if (plugin.getSystem().equalsIgnoreCase("permissions"))
             {
-                if (!perms.permission().isEmpty() && !plugin.getPermissions().playerHas(null, Bukkit.getOfflinePlayer(plexPlayer.getUuid()), permission))
+                if (!perms.permission().isEmpty() && !plugin.getPermissionHandler().hasPermission(Bukkit.getOfflinePlayer(plexPlayer.getName()), perms.permission()))
                 {
                     throw new CommandFailException(PlexUtils.messageString("noPermissionNode", permission));
                 }
@@ -344,7 +344,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
         }
         else if (plugin.getSystem().equalsIgnoreCase("permissions"))
         {
-            if (!perms.permission().isEmpty() && !player.hasPermission(permission))
+            if (!perms.permission().isEmpty() && !plugin.getPermissionHandler().hasPermission(player, permission))
             {
                 throw new CommandFailException(PlexUtils.messageString("noPermissionNode", permission));
             }
@@ -365,7 +365,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
         }
         else if (plugin.getSystem().equalsIgnoreCase("permissions"))
         {
-            return !perms.permission().isEmpty() && player.hasPermission(permission);
+            return !perms.permission().isEmpty() && plugin.getPermissionHandler().hasPermission(player, permission);
         }
         return false;
     }
@@ -406,7 +406,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
         }
         else if (plugin.getSystem().equalsIgnoreCase("permissions"))
         {
-            return !perms.permission().isEmpty() && player.hasPermission(permission);
+            return !perms.permission().isEmpty() && plugin.getPermissionHandler().hasPermission(player, permission);
         }
         return true;
     }

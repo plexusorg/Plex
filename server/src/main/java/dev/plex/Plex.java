@@ -2,14 +2,18 @@ package dev.plex;
 
 import dev.plex.admin.Admin;
 import dev.plex.admin.AdminList;
+import dev.plex.api.permission.IPermissionHandler;
 import dev.plex.api.plugin.PlexPlugin;
 import dev.plex.cache.DataUtils;
 import dev.plex.cache.PlayerCache;
 import dev.plex.config.Config;
 import dev.plex.handlers.CommandHandler;
 import dev.plex.handlers.ListenerHandler;
+import dev.plex.hook.VaultHook;
 import dev.plex.listener.impl.ChatListener;
 import dev.plex.module.ModuleManager;
+import dev.plex.permission.handler.NativePermissionHandler;
+import dev.plex.permission.handler.VaultPermissionHandler;
 import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.PunishmentManager;
 import dev.plex.rank.RankManager;
@@ -74,8 +78,6 @@ public class Plex extends PlexPlugin
     private UpdateChecker updateChecker;
     private String system;
 
-    public Permission permissions;
-    public Chat chat;
 
     public static Plex get()
     {
@@ -134,13 +136,22 @@ public class Plex extends PlexPlugin
             e.printStackTrace();
         }
 
-        if (system.equalsIgnoreCase("permissions") && !getServer().getPluginManager().isPluginEnabled("Vault"))
+        boolean permissions = false;
+        if (getServer().getPluginManager().isPluginEnabled("Vault"))
         {
-            throw new RuntimeException("Vault is required to run on the server if you use permissions!");
+            VaultPermissionHandler handler = new VaultPermissionHandler();
+            if (VaultHook.getPermission() != null)
+            {
+                this.setPermissionHandler(handler);
+                permissions = true;
+                PlexLog.debug("Enabling Vault support for permissions with a permission plugin: " + VaultHook.getPermission().getName());
+            }
         }
 
-        permissions = setupPermissions();
-        chat = setupChat();
+        if (!permissions)
+        {
+            this.setPermissionHandler(new NativePermissionHandler());
+        }
 
         updateChecker = new UpdateChecker();
         PlexLog.log("Update checking enabled");
@@ -260,29 +271,5 @@ public class Plex extends PlexPlugin
                 plugin.getAdminList().addToCache(admin);
             }
         });
-    }
-
-    public Permission setupPermissions()
-    {
-        RegisteredServiceProvider<Permission> rsp = Bukkit.getServicesManager().getRegistration(Permission.class);
-        permissions = rsp.getProvider();
-        return permissions;
-    }
-
-    public Chat setupChat()
-    {
-        RegisteredServiceProvider<Chat> rsp = Bukkit.getServicesManager().getRegistration(Chat.class);
-        chat = rsp.getProvider();
-        return chat;
-    }
-
-    public Permission getVaultPermissions()
-    {
-        return permissions;
-    }
-
-    public Chat getVaultChat()
-    {
-        return chat;
     }
 }

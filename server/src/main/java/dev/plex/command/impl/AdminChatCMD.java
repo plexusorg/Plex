@@ -46,7 +46,7 @@ public class AdminChatCMD extends PlexCommand
             }
             else if (plugin.getSystem().equalsIgnoreCase("permissions"))
             {
-                if (player.hasPermission("plex.adminchat"))
+                if (plugin.getPermissionHandler().hasPermission(player, "plex.adminchat"))
                 {
                     player.sendMessage(PlexUtils.messageComponent("adminChatFormat", sender.getName(), message));
                 }
