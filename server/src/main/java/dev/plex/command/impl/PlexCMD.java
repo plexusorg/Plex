@@ -94,9 +94,9 @@ public class PlexCMD extends PlexCommand
             }
             else if (args[1].equalsIgnoreCase("update"))
             {
-                if (sender instanceof Player && !PlexUtils.DEVELOPERS.contains(playerSender.getUniqueId().toString()))
+                if (!hasUpdateAccess(playerSender, sender))
                 {
-                    return messageComponent("noPermissionRank", "a developer");
+                    return messageComponent("noPermissionRank", "an Owner or Developer");
                 }
                 for (PlexModule module : plugin.getModuleManager().getModules())
                 {
@@ -108,9 +108,9 @@ public class PlexCMD extends PlexCommand
         }
         else if (args[0].equalsIgnoreCase("update"))
         {
-            if (sender instanceof Player && !PlexUtils.DEVELOPERS.contains(playerSender.getUniqueId().toString()))
+            if (!hasUpdateAccess(playerSender, sender))
             {
-                return messageComponent("noPermissionRank", "a developer");
+                return messageComponent("noPermissionRank", "an Owner or Developer");
             }
             if (!plugin.getUpdateChecker().getUpdateStatusMessage(sender, false, 0))
             {
@@ -138,5 +138,16 @@ public class PlexCMD extends PlexCommand
             return List.of("reload");
         }
         return Collections.emptyList();
+    }
+
+    private boolean hasUpdateAccess(Player player, CommandSender sender)
+    {
+        if (isConsole(sender))
+        {
+            return false;
+        }
+        assert player != null;
+        return PlexUtils.DEVELOPERS.contains(player.getUniqueId().toString())
+                || plugin.config.getStringList("titles.owners").contains(player.getName());
     }
 }
