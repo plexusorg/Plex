@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import net.kyori.adventure.text.Component;
 import org.apache.commons.lang.StringUtils;
+import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -140,10 +142,22 @@ public class PlexCMD extends PlexCommand
         return Collections.emptyList();
     }
 
+    // Owners and developers only have access
     private boolean hasUpdateAccess(Player player, CommandSender sender)
     {
+        // Allow CONSOLE, get OfflinePlayer for Telnet
         if (isConsole(sender))
         {
+            if (sender.getName().equalsIgnoreCase("CONSOLE"))
+            {
+                return true;
+            }
+            OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(sender.getName());
+            if (offlinePlayer.hasPlayedBefore())
+            {
+                return PlexUtils.DEVELOPERS.contains(offlinePlayer.getUniqueId().toString())
+                        || plugin.config.getStringList("titles.owners").contains(sender.getName());
+            }
             return false;
         }
         assert player != null;
