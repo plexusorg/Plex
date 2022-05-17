@@ -1,15 +1,16 @@
 For those who are wanting to contribute, we fully encourage doing so. There are a few rules we require following when contributing however.
 
 ## Steps
-1. Make an isuse and get feedback. It's important to know if your idea will be accepted before writing any code.
-  - If it is a feature request, describe the feature and be extremely specific.
-  - If it is a bug report, ensure you include how to reproduce the bug and the expected outcome
-  - If it is an enhancement, describe your proposed changes. Ensure you are extremely specific.
-2. Fork Plex
+1. Make an issue and get feedback. It's important to know if your idea will be accepted before writing any code.
+- If it is a feature request, describe the feature and be extremely specific.
+- If it is a bug report, ensure you include how to reproduce the bug and the expected outcome
+- If it is an enhancement, describe your proposed changes. Ensure you are extremely specific.
+2. Fork this project
 3. Create a new branch that describes the new feature, enhancement, or bug fix. For example, this is good: `feature/add-xyz`. This is bad: `fix-this-lol`.
 4. Write the code that addresses your change.
-  - Keep in mind that it **must** be formatted correctly. If you are using IntelliJ, there is a `codeStyle.xml` file that tells IntelliJ how to format your code. Check this link for information on how to use the file: https://www.jetbrains.com/help/idea/configuring-code-style.html#import-export-schemes
-5. Push your changes to your new branch and make a PR based off of that branch.
+- Keep in mind that it **must** be formatted correctly. If you are using IntelliJ, there is a `codeStyle.xml` file that tells IntelliJ how to format your code. Check this link for information on how to use the file: https://www.jetbrains.com/help/idea/configuring-code-style.html#import-export-schemes
+- If you are not using IntelliJ, that is fine. We use Allman style so please format your code accordingly.
+6. Push your changes to your new branch and make a PR based off of that branch.
 
 ## Requirements for a PR
 - The issue must be marked as approved
