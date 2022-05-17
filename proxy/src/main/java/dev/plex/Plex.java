@@ -4,6 +4,8 @@ import com.google.inject.Inject;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.plugin.Plugin;
+import com.velocitypowered.api.plugin.PluginDescription;
+import com.velocitypowered.api.plugin.PluginManager;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.ProxyServer;
 import dev.plex.config.TomlConfig;
@@ -30,7 +32,7 @@ import lombok.Getter;
         version = "@version@",
         url = "https://plex.us.org",
         description = "Plex provides a new experience for freedom servers.",
-        authors = {"Taah"}
+        authors = {"Telesphoreo", "Taah"}
 )
 @Getter
 public class Plex
@@ -54,7 +56,7 @@ public class Plex
         {
             dataFolder.mkdir();
         }
-        PlexLog.log("Enabling Plex v0.1");
+        PlexLog.log("Enabling Plex-Velocity");
     }
 
     @Subscribe

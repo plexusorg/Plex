@@ -1,3 +1,7 @@
+plugins {
+    id("net.kyori.blossom") version "1.2.0"
+}
+
 group = rootProject.group
 version = rootProject.version
 description = "Plex-Velocity"
@@ -18,6 +22,10 @@ tasks {
     shadowJar {
         enabled = false
     }
+}
+
+blossom {
+    replaceToken("@version@", rootProject.version)
 }
 
 publishing {

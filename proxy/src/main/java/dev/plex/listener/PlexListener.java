@@ -10,5 +10,4 @@ public class PlexListener
     {
         Plex.get().getServer().getEventManager().register(Plex.get(), this);
     }
-
 }

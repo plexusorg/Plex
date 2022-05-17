@@ -1,7 +1,7 @@
 #############################
 #                           #
 #       Plex Velocity       #
-#           v0.1            #
+#           v1.1            #
 #                           #
 #############################
 
@@ -29,5 +29,3 @@
 
   # The max player count will always display as +1 more than the player count
   plus-one-max-count = true
-
-

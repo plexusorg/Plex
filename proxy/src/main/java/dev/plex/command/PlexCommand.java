@@ -48,7 +48,6 @@ public abstract class PlexCommand implements SimpleCommand
         plugin.getServer().getCommandManager().register(meta.build(), this);
     }
 
-
     protected abstract Component execute(@NotNull CommandSource source, @Nullable Player player, @NotNull String[] args);
 
     @Override
