@@ -566,6 +566,16 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
 
     protected Player getNonNullPlayer(String name)
     {
+        try
+        {
+            UUID uuid = UUID.fromString(name);
+            return Bukkit.getPlayer(uuid);
+        }
+        catch (IllegalArgumentException ignored)
+        {
+
+        }
+
         Player player = Bukkit.getPlayer(name);
         if (player == null)
         {
