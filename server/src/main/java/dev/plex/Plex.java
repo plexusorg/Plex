@@ -125,6 +125,8 @@ public class Plex extends PlexPlugin implements PlexApiProvider
         mongoConnection = new MongoConnection();
         redisConnection = new RedisConnection();
 
+        playerCache = new PlayerCache();
+
         system = config.getString("system");
 
         PlexLog.log("Attempting to connect to DB: {0}", plugin.config.getString("data.central.db"));
