@@ -25,7 +25,7 @@ public class CommandListener extends PlexListener
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event)
     {
-        Bukkit.getOnlinePlayers().stream().filter(pl -> PlayerCache.getPlexPlayer(pl.getUniqueId()).isCommandSpy() && PlayerCache.getPlexPlayer(pl.getUniqueId()).isAdminActive()).forEach(pl ->
+        Bukkit.getOnlinePlayers().stream().filter(pl -> plugin.getPlayerCache().getPlexPlayer(pl.getUniqueId()).isCommandSpy() && plugin.getPlayerCache().getPlexPlayer(pl.getUniqueId()).isAdminActive()).forEach(pl ->
         {
             Player player = event.getPlayer();
             String command = event.getMessage();
@@ -103,13 +103,11 @@ public class CommandListener extends PlexListener
             BlockedCommand cmd = cmdRef.get();
             switch (cmd.getRequiredLevel().toLowerCase(Locale.ROOT))
             {
-                case "e" ->
-                {
+                case "e" -> {
                     event.setCancelled(true);
                     event.getPlayer().sendMessage(cmd.getMessage());
                 }
-                case "a" ->
-                {
+                case "a" -> {
                     if (plexPlayer.isAdminActive() && plexPlayer.getRankFromString().isAtLeast(Rank.ADMIN))
                     {
                         return;
@@ -117,8 +115,7 @@ public class CommandListener extends PlexListener
                     event.setCancelled(true);
                     event.getPlayer().sendMessage(cmd.getMessage());
                 }
-                case "s" ->
-                {
+                case "s" -> {
                     if (plexPlayer.isAdminActive() && plexPlayer.getRankFromString().isAtLeast(Rank.SENIOR_ADMIN))
                     {
                         return;

@@ -1,6 +1,7 @@
 package dev.plex.menu;
 
 import com.google.common.collect.Lists;
+import dev.plex.Plex;
 import dev.plex.cache.DataUtils;
 import dev.plex.cache.PlayerCache;
 import dev.plex.player.PlexPlayer;
@@ -164,7 +165,7 @@ public class PunishedPlayerMenu extends AbstractMenu
             SkullMeta meta = (SkullMeta)item.getItemMeta();
             OfflinePlayer player = meta.getOwningPlayer();
             assert player != null;
-            PlexPlayer punishedPlayer = DataUtils.getPlayer(player.getUniqueId()) == null ? null : PlayerCache.getPlexPlayer(player.getUniqueId());
+            PlexPlayer punishedPlayer = DataUtils.getPlayer(player.getUniqueId()) == null ? null : Plex.get().getPlayerCache().getPlexPlayer(player.getUniqueId());
             if (punishedPlayer == null)
             {
                 event.getWhoClicked().sendMessage(ChatColor.RED + "This player does not exist. Try doing /punishments <player> instead.");

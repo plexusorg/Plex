@@ -70,9 +70,9 @@ public class SQLPlayerData
      */
     public PlexPlayer getByUUID(UUID uuid, boolean loadExtraData)
     {
-        if (PlayerCache.getPlexPlayerMap().containsKey(uuid))
+        if (Plex.get().getPlayerCache().getPlexPlayerMap().containsKey(uuid))
         {
-            return PlayerCache.getPlexPlayerMap().get(uuid);
+            return Plex.get().getPlayerCache().getPlexPlayerMap().get(uuid);
         }
 
         try (Connection con = Plex.get().getSqlConnection().getCon())
@@ -120,7 +120,7 @@ public class SQLPlayerData
 
     public PlexPlayer getByName(String username, boolean loadExtraData)
     {
-        PlexPlayer player = PlayerCache.getPlexPlayerMap().values().stream().filter(plexPlayer -> plexPlayer.getName().equalsIgnoreCase(username)).findFirst().orElse(null);
+        PlexPlayer player = Plex.get().getPlayerCache().getPlexPlayerMap().values().stream().filter(plexPlayer -> plexPlayer.getName().equalsIgnoreCase(username)).findFirst().orElse(null);
         if (player != null)
         {
             return player;
@@ -177,7 +177,7 @@ public class SQLPlayerData
      */
     public PlexPlayer getByIP(String ip)
     {
-        PlexPlayer player = PlayerCache.getPlexPlayerMap().values().stream().filter(plexPlayer -> plexPlayer.getIps().contains(ip)).findFirst().orElse(null);
+        PlexPlayer player = Plex.get().getPlayerCache().getPlexPlayerMap().values().stream().filter(plexPlayer -> plexPlayer.getIps().contains(ip)).findFirst().orElse(null);
         if (player != null)
         {
             return player;

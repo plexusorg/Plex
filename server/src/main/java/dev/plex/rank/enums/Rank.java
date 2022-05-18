@@ -9,7 +9,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import org.json.JSONObject;
 
 @Getter
-public enum Rank implements IRank
+public enum Rank implements IRank<Rank>
 {
     IMPOSTOR(-1, "<aqua>an <yellow>Impostor<reset>", "Impostor", "<dark_gray>[<yellow>Imp<dark_gray>]", NamedTextColor.YELLOW),
     NONOP(0, "a <white>Non-Op<reset>", "Non-Op", "", NamedTextColor.WHITE),
@@ -39,11 +39,6 @@ public enum Rank implements IRank
         this.readable = readable;
         this.prefix = prefix;
         this.color = color;
-    }
-
-    public boolean isAtLeast(IRank rank)
-    {
-        return this.level >= rank.getLevel();
     }
 
     public boolean isAtLeast(Rank rank)

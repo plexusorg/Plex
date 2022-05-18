@@ -4,7 +4,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.json.JSONObject;
 
-public interface IRank
+public interface IRank<T>
 {
     int getLevel();
 
@@ -20,7 +20,7 @@ public interface IRank
 
     NamedTextColor getColor();
 
-    boolean isAtLeast(IRank rank);
+    boolean isAtLeast(T rank);
 
     JSONObject toJSON();
 }

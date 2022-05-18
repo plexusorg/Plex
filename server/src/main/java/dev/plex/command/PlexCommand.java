@@ -131,7 +131,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
 
         if (sender instanceof Player player)
         {
-            PlexPlayer plexPlayer = PlayerCache.getPlexPlayerMap().get(player.getUniqueId());
+            PlexPlayer plexPlayer = plugin.getPlayerCache().getPlexPlayerMap().get(player.getUniqueId());
 
             if (plugin.getSystem().equalsIgnoreCase("ranks"))
             {
@@ -587,7 +587,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
     protected PlexPlayer getOnlinePlexPlayer(String name)
     {
         Player player = getNonNullPlayer(name);
-        PlexPlayer plexPlayer = PlayerCache.getPlexPlayer(player.getUniqueId());
+        PlexPlayer plexPlayer = plugin.getPlayerCache().getPlexPlayer(player.getUniqueId());
         if (plexPlayer == null)
         {
             throw new PlayerNotFoundException();

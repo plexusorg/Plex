@@ -2,7 +2,8 @@ package dev.plex;
 
 import dev.plex.admin.Admin;
 import dev.plex.admin.AdminList;
-import dev.plex.api.permission.IPermissionHandler;
+import dev.plex.api.PlexApi;
+import dev.plex.api.PlexApiProvider;
 import dev.plex.api.plugin.PlexPlugin;
 import dev.plex.cache.DataUtils;
 import dev.plex.cache.PlayerCache;
@@ -36,15 +37,12 @@ import dev.plex.world.CustomWorld;
 import java.io.File;
 import lombok.Getter;
 import lombok.Setter;
-import net.milkbowl.vault.chat.Chat;
-import net.milkbowl.vault.permission.Permission;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
-import org.bukkit.plugin.RegisteredServiceProvider;
 
 @Getter
 @Setter
-public class Plex extends PlexPlugin
+public class Plex extends PlexPlugin implements PlexApiProvider
 {
     private static Plex plugin;
 
@@ -52,6 +50,8 @@ public class Plex extends PlexPlugin
     public Config messages;
     public Config indefBans;
     public Config commands;
+
+    private PlexProvider provider;
 
     public File modulesFolder;
     private StorageType storageType = StorageType.SQLITE;
@@ -61,6 +61,8 @@ public class Plex extends PlexPlugin
     private SQLConnection sqlConnection;
     private MongoConnection mongoConnection;
     private RedisConnection redisConnection;
+
+    private PlayerCache playerCache;
 
     private MongoPlayerData mongoPlayerData;
     private SQLPlayerData sqlPlayerData;
@@ -114,6 +116,7 @@ public class Plex extends PlexPlugin
     {
         config.load();
         messages.load();
+
         // Don't add default entries to indefinite ban file
         indefBans.load(false);
         commands.load(false);
@@ -212,6 +215,8 @@ public class Plex extends PlexPlugin
         }
         this.getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
 
+
+        provider = new PlexProvider();
         moduleManager.enableModules();
     }
 
@@ -220,7 +225,7 @@ public class Plex extends PlexPlugin
     {
         Bukkit.getOnlinePlayers().forEach(player ->
         {
-            PlexPlayer plexPlayer = PlayerCache.getPlexPlayerMap().get(player.getUniqueId()); //get the player because it's literally impossible for them to not have an object
+            PlexPlayer plexPlayer = playerCache.getPlexPlayerMap().get(player.getUniqueId()); //get the player because it's literally impossible for them to not have an object
 
             if (plugin.getRankManager().isAdmin(plexPlayer))
             {
@@ -262,7 +267,7 @@ public class Plex extends PlexPlugin
         Bukkit.getOnlinePlayers().forEach(player ->
         {
             PlexPlayer plexPlayer = DataUtils.getPlayer(player.getUniqueId());
-            PlayerCache.getPlexPlayerMap().put(player.getUniqueId(), plexPlayer); //put them into the cache
+            playerCache.getPlexPlayerMap().put(player.getUniqueId(), plexPlayer); //put them into the cache
             if (plugin.getRankManager().isAdmin(plexPlayer))
             {
                 Admin admin = new Admin(plexPlayer.getUuid());
@@ -271,5 +276,11 @@ public class Plex extends PlexPlugin
                 plugin.getAdminList().addToCache(admin);
             }
         });
+    }
+
+    @Override
+    public PlexApi getApi()
+    {
+        return provider;
     }
 }

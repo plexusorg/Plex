@@ -42,7 +42,7 @@ public class ChatListener extends PlexListener
         @Override
         public void doChat(AsyncChatEvent event)
         {
-            PlexPlayer plexPlayer = PlayerCache.getPlexPlayerMap().get(event.getPlayer().getUniqueId());
+            PlexPlayer plexPlayer = plugin.getPlayerCache().getPlexPlayerMap().get(event.getPlayer().getUniqueId());
             Component prefix = plugin.getRankManager().getPrefix(plexPlayer);
 
             if (prefix != null)

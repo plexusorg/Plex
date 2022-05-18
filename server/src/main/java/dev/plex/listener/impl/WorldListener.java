@@ -155,7 +155,7 @@ public class WorldListener extends PlexListener
 
     private boolean checkPermission(Player player, boolean showMessage)
     {
-        PlexPlayer plexPlayer = PlayerCache.getPlexPlayerMap().get(player.getUniqueId());
+        PlexPlayer plexPlayer = plugin.getPlayerCache().getPlexPlayerMap().get(player.getUniqueId());
         World world = player.getWorld();
         if (plugin.getSystem().equalsIgnoreCase("permissions"))
         {

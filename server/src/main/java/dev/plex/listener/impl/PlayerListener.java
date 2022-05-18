@@ -69,7 +69,7 @@ public class PlayerListener<T> extends PlexListener
                 DataUtils.update(plexPlayer);
             }
         }
-        PlayerCache.getPlexPlayerMap().put(player.getUniqueId(), plexPlayer);
+        plugin.getPlayerCache().getPlexPlayerMap().put(player.getUniqueId(), plexPlayer);
         if (plexPlayer.isLockedUp())
         {
             player.openInventory(player.getInventory());
@@ -108,7 +108,7 @@ public class PlayerListener<T> extends PlexListener
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerSave(PlayerQuitEvent event)
     {
-        PlexPlayer plexPlayer = PlayerCache.getPlexPlayerMap().get(event.getPlayer().getUniqueId()); //get the player because it's literally impossible for them to not have an object
+        PlexPlayer plexPlayer = plugin.getPlayerCache().getPlexPlayerMap().get(event.getPlayer().getUniqueId()); //get the player because it's literally impossible for them to not have an object
 
         if (plugin.getRankManager().isAdmin(plexPlayer))
         {
@@ -116,7 +116,7 @@ public class PlayerListener<T> extends PlexListener
         }
 
         DataUtils.update(plexPlayer);
-        PlayerCache.getPlexPlayerMap().remove(event.getPlayer().getUniqueId()); //remove them from cache
+        plugin.getPlayerCache().getPlexPlayerMap().remove(event.getPlayer().getUniqueId()); //remove them from cache
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

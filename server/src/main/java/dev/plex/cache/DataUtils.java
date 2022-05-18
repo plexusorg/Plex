@@ -55,9 +55,9 @@ public class DataUtils
 
     public static PlexPlayer getPlayer(UUID uuid, boolean loadExtraData)
     {
-        if (PlayerCache.getPlexPlayerMap().containsKey(uuid))
+        if (Plex.get().getPlayerCache().getPlexPlayerMap().containsKey(uuid))
         {
-            return PlayerCache.getPlexPlayerMap().get(uuid);
+            return Plex.get().getPlayerCache().getPlexPlayerMap().get(uuid);
         }
 
         if (Plex.get().getStorageType() == StorageType.MONGODB)
@@ -77,7 +77,7 @@ public class DataUtils
 
     public static PlexPlayer getPlayer(String username, boolean loadExtraData)
     {
-        Optional<PlexPlayer> plexPlayer = PlayerCache.getPlexPlayerMap().values().stream().filter(player -> player.getName().equalsIgnoreCase(username)).findFirst();
+        Optional<PlexPlayer> plexPlayer = Plex.get().getPlayerCache().getPlexPlayerMap().values().stream().filter(player -> player.getName().equalsIgnoreCase(username)).findFirst();
         if (plexPlayer.isPresent())
         {
             return plexPlayer.get();
@@ -102,7 +102,7 @@ public class DataUtils
      */
     public static PlexPlayer getPlayerByIP(String ip)
     {
-        PlexPlayer player = PlayerCache.getPlexPlayerMap().values().stream().filter(plexPlayer -> plexPlayer.getIps().contains(ip)).findFirst().orElse(null);
+        PlexPlayer player = Plex.get().getPlayerCache().getPlexPlayerMap().values().stream().filter(plexPlayer -> plexPlayer.getIps().contains(ip)).findFirst().orElse(null);
         if (player != null)
         {
             return player;
