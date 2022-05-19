@@ -60,7 +60,7 @@ public abstract class PlexCommand implements SimpleCommand
 
         if (commandSource == RequiredCommandSource.CONSOLE && invocation.source() instanceof Player)
         {
-//            sender.sendMessage(messageComponent("noPermissionInGame"));
+            //            sender.sendMessage(messageComponent("noPermissionInGame"));
             return;
         }
 
@@ -68,7 +68,7 @@ public abstract class PlexCommand implements SimpleCommand
         {
             if (invocation.source() instanceof ConsoleCommandSource)
             {
-//                send(sender, messageComponent("noPermissionConsole"));
+                //                send(sender, messageComponent("noPermissionConsole"));
                 return;
             }
         }
@@ -79,7 +79,7 @@ public abstract class PlexCommand implements SimpleCommand
                 return;
             }
         }
-        Component component = this.execute(invocation.source(), invocation.source() instanceof ConsoleCommandSource ? null : (Player)invocation.source(), invocation.arguments());
+        Component component = this.execute(invocation.source(), invocation.source() instanceof ConsoleCommandSource ? null : (Player) invocation.source(), invocation.arguments());
         if (component != null)
         {
             send(invocation.source(), component);

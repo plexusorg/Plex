@@ -105,7 +105,7 @@ public class LibraryLoader
         DependencyResult result;
         try
         {
-            result = repository.resolveDependencies(session, new DependencyRequest(new CollectRequest((Dependency)null, dependencies, repositories), null));
+            result = repository.resolveDependencies(session, new DependencyRequest(new CollectRequest((Dependency) null, dependencies, repositories), null));
         }
         catch (DependencyResolutionException ex)
         {
@@ -161,8 +161,8 @@ public class LibraryLoader
         }*/
         logger.log(Level.INFO, "Loaded {0} libraries for {1}", new Object[]{jarFiles.size(), moduleFile.getName()});
 
-//        jarFiles.forEach(jar -> new CustomClassLoader(jar, Plex.class.getClassLoader()));
-//        jarFiles.forEach(jar -> new CustomClassLoader(jar, Plex.class.getClassLoader()));
+        //        jarFiles.forEach(jar -> new CustomClassLoader(jar, Plex.class.getClassLoader()));
+        //        jarFiles.forEach(jar -> new CustomClassLoader(jar, Plex.class.getClassLoader()));
 
         /*URLClassLoader loader = new URLClassLoader(jarFiles.toArray(URL[]::new), Plex.class.getClassLoader());
 

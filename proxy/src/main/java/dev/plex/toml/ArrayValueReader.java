@@ -49,7 +49,7 @@ public class ArrayValueReader implements ValueReader
                 Object converted = read(s, index, context);
                 if (converted instanceof dev.plex.toml.Results.Errors)
                 {
-                    errors.add((dev.plex.toml.Results.Errors)converted);
+                    errors.add((dev.plex.toml.Results.Errors) converted);
                 }
                 else if (!isHomogenousArray(converted, arrayItems))
                 {
@@ -71,7 +71,7 @@ public class ArrayValueReader implements ValueReader
                 Object converted = ValueReaders.VALUE_READERS.convert(s, index, context);
                 if (converted instanceof dev.plex.toml.Results.Errors)
                 {
-                    errors.add((dev.plex.toml.Results.Errors)converted);
+                    errors.add((dev.plex.toml.Results.Errors) converted);
                 }
                 else if (!isHomogenousArray(converted, arrayItems))
                 {

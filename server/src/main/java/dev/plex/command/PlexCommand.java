@@ -2,7 +2,6 @@ package dev.plex.command;
 
 import dev.plex.Plex;
 import dev.plex.cache.DataUtils;
-import dev.plex.cache.PlayerCache;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.exception.CommandFailException;
@@ -202,7 +201,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
         }
         try
         {
-            Component component = this.execute(sender, isConsole(sender) ? null : (Player)sender, args);
+            Component component = this.execute(sender, isConsole(sender) ? null : (Player) sender, args);
             if (component != null)
             {
                 send(sender, component);
@@ -288,7 +287,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
     {
         if (!isConsole(sender))
         {
-            return checkRank((Player)sender, rank, permission);
+            return checkRank((Player) sender, rank, permission);
         }
         if (!sender.getName().equalsIgnoreCase("console"))
         {
@@ -383,7 +382,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
     {
         if (!isConsole(sender))
         {
-            return checkTab((Player)sender, rank, permission);
+            return checkTab((Player) sender, rank, permission);
         }
         return true;
     }

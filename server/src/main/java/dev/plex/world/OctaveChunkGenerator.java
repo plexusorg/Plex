@@ -24,7 +24,7 @@ public abstract class OctaveChunkGenerator extends CustomChunkGenerator
         {
             for (int zz = 0; zz < 16; zz++)
             {
-                height = (int)generator.noise(options.getX(), options.getY(), options.getFrequency(), options.getAmplitude(), options.isNormalized());
+                height = (int) generator.noise(options.getX(), options.getY(), options.getFrequency(), options.getAmplitude(), options.isNormalized());
                 createLoopChunkData(xx, height, zz, chunk);
             }
         }

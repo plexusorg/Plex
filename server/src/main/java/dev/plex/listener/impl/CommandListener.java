@@ -1,7 +1,6 @@
 package dev.plex.listener.impl;
 
 import dev.plex.cache.DataUtils;
-import dev.plex.cache.PlayerCache;
 import dev.plex.command.blocking.BlockedCommand;
 import dev.plex.listener.PlexListener;
 import dev.plex.player.PlexPlayer;
@@ -103,11 +102,13 @@ public class CommandListener extends PlexListener
             BlockedCommand cmd = cmdRef.get();
             switch (cmd.getRequiredLevel().toLowerCase(Locale.ROOT))
             {
-                case "e" -> {
+                case "e" ->
+                {
                     event.setCancelled(true);
                     event.getPlayer().sendMessage(cmd.getMessage());
                 }
-                case "a" -> {
+                case "a" ->
+                {
                     if (plexPlayer.isAdminActive() && plexPlayer.getRankFromString().isAtLeast(Rank.ADMIN))
                     {
                         return;
@@ -115,7 +116,8 @@ public class CommandListener extends PlexListener
                     event.setCancelled(true);
                     event.getPlayer().sendMessage(cmd.getMessage());
                 }
-                case "s" -> {
+                case "s" ->
+                {
                     if (plexPlayer.isAdminActive() && plexPlayer.getRankFromString().isAtLeast(Rank.SENIOR_ADMIN))
                     {
                         return;

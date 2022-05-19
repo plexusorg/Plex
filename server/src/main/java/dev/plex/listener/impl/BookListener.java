@@ -24,6 +24,6 @@ public class BookListener extends PlexListener
         }
 
 
-        event.setNewBookMeta((BookMeta)event.getNewBookMeta().pages(pages));
+        event.setNewBookMeta((BookMeta) event.getNewBookMeta().pages(pages));
     }
 }

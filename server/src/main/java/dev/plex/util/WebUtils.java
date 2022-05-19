@@ -17,7 +17,7 @@ public class WebUtils
         try
         {
             URL u = new URL(url);
-            HttpURLConnection connection = (HttpURLConnection)u.openConnection();
+            HttpURLConnection connection = (HttpURLConnection) u.openConnection();
             connection.setRequestMethod("GET");
             BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             String line;
@@ -39,13 +39,13 @@ public class WebUtils
     public static UUID getFromName(String name)
     {
         JSONObject profile;
-        profile = (JSONObject)simpleGET("https://api.ashcon.app/mojang/v2/user/" + name);
+        profile = (JSONObject) simpleGET("https://api.ashcon.app/mojang/v2/user/" + name);
         if (profile == null)
         {
             PlexLog.error("Profile from Ashcon API returned null!");
             return null;
         }
-        String uuidString = (String)profile.get("uuid");
+        String uuidString = (String) profile.get("uuid");
         return UUID.fromString(uuidString);
     }
 }

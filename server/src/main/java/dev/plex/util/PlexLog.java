@@ -35,7 +35,7 @@ public class PlexLog
             }
         }
         Bukkit.getConsoleSender().sendMessage(PlexUtils.mmDeserialize("<red>[Plex Error] <gold>" + message));
-//        Bukkit.getConsoleSender().sendMessage(String.format(ChatColor.RED + "[Plex Error] " + ChatColor.GOLD + "%s", message));
+        //        Bukkit.getConsoleSender().sendMessage(String.format(ChatColor.RED + "[Plex Error] " + ChatColor.GOLD + "%s", message));
     }
 
     public static void warn(String message, Object... strings)
@@ -47,7 +47,7 @@ public class PlexLog
                 message = message.replace("{" + i + "}", strings[i].toString());
             }
         }
-//        Bukkit.getConsoleSender().sendMessage(String.format(ChatColor.YELLOW + "[Plex Warning] " + ChatColor.GOLD + "%s", message));
+        //        Bukkit.getConsoleSender().sendMessage(String.format(ChatColor.YELLOW + "[Plex Warning] " + ChatColor.GOLD + "%s", message));
         Bukkit.getConsoleSender().sendMessage(PlexUtils.mmDeserialize("<#eb7c0e>[Plex Warning] <gold>" + message));
     }
 
@@ -63,7 +63,7 @@ public class PlexLog
         if (Plex.get().config.getBoolean("debug"))
         {
             Bukkit.getConsoleSender().sendMessage(PlexUtils.mmDeserialize("<dark_purple>[Plex Debug] <gold>" + message));
-//            Bukkit.getConsoleSender().sendMessage(String.format(ChatColor.DARK_PURPLE + "[Plex Debug] " + ChatColor.GOLD + "%s", message));
+            //            Bukkit.getConsoleSender().sendMessage(String.format(ChatColor.DARK_PURPLE + "[Plex Debug] " + ChatColor.GOLD + "%s", message));
         }
     }
 }

@@ -27,7 +27,7 @@ class MapValueWriter implements dev.plex.toml.ValueWriter
             file = context.file;
         }
 
-        Map<?, ?> from = (Map<?, ?>)value;
+        Map<?, ?> from = (Map<?, ?>) value;
 
         Toml toml = null;
 

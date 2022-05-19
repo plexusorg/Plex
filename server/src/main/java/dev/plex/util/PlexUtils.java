@@ -2,7 +2,6 @@ package dev.plex.util;
 
 import dev.plex.Plex;
 import dev.plex.PlexBase;
-import dev.plex.cache.PlayerCache;
 import dev.plex.storage.StorageType;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -174,7 +173,7 @@ public class PlexUtils implements PlexBase
     {
         try
         {
-            return ((TextComponent)component).content();
+            return ((TextComponent) component).content();
         }
         catch (Exception e)
         {

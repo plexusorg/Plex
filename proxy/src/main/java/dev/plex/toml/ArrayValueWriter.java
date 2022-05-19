@@ -49,7 +49,7 @@ public abstract class ArrayValueWriter implements dev.plex.toml.ValueWriter
         }
         else
         {
-            collection = (Collection<Object>)value;
+            collection = (Collection<Object>) value;
         }
 
         return collection;
@@ -70,7 +70,7 @@ public abstract class ArrayValueWriter implements dev.plex.toml.ValueWriter
         }
         else
         {
-            Collection<?> collection = (Collection<?>)value;
+            Collection<?> collection = (Collection<?>) value;
             if (collection.size() > 0)
             {
                 return collection.iterator().next();

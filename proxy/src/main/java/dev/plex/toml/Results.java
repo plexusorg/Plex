@@ -175,7 +175,7 @@ class Results
                 startTables(dev.plex.toml.Identifier.from(path, null), line);
             }
             @SuppressWarnings("unchecked")
-            Map<String, Object> valueMap = (Map<String, Object>)value;
+            Map<String, Object> valueMap = (Map<String, Object>) value;
             for (Map.Entry<String, Object> entry : valueMap.entrySet())
             {
                 addValue(entry.getKey(), entry.getValue(), line);
@@ -215,7 +215,7 @@ class Results
 
             if (currentContainer.get(tablePart) instanceof Container.TableArray)
             {
-                Container.TableArray currentTableArray = (Container.TableArray)currentContainer.get(tablePart);
+                Container.TableArray currentTableArray = (Container.TableArray) currentContainer.get(tablePart);
                 stack.push(currentTableArray);
 
                 if (i == tableParts.length - 1)
@@ -228,7 +228,7 @@ class Results
             }
             else if (currentContainer.get(tablePart) instanceof Container.Table && i < tableParts.length - 1)
             {
-                Container nextTable = (Container)currentContainer.get(tablePart);
+                Container nextTable = (Container) currentContainer.get(tablePart);
                 stack.push(nextTable);
             }
             else if (currentContainer.accepts(tablePart))
@@ -239,7 +239,7 @@ class Results
 
                 if (newContainer instanceof Container.TableArray)
                 {
-                    stack.push(((Container.TableArray)newContainer).getCurrent());
+                    stack.push(((Container.TableArray) newContainer).getCurrent());
                 }
             }
             else
@@ -266,7 +266,7 @@ class Results
             Container currentContainer = stack.peek();
             if (currentContainer.get(tablePart) instanceof Container)
             {
-                Container nextTable = (Container)currentContainer.get(tablePart);
+                Container nextTable = (Container) currentContainer.get(tablePart);
                 if (i == tableParts.length - 1 && !nextTable.isImplicit())
                 {
                     errors.duplicateTable(tableName, line.get());
@@ -275,7 +275,7 @@ class Results
                 stack.push(nextTable);
                 if (stack.peek() instanceof Container.TableArray)
                 {
-                    stack.push(((Container.TableArray)stack.peek()).getCurrent());
+                    stack.push(((Container.TableArray) stack.peek()).getCurrent());
                 }
             }
             else if (currentContainer.accepts(tablePart))
@@ -298,7 +298,7 @@ class Results
         Container values = stack.getLast();
         stack.clear();
 
-        return ((Container.Table)values).consume();
+        return ((Container.Table) values).consume();
     }
 
     private Container startTable(String tableName, AtomicInteger line)
@@ -332,7 +332,7 @@ class Results
                 return null;
             }
 
-            Container.Table table = (Container.Table)next;
+            Container.Table table = (Container.Table) next;
 
             if (table.name == null)
             {

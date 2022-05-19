@@ -61,7 +61,7 @@ public class BlockListener extends PlexListener
 
         if (SIGNS.contains(block.getType()))
         {
-            Sign sign = (Sign)block.getState();
+            Sign sign = (Sign) block.getState();
             boolean anythingChanged = false;
             for (int i = 0; i < sign.lines().size(); i++)
             {

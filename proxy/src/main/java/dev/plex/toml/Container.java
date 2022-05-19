@@ -74,11 +74,11 @@ public abstract class Container
             {
                 if (entry.getValue() instanceof Table)
                 {
-                    entry.setValue(((Table)entry.getValue()).consume());
+                    entry.setValue(((Table) entry.getValue()).consume());
                 }
                 else if (entry.getValue() instanceof TableArray)
                 {
-                    entry.setValue(((TableArray)entry.getValue()).getValues());
+                    entry.setValue(((TableArray) entry.getValue()).getValues());
                 }
             }
 
@@ -110,7 +110,7 @@ public abstract class Container
         @Override
         void put(String key, Object value)
         {
-            values.add((Table)value);
+            values.add((Table) value);
         }
 
         @Override

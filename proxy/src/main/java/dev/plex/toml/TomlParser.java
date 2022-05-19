@@ -66,7 +66,7 @@ class TomlParser
 
                 if (value instanceof dev.plex.toml.Results.Errors)
                 {
-                    results.errors.add((dev.plex.toml.Results.Errors)value);
+                    results.errors.add((dev.plex.toml.Results.Errors) value);
                 }
                 else
                 {

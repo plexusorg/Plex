@@ -85,7 +85,7 @@ public class AdminCMD extends PlexCommand
                 throw new ConsoleOnlyException();
             }
 
-//            UUID targetUUID = PlexUtils.getFromName(args[1]);
+            //            UUID targetUUID = PlexUtils.getFromName(args[1]);
 
             if (!DataUtils.hasPlayedBefore(args[1]))
             {
@@ -114,7 +114,7 @@ public class AdminCMD extends PlexCommand
                 throw new ConsoleOnlyException();
             }
 
-//            UUID targetUUID = PlexUtils.getFromName(args[1]);
+            //            UUID targetUUID = PlexUtils.getFromName(args[1]);
 
             if (!DataUtils.hasPlayedBefore(args[1]))
             {

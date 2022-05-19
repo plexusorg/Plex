@@ -1,7 +1,6 @@
 package dev.plex.listener.impl;
 
 import dev.plex.cache.DataUtils;
-import dev.plex.cache.PlayerCache;
 import dev.plex.listener.PlexListener;
 import dev.plex.player.PlexPlayer;
 import dev.plex.storage.StorageType;

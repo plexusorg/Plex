@@ -37,7 +37,7 @@ class InlineTableValueReader implements dev.plex.toml.ValueReader
 
                 if (converted instanceof dev.plex.toml.Results.Errors)
                 {
-                    errors.add((dev.plex.toml.Results.Errors)converted);
+                    errors.add((dev.plex.toml.Results.Errors) converted);
                     return errors;
                 }
 

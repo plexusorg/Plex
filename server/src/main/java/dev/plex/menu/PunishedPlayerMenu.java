@@ -3,7 +3,6 @@ package dev.plex.menu;
 import com.google.common.collect.Lists;
 import dev.plex.Plex;
 import dev.plex.cache.DataUtils;
-import dev.plex.cache.PlayerCache;
 import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.Punishment;
 import dev.plex.util.PlexUtils;
@@ -135,7 +134,7 @@ public class PunishedPlayerMenu extends AbstractMenu
                 {
                     return;
                 }
-                openInv((Player)event.getWhoClicked(), getCurrentInventoryIndex(inv) + 1);
+                openInv((Player) event.getWhoClicked(), getCurrentInventoryIndex(inv) + 1);
             }
             else if (item.getItemMeta().displayName().equals(Component.text("Previous Page").color(NamedTextColor.LIGHT_PURPLE)))
             {
@@ -151,18 +150,17 @@ public class PunishedPlayerMenu extends AbstractMenu
                 {
                     return;
                 }
-                openInv((Player)event.getWhoClicked(), getCurrentInventoryIndex(inv) - 1);
+                openInv((Player) event.getWhoClicked(), getCurrentInventoryIndex(inv) - 1);
             }
-
 
         }
         else if (item.getType() == Material.BARRIER)
         {
-            new PunishmentMenu().openInv((Player)event.getWhoClicked(), 0);
+            new PunishmentMenu().openInv((Player) event.getWhoClicked(), 0);
         }
         else if (item.getType() == Material.PLAYER_HEAD)
         {
-            SkullMeta meta = (SkullMeta)item.getItemMeta();
+            SkullMeta meta = (SkullMeta) item.getItemMeta();
             OfflinePlayer player = meta.getOwningPlayer();
             assert player != null;
             PlexPlayer punishedPlayer = DataUtils.getPlayer(player.getUniqueId()) == null ? null : Plex.get().getPlayerCache().getPlexPlayer(player.getUniqueId());

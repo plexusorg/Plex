@@ -10,14 +10,18 @@ public class VaultHook
     private static Chat CHAT;
     private static Permission PERMISSIONS;
 
-    static {
+    static
+    {
         CHAT = setupChat();
         PERMISSIONS = setupPermissions();
     }
 
     private static Chat setupChat()
     {
-        if (!Bukkit.getPluginManager().isPluginEnabled("Vault")) return null;
+        if (!Bukkit.getPluginManager().isPluginEnabled("Vault"))
+        {
+            return null;
+        }
         RegisteredServiceProvider<Chat> rsp = Bukkit.getServicesManager().getRegistration(Chat.class);
         if (rsp == null)
         {
@@ -29,7 +33,10 @@ public class VaultHook
 
     private static Permission setupPermissions()
     {
-        if (!Bukkit.getPluginManager().isPluginEnabled("Vault")) return null;
+        if (!Bukkit.getPluginManager().isPluginEnabled("Vault"))
+        {
+            return null;
+        }
         RegisteredServiceProvider<Permission> rsp = Bukkit.getServicesManager().getRegistration(Permission.class);
         if (rsp == null)
         {

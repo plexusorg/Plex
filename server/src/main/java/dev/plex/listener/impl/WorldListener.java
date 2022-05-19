@@ -2,7 +2,6 @@ package dev.plex.listener.impl;
 
 import dev.plex.Plex;
 import dev.plex.cache.DataUtils;
-import dev.plex.cache.PlayerCache;
 import dev.plex.listener.PlexListener;
 import dev.plex.player.PlexPlayer;
 import dev.plex.rank.enums.Rank;
@@ -79,8 +78,8 @@ public class WorldListener extends PlexListener
         if (command != null)
         {
             // This does check for aliases
-            boolean isWeCommand = command instanceof PluginIdentifiableCommand && ((PluginIdentifiableCommand)command).getPlugin().equals(Bukkit.getPluginManager().getPlugin("WorldEdit"));
-            boolean isFaweCommand = command instanceof PluginIdentifiableCommand && ((PluginIdentifiableCommand)command).getPlugin().equals(Bukkit.getPluginManager().getPlugin("FastAsyncWorldEdit"));
+            boolean isWeCommand = command instanceof PluginIdentifiableCommand && ((PluginIdentifiableCommand) command).getPlugin().equals(Bukkit.getPluginManager().getPlugin("WorldEdit"));
+            boolean isFaweCommand = command instanceof PluginIdentifiableCommand && ((PluginIdentifiableCommand) command).getPlugin().equals(Bukkit.getPluginManager().getPlugin("FastAsyncWorldEdit"));
             if (isWeCommand || isFaweCommand || EDIT_COMMANDS.contains(message.toLowerCase()))
             {
                 event.getPlayer().sendMessage(Component.text("You do not have permission to use that command in this world.").color(NamedTextColor.RED));

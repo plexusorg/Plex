@@ -71,7 +71,7 @@ public class PunishmentMenu extends AbstractMenu
 
 
             ItemStack item = new ItemStack(Material.PLAYER_HEAD);
-            SkullMeta meta = (SkullMeta)item.getItemMeta();
+            SkullMeta meta = (SkullMeta) item.getItemMeta();
             meta.setOwningPlayer(players);
             meta.displayName(PlexUtils.mmDeserialize("<!italic><yellow>" + players.getName()));
             item.setItemMeta(meta);
@@ -121,7 +121,7 @@ public class PunishmentMenu extends AbstractMenu
                 {
                     return;
                 }
-                openInv((Player)event.getWhoClicked(), getCurrentInventoryIndex(inv) + 1);
+                openInv((Player) event.getWhoClicked(), getCurrentInventoryIndex(inv) + 1);
             }
             else if (item.getItemMeta().displayName().equals(PlexUtils.mmDeserialize("<light_purple>Previous Page")))
             {
@@ -137,14 +137,13 @@ public class PunishmentMenu extends AbstractMenu
                 {
                     return;
                 }
-                openInv((Player)event.getWhoClicked(), getCurrentInventoryIndex(inv) - 1);
+                openInv((Player) event.getWhoClicked(), getCurrentInventoryIndex(inv) - 1);
             }
-
 
         }
         else if (item.getType() == Material.PLAYER_HEAD)
         {
-            SkullMeta meta = (SkullMeta)item.getItemMeta();
+            SkullMeta meta = (SkullMeta) item.getItemMeta();
             OfflinePlayer player = meta.getOwningPlayer();
             assert player != null;
             PlexPlayer punishedPlayer = DataUtils.getPlayer(player.getUniqueId());
@@ -154,9 +153,8 @@ public class PunishmentMenu extends AbstractMenu
                 event.getWhoClicked().closeInventory();
                 return;
             }
-            new PunishedPlayerMenu(punishedPlayer).openInv((Player)event.getWhoClicked(), 0);
+            new PunishedPlayerMenu(punishedPlayer).openInv((Player) event.getWhoClicked(), 0);
         }
-
 
     }
 

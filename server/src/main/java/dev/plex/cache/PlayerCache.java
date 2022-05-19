@@ -20,12 +20,12 @@ public class PlayerCache implements IPlayerCache<PlexPlayer>
     /**
      * A key/value pair where the key is the unique ID of the Punished Player
      */
-//    private static final Map<UUID, PunishedPlayer> punishedPlayerMap = Maps.newHashMap();
+    //    private static final Map<UUID, PunishedPlayer> punishedPlayerMap = Maps.newHashMap();
 
-//    public static Map<UUID, PunishedPlayer> getPunishedPlayerMap()
-//    {
-//        return punishedPlayerMap;
-//    }
+    //    public static Map<UUID, PunishedPlayer> getPunishedPlayerMap()
+    //    {
+    //        return punishedPlayerMap;
+    //    }
     public Map<UUID, PlexPlayer> getPlexPlayerMap()
     {
         return plexPlayerMap;

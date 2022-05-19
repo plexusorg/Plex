@@ -49,7 +49,7 @@ public class ReflectionsUtil
         {
             if (clazz.getSuperclass() == subType || Arrays.asList(clazz.getInterfaces()).contains(subType))
             {
-                classes.add((Class<? extends T>)clazz);
+                classes.add((Class<? extends T>) clazz);
             }
         });
         return Collections.unmodifiableSet(classes);

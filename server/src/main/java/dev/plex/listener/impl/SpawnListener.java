@@ -56,7 +56,7 @@ public class SpawnListener extends PlexListener
         if (SPAWN_EGGS.contains(itemType))
         {
             Block block = event.getBlock();
-            Location blockLoc = BlockUtils.relative(block.getLocation(), ((Directional)block.getBlockData()).getFacing()).add(.5, 0, .5);
+            Location blockLoc = BlockUtils.relative(block.getLocation(), ((Directional) block.getBlockData()).getFacing()).add(.5, 0, .5);
             EntityType eggType = spawnEggToEntityType(itemType);
             if (eggType != null)
             {

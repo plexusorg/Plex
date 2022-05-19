@@ -1,7 +1,6 @@
 package dev.plex.listener.impl;
 
 import dev.plex.api.chat.IChatHandler;
-import dev.plex.cache.PlayerCache;
 import dev.plex.listener.PlexListener;
 import dev.plex.listener.annotation.Toggleable;
 import dev.plex.player.PlexPlayer;
@@ -9,6 +8,7 @@ import dev.plex.util.PlexUtils;
 import dev.plex.util.minimessage.SafeMiniMessage;
 import io.papermc.paper.chat.ChatRenderer;
 import io.papermc.paper.event.player.AsyncChatEvent;
+import java.util.function.Supplier;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextReplacementConfig;
@@ -17,12 +17,9 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.minimessage.tag.standard.StandardTags;
-import org.apache.commons.lang.StringUtils;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.function.Supplier;
 
 @Toggleable("chat.enabled")
 public class ChatListener extends PlexListener
