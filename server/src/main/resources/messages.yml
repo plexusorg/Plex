@@ -181,3 +181,4 @@ noteNotFound: "<red>A note with this ID could not be found."
 removedNote: "<green>Removed note with ID: {0}"
 # 0 - The number of notes cleared
 clearedNotes: "<green>Cleared {0} notes."
+invalidToggle: "<red>That is not a valid toggle."

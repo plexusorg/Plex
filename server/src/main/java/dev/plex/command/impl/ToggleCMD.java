@@ -10,6 +10,7 @@ import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexUtils;
 import java.util.List;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -24,26 +25,33 @@ public class ToggleCMD extends PlexCommand
     {
         if (isConsole(sender) || playerSender == null)
         {
-            sender.sendMessage(PlexUtils.mmDeserialize("<gray>Available toggles:"));
-            sender.sendMessage(PlexUtils.mmDeserialize("<gray>  - Explosions " + status("explosions")));
-            sender.sendMessage(PlexUtils.mmDeserialize("<gray>  - Fluidspread " + status("fluidspread")));
-            sender.sendMessage(PlexUtils.mmDeserialize("<gray>  - Drops " + status("drops")));
+            if (args.length == 0)
+            {
+                sender.sendMessage(PlexUtils.mmDeserialize("<gray>Available toggles:"));
+                sender.sendMessage(PlexUtils.mmDeserialize("<gray>  - Explosions" + status("explosions")));
+                sender.sendMessage(PlexUtils.mmDeserialize("<gray>  - Fluidspread" + status("fluidspread")));
+                sender.sendMessage(PlexUtils.mmDeserialize("<gray>  - Drops" + status("drops")));
+                return null;
+            }
             switch (args[0].toLowerCase())
             {
-                case "explosions":
+                case "explosions" ->
                 {
-                    toggle("explosions");
+                    return toggle(sender, "explosions");
                 }
-                case "fluidspread":
+                case "fluidspread" ->
                 {
-                    toggle("fluidspread");
+                    return toggle(sender, "fluidspread");
                 }
-                case "drops":
+                case "drops" ->
                 {
-                    toggle("drops");
+                    return toggle(sender, "drops");
+                }
+                default ->
+                {
+                    return messageComponent("invalidToggle");
                 }
             }
-            return null;
         }
         new ToggleMenu().openInv(playerSender, 0);
         return null;
@@ -57,11 +65,12 @@ public class ToggleCMD extends PlexCommand
 
     private String status(String toggle)
     {
-        return plugin.toggles.getBoolean(toggle) ? "(enabled)" : "(disabled)";
+        return plugin.toggles.getBoolean(toggle) ? " (enabled)" : " (disabled)";
     }
 
-    private void toggle(String toggle)
+    private Component toggle(CommandSender sender, String toggle)
     {
         plugin.toggles.set(toggle, !plugin.getToggles().getBoolean(toggle));
+        return Component.text("Toggled " + toggle + status(toggle)).color(NamedTextColor.GRAY);
     }
 }
