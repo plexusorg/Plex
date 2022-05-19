@@ -9,7 +9,7 @@ public class DropListener extends PlexListener
     @EventHandler
     public void onPlayerDropItem(PlayerDropItemEvent event)
     {
-        if (!plugin.config.getBoolean("allowdrops"))
+        if (!plugin.toggles.getBoolean("drops"))
         {
             event.setCancelled(true);
         }

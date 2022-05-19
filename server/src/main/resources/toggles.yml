@@ -1,0 +1,10 @@
+# Plex Toggles
+
+# Should explosions be enabled?
+explosions: false
+
+# Should fluid spread be enabled?
+fluidspread: true
+
+# Should drops be enabled?
+drops: true

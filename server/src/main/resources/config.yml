@@ -137,9 +137,6 @@ autowipe:
   entities:
     - "DROPPED_ITEM"
 
-# Should we allow drops from players?
-allowdrops: true
-
 # What blocks should be blocked?
 blocked_blocks:
   - "SPAWNER"

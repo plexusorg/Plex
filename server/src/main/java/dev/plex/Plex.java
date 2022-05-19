@@ -50,6 +50,7 @@ public class Plex extends PlexPlugin implements PlexApiProvider
     public Config messages;
     public Config indefBans;
     public Config commands;
+    public Config toggles;
 
     private PlexProvider provider;
 
@@ -95,6 +96,7 @@ public class Plex extends PlexPlugin implements PlexApiProvider
         messages = new Config(this, "messages.yml");
         indefBans = new Config(this, "indefbans.yml");
         commands = new Config(this, "commands.yml");
+        toggles = new Config(this, "toggles.yml");
         build.load(this);
 
         modulesFolder = new File(this.getDataFolder() + File.separator + "modules");
@@ -116,6 +118,7 @@ public class Plex extends PlexPlugin implements PlexApiProvider
     {
         config.load();
         messages.load();
+        toggles.load();
 
         // Don't add default entries to indefinite ban file
         indefBans.load(false);
