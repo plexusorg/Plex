@@ -24,7 +24,14 @@ import org.jetbrains.annotations.NotNull;
 @Toggleable("chat.enabled")
 public class ChatListener extends PlexListener
 {
-    private final static TextReplacementConfig URL_REPLACEMENT_CONFIG = TextReplacementConfig.builder().match("(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]").replacement((matchResult, builder) -> Component.empty().content(matchResult.group()).clickEvent(ClickEvent.openUrl(matchResult.group()))).build();
+    private final static TextReplacementConfig URL_REPLACEMENT_CONFIG = TextReplacementConfig
+            .builder()
+            .match("(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]")
+            .replacement((matchResult, builder) -> Component.empty()
+                    .content(matchResult.group())
+                    .clickEvent(ClickEvent.openUrl(
+                            matchResult.group()
+                    ))).build();
 
     @EventHandler
     public void onChat(AsyncChatEvent event)
@@ -78,7 +85,14 @@ public class ChatListener extends PlexListener
             {
                 component = component.append(prefix).append(Component.space());
             }
-            return component.append(PlexUtils.mmDeserialize(plugin.config.getString("chat.name-color", "<white>") + MiniMessage.builder().tags(TagResolver.resolver(StandardTags.color(), StandardTags.rainbow(), StandardTags.decorations(), StandardTags.gradient(), StandardTags.transition())).build().serialize(sourceDisplayName))).append(Component.space()).append(Component.text("»").color(NamedTextColor.GRAY)).append(Component.space()).append(SafeMiniMessage.mmDeserializeWithoutEvents(text)).replaceText(URL_REPLACEMENT_CONFIG);
+            return component
+                    .append(Component.space())
+                    .append(PlexUtils.mmDeserialize(plugin.config.getString("chat.name-color", "<white>") + SafeMiniMessage.MINI_MESSAGE.serialize(sourceDisplayName)))
+                    .append(Component.space())
+                    .append(Component.text("»").color(NamedTextColor.GRAY))
+                    .append(Component.space())
+                    .append(SafeMiniMessage.mmDeserializeWithoutEvents(text))
+                    .replaceText(URL_REPLACEMENT_CONFIG);
         }
     }
 }
