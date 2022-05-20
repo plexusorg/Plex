@@ -30,18 +30,17 @@ public class MongoConnection implements PlexBase
         {
             if (database != null && !database.isEmpty())
             {
-                connectionString = "mongodb://" + username + ":" + password + "@" + host + ":" + port + "/?authSource=" + database;
+                connectionString = "mongodb://" + username + ":" + password + "@" + host + ":" + port + "/?authSource=" + database + "&uuidRepresentation=STANDARD";
             }
             else
             {
-                connectionString = "mongodb://" + username + ":" + password + "@" + host + ":" + port + "/";
+                connectionString = "mongodb://" + username + ":" + password + "@" + host + ":" + port + "/?uuidRepresentation=STANDARD";
             }
         }
         else
         {
-            connectionString = "mongodb://" + host + ":" + port + "/";
+            connectionString = "mongodb://" + host + ":" + port + "/?uuidRepresentation=STANDARD";
         }
-        connectionString += "?uuidRepresentation=STANDARD";
         PlexLog.debug("Using mongo connection string: " + connectionString);
         MongoClient client = MongoClients.create(connectionString);
         Datastore datastore = Morphia.createDatastore(client, database == null ? "admin" : database, MapperOptions.DEFAULT);
