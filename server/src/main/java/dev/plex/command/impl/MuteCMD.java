@@ -38,17 +38,10 @@ public class MuteCMD extends PlexCommand
             return messageComponent("playerMuted");
         }
 
-        if (isAdmin(getPlexPlayer(player)))
+        if (silentCheckRank(player, Rank.ADMIN, "plex.mute"))
         {
-            if (!isConsole(sender))
-            {
-                assert playerSender != null;
-                PlexPlayer plexPlayer1 = getPlexPlayer(playerSender);
-                if (!plexPlayer1.getRankFromString().isAtLeast(getPlexPlayer(player).getRankFromString()))
-                {
-                    return messageComponent("higherRankThanYou");
-                }
-            }
+            send(sender, messageComponent("higherRankThanYou"));
+            return null;
         }
 
         Punishment punishment = new Punishment(punishedPlayer.getUuid(), getUUID(sender));
