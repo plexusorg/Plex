@@ -7,7 +7,6 @@ import dev.plex.listener.impl.BlockListener;
 import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexUtils;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -30,7 +29,8 @@ public class BlockEditCMD extends PlexCommand
 
         if (args[0].equalsIgnoreCase("list"))
         {
-            send(sender, "The following have block modification abilities restricted:");
+            send(sender, messageComponent("listOfPlayersBlocked"));
+
             int count = 0;
             for (String player : bl.blockedPlayers.stream().toList())
             {
@@ -45,7 +45,7 @@ public class BlockEditCMD extends PlexCommand
         }
         else if (args[0].equalsIgnoreCase("purge"))
         {
-            PlexUtils.broadcast(componentFromString(sender.getName() + " - Unblocking block modification abilities for all players").color(NamedTextColor.AQUA));
+            PlexUtils.broadcast(messageComponent("unblockingEdits", sender.getName(), "all players"));
             int count = 0;
             for (String player : bl.blockedPlayers.stream().toList())
             {
@@ -55,11 +55,11 @@ public class BlockEditCMD extends PlexCommand
                     ++count;
                 }
             }
-            return messageComponent("unblockedEditsSize", count);
+            return messageComponent("blockeditSize", "Unblocked", count);
         }
         else if (args[0].equalsIgnoreCase("all"))
         {
-            PlexUtils.broadcast(componentFromString(sender.getName() + " - Blocking block modification abilities for all non-admins").color(NamedTextColor.RED));
+            PlexUtils.broadcast(messageComponent("blockingEdits", sender.getName(), "all non-admins"));
             int count = 0;
             for (final Player player : Bukkit.getOnlinePlayers())
             {
@@ -70,7 +70,7 @@ public class BlockEditCMD extends PlexCommand
                 }
             }
 
-            return messageComponent("blockedEditsSize", count);
+            return messageComponent("blockeditSize", "Blocked", count);
         }
 
         final Player player = getNonNullPlayer(args[0]);
@@ -81,16 +81,16 @@ public class BlockEditCMD extends PlexCommand
                 send(sender, messageComponent("higherRankThanYou"));
                 return null;
             }
-            PlexUtils.broadcast(messageComponent("blockingEditFor", sender.getName(), player.getName()));
+            PlexUtils.broadcast(messageComponent("blockingEdits", sender.getName(), player.getName()));
             bl.blockedPlayers.add(player.getName());
-            send(player, messageComponent("yourEditsHaveBeenBlocked"));
+            send(player, messageComponent("editsModified", "blocked"));
             send(sender, messageComponent("editsBlocked", player.getName()));
         }
         else
         {
-            PlexUtils.broadcast(messageComponent("unblockingEditFor", sender.getName(), player.getName()));
+            PlexUtils.broadcast(messageComponent("unblockingEdits", sender.getName(), player.getName()));
             bl.blockedPlayers.remove(player.getName());
-            send(player, messageComponent("yourEditsHaveBeenUnblocked"));
+            send(player, messageComponent("editsModified", "unblocked"));
             send(sender, messageComponent("editsUnblocked", player.getName()));
         }
         return null;
