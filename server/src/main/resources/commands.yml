@@ -53,3 +53,11 @@ commands:
   - "m:e:worldborder:<gray>The worldborder does not need to be changed. This command is disabled."
   - "r:a:^(co|core|coreprotect) (rb|rollback|l|lookup|rl|reload):_"
   - "r:e:^[A-z]*:[A-z]*::<gray>Plugin specific commands are disabled."
+
+# These commands will be blocked when a player is muted
+block_on_mute:
+  - me
+  - say
+  - msg
+  - reply
+  - mail
