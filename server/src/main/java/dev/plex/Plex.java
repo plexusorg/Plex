@@ -120,7 +120,7 @@ public class Plex extends PlexPlugin implements PlexApiProvider
         messages.load();
         toggles.load();
 
-        // Don't add default entries to indefinite ban file
+        // Don't add default entries to these files
         indefBans.load(false);
         commands.load(false);
 

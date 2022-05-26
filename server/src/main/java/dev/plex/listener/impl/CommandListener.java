@@ -75,9 +75,8 @@ public class CommandListener extends PlexListener
                 String[] commandArgs = blockedCommand.getCommand().split(" ");
                 if (arguments.toLowerCase(Locale.ROOT).startsWith(StringUtils.join(commandArgs, " ", 1, commandArgs.length).toLowerCase(Locale.ROOT)))
                 {
-                    PlexLog.debug("Player attempted to use a blocked command with an alias.");
+                    PlexLog.debug("Player attempted to use a blocked command with alias of normal command: " + blockedCommand.getCommand());
                     cmdRef.set(blockedCommand);
-                    return;
                 }
             }
         });
