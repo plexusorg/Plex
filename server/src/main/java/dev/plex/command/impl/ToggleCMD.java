@@ -16,7 +16,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-@CommandParameters(name = "toggle", usage = "/<command>", description = "Allows toggling various server aspects through a GUI")
+@CommandParameters(name = "toggle", description = "Allows toggling various server aspects through a GUI", aliases = "toggles")
 @CommandPermissions(level = Rank.ADMIN, permission = "plex.toggle", source = RequiredCommandSource.ANY)
 public class ToggleCMD extends PlexCommand
 {
@@ -37,15 +37,15 @@ public class ToggleCMD extends PlexCommand
             {
                 case "explosions" ->
                 {
-                    return toggle(sender, "explosions");
+                    return toggle("explosions");
                 }
                 case "fluidspread" ->
                 {
-                    return toggle(sender, "fluidspread");
+                    return toggle("fluidspread");
                 }
                 case "drops" ->
                 {
-                    return toggle(sender, "drops");
+                    return toggle("drops");
                 }
                 default ->
                 {
@@ -68,7 +68,7 @@ public class ToggleCMD extends PlexCommand
         return plugin.toggles.getBoolean(toggle) ? " (enabled)" : " (disabled)";
     }
 
-    private Component toggle(CommandSender sender, String toggle)
+    private Component toggle(String toggle)
     {
         plugin.toggles.set(toggle, !plugin.getToggles().getBoolean(toggle));
         return Component.text("Toggled " + toggle + status(toggle)).color(NamedTextColor.GRAY);

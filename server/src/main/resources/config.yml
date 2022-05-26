@@ -1,5 +1,5 @@
 # Plex Configuration File
-# For documentation, please visit: https://plex.us.org
+# For documentation, please visit: https://docs.plex.us.org
 
 server:
   name: "Plexus"
@@ -149,7 +149,7 @@ blocked_entities:
   - "ENDER_DRAGON"
   - "MINECART_TNT"
 
-# See https://plex.us.org/docs/customization/config#worlds for documentation
+# See https://docs.plex.us.org/docs/customization/config#worlds for documentation
 # These gamerules apply to all worlds on the server
 global_gamerules:
   - "doWeatherCycle;true"
