@@ -12,11 +12,6 @@ import java.time.ZonedDateTime;
 
 import static dev.plex.util.TimeUtils.TIMEZONE;
 
-/**
- * @author Taah
- * @project Plex
- * @since 6:53 PM [28-05-2022]
- */
 public class ZonedDateTimeCodec implements Codec<ZonedDateTime>
 {
     @Override
