@@ -1,5 +1,8 @@
 package dev.plex.storage;
 
+import com.mongodb.ConnectionString;
+import com.mongodb.MongoClientOptions;
+import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import dev.morphia.Datastore;
@@ -7,7 +10,9 @@ import dev.morphia.Morphia;
 import dev.morphia.mapping.MapperOptions;
 import dev.plex.PlexBase;
 import dev.plex.player.PlexPlayer;
+import dev.plex.storage.codec.ZonedDateTimeCodec;
 import dev.plex.util.PlexLog;
+import org.bson.codecs.configuration.CodecRegistries;
 
 public class MongoConnection implements PlexBase
 {
@@ -42,7 +47,7 @@ public class MongoConnection implements PlexBase
             connectionString = "mongodb://" + host + ":" + port + "/?uuidRepresentation=STANDARD";
         }
         PlexLog.debug("Using mongo connection string: " + connectionString);
-        MongoClient client = MongoClients.create(connectionString);
+        MongoClient client = MongoClients.create(MongoClientSettings.builder().codecRegistry(CodecRegistries.fromRegistries(MongoClientSettings.getDefaultCodecRegistry(), CodecRegistries.fromCodecs(new ZonedDateTimeCodec()))).applyConnectionString(new ConnectionString(connectionString)).build());
         Datastore datastore = Morphia.createDatastore(client, database == null ? "admin" : database, MapperOptions.DEFAULT);
         datastore.getMapper().map(PlexPlayer.class);
         datastore.ensureIndexes();
