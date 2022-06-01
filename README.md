@@ -1,4 +1,4 @@
-# Plex [![Build Status](https://ci.plex.us.org/job/Plex/job/master/badge/icon)](https://ci.plex.us.org/job/Plex/job/master/)
+# Plex [![Build Status](https://ci.plex.us.org/job/Plex/job/master/badge/icon)](https://ci.plex.us.org/job/Plex/job/master/) ![CodeQL](https://github.com/plexusorg/Plex/workflows/CodeQL/badge.svg)
 
 Plex is a new freedom plugin. It is an alternative to TotalFreedomMod. It has many of the features that make a freedom
 server unique, but also many features that TotalFreedomMod doesn’t have. For example, there is full support for using a
