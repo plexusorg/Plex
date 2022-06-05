@@ -38,7 +38,8 @@ public class UpdateChecker implements PlexBase
      * > 0 = Number of commits behind
      */
     private final String DOWNLOAD_PAGE = "https://ci.plex.us.org/job/";
-    private String branch = plugin.config.getString("update_branch");
+    private String BRANCH = plugin.config.getString("update_branch");
+    private final String REPO = plugin.config.getString("update_repo");
     private int distance = -4;
 
     // Adapted from Paper
@@ -85,15 +86,15 @@ public class UpdateChecker implements PlexBase
     // If verbose is 2, it will display all messages
     public boolean getUpdateStatusMessage(CommandSender sender, boolean cached, int verbosity)
     {
-        if (branch == null)
+        if (BRANCH == null)
         {
             PlexLog.error("You did not specify a branch to use for update checking. Defaulting to master.");
-            branch = "master";
+            BRANCH = "master";
         }
         // If it's -4, it hasn't checked for updates yet
         if (distance == -4)
         {
-            distance = fetchDistanceFromGitHub("plexusorg/Plex", branch, BuildInfo.getHead());
+            distance = fetchDistanceFromGitHub(REPO, BRANCH, BuildInfo.getHead());
             PlexLog.debug("Never checked for updates, checking now...");
         }
         else
@@ -101,7 +102,7 @@ public class UpdateChecker implements PlexBase
             // If the request isn't asked to be cached, fetch it
             if (!cached)
             {
-                distance = fetchDistanceFromGitHub("plexusorg/Plex", branch, BuildInfo.getHead());
+                distance = fetchDistanceFromGitHub(REPO, BRANCH, BuildInfo.getHead());
                 PlexLog.debug("We have checked for updates before, but this request was not asked to be cached.");
             }
             else
@@ -155,7 +156,7 @@ public class UpdateChecker implements PlexBase
         AtomicReference<String> url = new AtomicReference<>(DOWNLOAD_PAGE + name);
         if (!module)
         {
-            url.set(url.get() + "/job/" + branch);
+            url.set(url.get() + "/job/" + BRANCH);
         }
         PlexLog.debug(url.toString());
         HttpGet get = new HttpGet(url + "/lastSuccessfulBuild/api/json");

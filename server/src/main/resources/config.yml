@@ -169,8 +169,9 @@ global_gamerules:
 worlds:
   flatlands:
     name: "Flatlands"
-    permission: "plex.world.flatlands"
-    noEdit: "<red>You can't edit this world!"
+    modification:
+      permission: "plex.world.flatlands.modify"
+      message: "<red>You do not have permission to modify this world."
     gameRules:
       # The gamerules here override the global gamerules
       - "doWeatherCycle;false"
@@ -182,10 +183,18 @@ worlds:
       bedrock: 1
   adminworld:
     name: "Admin World"
-    permission: "plex.world.adminworld"
-    requiredLevels:
-      - "Rank.ADMIN" # Minimum rank requirement
-    noEdit: "<red>You can't edit this world!"
+    entry:
+      permission: "plex.world.adminworld.enter"
+      # Minimum rank requirement
+      requiredLevels:
+        - "Rank.ADMIN"
+      message: "<red>You do not have permission to enter this world."
+    modification:
+      permission: "plex.world.adminworld.modify"
+      # Minimum rank requirement
+      requiredLevels:
+        - "Rank.ADMIN"
+      message: "<red>You do not have permission to modify this world."
     gameRules:
       - "doWeatherCycle;false"
       - "doDaylightCycle;false"
@@ -196,10 +205,17 @@ worlds:
       bedrock: 1
   masterbuilderworld:
     name: "MasterBuilder World"
-    permission: "plex.world.masterbuilderworld"
-    requiredLevels:
-      - "Title.MASTER_BUILDER" # Title has no "minimum", so this will have to be their title
-    noEdit: "<red>You can't edit this world!"
+    entry:
+      permission: "plex.world.masterbuilderworld.enter"
+      requiredLevels:
+        - "Rank.OP"
+      message: "<red>You do not have permission to enter this world."
+    modification:
+      permission: "plex.world.masterbuilderworld.modify"
+      requiredLevels:
+        # Title has no "minimum", so this will have to be their title
+        - "Title.MASTER_BUILDER"
+      message: "<red><red>You do not have permission to modify this world."
     gameRules:
       - "doWeatherCycle;false"
       - "doDaylightCycle;false"
@@ -209,8 +225,11 @@ worlds:
       stone: 16
       bedrock: 1
 
+# If you are running a custom fork of Plex, you may wish to check for updates from a different repository.
+update_repo: "plexusorg/Plex"
+
 # What branch should Plex fetch updates from?
-update_branch: master
+update_branch: "master"
 
 # Additional logging for debugging
 debug: false

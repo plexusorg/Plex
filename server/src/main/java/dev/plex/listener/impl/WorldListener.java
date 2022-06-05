@@ -1,7 +1,6 @@
 package dev.plex.listener.impl;
 
 import dev.plex.Plex;
-import dev.plex.cache.DataUtils;
 import dev.plex.listener.PlexListener;
 import dev.plex.player.PlexPlayer;
 import dev.plex.rank.enums.Rank;
@@ -31,42 +30,41 @@ import org.jetbrains.annotations.NotNull;
 
 public class WorldListener extends PlexListener
 {
-    private final List<String> EDIT_COMMANDS = Arrays.asList("bigtree", "ebigtree", "largetree", "elargetree",
-            "break", "ebreak", "antioch", "nuke", "editsign", "tree", "etree");
+    private final List<String> EDIT_COMMANDS = Arrays.asList("bigtree", "ebigtree", "largetree", "elargetree", "break", "ebreak", "antioch", "nuke", "editsign", "tree", "etree");
 
     @EventHandler
-    public void onBlockPlace(BlockPlaceEvent e)
+    public void onBlockPlace(BlockPlaceEvent event)
     {
-        if (!checkPermission(e.getPlayer(), true))
+        if (!canModifyWorld(event.getPlayer(), true))
         {
-            e.setCancelled(true);
+            event.setCancelled(true);
         }
     }
 
     @EventHandler
-    public void onBlockBreak(BlockBreakEvent e)
+    public void onBlockBreak(BlockBreakEvent event)
     {
-        if (!checkPermission(e.getPlayer(), true))
+        if (!canModifyWorld(event.getPlayer(), true))
         {
-            e.setCancelled(true);
+            event.setCancelled(true);
         }
     }
 
     @EventHandler
-    public void onEntitySpawn(EntitySpawnEvent e)
+    public void onEntitySpawn(EntitySpawnEvent event)
     {
-        if (e.getEntityType() != EntityType.SLIME)
+        if (event.getEntityType() != EntityType.SLIME)
         {
             return;
         }
-        e.setCancelled(true);
+        event.setCancelled(true);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event)
     {
         // If the person has permission to modify the world, we don't need to block WorldEdit
-        if (checkPermission(event.getPlayer(), false))
+        if (canModifyWorld(event.getPlayer(), false))
         {
             return;
         }
@@ -88,26 +86,12 @@ public class WorldListener extends PlexListener
         }
     }
 
-    // TODO: Add an entry setting in the config.yml and allow checking for all worlds
     @EventHandler
-    public void onWorldTeleport(PlayerTeleportEvent e)
+    public void onWorldTeleport(PlayerTeleportEvent event)
     {
-        final World adminworld = Bukkit.getWorld("adminworld");
-        if (adminworld == null)
+        if (!canEnterWorld(event.getPlayer()))
         {
-            return;
-        }
-        PlexPlayer plexPlayer = DataUtils.getPlayer(e.getPlayer().getUniqueId());
-        if (e.getTo().getWorld().equals(adminworld))
-        {
-            if (plugin.getSystem().equals("ranks") && !plexPlayer.isAdminActive())
-            {
-                e.setCancelled(true);
-            }
-            else if (plugin.getSystem().equals("permissions") && !plugin.getPermissionHandler().hasPermission(e.getPlayer(), "plex.adminworld.enter"))
-            {
-                e.setCancelled(true);
-            }
+            event.setCancelled(true);
         }
     }
 
@@ -152,13 +136,20 @@ public class WorldListener extends PlexListener
         return hasAccess;
     }
 
-    private boolean checkPermission(Player player, boolean showMessage)
+    /**
+     * Check if a Player has the ability to modify the world they are in
+     *
+     * @param player
+     * @param showMessage
+     * @return
+     */
+    private boolean canModifyWorld(Player player, boolean showMessage)
     {
         PlexPlayer plexPlayer = plugin.getPlayerCache().getPlexPlayerMap().get(player.getUniqueId());
         World world = player.getWorld();
         if (plugin.getSystem().equalsIgnoreCase("permissions"))
         {
-            String permission = plugin.config.getString("plex." + world.getName().toLowerCase() + ".permission");
+            String permission = plugin.config.getString("worlds." + world.getName().toLowerCase() + ".modification.permission");
             if (permission == null)
             {
                 return true;
@@ -170,9 +161,9 @@ public class WorldListener extends PlexListener
         }
         else if (plugin.getSystem().equalsIgnoreCase("ranks"))
         {
-            if (plugin.config.contains("worlds." + world.getName().toLowerCase() + ".requiredLevels"))
+            if (plugin.config.contains("worlds." + world.getName().toLowerCase() + ".modification.requiredLevels"))
             {
-                @NotNull List<String> requiredLevel = plugin.config.getStringList("worlds." + world.getName().toLowerCase() + ".requiredLevels");
+                @NotNull List<String> requiredLevel = plugin.config.getStringList("worlds." + world.getName().toLowerCase() + ".modification.requiredLevels");
                 if (checkLevel(plexPlayer, requiredLevel.toArray(String[]::new)))
                 {
                     return true;
@@ -186,11 +177,57 @@ public class WorldListener extends PlexListener
 
         if (showMessage)
         {
-            String noEdit = plugin.config.getString("worlds." + world.getName().toLowerCase() + ".noEdit");
+            String noEdit = plugin.config.getString("worlds." + world.getName().toLowerCase() + ".modification.message");
             if (noEdit != null)
             {
                 player.sendMessage(MiniMessage.miniMessage().deserialize(noEdit));
             }
+        }
+        return false;
+    }
+
+    /**
+     * Check if a Player has the ability to enter the requested world
+     *
+     * @param player
+     * @return
+     */
+    private boolean canEnterWorld(Player player)
+    {
+        PlexPlayer plexPlayer = plugin.getPlayerCache().getPlexPlayerMap().get(player.getUniqueId());
+        World world = player.getWorld();
+        if (plugin.getSystem().equalsIgnoreCase("permissions"))
+        {
+            String permission = plugin.config.getString("worlds." + world.getName().toLowerCase() + ".entry.permission");
+            if (permission == null)
+            {
+                return true;
+            }
+            if (plugin.getPermissionHandler().hasPermission(player, permission))
+            {
+                return true;
+            }
+        }
+        else if (plugin.getSystem().equalsIgnoreCase("ranks"))
+        {
+            if (plugin.config.contains("worlds." + world.getName().toLowerCase() + ".entry.requiredLevels"))
+            {
+                @NotNull List<String> requiredLevel = plugin.config.getStringList("worlds." + world.getName().toLowerCase() + ".entry.requiredLevels");
+                if (checkLevel(plexPlayer, requiredLevel.toArray(String[]::new)))
+                {
+                    return true;
+                }
+            }
+            else
+            {
+                return true;
+            }
+        }
+
+        String noEntry = plugin.config.getString("worlds." + world.getName().toLowerCase() + ".entry.message");
+        if (noEntry != null)
+        {
+            player.sendMessage(MiniMessage.miniMessage().deserialize(noEntry));
         }
         return false;
     }
