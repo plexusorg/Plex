@@ -4,13 +4,23 @@ import dev.plex.listener.PlexListener;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.BlockFromToEvent;
 import org.bukkit.event.block.BlockRedstoneEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.ExplosionPrimeEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 
 public class TogglesListener extends PlexListener
 {
     @EventHandler
-    public void onEntityExplode(ExplosionPrimeEvent event)
+    public void onBlockExplode(ExplosionPrimeEvent event)
+    {
+        if (!plugin.toggles.getBoolean("explosions"))
+        {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onEntityExplode(EntityExplodeEvent event)
     {
         if (!plugin.toggles.getBoolean("explosions"))
         {
