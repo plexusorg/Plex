@@ -21,10 +21,11 @@ public class ToggleMenu extends AbstractMenu implements PlexBase
     public ToggleMenu()
     {
         super("§a§lToggles");
-        Inventory inventory = Bukkit.createInventory(null, 54, PlexUtils.mmDeserialize("Toggles"));
+        Inventory inventory = Bukkit.createInventory(null, 9, PlexUtils.mmDeserialize("Toggles"));
         resetExplosionItem(inventory);
         resetFluidspreadItem(inventory);
         resetDropsItem(inventory);
+        resetRedstoneItem(inventory);
         inventories.add(inventory);
     }
 
@@ -77,6 +78,12 @@ public class ToggleMenu extends AbstractMenu implements PlexBase
             resetDropsItem(inv);
             event.getWhoClicked().sendMessage(PlexUtils.mmDeserialize("<gray>Toggled drops."));
         }
+        if (item.getType() == Material.REDSTONE)
+        {
+            plugin.toggles.set("redstone", !plugin.toggles.getBoolean("redstone"));
+            resetRedstoneItem(inv);
+            event.getWhoClicked().sendMessage(PlexUtils.mmDeserialize("<gray>Toggled redstone."));
+        }
     }
 
     public int getCurrentInventoryIndex(Inventory inventory)
@@ -124,5 +131,15 @@ public class ToggleMenu extends AbstractMenu implements PlexBase
         featherItemMeta.lore(List.of(PlexUtils.mmDeserialize("<yellow>Drops are " + (plugin.toggles.getBoolean("drops") ? "<green>enabled" : "<red>disabled"))));
         feather.setItemMeta(featherItemMeta);
         inventory.setItem(2, feather);
+    }
+
+    private void resetRedstoneItem(Inventory inventory)
+    {
+        ItemStack redstone = new ItemStack(Material.REDSTONE);
+        ItemMeta redstoneItemMeta = redstone.getItemMeta();
+        redstoneItemMeta.displayName(PlexUtils.mmDeserialize("<light_purple>Redstone"));
+        redstoneItemMeta.lore(List.of(PlexUtils.mmDeserialize("<yellow>Redstone is " + (plugin.toggles.getBoolean("redstone") ? "<green>enabled" : "<red>disabled"))));
+        redstone.setItemMeta(redstoneItemMeta);
+        inventory.setItem(3, redstone);
     }
 }

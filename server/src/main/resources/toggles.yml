@@ -8,3 +8,6 @@ fluidspread: true
 
 # Should drops be enabled?
 drops: true
+
+# Should redstone be enabled?
+redstone: true

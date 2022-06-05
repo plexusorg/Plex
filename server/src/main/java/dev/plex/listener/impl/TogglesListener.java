@@ -3,6 +3,7 @@ package dev.plex.listener.impl;
 import dev.plex.listener.PlexListener;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.BlockFromToEvent;
+import org.bukkit.event.block.BlockRedstoneEvent;
 import org.bukkit.event.entity.ExplosionPrimeEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 
@@ -32,6 +33,20 @@ public class TogglesListener extends PlexListener
         if (!plugin.toggles.getBoolean("drops"))
         {
             event.setCancelled(true);
+        }
+    }
+
+    /* I have no idea if this is the best way to do this
+    There is a very weird bug where if you try to create a loop using two repeaters and a lever, after disabling
+    and re-enabling redstone, you are unable to recreate the loop with a lever. Using a redstone torch works fine.
+    Using a lever works fine also as long as you never toggle redstone.
+     */
+    @EventHandler
+    public void onBlockRedstone(BlockRedstoneEvent event)
+    {
+        if (!plugin.toggles.getBoolean("redstone"))
+        {
+            event.setNewCurrent(0);
         }
     }
 }
