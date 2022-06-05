@@ -170,7 +170,7 @@ worlds:
   flatlands:
     name: "Flatlands"
     permission: "plex.world.flatlands"
-    noEdit: "&cYou can't edit this world!"
+    noEdit: "<red>You can't edit this world!"
     gameRules:
       # The gamerules here override the global gamerules
       - "doWeatherCycle;false"
@@ -185,7 +185,7 @@ worlds:
     permission: "plex.world.adminworld"
     requiredLevels:
       - "Rank.ADMIN" # Minimum rank requirement
-    noEdit: "&cYou can't edit this world!"
+    noEdit: "<red>You can't edit this world!"
     gameRules:
       - "doWeatherCycle;false"
       - "doDaylightCycle;false"
@@ -199,7 +199,7 @@ worlds:
     permission: "plex.world.masterbuilderworld"
     requiredLevels:
       - "Title.MASTER_BUILDER" # Title has no "minimum", so this will have to be their title
-    noEdit: "&cYou can't edit this world!"
+    noEdit: "<red>You can't edit this world!"
     gameRules:
       - "doWeatherCycle;false"
       - "doDaylightCycle;false"

@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Locale;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.command.Command;
@@ -189,7 +189,7 @@ public class WorldListener extends PlexListener
             String noEdit = plugin.config.getString("worlds." + world.getName().toLowerCase() + ".noEdit");
             if (noEdit != null)
             {
-                player.sendMessage(LegacyComponentSerializer.legacyAmpersand().deserialize(noEdit));
+                player.sendMessage(MiniMessage.miniMessage().deserialize(noEdit));
             }
         }
         return false;
