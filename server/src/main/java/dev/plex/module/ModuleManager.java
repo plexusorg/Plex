@@ -69,7 +69,7 @@ public class ModuleManager
                     Class<? extends PlexModule> module = (Class<? extends PlexModule>) Class.forName(main, true, loader);
 
                     PlexModule plexModule = module.getConstructor().newInstance();
-                    plexModule.setPlugin(Plex.get());
+                    plexModule.setPlex(Plex.get());
                     plexModule.setPlexModuleFile(plexModuleFile);
 
                     plexModule.setDataFolder(new File(Plex.get().getModulesFolder() + File.separator + plexModuleFile.getName()));

@@ -31,7 +31,7 @@ public abstract class PlexModule
     @Getter(AccessLevel.MODULE)
     private final List<PlexListener> listeners = Lists.newArrayList();
 
-    private Plex plugin;
+    private Plex plex;
     private PlexModuleFile plexModuleFile;
     private File dataFolder;
     private Logger logger;
@@ -97,10 +97,10 @@ public abstract class PlexModule
      */
     public void addDefaultMessage(String message, Object initValue)
     {
-        if (plugin.messages.getString(message) == null)
+        if (plex.messages.getString(message) == null)
         {
-            plugin.messages.set(message, initValue);
-            plugin.messages.save();
+            plex.messages.set(message, initValue);
+            plex.messages.save();
             PlexLog.debug("'{0}' message added from TFMExtras module", message);
         }
     }
@@ -113,12 +113,12 @@ public abstract class PlexModule
      */
     public void addDefaultMessage(String message, Object initValue, String... comments)
     {
-        if (plugin.messages.getString(message) == null)
+        if (plex.messages.getString(message) == null)
         {
-            plugin.messages.set(message, initValue);
-            plugin.messages.save();
-            plugin.messages.setComments(message, Arrays.asList(comments));
-            plugin.messages.save();
+            plex.messages.set(message, initValue);
+            plex.messages.save();
+            plex.messages.setComments(message, Arrays.asList(comments));
+            plex.messages.save();
             PlexLog.debug("'{0}' message added from TFMExtras module", message);
         }
     }
