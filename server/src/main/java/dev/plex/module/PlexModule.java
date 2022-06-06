@@ -50,6 +50,7 @@ public abstract class PlexModule
 
     /**
      * Registers a PlexListener within a module
+     *
      * @param listener The PlexListener to be registered
      */
     public void registerListener(PlexListener listener)
@@ -59,6 +60,7 @@ public abstract class PlexModule
 
     /**
      * Unregisters a PlexListener. Handled by Plex automatically
+     *
      * @param listener The PlexListener to be registered
      */
     public void unregisterListener(PlexListener listener)
@@ -69,6 +71,7 @@ public abstract class PlexModule
 
     /**
      * Registers a PlexCommand within a module
+     *
      * @param command The PlexCommand to be registered
      */
     public void registerCommand(PlexCommand command)
@@ -78,6 +81,7 @@ public abstract class PlexModule
 
     /**
      * Unregisters a PlexCommand. Handled by Plex automatically
+     *
      * @param command The PlexCommand to be registered
      */
     public void unregisterCommand(PlexCommand command)
@@ -92,7 +96,8 @@ public abstract class PlexModule
 
     /**
      * Adds a message to the messages.yml file
-     * @param message The key value for the message
+     *
+     * @param message   The key value for the message
      * @param initValue The message itself
      */
     public void addDefaultMessage(String message, Object initValue)
@@ -101,15 +106,16 @@ public abstract class PlexModule
         {
             plex.messages.set(message, initValue);
             plex.messages.save();
-            PlexLog.debug("'{0}' message added from TFMExtras module", message);
+            PlexLog.debug("'{0}' message added from " + plexModuleFile.getName(), message);
         }
     }
 
     /**
      * Adds a message to the messages.yml with a comment
-     * @param message The key value for the message
+     *
+     * @param message   The key value for the message
      * @param initValue The message itself
-     * @param comments The comments to be placed above the message
+     * @param comments  The comments to be placed above the message
      */
     public void addDefaultMessage(String message, Object initValue, String... comments)
     {
@@ -119,7 +125,7 @@ public abstract class PlexModule
             plex.messages.save();
             plex.messages.setComments(message, Arrays.asList(comments));
             plex.messages.save();
-            PlexLog.debug("'{0}' message added from TFMExtras module", message);
+            PlexLog.debug("'{0}' message added from " + plexModuleFile.getName(), message);
         }
     }
 
