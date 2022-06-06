@@ -48,22 +48,38 @@ public abstract class PlexModule
     {
     }
 
+    /**
+     * Registers a PlexListener within a module
+     * @param listener The PlexListener to be registered
+     */
     public void registerListener(PlexListener listener)
     {
         listeners.add(listener);
     }
 
+    /**
+     * Unregisters a PlexListener. Handled by Plex automatically
+     * @param listener The PlexListener to be registered
+     */
     public void unregisterListener(PlexListener listener)
     {
         listeners.remove(listener);
         HandlerList.unregisterAll(listener);
     }
 
+    /**
+     * Registers a PlexCommand within a module
+     * @param command The PlexCommand to be registered
+     */
     public void registerCommand(PlexCommand command)
     {
         commands.add(command);
     }
 
+    /**
+     * Unregisters a PlexCommand. Handled by Plex automatically
+     * @param command The PlexCommand to be registered
+     */
     public void unregisterCommand(PlexCommand command)
     {
         commands.remove(command);
@@ -79,7 +95,7 @@ public abstract class PlexModule
      * @param message The key value for the message
      * @param initValue The message itself
      */
-    private void addDefaultMessage(String message, Object initValue)
+    public void addDefaultMessage(String message, Object initValue)
     {
         if (plugin.messages.getString(message) == null)
         {
@@ -95,7 +111,7 @@ public abstract class PlexModule
      * @param initValue The message itself
      * @param comments The comments to be placed above the message
      */
-    private void addDefaultMessage(String message, Object initValue, String... comments)
+    public void addDefaultMessage(String message, Object initValue, String... comments)
     {
         if (plugin.messages.getString(message) == null)
         {

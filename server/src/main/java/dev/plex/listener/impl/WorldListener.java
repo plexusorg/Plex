@@ -139,9 +139,9 @@ public class WorldListener extends PlexListener
     /**
      * Check if a Player has the ability to modify the world they are in
      *
-     * @param player
-     * @param showMessage
-     * @return
+     * @param player The player who wants to modify the world
+     * @param showMessage Whether the message from the config.yml should be shown
+     * @return Returns true if the person has the ability to modify the world
      */
     private boolean canModifyWorld(Player player, boolean showMessage)
     {
@@ -188,9 +188,8 @@ public class WorldListener extends PlexListener
 
     /**
      * Check if a Player has the ability to enter the requested world
-     *
-     * @param player
-     * @return
+     * @param player The player who wants to enter the world
+     * @return Returns true if the person has the ability to enter the world
      */
     private boolean canEnterWorld(Player player)
     {
