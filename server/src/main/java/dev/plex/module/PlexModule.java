@@ -4,11 +4,13 @@ import com.google.common.collect.Lists;
 import dev.plex.Plex;
 import dev.plex.command.PlexCommand;
 import dev.plex.listener.PlexListener;
+import dev.plex.util.PlexLog;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import lombok.AccessLevel;
@@ -29,7 +31,7 @@ public abstract class PlexModule
     @Getter(AccessLevel.MODULE)
     private final List<PlexListener> listeners = Lists.newArrayList();
 
-    private Plex plex;
+    private Plex plugin;
     private PlexModuleFile plexModuleFile;
     private File dataFolder;
     private Logger logger;
@@ -70,6 +72,39 @@ public abstract class PlexModule
     public PlexCommand getCommand(String name)
     {
         return commands.stream().filter(plexCommand -> plexCommand.getName().equalsIgnoreCase(name) || plexCommand.getAliases().stream().map(String::toLowerCase).toList().contains(name.toLowerCase(Locale.ROOT))).findFirst().orElse(null);
+    }
+
+    /**
+     * Adds a message to the messages.yml file
+     * @param message The key value for the message
+     * @param initValue The message itself
+     */
+    private void addDefaultMessage(String message, Object initValue)
+    {
+        if (plugin.messages.getString(message) == null)
+        {
+            plugin.messages.set(message, initValue);
+            plugin.messages.save();
+            PlexLog.debug("'{0}' message added from TFMExtras module", message);
+        }
+    }
+
+    /**
+     * Adds a message to the messages.yml with a comment
+     * @param message The key value for the message
+     * @param initValue The message itself
+     * @param comments The comments to be placed above the message
+     */
+    private void addDefaultMessage(String message, Object initValue, String... comments)
+    {
+        if (plugin.messages.getString(message) == null)
+        {
+            plugin.messages.set(message, initValue);
+            plugin.messages.save();
+            plugin.messages.setComments(message, Arrays.asList(comments));
+            plugin.messages.save();
+            PlexLog.debug("'{0}' message added from TFMExtras module", message);
+        }
     }
 
     @Nullable

@@ -22,7 +22,6 @@ import org.bukkit.configuration.file.YamlConfiguration;
 @Getter
 public class ModuleManager
 {
-
     private final List<PlexModule> modules = Lists.newArrayList();
     private final LibraryLoader libraryLoader;
 
@@ -70,7 +69,7 @@ public class ModuleManager
                     Class<? extends PlexModule> module = (Class<? extends PlexModule>) Class.forName(main, true, loader);
 
                     PlexModule plexModule = module.getConstructor().newInstance();
-                    plexModule.setPlex(Plex.get());
+                    plexModule.setPlugin(Plex.get());
                     plexModule.setPlexModuleFile(plexModuleFile);
 
                     plexModule.setDataFolder(new File(Plex.get().getModulesFolder() + File.separator + plexModuleFile.getName()));
