@@ -22,7 +22,7 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
 import net.kyori.adventure.text.Component;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
