@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @CommandParameters(name = "localspawn", description = "Teleport to the spawnpoint of the world you are in")
-@CommandPermissions(level = Rank.OP, permission = "plex.spawnpoint", source = RequiredCommandSource.IN_GAME)
+@CommandPermissions(level = Rank.OP, permission = "plex.localspawn", source = RequiredCommandSource.IN_GAME)
 public class LocalSpawnCMD extends PlexCommand
 {
     @Override
