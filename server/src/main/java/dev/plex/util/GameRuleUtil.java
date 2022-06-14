@@ -2,7 +2,7 @@ package dev.plex.util;
 
 import dev.plex.Plex;
 import java.util.Locale;
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.bukkit.GameRule;
 import org.bukkit.World;
 
