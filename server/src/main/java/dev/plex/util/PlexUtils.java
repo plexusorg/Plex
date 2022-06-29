@@ -124,7 +124,7 @@ public class PlexUtils implements PlexBase
         {
             aprilFools = plugin.config.getBoolean("april_fools");
         }
-        ZonedDateTime date = ZonedDateTime.now(ZoneId.of(TimeUtils.TIMEZONE));
+        ZonedDateTime date = ZonedDateTime.now(ZoneId.systemDefault());
         if (aprilFools && date.getMonth() == Month.APRIL && date.getDayOfMonth() == 1)
         {
             Component component = MINI_MESSAGE.deserialize(input); // removes existing tags
