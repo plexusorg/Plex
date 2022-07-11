@@ -225,6 +225,9 @@ worlds:
       stone: 16
       bedrock: 1
 
+# Should the plugin should enable updating features?
+enable-updates: true
+
 # If you are running a custom fork of Plex, you may wish to check for updates from a different repository.
 update_repo: "plexusorg/Plex"
 

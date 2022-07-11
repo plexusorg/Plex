@@ -2,6 +2,7 @@ package dev.plex.services;
 
 import com.google.common.collect.Lists;
 import dev.plex.Plex;
+import dev.plex.PlexBase;
 import dev.plex.services.impl.AutoWipeService;
 import dev.plex.services.impl.BanService;
 import dev.plex.services.impl.CommandBlockerService;
@@ -12,7 +13,7 @@ import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitTask;
 
-public class ServiceManager
+public class ServiceManager implements PlexBase
 {
     private final List<AbstractService> services = Lists.newArrayList();
 
@@ -23,7 +24,11 @@ public class ServiceManager
         registerService(new CommandBlockerService());
         registerService(new GameRuleService());
         registerService(new TimingService());
-        registerService(new UpdateCheckerService());
+
+		if (plugin.config.getBoolean("enable-updates"))
+		{
+			registerService(new UpdateCheckerService());
+		}
     }
 
     public void startServices()
