@@ -39,10 +39,10 @@ public class PlexCMD extends PlexCommand
             send(sender, mmString("<light_purple>Authors: <gold>Telesphoreo, Taahh"));
             send(sender, mmString("<light_purple>Built by: <gold>" + BuildInfo.getAuthor() + " <light_purple>on <gold>" + BuildInfo.getDate()));
             send(sender, mmString("<light_purple>Run <gold>/plex modules <light_purple>to see a list of modules."));
-			if (plugin.config.getBoolean("enable-updates"))
-			{
-				plugin.getUpdateChecker().getUpdateStatusMessage(sender, true, 2);
-			}
+            if (plugin.config.getBoolean("enable-updates"))
+            {
+                plugin.getUpdateChecker().getUpdateStatusMessage(sender, true, 2);
+            }
             return null;
         }
         if (args[0].equalsIgnoreCase("reload"))
@@ -103,10 +103,10 @@ public class PlexCMD extends PlexCommand
                 {
                     return messageComponent("noPermissionRank", "an Owner or Developer");
                 }
-				if (!plugin.getConfig().getBoolean("enable-updates"))
-				{
-					return mmString("<red>Updating has been disabled in the config.");
-				}
+                if (!plugin.getConfig().getBoolean("enable-updates"))
+                {
+                    return mmString("<red>Updating has been disabled in the config.");
+                }
                 for (PlexModule module : plugin.getModuleManager().getModules())
                 {
                     plugin.getUpdateChecker().updateJar(sender, module.getPlexModuleFile().getName(), true);
@@ -121,10 +121,10 @@ public class PlexCMD extends PlexCommand
             {
                 return messageComponent("noPermissionRank", "an Owner or Developer");
             }
-			if (!plugin.getConfig().getBoolean("enable-updates"))
-			{
-				return mmString("<red>Updating has been disabled in the config.");
-			}
+            if (!plugin.getConfig().getBoolean("enable-updates"))
+            {
+                return mmString("<red>Updating has been disabled in the config.");
+            }
             if (!plugin.getUpdateChecker().getUpdateStatusMessage(sender, false, 0))
             {
                 return mmString("<red>Plex is already up to date!");

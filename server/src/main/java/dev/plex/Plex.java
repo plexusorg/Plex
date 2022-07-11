@@ -162,11 +162,11 @@ public class Plex extends PlexPlugin implements PlexApiProvider
             this.setPermissionHandler(new NativePermissionHandler());
         }
 
-		if (config.getBoolean("enable-updates"))
-		{
-			updateChecker = new UpdateChecker();
-			PlexLog.log("Update checking enabled");
-		}
+        if (config.getBoolean("enable-updates"))
+        {
+            updateChecker = new UpdateChecker();
+            PlexLog.log("Update checking enabled");
+        }
 
         // https://bstats.org/plugin/bukkit/Plex/14143
         Metrics metrics = new Metrics(this, 14143);

@@ -25,10 +25,10 @@ public class ServiceManager implements PlexBase
         registerService(new GameRuleService());
         registerService(new TimingService());
 
-		if (plugin.config.getBoolean("enable-updates"))
-		{
-			registerService(new UpdateCheckerService());
-		}
+        if (plugin.config.getBoolean("enable-updates"))
+        {
+            registerService(new UpdateCheckerService());
+        }
     }
 
     public void startServices()
