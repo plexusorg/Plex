@@ -38,10 +38,11 @@ public class CommandListener extends PlexListener
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onCommandBlocking(PlayerCommandPreprocessEvent event)
     {
+        String command = "/" + event.getMessage().replaceFirst("/", "").trim();
         Player player = event.getPlayer();
         PlexPlayer plexPlayer = DataUtils.getPlayer(player.getUniqueId());
-        String commandName = StringUtils.normalizeSpace(event.getMessage()).split(" ")[0].replaceFirst("/", "");
-        String arguments = StringUtils.normalizeSpace(StringUtils.normalizeSpace(event.getMessage()).replace(event.getMessage().split(" ")[0], ""));
+        String commandName = StringUtils.normalizeSpace(command).split(" ")[0].replaceFirst("/", "");
+        String arguments = StringUtils.normalizeSpace(StringUtils.normalizeSpace(command).replace(command.split(" ")[0], ""));
         PlexLog.debug("Checking Command: {0} with args {1}", commandName, arguments);
         AtomicReference<BlockedCommand> cmdRef = new AtomicReference<>();
         PlexLog.debug("Blocked Commands List: " + CommandBlockerService.getBLOCKED_COMMANDS().size());
@@ -49,7 +50,7 @@ public class CommandListener extends PlexListener
         {
             boolean matches = true;
             String[] args = blockedCommand.getCommand().split(" ");
-            String[] cmdArgs = event.getMessage().replaceFirst("/", "").split(" ");
+            String[] cmdArgs = command.replaceFirst("/", "").split(" ");
             for (int i = 0; i < args.length; i++)
             {
                 if (i + 1 > cmdArgs.length)
@@ -87,7 +88,7 @@ public class CommandListener extends PlexListener
                 if (blockedCommand.getRegex() != null)
                 {
                     Pattern pattern = Pattern.compile(blockedCommand.getRegex(), Pattern.CASE_INSENSITIVE);
-                    Matcher matcher = pattern.matcher(event.getMessage().replaceFirst("/", ""));
+                    Matcher matcher = pattern.matcher(command.replaceFirst("/", ""));
                     if (matcher.find())
                     {
                         PlexLog.debug("Player attempted to use a blocked regex");
