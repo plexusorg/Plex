@@ -31,6 +31,7 @@ chat:
 
 # Should Plex use a "true op" system with ranks or only permission nodes
 # Options are "permissions" or "ranks"
+# NOTE: If you are using a proxy such as BungeeCord or Velocity, it is highly recommended to use permissions
 system: ranks
 
 data:
