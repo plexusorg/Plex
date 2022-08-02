@@ -41,7 +41,6 @@ public class PlexPlayer
 
     @Indexed
     private String name;
-    private transient Player player;
 
     private String loginMessage;
     private String prefix;
@@ -78,7 +77,6 @@ public class PlexPlayer
         this.id = uuid.toString().substring(0, 8);
 
         this.name = "";
-        this.player = Bukkit.getPlayer(name);
 
         this.loginMessage = "";
         this.prefix = "";
@@ -106,7 +104,7 @@ public class PlexPlayer
 
     public String displayName()
     {
-        return PlainTextComponentSerializer.plainText().serialize(player.displayName());
+        return PlainTextComponentSerializer.plainText().serialize(getPlayer().displayName());
     }
 
     public Rank getRankFromString()
@@ -149,5 +147,9 @@ public class PlexPlayer
     public String toJSON()
     {
         return new GsonBuilder().registerTypeAdapter(ZonedDateTime.class, new ZonedDateTimeSerializer()).create().toJson(this);
+    }
+
+    public Player getPlayer() {
+        return Bukkit.getPlayer(this.uuid);
     }
 }
