@@ -11,6 +11,8 @@ import java.util.Locale;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.apache.commons.lang3.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -33,7 +35,7 @@ public class CommandListener extends PlexListener
             String command = event.getMessage();
             if (!pl.getUniqueId().equals(player.getUniqueId()))
             {
-                pl.sendMessage(ChatColor.GRAY + player.getName() + ": " + command);
+                pl.sendMessage(Component.text(player.getName() + ": " + command).color(NamedTextColor.GRAY));
             }
         });
     }
