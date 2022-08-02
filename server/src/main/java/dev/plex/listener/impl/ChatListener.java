@@ -84,7 +84,11 @@ public class ChatListener extends PlexListener
             }
             return component
                     .append(Component.empty())
-                    .append(SafeMiniMessage.mmDeserialize(plugin.config.getString("chat.name-color") + SafeMiniMessage.mmSerialize(sourceDisplayName)))
+                    .append(
+                            source.name().equals(sourceDisplayName) ?
+                                    SafeMiniMessage.mmDeserialize(plugin.config.getString("chat.name-color") + SafeMiniMessage.mmSerialize(sourceDisplayName))
+                                    : SafeMiniMessage.mmDeserialize(plugin.config.getString("chat.name-color")).append(sourceDisplayName)
+                    )
                     .append(Component.space())
                     .append(Component.text("»").color(NamedTextColor.GRAY))
                     .append(Component.space())

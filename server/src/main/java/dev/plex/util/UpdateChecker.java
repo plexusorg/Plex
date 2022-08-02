@@ -142,7 +142,7 @@ public class UpdateChecker implements PlexBase
                 if (verbosity >= 1)
                 {
                     sender.sendMessage(Component.text("Plex is not up to date!", NamedTextColor.RED));
-                    sender.sendMessage(Component.text("Download a new version at: " + DOWNLOAD_PAGE).color(NamedTextColor.RED));
+                    sender.sendMessage(Component.text("Download a new version at: " + DOWNLOAD_PAGE + "Plex").color(NamedTextColor.RED));
                     sender.sendMessage(Component.text("Or run: /plex update").color(NamedTextColor.RED));
                 }
                 return true;
