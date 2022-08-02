@@ -1,6 +1,5 @@
 package dev.plex.listener.impl;
 
-import dev.plex.api.chat.IChatHandler;
 import dev.plex.listener.PlexListener;
 import dev.plex.listener.annotation.Toggleable;
 import dev.plex.player.PlexPlayer;
@@ -21,6 +20,7 @@ import org.jetbrains.annotations.NotNull;
 @Toggleable("chat.enabled")
 public class ChatListener extends PlexListener
 {
+
     private final static TextReplacementConfig URL_REPLACEMENT_CONFIG = TextReplacementConfig
             .builder()
             .match("(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]")
@@ -29,36 +29,26 @@ public class ChatListener extends PlexListener
                     .clickEvent(ClickEvent.openUrl(
                             matchResult.group()
                     ))).build();
+    private final PlexChatRenderer renderer = new PlexChatRenderer();
 
     @EventHandler
     public void onChat(AsyncChatEvent event)
     {
-        plugin.getChatHandler().doChat(event);
-    }
+        PlexPlayer plexPlayer = plugin.getPlayerCache().getPlexPlayerMap().get(event.getPlayer().getUniqueId());
+        Component prefix = plugin.getRankManager().getPrefix(plexPlayer);
 
-    public static class ChatHandlerImpl implements IChatHandler
-    {
-        private final PlexChatRenderer renderer = new PlexChatRenderer();
-
-        @Override
-        public void doChat(AsyncChatEvent event)
+        if (prefix != null)
         {
-            PlexPlayer plexPlayer = plugin.getPlayerCache().getPlexPlayerMap().get(event.getPlayer().getUniqueId());
-            Component prefix = plugin.getRankManager().getPrefix(plexPlayer);
-
-            if (prefix != null)
-            {
-                renderer.hasPrefix = true;
-                renderer.prefix = prefix;
-            }
-            else
-            {
-                renderer.hasPrefix = false;
-                renderer.prefix = null;
-            }
-
-            event.renderer(renderer);
+            renderer.hasPrefix = true;
+            renderer.prefix = prefix;
         }
+        else
+        {
+            renderer.hasPrefix = false;
+            renderer.prefix = null;
+        }
+
+        event.renderer(renderer);
     }
 
     public static class PlexChatRenderer implements ChatRenderer

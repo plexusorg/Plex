@@ -2,19 +2,12 @@ package dev.plex;
 
 import dev.plex.admin.Admin;
 import dev.plex.admin.AdminList;
-import dev.plex.api.PlexApi;
-import dev.plex.api.PlexApiProvider;
-import dev.plex.api.plugin.PlexPlugin;
 import dev.plex.cache.DataUtils;
 import dev.plex.cache.PlayerCache;
 import dev.plex.config.Config;
 import dev.plex.handlers.CommandHandler;
 import dev.plex.handlers.ListenerHandler;
-import dev.plex.hook.VaultHook;
-import dev.plex.listener.impl.ChatListener;
 import dev.plex.module.ModuleManager;
-import dev.plex.permission.handler.NativePermissionHandler;
-import dev.plex.permission.handler.VaultPermissionHandler;
 import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.PunishmentManager;
 import dev.plex.rank.RankManager;
@@ -37,29 +30,26 @@ import dev.plex.world.CustomWorld;
 import java.io.File;
 import lombok.Getter;
 import lombok.Setter;
-import org.bson.conversions.Bson;
+import net.milkbowl.vault.chat.Chat;
+import net.milkbowl.vault.permission.Permission;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
+import org.bukkit.plugin.RegisteredServiceProvider;
+import org.bukkit.plugin.java.JavaPlugin;
 
 @Getter
 @Setter
-public class Plex extends PlexPlugin implements PlexApiProvider
+public class Plex extends JavaPlugin
 {
+    public static final BuildInfo build = new BuildInfo();
     private static Plex plugin;
-
     public Config config;
     public Config messages;
     public Config indefBans;
     public Config commands;
     public Config toggles;
-
-    private PlexProvider provider;
-
     public File modulesFolder;
     private StorageType storageType = StorageType.SQLITE;
-
-    public static final BuildInfo build = new BuildInfo();
-
     private SQLConnection sqlConnection;
     private MongoConnection mongoConnection;
     private RedisConnection redisConnection;
@@ -81,6 +71,9 @@ public class Plex extends PlexPlugin implements PlexApiProvider
     private AdminList adminList;
     private UpdateChecker updateChecker;
     private String system;
+
+    private Permission permissions;
+    private Chat chat;
 
 
     public static Plex get()
@@ -110,8 +103,7 @@ public class Plex extends PlexPlugin implements PlexApiProvider
         moduleManager.loadAllModules();
         moduleManager.loadModules();
 
-        this.setChatHandler(new ChatListener.ChatHandlerImpl());
-
+        //this.setChatHandler(new ChatListener.ChatHandlerImpl());
     }
 
     @Override
@@ -145,21 +137,15 @@ public class Plex extends PlexPlugin implements PlexApiProvider
             e.printStackTrace();
         }
 
-        boolean permissions = false;
-        if (getServer().getPluginManager().isPluginEnabled("Vault"))
+        if (system.equals("permissions"))
         {
-            VaultPermissionHandler handler = new VaultPermissionHandler();
-            if (VaultHook.getPermission() != null)
+            if (!getServer().getPluginManager().isPluginEnabled("Vault"))
             {
-                this.setPermissionHandler(handler);
-                permissions = true;
-                PlexLog.debug("Enabling Vault support for permissions with a permission plugin: " + VaultHook.getPermission().getName());
+                throw new RuntimeException("Vault is required to run on the server if you use permissions!");
             }
-        }
 
-        if (!permissions)
-        {
-            this.setPermissionHandler(new NativePermissionHandler());
+            permissions = setupPermissions();
+            chat = setupChat();
         }
 
         updateChecker = new UpdateChecker();
@@ -221,8 +207,6 @@ public class Plex extends PlexPlugin implements PlexApiProvider
         }
         this.getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
 
-
-        provider = new PlexProvider();
         moduleManager.enableModules();
     }
 
@@ -284,9 +268,17 @@ public class Plex extends PlexPlugin implements PlexApiProvider
         });
     }
 
-    @Override
-    public PlexApi getApi()
+    private Permission setupPermissions()
     {
-        return provider;
+        RegisteredServiceProvider<Permission> rsp = Bukkit.getServicesManager().getRegistration(Permission.class);
+        permissions = rsp.getProvider();
+        return permissions;
+    }
+
+    private Chat setupChat()
+    {
+        RegisteredServiceProvider<Chat> rsp = Bukkit.getServicesManager().getRegistration(Chat.class);
+        chat = rsp.getProvider();
+        return chat;
     }
 }

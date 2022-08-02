@@ -27,8 +27,8 @@ public class GameRuleUtil
     private static <T> void readGameRules(World world, String s)
     {
         String gameRule = s.split(";")[0];
-        T value = (T) s.split(";")[1];
-        GameRule<T> rule = (GameRule<T>) GameRule.getByName(gameRule);
+        T value = (T)s.split(";")[1];
+        GameRule<T> rule = (GameRule<T>)GameRule.getByName(gameRule);
         if (rule != null && check(value).getClass().equals(rule.getType()))
         {
             world.setGameRule(rule, value);

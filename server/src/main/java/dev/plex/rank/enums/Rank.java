@@ -1,6 +1,5 @@
 package dev.plex.rank.enums;
 
-import dev.plex.api.rank.IRank;
 import dev.plex.util.PlexUtils;
 import lombok.Getter;
 import lombok.Setter;
@@ -9,7 +8,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import org.json.JSONObject;
 
 @Getter
-public enum Rank implements IRank<Rank>
+public enum Rank
 {
     IMPOSTOR(-1, "<aqua>an <yellow>Impostor<reset>", "Impostor", "<dark_gray>[<yellow>Imp<dark_gray>]", NamedTextColor.YELLOW),
     NONOP(0, "a <white>Non-Op<reset>", "Non-Op", "", NamedTextColor.WHITE),
@@ -19,18 +18,14 @@ public enum Rank implements IRank<Rank>
     EXECUTIVE(4, "an <red>Executive<reset>", "Executive", "<dark_gray>[<red>Exec<dark_gray>]", NamedTextColor.RED);
 
     private final int level;
-
-    @Setter
-    private String loginMessage;
-
-    @Setter
-    private String readable;
-
-    @Setter
-    private String prefix;
-
     @Getter
     private final NamedTextColor color;
+    @Setter
+    private String loginMessage;
+    @Setter
+    private String readable;
+    @Setter
+    private String prefix;
 
     Rank(int level, String loginMessage, String readable, String prefix, NamedTextColor color)
     {

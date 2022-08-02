@@ -105,7 +105,7 @@ public class LibraryLoader
         DependencyResult result;
         try
         {
-            result = repository.resolveDependencies(session, new DependencyRequest(new CollectRequest((Dependency) null, dependencies, repositories), null));
+            result = repository.resolveDependencies(session, new DependencyRequest(new CollectRequest((Dependency)null, dependencies, repositories), null));
         }
         catch (DependencyResolutionException ex)
         {

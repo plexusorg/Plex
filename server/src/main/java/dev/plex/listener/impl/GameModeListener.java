@@ -1,6 +1,6 @@
 package dev.plex.listener.impl;
 
-import dev.plex.api.event.GameModeUpdateEvent;
+import dev.plex.event.GameModeUpdateEvent;
 import dev.plex.listener.PlexListener;
 import dev.plex.util.PlexUtils;
 import org.bukkit.command.CommandSender;

@@ -1,6 +1,7 @@
-package dev.plex.api.event;
+package dev.plex.event;
 
-import dev.plex.api.player.IPlexPlayer;
+import dev.plex.player.PlexPlayer;
+import dev.plex.rank.enums.Rank;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.bukkit.command.CommandSender;
@@ -8,11 +9,11 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
 /**
- * Event that is run when a player is added to the admin list
+ * Event that is run when an admins rank is set
  */
 @EqualsAndHashCode(callSuper = false)
 @Data
-public class AdminAddEvent extends Event
+public class AdminSetRankEvent extends Event
 {
     private static final HandlerList handlers = new HandlerList();
 
@@ -22,9 +23,14 @@ public class AdminAddEvent extends Event
     private final CommandSender sender;
 
     /**
-     * The PlexPlayer that was added
+     * The PlexPlayer that was removed
      */
-    private final IPlexPlayer plexPlayer;
+    private final PlexPlayer plexPlayer;
+
+    /**
+     * The rank the player was set to
+     */
+    private final Rank rank;
 
     public static HandlerList getHandlerList()
     {

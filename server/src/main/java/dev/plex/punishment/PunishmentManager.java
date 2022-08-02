@@ -11,7 +11,6 @@ import dev.plex.storage.StorageType;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.TimeUtils;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -23,7 +22,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
-
 import lombok.Data;
 import lombok.Getter;
 import org.apache.commons.io.FileUtils;
@@ -107,7 +105,8 @@ public class PunishmentManager implements PlexBase
             {
                 DataUtils.update(plexPlayer);
             });
-        } else
+        }
+        else
         {
             Plex.get().getSqlPunishment().insertPunishment(punishment);
         }
@@ -118,7 +117,8 @@ public class PunishmentManager implements PlexBase
         try
         {
             return !FileUtils.readFileToString(file, StandardCharsets.UTF_8).trim().isEmpty();
-        } catch (IOException e)
+        }
+        catch (IOException e)
         {
             e.printStackTrace();
         }
@@ -164,7 +164,8 @@ public class PunishmentManager implements PlexBase
                 List<PlexPlayer> players = Plex.get().getMongoPlayerData().getPlayers();
                 return players.stream().map(PlexPlayer::getPunishments).flatMap(Collection::stream).filter(Punishment::isActive).filter(punishment -> punishment.getType() == PunishmentType.BAN || punishment.getType() == PunishmentType.TEMPBAN).toList();
             });
-        } else
+        }
+        else
         {
             //PlexLog.debug("Checking active bans mysql");
             CompletableFuture<List<Punishment>> future = new CompletableFuture<>();
@@ -195,7 +196,8 @@ public class PunishmentManager implements PlexBase
                         .peek(punishment -> punishment.setActive(false)).collect(Collectors.toList()));
                 DataUtils.update(plexPlayer);
             });
-        } else
+        }
+        else
         {
             return Plex.get().getSqlPunishment().removeBan(uuid);
         }
@@ -223,7 +225,8 @@ public class PunishmentManager implements PlexBase
                     Bukkit.broadcast(PlexUtils.messageComponent("unfrozePlayer", "Plex", Bukkit.getOfflinePlayer(player.getUuid()).getName()));
                 }
             }.runTaskLater(Plex.get(), 20 * seconds);
-        } else if (punishment.getType() == PunishmentType.MUTE)
+        }
+        else if (punishment.getType() == PunishmentType.MUTE)
         {
             player.setMuted(true);
             ZonedDateTime now = ZonedDateTime.now(ZoneId.of(TimeUtils.TIMEZONE));

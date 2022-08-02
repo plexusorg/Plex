@@ -1,7 +1,6 @@
 package dev.plex.cache;
 
 import com.google.common.collect.Maps;
-import dev.plex.api.IPlayerCache;
 import dev.plex.player.PlexPlayer;
 import java.util.Map;
 import java.util.UUID;
@@ -10,7 +9,7 @@ import java.util.UUID;
  * Cache storage
  */
 
-public class PlayerCache implements IPlayerCache<PlexPlayer>
+public class PlayerCache
 {
     /**
      * A key/value pair where the key is the unique ID of the Plex Player

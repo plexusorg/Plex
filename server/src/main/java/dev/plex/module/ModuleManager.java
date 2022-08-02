@@ -66,7 +66,7 @@ public class ModuleManager
 
                     PlexModuleFile plexModuleFile = new PlexModuleFile(name, main, description, version);
                     plexModuleFile.setLibraries(libraries);
-                    Class<? extends PlexModule> module = (Class<? extends PlexModule>) Class.forName(main, true, loader);
+                    Class<? extends PlexModule> module = (Class<? extends PlexModule>)Class.forName(main, true, loader);
 
                     PlexModule plexModule = module.getConstructor().newInstance();
                     plexModule.setPlex(Plex.get());
@@ -141,7 +141,7 @@ public class ModuleManager
         {
             try
             {
-                ((URLClassLoader) module.getClass().getClassLoader()).close();
+                ((URLClassLoader)module.getClass().getClassLoader()).close();
             }
             catch (IOException e)
             {

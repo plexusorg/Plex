@@ -1,9 +1,6 @@
 package dev.plex.command.impl;
 
 import com.google.common.collect.ImmutableList;
-import dev.plex.api.event.AdminAddEvent;
-import dev.plex.api.event.AdminRemoveEvent;
-import dev.plex.api.event.AdminSetRankEvent;
 import dev.plex.cache.DataUtils;
 import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
@@ -12,6 +9,9 @@ import dev.plex.command.annotation.System;
 import dev.plex.command.exception.ConsoleOnlyException;
 import dev.plex.command.exception.PlayerNotFoundException;
 import dev.plex.command.source.RequiredCommandSource;
+import dev.plex.event.AdminAddEvent;
+import dev.plex.event.AdminRemoveEvent;
+import dev.plex.event.AdminSetRankEvent;
 import dev.plex.player.PlexPlayer;
 import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexUtils;

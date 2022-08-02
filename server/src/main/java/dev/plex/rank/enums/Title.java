@@ -15,18 +15,14 @@ public enum Title
     OWNER(2, "<aqua>an <blue>Owner<reset>", "Owner", "<dark_gray>[<blue>Owner<dark_gray>]", NamedTextColor.BLUE);
 
     private final int level;
-
-    @Setter
-    private String loginMessage;
-
-    @Setter
-    private String readable;
-
-    @Setter
-    private String prefix;
-
     @Getter
     private final NamedTextColor color;
+    @Setter
+    private String loginMessage;
+    @Setter
+    private String readable;
+    @Setter
+    private String prefix;
 
     Title(int level, String loginMessage, String readable, String prefix, NamedTextColor color)
     {

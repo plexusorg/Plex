@@ -38,8 +38,8 @@ public class UpdateChecker implements PlexBase
      * > 0 = Number of commits behind
      */
     private final String DOWNLOAD_PAGE = "https://ci.plex.us.org/job/";
-    private String BRANCH = plugin.config.getString("update_branch");
     private final String REPO = plugin.config.getString("update_repo");
+    private String BRANCH = plugin.config.getString("update_branch");
     private int distance = -4;
 
     // Adapted from Paper
@@ -47,7 +47,7 @@ public class UpdateChecker implements PlexBase
     {
         try
         {
-            HttpURLConnection connection = (HttpURLConnection) new URL("https://api.github.com/repos/" + repo + "/compare/" + branch + "..." + hash).openConnection();
+            HttpURLConnection connection = (HttpURLConnection)new URL("https://api.github.com/repos/" + repo + "/compare/" + branch + "..." + hash).openConnection();
             connection.connect();
             if (connection.getResponseCode() == HttpURLConnection.HTTP_NOT_FOUND)
             {

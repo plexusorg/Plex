@@ -42,5 +42,4 @@ dependencies {
     compileOnly("org.json:json:20220320")
     compileOnly("com.velocitypowered:velocity-api:3.1.2-SNAPSHOT")
     annotationProcessor("com.velocitypowered:velocity-api:3.1.2-SNAPSHOT")
-    implementation(project(":api"))
 }

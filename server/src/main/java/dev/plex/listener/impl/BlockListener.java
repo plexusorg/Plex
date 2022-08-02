@@ -16,13 +16,10 @@ import org.bukkit.event.block.BlockPlaceEvent;
 
 public class BlockListener extends PlexListener
 {
-    public List<String> blockedPlayers = new ArrayList<>();
-
     private static final List<Material> blockedBlocks = new ArrayList<>();
-
-    private static List<String> cachedBlockedBlocksConfig = null;
-
     private static final List<Material> SIGNS = Arrays.stream(Material.values()).filter((mat) -> mat.name().endsWith("_SIGN")).toList();
+    private static List<String> cachedBlockedBlocksConfig = null;
+    public List<String> blockedPlayers = new ArrayList<>();
 
     @EventHandler(priority = EventPriority.LOW)
     public void onBlockPlace(BlockPlaceEvent event)
@@ -60,7 +57,7 @@ public class BlockListener extends PlexListener
 
         if (SIGNS.contains(block.getType()))
         {
-            Sign sign = (Sign) block.getState();
+            Sign sign = (Sign)block.getState();
             boolean anythingChanged = false;
             for (int i = 0; i < sign.lines().size(); i++)
             {

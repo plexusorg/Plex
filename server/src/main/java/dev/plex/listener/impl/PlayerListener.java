@@ -7,10 +7,8 @@ import dev.plex.storage.StorageType;
 import dev.plex.util.PermissionsUtil;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
-
 import java.util.Arrays;
 import java.util.List;
-
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -36,7 +34,8 @@ public class PlayerListener<T> extends PlexListener
         {
             player.setOp(true);
             PlexLog.debug("Automatically opped " + player.getName() + " since ranks are enabled.");
-        } else if (plugin.getSystem().equalsIgnoreCase("permissions"))
+        }
+        else if (plugin.getSystem().equalsIgnoreCase("permissions"))
         {
             player.setOp(false);
             PlexLog.debug("Automatically deopped " + player.getName() + " since ranks are disabled.");
@@ -49,7 +48,8 @@ public class PlayerListener<T> extends PlexListener
             plexPlayer.setName(player.getName()); // set the name of the player
             plexPlayer.setIps(Arrays.asList(player.getAddress().getAddress().getHostAddress().trim())); // set the arraylist of ips
             DataUtils.insert(plexPlayer); // insert data in some wack db
-        } else
+        }
+        else
         {
             plexPlayer = DataUtils.getPlayer(player.getUniqueId());
             List<String> ips = plexPlayer.getIps();

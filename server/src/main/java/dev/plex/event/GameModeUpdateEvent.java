@@ -1,4 +1,4 @@
-package dev.plex.api.event;
+package dev.plex.event;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;

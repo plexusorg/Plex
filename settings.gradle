@@ -1,5 +1,4 @@
 rootProject.name = "Plex"
-include 'api'
 include 'server'
 include 'proxy'
 

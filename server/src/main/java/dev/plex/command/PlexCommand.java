@@ -155,7 +155,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
             }
             else if (plugin.getSystem().equalsIgnoreCase("permissions"))
             {
-                if (!perms.permission().isEmpty() && !plugin.getPermissionHandler().hasPermission(player, perms.permission()))
+                if (!perms.permission().isEmpty() && !player.hasPermission(perms.permission()))
                 {
                     send(sender, messageComponent("noPermissionNode", perms.permission()));
                     return true;
@@ -191,7 +191,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
             }
             else if (plugin.getSystem().equalsIgnoreCase("permissions"))
             {
-                if (!perms.permission().isEmpty() && !plugin.getPermissionHandler().hasPermission(Bukkit.getOfflinePlayer(plexPlayer.getName()), perms.permission()))
+                if (!perms.permission().isEmpty() && !plugin.getPermissions().playerHas(null, Bukkit.getPlayer(plexPlayer.getName()), perms.permission()))
                 {
                     send(sender, messageComponent("noPermissionNode", perms.permission()));
                     return true;
@@ -206,7 +206,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
         }
         try
         {
-            Component component = this.execute(sender, isConsole(sender) ? null : (Player) sender, args);
+            Component component = this.execute(sender, isConsole(sender) ? null : (Player)sender, args);
             if (component != null)
             {
                 send(sender, component);
@@ -292,7 +292,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
     {
         if (!isConsole(sender))
         {
-            return checkRank((Player) sender, rank, permission);
+            return checkRank((Player)sender, rank, permission);
         }
         if (!sender.getName().equalsIgnoreCase("console"))
         {
@@ -310,7 +310,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
             }
             else if (plugin.getSystem().equalsIgnoreCase("permissions"))
             {
-                if (!perms.permission().isEmpty() && !plugin.getPermissionHandler().hasPermission(Bukkit.getOfflinePlayer(plexPlayer.getName()), perms.permission()))
+                if (!perms.permission().isEmpty() && !plugin.getPermissions().playerHas(null, Bukkit.getOfflinePlayer(plexPlayer.getName()), perms.permission()))
                 {
                     throw new CommandFailException(PlexUtils.messageString("noPermissionNode", permission));
                 }
@@ -348,7 +348,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
         }
         else if (plugin.getSystem().equalsIgnoreCase("permissions"))
         {
-            if (!perms.permission().isEmpty() && !plugin.getPermissionHandler().hasPermission(player, permission))
+            if (!perms.permission().isEmpty() && !player.hasPermission(perms.permission()))
             {
                 throw new CommandFailException(PlexUtils.messageString("noPermissionNode", permission));
             }
@@ -369,7 +369,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
         }
         else if (plugin.getSystem().equalsIgnoreCase("permissions"))
         {
-            return !perms.permission().isEmpty() && plugin.getPermissionHandler().hasPermission(player, permission);
+            return !perms.permission().isEmpty() && player.hasPermission(permission);
         }
         return false;
     }
@@ -387,7 +387,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
     {
         if (!isConsole(sender))
         {
-            return checkTab((Player) sender, rank, permission);
+            return checkTab((Player)sender, rank, permission);
         }
         return true;
     }
@@ -410,7 +410,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
         }
         else if (plugin.getSystem().equalsIgnoreCase("permissions"))
         {
-            return !perms.permission().isEmpty() && plugin.getPermissionHandler().hasPermission(player, permission);
+            return !perms.permission().isEmpty() && player.hasPermission(permission);
         }
         return true;
     }

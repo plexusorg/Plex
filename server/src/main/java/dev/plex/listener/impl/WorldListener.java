@@ -76,8 +76,8 @@ public class WorldListener extends PlexListener
         if (command != null)
         {
             // This does check for aliases
-            boolean isWeCommand = command instanceof PluginIdentifiableCommand && ((PluginIdentifiableCommand) command).getPlugin().equals(Bukkit.getPluginManager().getPlugin("WorldEdit"));
-            boolean isFaweCommand = command instanceof PluginIdentifiableCommand && ((PluginIdentifiableCommand) command).getPlugin().equals(Bukkit.getPluginManager().getPlugin("FastAsyncWorldEdit"));
+            boolean isWeCommand = command instanceof PluginIdentifiableCommand && ((PluginIdentifiableCommand)command).getPlugin().equals(Bukkit.getPluginManager().getPlugin("WorldEdit"));
+            boolean isFaweCommand = command instanceof PluginIdentifiableCommand && ((PluginIdentifiableCommand)command).getPlugin().equals(Bukkit.getPluginManager().getPlugin("FastAsyncWorldEdit"));
             if (isWeCommand || isFaweCommand || EDIT_COMMANDS.contains(message.toLowerCase()))
             {
                 event.getPlayer().sendMessage(Component.text("You do not have permission to use that command in this world.").color(NamedTextColor.RED));
@@ -139,7 +139,7 @@ public class WorldListener extends PlexListener
     /**
      * Check if a Player has the ability to modify the world they are in
      *
-     * @param player The player who wants to modify the world
+     * @param player      The player who wants to modify the world
      * @param showMessage Whether the message from the config.yml should be shown
      * @return Returns true if the person has the ability to modify the world
      */
@@ -154,7 +154,7 @@ public class WorldListener extends PlexListener
             {
                 return true;
             }
-            if (plugin.getPermissionHandler().hasPermission(player, permission))
+            if (player.hasPermission(permission))
             {
                 return true;
             }
@@ -188,6 +188,7 @@ public class WorldListener extends PlexListener
 
     /**
      * Check if a Player has the ability to enter the requested world
+     *
      * @param player The player who wants to enter the world
      * @return Returns true if the person has the ability to enter the world
      */
@@ -202,7 +203,7 @@ public class WorldListener extends PlexListener
             {
                 return true;
             }
-            if (plugin.getPermissionHandler().hasPermission(player, permission))
+            if (player.hasPermission(permission))
             {
                 return true;
             }

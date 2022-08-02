@@ -28,6 +28,27 @@ public class MobListener extends PlexListener
 {
     private static final List<Material> SPAWN_EGGS = Arrays.stream(Material.values()).filter((mat) -> mat.name().endsWith("_SPAWN_EGG")).toList();
 
+    private static EntityType spawnEggToEntityType(Material mat)
+    {
+        EntityType eggType;
+        try
+        {
+            if (mat == Material.MOOSHROOM_SPAWN_EGG)
+            {
+                eggType = EntityType.MUSHROOM_COW;
+            }
+            else
+            {
+                eggType = EntityType.valueOf(mat.name().substring(0, mat.name().length() - 10));
+            }
+        }
+        catch (IllegalArgumentException ignored)
+        {
+            return null;
+        }
+        return eggType;
+    }
+
     @EventHandler
     public void onEntitySpawn(EntitySpawnEvent event)
     {
@@ -56,7 +77,7 @@ public class MobListener extends PlexListener
         if (SPAWN_EGGS.contains(itemType))
         {
             Block block = event.getBlock();
-            Location blockLoc = BlockUtils.relative(block.getLocation(), ((Directional) block.getBlockData()).getFacing()).add(.5, 0, .5);
+            Location blockLoc = BlockUtils.relative(block.getLocation(), ((Directional)block.getBlockData()).getFacing()).add(.5, 0, .5);
             EntityType eggType = spawnEggToEntityType(itemType);
             if (eggType != null)
             {
@@ -107,26 +128,5 @@ public class MobListener extends PlexListener
                 return;
             }
         }
-    }
-
-    private static EntityType spawnEggToEntityType(Material mat)
-    {
-        EntityType eggType;
-        try
-        {
-            if (mat == Material.MOOSHROOM_SPAWN_EGG)
-            {
-                eggType = EntityType.MUSHROOM_COW;
-            }
-            else
-            {
-                eggType = EntityType.valueOf(mat.name().substring(0, mat.name().length() - 10));
-            }
-        }
-        catch (IllegalArgumentException ignored)
-        {
-            return null;
-        }
-        return eggType;
     }
 }

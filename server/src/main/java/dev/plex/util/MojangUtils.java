@@ -38,7 +38,7 @@ public class MojangUtils
                 return null;
             }
             client.close();
-            AshconInfo ashconInfo = new GsonBuilder().registerTypeAdapter(ZonedDateTime.class, (JsonDeserializer<ZonedDateTime>) (json1, typeOfT, context) ->
+            AshconInfo ashconInfo = new GsonBuilder().registerTypeAdapter(ZonedDateTime.class, (JsonDeserializer<ZonedDateTime>)(json1, typeOfT, context) ->
                     ZonedDateTime.ofInstant(Instant.from(DateTimeFormatter.ISO_INSTANT.parse(json1.getAsJsonPrimitive().getAsString())), ZoneId.of(Plex.get().config.getString("server.timezone")))).create().fromJson(json, AshconInfo.class);
 
             Arrays.sort(ashconInfo.getUsernameHistories(), (o1, o2) ->

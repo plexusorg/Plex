@@ -7,7 +7,6 @@ import dev.morphia.annotations.Id;
 import dev.morphia.annotations.IndexOptions;
 import dev.morphia.annotations.Indexed;
 import dev.plex.Plex;
-import dev.plex.api.player.IPlexPlayer;
 import dev.plex.permission.Permission;
 import dev.plex.punishment.Punishment;
 import dev.plex.punishment.extra.Note;
@@ -30,7 +29,7 @@ import org.bukkit.permissions.PermissionAttachment;
 @Getter
 @Setter
 @Entity(value = "players", useDiscriminator = false)
-public class PlexPlayer implements IPlexPlayer
+public class PlexPlayer
 {
     @Setter(AccessLevel.NONE)
     @Id

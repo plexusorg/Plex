@@ -1,6 +1,6 @@
-package dev.plex.api.event;
+package dev.plex.event;
 
-import dev.plex.api.player.IPlexPlayer;
+import dev.plex.player.PlexPlayer;
 import lombok.Getter;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
@@ -9,25 +9,25 @@ import org.bukkit.event.HandlerList;
  * Event that is called when a player is frozen or unfrozen
  */
 @Getter
-public class PunishedPlayerFreezeEvent extends PunishedPlayerEvent implements Cancellable
+public class PunishedPlayerLockupEvent extends PunishedPlayerEvent implements Cancellable
 {
     private static final HandlerList handlers = new HandlerList();
 
     /**
-     * New frozen state of the player
+     * New lock up state of the player
      */
-    private final boolean frozen;
+    private final boolean lockedUp;
 
     /**
      * Creates a new event instance
      *
      * @param punishedPlayer The player who was punished
-     * @param frozen         The new frozen status
+     * @param lockedUp       The new muted status
      */
-    public PunishedPlayerFreezeEvent(IPlexPlayer punishedPlayer, boolean frozen)
+    public PunishedPlayerLockupEvent(PlexPlayer punishedPlayer, boolean lockedUp)
     {
         super(punishedPlayer);
-        this.frozen = frozen;
+        this.lockedUp = lockedUp;
     }
 
     public static HandlerList getHandlerList()

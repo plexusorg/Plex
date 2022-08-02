@@ -13,7 +13,6 @@ import org.apache.commons.lang3.math.NumberUtils;
 
 public class TimeUtils
 {
-    public static String TIMEZONE = Plex.get().config.getString("server.timezone");
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("MM/dd/yyyy 'at' hh:mm:ss a z");
     private static final Set<String> TIMEZONES = Set.of(TimeZone.getAvailableIDs());
     private static final List<String> timeUnits = new ArrayList<>()
@@ -26,6 +25,7 @@ public class TimeUtils
         add("mo");
         add("y");
     }};
+    public static String TIMEZONE = Plex.get().config.getString("server.timezone");
 
     private static int parseInteger(String s) throws NumberFormatException
     {

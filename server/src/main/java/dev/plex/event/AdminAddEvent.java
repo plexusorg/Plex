@@ -1,6 +1,6 @@
-package dev.plex.api.event;
+package dev.plex.event;
 
-import dev.plex.api.player.IPlexPlayer;
+import dev.plex.player.PlexPlayer;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.bukkit.command.CommandSender;
@@ -8,11 +8,11 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
 /**
- * Event that is run when a player is removed from the admin list
+ * Event that is run when a player is added to the admin list
  */
 @EqualsAndHashCode(callSuper = false)
 @Data
-public class AdminRemoveEvent extends Event
+public class AdminAddEvent extends Event
 {
     private static final HandlerList handlers = new HandlerList();
 
@@ -22,9 +22,9 @@ public class AdminRemoveEvent extends Event
     private final CommandSender sender;
 
     /**
-     * The PlexPlayer that was removed
+     * The PlexPlayer that was added
      */
-    private final IPlexPlayer plexPlayer;
+    private final PlexPlayer plexPlayer;
 
     public static HandlerList getHandlerList()
     {

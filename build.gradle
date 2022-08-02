@@ -60,7 +60,6 @@ subprojects {
 }
 
 clean {
-    dependsOn(":api:clean")
     dependsOn(":server:clean")
     dependsOn(":proxy:clean")
 }
