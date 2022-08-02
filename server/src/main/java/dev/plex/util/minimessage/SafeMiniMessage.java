@@ -39,7 +39,7 @@ public class SafeMiniMessage
     public static class SafeMiniMessageTagResolver implements TagResolver
     {
         private static final TagResolver STANDARD_RESOLVER = TagResolver.standard();
-        private static final List<String> IGNORED_TAGS = ImmutableList.of("obfuscated", "obf", "br", "newline");
+        private static final List<String> IGNORED_TAGS = ImmutableList.of("obfuscated", "obf", "br", "newline", "lang", "key");
 
         @Override
         public @Nullable Tag resolve(@NotNull String name, @NotNull ArgumentQueue arguments, @NotNull Context ctx) throws ParsingException
