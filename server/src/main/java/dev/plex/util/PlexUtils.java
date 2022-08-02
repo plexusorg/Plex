@@ -1,5 +1,6 @@
 package dev.plex.util;
 
+import com.google.common.base.CharMatcher;
 import dev.plex.Plex;
 import dev.plex.PlexBase;
 import dev.plex.storage.StorageType;
@@ -228,5 +229,10 @@ public class PlexUtils implements PlexBase
         {
             pl.sendMessage(component);
         });
+    }
+
+    public static String cleanString(String input)
+    {
+        return CharMatcher.ascii().retainFrom(input);
     }
 }
