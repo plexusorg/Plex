@@ -29,7 +29,6 @@ public class CommandListener extends PlexListener
             return player.isCommandSpy() && hasCommandSpy(plugin.getPlayerCache().getPlexPlayer(pl.getUniqueId()));
         }).forEach(pl ->
         {
-            System.out.println("Sending to " + pl.getUniqueId());
             Player player = event.getPlayer();
             String command = event.getMessage();
             if (!pl.getUniqueId().equals(player.getUniqueId()))
