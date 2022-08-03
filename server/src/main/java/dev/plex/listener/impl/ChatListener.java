@@ -5,8 +5,11 @@ import dev.plex.listener.annotation.Toggleable;
 import dev.plex.player.PlexPlayer;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.minimessage.SafeMiniMessage;
+import dev.plex.util.redis.MessageUtil;
 import io.papermc.paper.chat.ChatRenderer;
 import io.papermc.paper.event.player.AsyncChatEvent;
+
+import java.util.UUID;
 import java.util.function.Supplier;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
@@ -21,7 +24,7 @@ import org.jetbrains.annotations.NotNull;
 public class ChatListener extends PlexListener
 {
 
-    private final static TextReplacementConfig URL_REPLACEMENT_CONFIG = TextReplacementConfig
+    public static final TextReplacementConfig URL_REPLACEMENT_CONFIG = TextReplacementConfig
             .builder()
             .match("(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]")
             .replacement((matchResult, builder) -> Component.empty()
@@ -35,6 +38,12 @@ public class ChatListener extends PlexListener
     public void onChat(AsyncChatEvent event)
     {
         PlexPlayer plexPlayer = plugin.getPlayerCache().getPlexPlayerMap().get(event.getPlayer().getUniqueId());
+        if (plexPlayer.isStaffChat()) {
+            MessageUtil.sendStaffChat(event.getPlayer(), event.message(), PlexUtils.adminChat(event.getPlayer().getName(), SafeMiniMessage.mmSerialize(event.message())).toArray(UUID[]::new));
+            plugin.getServer().getConsoleSender().sendMessage(PlexUtils.messageComponent("adminChatFormat", event.getPlayer().getName(), SafeMiniMessage.mmSerialize(event.message())).replaceText(URL_REPLACEMENT_CONFIG));
+            event.setCancelled(true);
+            return;
+        }
         Component prefix = plugin.getRankManager().getPrefix(plexPlayer);
 
         if (prefix != null)

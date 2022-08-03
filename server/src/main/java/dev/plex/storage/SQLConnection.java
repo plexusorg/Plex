@@ -67,7 +67,8 @@ public class SQLConnection implements PlexBase
                     "`login_msg` VARCHAR(2000), " +
                     "`prefix` VARCHAR(2000), " +
                     "`rank` VARCHAR(20), " +
-                    "`adminActive` BOOLEAN," +
+                    "`adminActive` BOOLEAN, " +
+                    "`staffChat` BOOLEAN, " +
                     "`ips` VARCHAR(2000), " +
                     "`coins` BIGINT, " +
                     "`vanished` BOOLEAN, " +
@@ -96,6 +97,11 @@ public class SQLConnection implements PlexBase
                     "`permission` VARCHAR(1000) NOT NULL," +
                     "`allowed` BOOLEAN" +
                     ");").execute();
+            // Plex 1.2
+
+            try {
+                con.prepareStatement("ALTER TABLE `players` ADD COLUMN `staffChat` BOOLEAN DEFAULT false;").execute();
+            } catch (SQLException ignored) {}
         }
         catch (SQLException throwables)
         {

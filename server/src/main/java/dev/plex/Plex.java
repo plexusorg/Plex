@@ -26,6 +26,7 @@ import dev.plex.util.BungeeUtil;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.UpdateChecker;
+import dev.plex.util.redis.MessageUtil;
 import dev.plex.world.CustomWorld;
 import java.io.File;
 import lombok.Getter;
@@ -36,6 +37,7 @@ import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
+import redis.clients.jedis.Jedis;
 
 @Getter
 @Setter
@@ -159,6 +161,8 @@ public class Plex extends JavaPlugin
         {
             redisConnection.getJedis();
             PlexLog.log("Connected to Redis!");
+            MessageUtil.subscribe();
+
         }
         else
         {

@@ -45,6 +45,7 @@ public class PlexPlayer
     private String loginMessage;
     private String prefix;
 
+    private boolean staffChat;
     private boolean vanished;
     private boolean commandSpy;
 

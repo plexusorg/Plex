@@ -124,6 +124,8 @@ disabled: "<gray>disabled."
 # 0 - The admin / staff member
 # 1 - The message
 adminChatFormat: '<dark_gray>[<blue>AdminChat<dark_gray>] <dark_red>{0} <gray>» <gold>{1}'
+# 0 - Whether it was toggled on or off
+adminChatToggled: '<gray>AdminChat was toggled {0}'
 # 0 - Maximum length, configured in config.yml
 maximumPrefixLength: "<red>The maximum length for a tag may only be {0}."
 prefixCleared: "<aqua>Your prefix has been cleared."
