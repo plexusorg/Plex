@@ -1,5 +1,5 @@
 For those who are wanting to contribute, we fully encourage doing so. There are a few rules we require following when
-contributing however.
+contributing.
 
 ## Steps
 
@@ -17,7 +17,8 @@ contributing however.
 - Keep in mind that it **must** be formatted correctly. If you are using IntelliJ, there is a `codeStyle.xml` file that
   tells IntelliJ how to format your code. Check this link for information on how to use the
   file: https://www.jetbrains.com/help/idea/configuring-code-style.html#import-export-schemes
-- If you are not using IntelliJ, that is fine. We use Allman style so please format your code accordingly.
+- If you are not using IntelliJ, that is fine. We use the Plexus Code Style (which is almost the same as Allman) so
+  please format your code accordingly.
 
 6. Push your changes to your new branch and make a PR based off of that branch.
 

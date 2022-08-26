@@ -12,7 +12,6 @@ import java.util.List;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -166,7 +165,7 @@ public class PunishedPlayerMenu extends AbstractMenu
             PlexPlayer punishedPlayer = DataUtils.getPlayer(player.getUniqueId()) == null ? null : Plex.get().getPlayerCache().getPlexPlayer(player.getUniqueId());
             if (punishedPlayer == null)
             {
-                event.getWhoClicked().sendMessage(ChatColor.RED + "This player does not exist. Try doing /punishments <player> instead.");
+                event.getWhoClicked().sendMessage(Component.text("This player does not exist. Try doing /punishments <player> instead.").color(NamedTextColor.RED));
                 event.getWhoClicked().closeInventory();
                 return;
             }

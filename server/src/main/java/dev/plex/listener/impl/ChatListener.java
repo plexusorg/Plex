@@ -8,7 +8,6 @@ import dev.plex.util.minimessage.SafeMiniMessage;
 import dev.plex.util.redis.MessageUtil;
 import io.papermc.paper.chat.ChatRenderer;
 import io.papermc.paper.event.player.AsyncChatEvent;
-
 import java.util.UUID;
 import java.util.function.Supplier;
 import net.kyori.adventure.audience.Audience;
