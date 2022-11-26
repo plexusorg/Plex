@@ -185,7 +185,7 @@ public class PlexUtils implements PlexBase
     {
         try
         {
-            return ((TextComponent) component).content();
+            return ((TextComponent)component).content();
         }
         catch (Exception e)
         {

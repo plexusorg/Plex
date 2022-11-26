@@ -77,7 +77,7 @@ public class PlayerListener<T> extends PlexListener
         String loginMessage = plugin.getRankManager().getLoginMessage(plexPlayer);
         if (!loginMessage.isEmpty())
         {
-            PlexUtils.broadcast(PlexUtils.mmDeserialize("<aqua>" + player.getName() + " is " + loginMessage));
+            PlexUtils.broadcast(loginMessage);
         }
 
         PermissionsUtil.setupPermissions(player);

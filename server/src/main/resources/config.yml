@@ -34,6 +34,13 @@ chat:
 # NOTE: If you are using a proxy such as BungeeCord or Velocity, it is highly recommended to use permissions
 system: ranks
 
+# Login Messages
+loginmessages:
+  # Should the player be required to put their name in the login message?
+  name: true
+  # If ranks are enabled, should the player be required to put their rank in the login message?
+  rank: true
+
 data:
   central:
     storage: sqlite # Use mariadb, mongodb, or sqlite here

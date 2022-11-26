@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 import lombok.SneakyThrows;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -133,25 +134,33 @@ public class RankManager
 
     public String getLoginMessage(PlexPlayer player)
     {
+        String prepend;
+        // We don't want to prepend the "<player> is" if the login message is custom
         if (!player.getLoginMessage().isEmpty())
         {
-            return player.getLoginMessage();
+            return player.getLoginMessage()
+                    .replace("%player%", player.getName())
+                    .replace("%rank%", player.getRank());
+        }
+        else
+        {
+            prepend = MiniMessage.miniMessage().serialize(Component.text(player.getName() + " is ").color(NamedTextColor.AQUA));
         }
         if (Plex.get().config.contains("titles.owners") && Plex.get().config.getStringList("titles.owners").contains(player.getName()))
         {
-            return Title.OWNER.getLoginMessage();
+            return prepend + Title.OWNER.getLoginMessage();
         }
         if (PlexUtils.DEVELOPERS.contains(player.getUuid().toString())) // don't remove or we will front door ur mother
         {
-            return Title.DEV.getLoginMessage();
+            return prepend + Title.DEV.getLoginMessage();
         }
         if (Plex.get().config.contains("titles.masterbuilders") && Plex.get().config.getStringList("titles.masterbuilders").contains(player.getName()))
         {
-            return Title.MASTER_BUILDER.getLoginMessage();
+            return prepend + Title.MASTER_BUILDER.getLoginMessage();
         }
         if (Plex.get().getSystem().equalsIgnoreCase("ranks") && isAdmin(player))
         {
-            return player.getRankFromString().getLoginMessage();
+            return prepend + player.getRankFromString().getLoginMessage();
         }
         return "";
     }
