@@ -22,7 +22,7 @@ public class CommandSpyCMD extends PlexCommand
     {
         if (playerSender != null)
         {
-            PlexPlayer plexPlayer = DataUtils.getPlayer(playerSender.getUniqueId());
+            PlexPlayer plexPlayer = plugin.getPlayerCache().getPlexPlayer(playerSender.getUniqueId());
             plexPlayer.setCommandSpy(!plexPlayer.isCommandSpy());
             DataUtils.update(plexPlayer);
             send(sender, messageComponent("toggleCommandSpy")
