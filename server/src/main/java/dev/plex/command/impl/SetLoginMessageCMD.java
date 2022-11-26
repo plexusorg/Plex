@@ -34,6 +34,8 @@ public class SetLoginMessageCMD extends PlexCommand
         {
             if (args[0].equals("-o"))
             {
+                checkRank(sender, Rank.SENIOR_ADMIN, "plex.setloginmessage.others");
+
                 if (args.length < 2)
                 {
                     return messageComponent("specifyPlayer");

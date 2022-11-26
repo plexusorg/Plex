@@ -31,6 +31,8 @@ public class RemoveLoginMessageCMD extends PlexCommand
         }
         else if (args[0].equalsIgnoreCase("-o"))
         {
+            checkRank(sender, Rank.SENIOR_ADMIN, "plex.removeloginmessage.others");
+
             if (args.length < 2)
             {
                 return messageComponent("specifyPlayer");
