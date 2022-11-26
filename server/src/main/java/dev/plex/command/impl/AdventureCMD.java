@@ -29,7 +29,7 @@ public class AdventureCMD extends PlexCommand
         {
             if (isConsole(sender))
             {
-                throw new CommandFailException(PlexUtils.messageString("consoleMustDefinePlayer"));
+                throw new CommandFailException(messageString("consoleMustDefinePlayer"));
             }
             Bukkit.getServer().getPluginManager().callEvent(new GameModeUpdateEvent(sender, playerSender, GameMode.ADVENTURE));
             return null;

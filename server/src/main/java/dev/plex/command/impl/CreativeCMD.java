@@ -29,7 +29,7 @@ public class CreativeCMD extends PlexCommand
         {
             if (isConsole(sender))
             {
-                throw new CommandFailException(PlexUtils.messageString("consoleMustDefinePlayer"));
+                throw new CommandFailException(messageString("consoleMustDefinePlayer"));
             }
             if (!(playerSender == null))
             {
