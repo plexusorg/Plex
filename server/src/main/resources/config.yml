@@ -223,7 +223,7 @@ worlds:
       requiredLevels:
         # Title has no "minimum", so this will have to be their title
         - "Title.MASTER_BUILDER"
-      message: "<red><red>You do not have permission to modify this world."
+      message: "<red>You do not have permission to modify this world."
     gameRules:
       - "doWeatherCycle;false"
       - "doDaylightCycle;false"
