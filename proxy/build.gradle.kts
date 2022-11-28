@@ -1,5 +1,5 @@
 plugins {
-    id("net.kyori.blossom") version "1.3.0"
+    id("net.kyori.blossom") version "1.3.1"
 }
 
 group = rootProject.group
@@ -39,7 +39,7 @@ publishing {
 dependencies {
     compileOnly("org.projectlombok:lombok:1.18.24")
     annotationProcessor("org.projectlombok:lombok:1.18.24")
-    compileOnly("org.json:json:20220320")
+    compileOnly("org.json:json:20220924")
     compileOnly("com.velocitypowered:velocity-api:3.1.2-SNAPSHOT")
     annotationProcessor("com.velocitypowered:velocity-api:3.1.2-SNAPSHOT")
 }
