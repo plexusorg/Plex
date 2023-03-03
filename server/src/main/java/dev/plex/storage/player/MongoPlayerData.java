@@ -3,8 +3,8 @@ package dev.plex.storage.player;
 import dev.morphia.Datastore;
 import dev.morphia.query.Query;
 import dev.morphia.query.Update;
-import dev.morphia.query.experimental.filters.Filters;
-import dev.morphia.query.experimental.updates.UpdateOperators;
+import dev.morphia.query.filters.Filters;
+import dev.morphia.query.updates.UpdateOperators;
 import dev.plex.Plex;
 import dev.plex.player.PlexPlayer;
 import java.util.Collections;
@@ -111,19 +111,18 @@ public class MongoPlayerData
         Query<PlexPlayer> filter = datastore.find(PlexPlayer.class)
                 .filter(Filters.eq("uuid", player.getUuid()));
 
-        Update<PlexPlayer> updateOps = filter
-                .update(
-                        UpdateOperators.set("name", player.getName()),
-                        UpdateOperators.set("loginMessage", player.getLoginMessage()),
-                        UpdateOperators.set("prefix", player.getPrefix()),
-                        UpdateOperators.set("vanished", player.isVanished()),
-                        UpdateOperators.set("commandSpy", player.isCommandSpy()),
-                        UpdateOperators.set("adminActive", player.isAdminActive()),
-                        UpdateOperators.set("rank", player.getRank().toLowerCase()),
-                        UpdateOperators.set("ips", player.getIps()),
-                        UpdateOperators.set("coins", player.getCoins()),
-                        UpdateOperators.set("punishments", player.getPunishments()),
-                        UpdateOperators.set("notes", player.getNotes()));
+        Update<PlexPlayer> updateOps = filter.update(
+                UpdateOperators.set("name", player.getName()),
+                UpdateOperators.set("loginMessage", player.getLoginMessage()),
+                UpdateOperators.set("prefix", player.getPrefix()),
+                UpdateOperators.set("vanished", player.isVanished()),
+                UpdateOperators.set("commandSpy", player.isCommandSpy()),
+                UpdateOperators.set("adminActive", player.isAdminActive()),
+                UpdateOperators.set("rank", player.getRank().toLowerCase()),
+                UpdateOperators.set("ips", player.getIps()),
+                UpdateOperators.set("coins", player.getCoins()),
+                UpdateOperators.set("punishments", player.getPunishments()),
+                UpdateOperators.set("notes", player.getNotes()));
 
         updateOps.execute();
     }
