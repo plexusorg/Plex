@@ -56,9 +56,9 @@ public class KickCMD extends PlexCommand
         if (args.length > 1)
         {
             reason = StringUtils.join(args, " ", 1, args.length);
-            punishment.setReason(reason);
         }
 
+        punishment.setReason(reason);
         punishment.setPunishedUsername(plexPlayer.getName());
         punishment.setEndDate(ZonedDateTime.now(ZoneId.of(TimeUtils.TIMEZONE)));
         punishment.setCustomTime(false);

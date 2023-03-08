@@ -29,7 +29,7 @@ public class TimeUtils
 
     private static int parseInteger(String s) throws NumberFormatException
     {
-        if (!NumberUtils.isNumber(s))
+        if (!NumberUtils.isCreatable(s))
         {
             throw new NumberFormatException();
         }

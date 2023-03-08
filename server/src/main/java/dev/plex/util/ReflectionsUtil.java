@@ -11,7 +11,6 @@ import java.util.Set;
 
 public class ReflectionsUtil
 {
-    @SuppressWarnings("UnstableApiUsage")
     public static Set<Class<?>> getClassesFrom(String packageName)
     {
         Set<Class<?>> classes = new HashSet<>();

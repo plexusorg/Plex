@@ -46,7 +46,7 @@ public class PlayerListener<T> extends PlexListener
             PlexLog.log("A player with this name has not joined the server before, creating new entry.");
             plexPlayer = new PlexPlayer(player.getUniqueId()); // it doesn't! okay so now create the object
             plexPlayer.setName(player.getName()); // set the name of the player
-            plexPlayer.setIps(Arrays.asList(player.getAddress().getAddress().getHostAddress().trim())); // set the arraylist of ips
+            plexPlayer.setIps(List.of(player.getAddress().getAddress().getHostAddress().trim())); // set the arraylist of ips
             DataUtils.insert(plexPlayer); // insert data in some wack db
         }
         else

@@ -12,11 +12,10 @@ import dev.plex.punishment.Punishment;
 import dev.plex.punishment.extra.Note;
 import dev.plex.rank.enums.Rank;
 import dev.plex.storage.StorageType;
-import dev.plex.util.adapter.ZonedDateTimeSerializer;
+import dev.plex.util.adapter.ZonedDateTimeAdapter;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -136,18 +135,17 @@ public class PlexPlayer
         }
     }
 
-    public CompletableFuture<List<Note>> loadNotes()
+    public void loadNotes()
     {
         if (Plex.get().getStorageType() != StorageType.MONGODB)
         {
-            return Plex.get().getSqlNotes().getNotes(this.getUuid());
+            Plex.get().getSqlNotes().getNotes(this.getUuid());
         }
-        return null;
     }
 
     public String toJSON()
     {
-        return new GsonBuilder().registerTypeAdapter(ZonedDateTime.class, new ZonedDateTimeSerializer()).create().toJson(this);
+        return new GsonBuilder().registerTypeAdapter(ZonedDateTime.class, new ZonedDateTimeAdapter()).create().toJson(this);
     }
 
     public Player getPlayer() {

@@ -125,7 +125,6 @@ public class MobListener extends PlexListener
                 {
                     clickedBlock.getWorld().spawnEntity(clickedBlock.getLocation().add(event.getBlockFace().getDirection().multiply(0.8)).add(0.5, 0.5, 0.5), eggType);
                 }
-                return;
             }
         }
     }

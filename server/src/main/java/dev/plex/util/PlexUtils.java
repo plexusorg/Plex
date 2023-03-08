@@ -76,7 +76,7 @@ public class PlexUtils implements PlexBase
     {
         if (Plex.get().getSqlConnection().getDataSource() != null)
         {
-            try (Connection con = Plex.get().getSqlConnection().getCon())
+            try (Connection ignored = Plex.get().getSqlConnection().getCon())
             {
                 if (Plex.get().getStorageType() == StorageType.MARIADB)
                 {
@@ -115,7 +115,7 @@ public class PlexUtils implements PlexBase
         List<Command> cmds = PluginCommandYamlParser.parse(plugin);
         for (Command pluginCmd : cmds)
         {
-            List<String> cmdAliases = pluginCmd.getAliases().size() > 0 ? pluginCmd.getAliases().stream().map(String::toLowerCase).collect(Collectors.toList()) : null;
+            List<String> cmdAliases = pluginCmd.getAliases().size() > 0 ? pluginCmd.getAliases().stream().map(String::toLowerCase).toList() : null;
             if (pluginCmd.getName().equalsIgnoreCase(cmd) || (cmdAliases != null && cmdAliases.contains(cmd.toLowerCase())))
             {
                 return true;

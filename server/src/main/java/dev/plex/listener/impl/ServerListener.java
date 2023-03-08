@@ -40,7 +40,7 @@ public class ServerListener extends PlexListener
             if (!samples.isEmpty())
             {
                 event.getPlayerSample().clear();
-                event.getPlayerSample().addAll(samples.stream().map(string -> string.replace("&", "§")).map(Bukkit::createProfile).collect(Collectors.toList()));
+                event.getPlayerSample().addAll(samples.stream().map(string -> string.replace("&", "§")).map(Bukkit::createProfile).toList());
             }
         }
     }

@@ -86,7 +86,6 @@ public class BlockListener extends PlexListener
         if (blockedPlayers.contains(event.getPlayer().getName()))
         {
             event.setCancelled(true);
-            return;
         }
     }
 }

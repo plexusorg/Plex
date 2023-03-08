@@ -1,13 +1,13 @@
 package dev.plex.punishment;
 
+import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import dev.morphia.annotations.Entity;
 import dev.plex.Plex;
 import dev.plex.util.MojangUtils;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.TimeUtils;
-import dev.plex.util.adapter.ZonedDateTimeDeserializer;
-import dev.plex.util.adapter.ZonedDateTimeSerializer;
+import dev.plex.util.adapter.ZonedDateTimeAdapter;
 import java.time.ZonedDateTime;
 import java.util.UUID;
 import lombok.Getter;
@@ -19,6 +19,7 @@ import net.kyori.adventure.text.Component;
 @Entity
 public class Punishment
 {
+    private static final Gson gson = new GsonBuilder().registerTypeAdapter(ZonedDateTime.class, new ZonedDateTimeAdapter()).create();
     private static final String banUrl = Plex.get().config.getString("banning.ban_url");
     private final UUID punished;
     private final UUID punisher;
@@ -54,11 +55,11 @@ public class Punishment
 
     public static Punishment fromJson(String json)
     {
-        return new GsonBuilder().registerTypeAdapter(ZonedDateTime.class, new ZonedDateTimeDeserializer()).create().fromJson(json, Punishment.class);
+        return gson.fromJson(json, Punishment.class);
     }
 
     public String toJSON()
     {
-        return new GsonBuilder().registerTypeAdapter(ZonedDateTime.class, new ZonedDateTimeSerializer()).create().toJson(this);
+        return gson.toJson(this);
     }
 }

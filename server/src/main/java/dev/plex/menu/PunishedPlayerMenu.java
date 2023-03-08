@@ -167,9 +167,7 @@ public class PunishedPlayerMenu extends AbstractMenu
             {
                 event.getWhoClicked().sendMessage(Component.text("This player does not exist. Try doing /punishments <player> instead.").color(NamedTextColor.RED));
                 event.getWhoClicked().closeInventory();
-                return;
             }
-
         }
 
     }

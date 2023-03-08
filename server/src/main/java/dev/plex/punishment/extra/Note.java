@@ -2,7 +2,7 @@ package dev.plex.punishment.extra;
 
 import com.google.gson.GsonBuilder;
 import dev.morphia.annotations.Entity;
-import dev.plex.util.adapter.ZonedDateTimeSerializer;
+import dev.plex.util.adapter.ZonedDateTimeAdapter;
 import java.time.ZonedDateTime;
 import java.util.UUID;
 import lombok.Data;
@@ -20,6 +20,6 @@ public class Note
 
     public String toJSON()
     {
-        return new GsonBuilder().registerTypeAdapter(ZonedDateTime.class, new ZonedDateTimeSerializer()).create().toJson(this);
+        return new GsonBuilder().registerTypeAdapter(ZonedDateTime.class, new ZonedDateTimeAdapter()).create().toJson(this);
     }
 }

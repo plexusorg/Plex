@@ -24,6 +24,7 @@ public class GameRuleUtil
         }
     }
 
+    @SuppressWarnings("unchecked")
     private static <T> void readGameRules(World world, String s)
     {
         String gameRule = s.split(";")[0];
@@ -47,7 +48,7 @@ public class GameRuleUtil
             return Boolean.parseBoolean(value.toString());
         }
 
-        if (NumberUtils.isNumber(value.toString()))
+        if (NumberUtils.isCreatable(value.toString()))
         {
             return Integer.parseInt(value.toString());
         }

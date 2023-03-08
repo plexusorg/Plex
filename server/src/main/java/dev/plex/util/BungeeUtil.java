@@ -20,6 +20,7 @@ public class BungeeUtil
         return Bukkit.spigot().getPaperConfig().getBoolean("settings.velocity-support.enabled") && !Bukkit.spigot().getPaperConfig().getString("settings.velocity-support.secret", "").isEmpty();
     }
 
+    @SuppressWarnings("UnstableApiUsage")
     public static void kickPlayer(Player player, Component message)
     {
         if (isBungeeCord() || isVelocity())
