@@ -1,28 +1,28 @@
 package dev.plex.rank;
 
 import dev.plex.Plex;
+import dev.plex.PlexBase;
 import dev.plex.hook.VaultHook;
 import dev.plex.player.PlexPlayer;
 import dev.plex.rank.enums.Rank;
 import dev.plex.rank.enums.Title;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.minimessage.SafeMiniMessage;
+import lombok.SneakyThrows;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import org.bukkit.Bukkit;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.json.JSONTokener;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.stream.Collectors;
-import lombok.SneakyThrows;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.json.JSONTokener;
 
 public class RankManager
 {
@@ -96,92 +96,94 @@ public class RankManager
         }
     }
 
-    public Component getPrefix(PlexPlayer player)
+    public Component getConfigPrefixes(PlexPlayer plexPlayer)
     {
-        if (player.getPrefix() != null && !player.getPrefix().isEmpty())
-        {
-            return SafeMiniMessage.mmDeserializeWithoutEvents(player.getPrefix());
-        }
-        if (Plex.get().config.contains("titles.owners") && Plex.get().config.getStringList("titles.owners").contains(player.getName()))
+        if (Plex.get().config.contains("titles.owners") && Plex.get().config.getStringList("titles.owners").contains(plexPlayer.getName()))
         {
             return Title.OWNER.getPrefix();
         }
-        if (PlexUtils.DEVELOPERS.contains(player.getUuid().toString())) // don't remove or we will front door ur mother
+        if (PlexUtils.DEVELOPERS.contains(plexPlayer.getUuid().toString())) // don't remove or we will front door ur mother
         {
             return Title.DEV.getPrefix();
         }
-        if (Plex.get().config.contains("titles.masterbuilders") && Plex.get().config.getStringList("titles.masterbuilders").contains(player.getName()))
+        if (Plex.get().config.contains("titles.masterbuilders") && Plex.get().config.getStringList("titles.masterbuilders").contains(plexPlayer.getName()))
         {
             return Title.MASTER_BUILDER.getPrefix();
         }
-        if (Plex.get().getSystem().equalsIgnoreCase("ranks") && isAdmin(player))
+        if (Plex.get().getSystem().equalsIgnoreCase("ranks") && isAdmin(plexPlayer))
         {
-            return player.getRankFromString().getPrefix();
-        }
-        if (Bukkit.getServer().getPluginManager().isPluginEnabled("Vault") && Plex.get().getSystem().equalsIgnoreCase("permissions"))
-        {
-            if (VaultHook.getChat() == null || VaultHook.getPermission() == null)
-            {
-                return null;
-            }
-            Player bukkitPlayer = Bukkit.getPlayer(player.getUuid());
-            String group = VaultHook.getPermission().getPrimaryGroup(bukkitPlayer);
-            String vaultPrefix = VaultHook.getChat().getGroupPrefix(bukkitPlayer.getWorld(), group);
-            return LegacyComponentSerializer.legacyAmpersand().deserialize(vaultPrefix);
+            return plexPlayer.getRankFromString().getPrefix();
         }
         return null;
     }
 
-    public String getLoginMessage(PlexPlayer player)
+    public Component getPrefix(PlexPlayer plexPlayer)
+    {
+        if (plexPlayer.getPrefix() != null && !plexPlayer.getPrefix().isEmpty())
+        {
+            return SafeMiniMessage.mmDeserializeWithoutEvents(plexPlayer.getPrefix());
+        }
+        if (getConfigPrefixes(plexPlayer) != null)
+        {
+            getConfigPrefixes(plexPlayer);
+        }
+        if (Bukkit.getServer().getPluginManager().isPluginEnabled("Vault") && Plex.get().getSystem().equalsIgnoreCase("permissions"))
+        {
+            return VaultHook.getPrefix(plexPlayer);
+        }
+        return null;
+    }
+
+    public String getLoginMessage(PlexPlayer plexPlayer)
     {
         String prepend;
         // We don't want to prepend the "<player> is" if the login message is custom
-        if (!player.getLoginMessage().isEmpty())
+        if (!plexPlayer.getLoginMessage().isEmpty())
         {
-            return player.getLoginMessage()
-                    .replace("%player%", player.getName())
-                    .replace("%rank%", player.getRank());
+            return plexPlayer.getLoginMessage()
+                    .replace("%player%", plexPlayer.getName())
+                    .replace("%rank%", plexPlayer.getRank());
         }
         else
         {
-            prepend = MiniMessage.miniMessage().serialize(Component.text(player.getName() + " is ").color(NamedTextColor.AQUA));
+            prepend = MiniMessage.miniMessage().serialize(Component.text(plexPlayer.getName() + " is ").color(NamedTextColor.AQUA));
         }
-        if (Plex.get().config.contains("titles.owners") && Plex.get().config.getStringList("titles.owners").contains(player.getName()))
+        if (Plex.get().config.contains("titles.owners") && Plex.get().config.getStringList("titles.owners").contains(plexPlayer.getName()))
         {
             return prepend + Title.OWNER.getLoginMessage();
         }
-        if (PlexUtils.DEVELOPERS.contains(player.getUuid().toString())) // don't remove or we will front door ur mother
+        if (PlexUtils.DEVELOPERS.contains(plexPlayer.getUuid().toString())) // don't remove or we will front door ur mother
         {
             return prepend + Title.DEV.getLoginMessage();
         }
-        if (Plex.get().config.contains("titles.masterbuilders") && Plex.get().config.getStringList("titles.masterbuilders").contains(player.getName()))
+        if (Plex.get().config.contains("titles.masterbuilders") && Plex.get().config.getStringList("titles.masterbuilders").contains(plexPlayer.getName()))
         {
             return prepend + Title.MASTER_BUILDER.getLoginMessage();
         }
-        if (Plex.get().getSystem().equalsIgnoreCase("ranks") && isAdmin(player))
+        if (Plex.get().getSystem().equalsIgnoreCase("ranks") && isAdmin(plexPlayer))
         {
-            return prepend + player.getRankFromString().getLoginMessage();
+            return prepend + plexPlayer.getRankFromString().getLoginMessage();
         }
         return "";
     }
 
-    public NamedTextColor getColor(PlexPlayer player)
+    public NamedTextColor getColor(PlexPlayer plexPlayer)
     {
-        if (Plex.get().config.contains("titles.owners") && Plex.get().config.getStringList("titles.owners").contains(player.getName()))
+        if (Plex.get().config.contains("titles.owners") && Plex.get().config.getStringList("titles.owners").contains(plexPlayer.getName()))
         {
             return Title.OWNER.getColor();
         }
-        if (PlexUtils.DEVELOPERS.contains(player.getUuid().toString())) // don't remove or we will front door ur mother
+        if (PlexUtils.DEVELOPERS.contains(plexPlayer.getUuid().toString())) // don't remove or we will front door ur mother
         {
             return Title.DEV.getColor();
         }
-        if (Plex.get().config.contains("titles.masterbuilders") && Plex.get().config.getStringList("titles.masterbuilders").contains(player.getName()))
+        if (Plex.get().config.contains("titles.masterbuilders") && Plex.get().config.getStringList("titles.masterbuilders").contains(plexPlayer.getName()))
         {
             return Title.MASTER_BUILDER.getColor();
         }
-        if (Plex.get().getSystem().equalsIgnoreCase("ranks") && isAdmin(player))
+        if (Plex.get().getSystem().equalsIgnoreCase("ranks") && isAdmin(plexPlayer))
         {
-            return player.getRankFromString().getColor();
+            return plexPlayer.getRankFromString().getColor();
         }
         return NamedTextColor.WHITE;
     }

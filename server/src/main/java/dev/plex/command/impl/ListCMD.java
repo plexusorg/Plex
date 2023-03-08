@@ -4,9 +4,8 @@ import com.google.common.collect.Lists;
 import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
-import dev.plex.command.annotation.System;
+import dev.plex.hook.VaultHook;
 import dev.plex.rank.enums.Rank;
-import java.util.List;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
@@ -15,9 +14,10 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-@CommandParameters(name = "list", description = "Show a list of all online players", aliases = "lsit")
+import java.util.List;
+
+@CommandParameters(name = "list", description = "Show a list of all online players", aliases = "lsit,who,playerlist,online")
 @CommandPermissions(level = Rank.OP, permission = "plex.list")
-@System(value = "ranks")
 public class ListCMD extends PlexCommand
 {
     @Override
@@ -44,7 +44,14 @@ public class ListCMD extends PlexCommand
         for (int i = 0; i < players.size(); i++)
         {
             Player player = players.get(i);
-            list = list.append(getPlexPlayer(player).getRankFromString().getPrefix()).append(Component.space()).append(Component.text(player.getName()).color(NamedTextColor.WHITE));
+            if (plugin.getSystem().equals("ranks"))
+            {
+                list = list.append(getPlexPlayer(player).getRankFromString().getPrefix()).append(Component.space()).append(Component.text(player.getName()).color(NamedTextColor.WHITE));
+            }
+            else
+            {
+                list = list.append(VaultHook.getPrefix(getPlexPlayer(player))).append(Component.space()).append(Component.text(player.getName()).color(NamedTextColor.WHITE));
+            }
             if (i != players.size() - 1)
             {
                 list = list.append(Component.text(",")).append(Component.space());

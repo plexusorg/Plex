@@ -8,8 +8,6 @@ import dev.plex.util.minimessage.SafeMiniMessage;
 import dev.plex.util.redis.MessageUtil;
 import io.papermc.paper.chat.ChatRenderer;
 import io.papermc.paper.event.player.AsyncChatEvent;
-import java.util.UUID;
-import java.util.function.Supplier;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextReplacementConfig;
@@ -18,6 +16,9 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.UUID;
+import java.util.function.Supplier;
 
 @Toggleable("chat.enabled")
 public class ChatListener extends PlexListener
@@ -37,7 +38,8 @@ public class ChatListener extends PlexListener
     public void onChat(AsyncChatEvent event)
     {
         PlexPlayer plexPlayer = plugin.getPlayerCache().getPlexPlayerMap().get(event.getPlayer().getUniqueId());
-        if (plexPlayer.isStaffChat()) {
+        if (plexPlayer.isStaffChat())
+        {
             MessageUtil.sendStaffChat(event.getPlayer(), event.message(), PlexUtils.adminChat(event.getPlayer().getName(), SafeMiniMessage.mmSerialize(event.message())).toArray(UUID[]::new));
             plugin.getServer().getConsoleSender().sendMessage(PlexUtils.messageComponent("adminChatFormat", event.getPlayer().getName(), SafeMiniMessage.mmSerialize(event.message())).replaceText(URL_REPLACEMENT_CONFIG));
             event.setCancelled(true);
