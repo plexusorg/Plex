@@ -47,7 +47,8 @@ bukkit {
     main = "dev.plex.Plex"
     website = "https://plex.us.org"
     authors = ["Telesphoreo", "taahanis", "supernt"]
-    softDepend = ["Vault"]
+    // Load BukkitTelnet and LibsDisguises before Plex so the modules register properly
+    softDepend = ["BukkitTelnet", "LibsDisguises", "Vault"]
     apiVersion = "1.18"
 }
 
