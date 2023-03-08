@@ -7,14 +7,15 @@ import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexUtils;
-import java.util.ArrayList;
-import java.util.List;
 import net.kyori.adventure.inventory.Book;
 import net.kyori.adventure.text.Component;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @CommandParameters(name = "totalfreedommod", description = "You can't simpy do that.", aliases = "tfm")
 @CommandPermissions(level = Rank.OP, source = RequiredCommandSource.ANY)

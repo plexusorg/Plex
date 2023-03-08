@@ -15,8 +15,6 @@ import dev.plex.event.AdminSetRankEvent;
 import dev.plex.player.PlexPlayer;
 import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexUtils;
-import java.util.Arrays;
-import java.util.List;
 import net.kyori.adventure.text.Component;
 import org.apache.commons.lang3.StringUtils;
 import org.bukkit.Bukkit;
@@ -24,6 +22,9 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Arrays;
+import java.util.List;
 
 @CommandPermissions(level = Rank.OP, source = RequiredCommandSource.ANY)
 @CommandParameters(name = "admin", usage = "/<command> <add <player> | remove <player> | setrank <player> <rank> | list>", aliases = "saconfig,slconfig,adminconfig,adminmanage", description = "Manage all admins")

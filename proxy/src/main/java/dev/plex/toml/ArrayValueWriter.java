@@ -4,6 +4,7 @@ package dev.plex.toml;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
+
 import static dev.plex.toml.ValueWriters.WRITERS;
 
 public abstract class ArrayValueWriter implements dev.plex.toml.ValueWriter

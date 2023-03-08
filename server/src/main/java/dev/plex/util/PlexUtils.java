@@ -8,15 +8,6 @@ import dev.plex.listener.impl.ChatListener;
 import dev.plex.player.PlexPlayer;
 import dev.plex.rank.enums.Rank;
 import dev.plex.storage.StorageType;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.time.Month;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -29,6 +20,16 @@ import org.bukkit.command.Command;
 import org.bukkit.command.PluginCommandYamlParser;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.time.Month;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class PlexUtils implements PlexBase
 {
@@ -185,7 +186,7 @@ public class PlexUtils implements PlexBase
     {
         try
         {
-            return ((TextComponent)component).content();
+            return ((TextComponent) component).content();
         }
         catch (Exception e)
         {

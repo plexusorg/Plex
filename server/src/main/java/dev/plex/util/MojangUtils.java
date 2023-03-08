@@ -3,6 +3,13 @@ package dev.plex.util;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializer;
 import dev.plex.Plex;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -10,12 +17,6 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
-import org.json.JSONObject;
 
 public class MojangUtils
 {
@@ -38,7 +39,7 @@ public class MojangUtils
                 return null;
             }
             client.close();
-            AshconInfo ashconInfo = new GsonBuilder().registerTypeAdapter(ZonedDateTime.class, (JsonDeserializer<ZonedDateTime>)(json1, typeOfT, context) ->
+            AshconInfo ashconInfo = new GsonBuilder().registerTypeAdapter(ZonedDateTime.class, (JsonDeserializer<ZonedDateTime>) (json1, typeOfT, context) ->
                     ZonedDateTime.ofInstant(Instant.from(DateTimeFormatter.ISO_INSTANT.parse(json1.getAsJsonPrimitive().getAsString())), ZoneId.of(Plex.get().config.getString("server.timezone")))).create().fromJson(json, AshconInfo.class);
 
             Arrays.sort(ashconInfo.getUsernameHistories(), (o1, o2) ->

@@ -5,6 +5,10 @@ import dev.plex.Plex;
 import dev.plex.module.exception.ModuleLoadException;
 import dev.plex.module.loader.LibraryLoader;
 import dev.plex.util.PlexLog;
+import lombok.Getter;
+import org.apache.logging.log4j.LogManager;
+import org.bukkit.configuration.file.YamlConfiguration;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -15,9 +19,6 @@ import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
-import lombok.Getter;
-import org.apache.logging.log4j.LogManager;
-import org.bukkit.configuration.file.YamlConfiguration;
 
 @Getter
 public class ModuleManager
@@ -66,7 +67,7 @@ public class ModuleManager
 
                     PlexModuleFile plexModuleFile = new PlexModuleFile(name, main, description, version);
                     plexModuleFile.setLibraries(libraries);
-                    Class<? extends PlexModule> module = (Class<? extends PlexModule>)Class.forName(main, true, loader);
+                    Class<? extends PlexModule> module = (Class<? extends PlexModule>) Class.forName(main, true, loader);
 
                     PlexModule plexModule = module.getConstructor().newInstance();
                     plexModule.setPlex(Plex.get());
@@ -141,7 +142,7 @@ public class ModuleManager
         {
             try
             {
-                ((URLClassLoader)module.getClass().getClassLoader()).close();
+                ((URLClassLoader) module.getClass().getClassLoader()).close();
             }
             catch (IOException e)
             {

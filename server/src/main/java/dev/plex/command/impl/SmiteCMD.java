@@ -10,10 +10,6 @@ import dev.plex.punishment.PunishmentType;
 import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.TimeUtils;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.Collections;
-import java.util.List;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.title.Title;
@@ -26,6 +22,11 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Collections;
+import java.util.List;
 
 @CommandPermissions(level = Rank.ADMIN, permission = "plex.smite", source = RequiredCommandSource.ANY)
 @CommandParameters(name = "smite", usage = "/<command> <player> [reason] [-ci | -q]", description = "Someone being a little bitch? Smite them down...")

@@ -1,10 +1,11 @@
 package dev.plex.world;
 
-import java.util.Random;
 import org.bukkit.generator.BlockPopulator;
 import org.bukkit.generator.WorldInfo;
 import org.bukkit.util.noise.PerlinOctaveGenerator;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Random;
 
 public abstract class OctaveChunkGenerator extends CustomChunkGenerator
 {
@@ -24,7 +25,7 @@ public abstract class OctaveChunkGenerator extends CustomChunkGenerator
         {
             for (int zz = 0; zz < 16; zz++)
             {
-                height = (int)generator.noise(options.getX(), options.getY(), options.getFrequency(), options.getAmplitude(), options.isNormalized());
+                height = (int) generator.noise(options.getX(), options.getY(), options.getFrequency(), options.getAmplitude(), options.isNormalized());
                 createLoopChunkData(xx, height, zz, chunk);
             }
         }

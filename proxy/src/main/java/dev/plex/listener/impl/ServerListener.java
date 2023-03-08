@@ -7,13 +7,14 @@ import com.velocitypowered.api.proxy.server.ServerPing;
 import dev.plex.listener.PlexListener;
 import dev.plex.settings.ServerSettings;
 import dev.plex.util.RandomUtil;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 
 public class ServerListener extends PlexListener
 {

@@ -9,6 +9,7 @@ import dev.plex.player.PlexPlayer;
 import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexUtils;
 import org.bukkit.event.EventHandler;
+
 import static dev.plex.util.PlexUtils.messageComponent;
 
 public class AdminListener extends PlexListener

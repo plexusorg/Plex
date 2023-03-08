@@ -3,6 +3,7 @@ package dev.plex.util;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.reflect.ClassPath;
 import dev.plex.Plex;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -48,7 +49,7 @@ public class ReflectionsUtil
         {
             if (clazz.getSuperclass() == subType || Arrays.asList(clazz.getInterfaces()).contains(subType))
             {
-                classes.add((Class<? extends T>)clazz);
+                classes.add((Class<? extends T>) clazz);
             }
         });
         return Collections.unmodifiableSet(classes);

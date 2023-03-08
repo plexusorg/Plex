@@ -1,7 +1,8 @@
 package dev.plex.util;
 
-import java.util.concurrent.ThreadLocalRandom;
 import net.kyori.adventure.text.format.NamedTextColor;
+
+import java.util.concurrent.ThreadLocalRandom;
 
 public class RandomUtil
 {

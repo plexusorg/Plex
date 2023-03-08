@@ -5,7 +5,6 @@ import dev.plex.cache.DataUtils;
 import dev.plex.player.PlexPlayer;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.menu.AbstractMenu;
-import java.util.List;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
@@ -18,6 +17,8 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
+
+import java.util.List;
 
 public class PunishmentMenu extends AbstractMenu
 {
@@ -72,7 +73,7 @@ public class PunishmentMenu extends AbstractMenu
 
 
             ItemStack item = new ItemStack(Material.PLAYER_HEAD);
-            SkullMeta meta = (SkullMeta)item.getItemMeta();
+            SkullMeta meta = (SkullMeta) item.getItemMeta();
             meta.setOwningPlayer(players);
             meta.displayName(PlexUtils.mmDeserialize("<!italic><yellow>" + players.getName()));
             item.setItemMeta(meta);
@@ -122,7 +123,7 @@ public class PunishmentMenu extends AbstractMenu
                 {
                     return;
                 }
-                openInv((Player)event.getWhoClicked(), getCurrentInventoryIndex(inv) + 1);
+                openInv((Player) event.getWhoClicked(), getCurrentInventoryIndex(inv) + 1);
             }
             else if (item.getItemMeta().displayName().equals(PlexUtils.mmDeserialize("<light_purple>Previous Page")))
             {
@@ -138,13 +139,13 @@ public class PunishmentMenu extends AbstractMenu
                 {
                     return;
                 }
-                openInv((Player)event.getWhoClicked(), getCurrentInventoryIndex(inv) - 1);
+                openInv((Player) event.getWhoClicked(), getCurrentInventoryIndex(inv) - 1);
             }
 
         }
         else if (item.getType() == Material.PLAYER_HEAD)
         {
-            SkullMeta meta = (SkullMeta)item.getItemMeta();
+            SkullMeta meta = (SkullMeta) item.getItemMeta();
             OfflinePlayer player = meta.getOwningPlayer();
             assert player != null;
             PlexPlayer punishedPlayer = DataUtils.getPlayer(player.getUniqueId());
@@ -154,7 +155,7 @@ public class PunishmentMenu extends AbstractMenu
                 event.getWhoClicked().closeInventory();
                 return;
             }
-            new PunishedPlayerMenu(punishedPlayer).openInv((Player)event.getWhoClicked(), 0);
+            new PunishedPlayerMenu(punishedPlayer).openInv((Player) event.getWhoClicked(), 0);
         }
 
     }

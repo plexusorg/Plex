@@ -4,12 +4,13 @@ import dev.plex.listener.PlexListener;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import io.papermc.paper.event.player.AsyncChatEvent;
-import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+
+import java.util.List;
 
 public class MuteListener extends PlexListener
 {

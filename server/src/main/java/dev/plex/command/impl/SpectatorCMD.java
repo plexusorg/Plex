@@ -9,7 +9,6 @@ import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.event.GameModeUpdateEvent;
 import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexUtils;
-import java.util.List;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -17,6 +16,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 @CommandPermissions(level = Rank.ADMIN, permission = "plex.gamemode.spectator", source = RequiredCommandSource.ANY)
 @CommandParameters(name = "spectator", aliases = "gmsp,egmsp,spec", description = "Set your own or another player's gamemode to spectator mode")

@@ -8,13 +8,14 @@ import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.menu.ToggleMenu;
 import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexUtils;
-import java.util.List;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 @CommandParameters(name = "toggle", description = "Allows toggling various server aspects through a GUI", aliases = "toggles")
 @CommandPermissions(level = Rank.ADMIN, permission = "plex.toggle", source = RequiredCommandSource.ANY)

@@ -3,10 +3,11 @@ package dev.plex.services.impl;
 import dev.plex.Plex;
 import dev.plex.services.AbstractService;
 import dev.plex.util.TimeUtils;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
+
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 public class BanService extends AbstractService
 {

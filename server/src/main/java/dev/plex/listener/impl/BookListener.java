@@ -3,13 +3,14 @@ package dev.plex.listener.impl;
 import dev.plex.listener.PlexListener;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.minimessage.SafeMiniMessage;
-import java.util.ArrayList;
-import java.util.List;
 import net.kyori.adventure.text.Component;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerEditBookEvent;
 import org.bukkit.inventory.meta.BookMeta;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class BookListener extends PlexListener
 {
@@ -24,6 +25,6 @@ public class BookListener extends PlexListener
         }
 
 
-        event.setNewBookMeta((BookMeta)event.getNewBookMeta().pages(pages));
+        event.setNewBookMeta((BookMeta) event.getNewBookMeta().pages(pages));
     }
 }

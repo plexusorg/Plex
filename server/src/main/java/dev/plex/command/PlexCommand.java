@@ -4,18 +4,12 @@ import dev.plex.Plex;
 import dev.plex.cache.DataUtils;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
-import dev.plex.command.exception.CommandFailException;
-import dev.plex.command.exception.ConsoleMustDefinePlayerException;
-import dev.plex.command.exception.ConsoleOnlyException;
-import dev.plex.command.exception.PlayerNotBannedException;
-import dev.plex.command.exception.PlayerNotFoundException;
+import dev.plex.command.exception.*;
 import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.player.PlexPlayer;
 import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
-import java.util.Arrays;
-import java.util.UUID;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -23,14 +17,13 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandMap;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.ConsoleCommandSender;
-import org.bukkit.command.PluginIdentifiableCommand;
+import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Arrays;
+import java.util.UUID;
 
 /**
  * Superclass for all commands
@@ -206,7 +199,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
         }
         try
         {
-            Component component = this.execute(sender, isConsole(sender) ? null : (Player)sender, args);
+            Component component = this.execute(sender, isConsole(sender) ? null : (Player) sender, args);
             if (component != null)
             {
                 send(sender, component);
@@ -292,7 +285,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
     {
         if (!isConsole(sender))
         {
-            return checkRank((Player)sender, rank, permission);
+            return checkRank((Player) sender, rank, permission);
         }
         if (!sender.getName().equalsIgnoreCase("console"))
         {
@@ -387,7 +380,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
     {
         if (!isConsole(sender))
         {
-            return checkTab((Player)sender, rank, permission);
+            return checkTab((Player) sender, rank, permission);
         }
         return true;
     }

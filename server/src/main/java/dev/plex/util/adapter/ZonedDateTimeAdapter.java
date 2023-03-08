@@ -1,13 +1,8 @@
 package dev.plex.util.adapter;
 
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonPrimitive;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
+import com.google.gson.*;
 import dev.plex.Plex;
+
 import java.lang.reflect.Type;
 import java.time.Instant;
 import java.time.ZoneId;

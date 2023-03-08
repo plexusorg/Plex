@@ -3,9 +3,6 @@ package dev.plex.listener.impl;
 import dev.plex.listener.PlexListener;
 import dev.plex.util.BlockUtils;
 import dev.plex.util.PlexUtils;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -23,6 +20,10 @@ import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 
 public class MobListener extends PlexListener
 {
@@ -77,7 +78,7 @@ public class MobListener extends PlexListener
         if (SPAWN_EGGS.contains(itemType))
         {
             Block block = event.getBlock();
-            Location blockLoc = BlockUtils.relative(block.getLocation(), ((Directional)block.getBlockData()).getFacing()).add(.5, 0, .5);
+            Location blockLoc = BlockUtils.relative(block.getLocation(), ((Directional) block.getBlockData()).getFacing()).add(.5, 0, .5);
             EntityType eggType = spawnEggToEntityType(itemType);
             if (eggType != null)
             {

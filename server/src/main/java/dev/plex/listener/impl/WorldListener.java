@@ -7,9 +7,6 @@ import dev.plex.rank.enums.Rank;
 import dev.plex.rank.enums.Title;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -27,6 +24,10 @@ import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
 
 public class WorldListener extends PlexListener
 {
@@ -76,8 +77,8 @@ public class WorldListener extends PlexListener
         if (command != null)
         {
             // This does check for aliases
-            boolean isWeCommand = command instanceof PluginIdentifiableCommand && ((PluginIdentifiableCommand)command).getPlugin().equals(Bukkit.getPluginManager().getPlugin("WorldEdit"));
-            boolean isFaweCommand = command instanceof PluginIdentifiableCommand && ((PluginIdentifiableCommand)command).getPlugin().equals(Bukkit.getPluginManager().getPlugin("FastAsyncWorldEdit"));
+            boolean isWeCommand = command instanceof PluginIdentifiableCommand && ((PluginIdentifiableCommand) command).getPlugin().equals(Bukkit.getPluginManager().getPlugin("WorldEdit"));
+            boolean isFaweCommand = command instanceof PluginIdentifiableCommand && ((PluginIdentifiableCommand) command).getPlugin().equals(Bukkit.getPluginManager().getPlugin("FastAsyncWorldEdit"));
             if (isWeCommand || isFaweCommand || EDIT_COMMANDS.contains(message.toLowerCase()))
             {
                 event.getPlayer().sendMessage(Component.text("You do not have permission to use that command in this world.").color(NamedTextColor.RED));

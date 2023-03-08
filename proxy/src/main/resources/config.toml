@@ -6,26 +6,26 @@
 #############################
 
 [server]
-  name = "Plexus"
+name = "Plexus"
 
-  # Placeholders
-  # %mcversion% - The Velocity Version (i.e. 3.1.2-SNAPSHOT)
-  # %servername% - The name provided above
-  # %randomgradient% - Creates a random gradient every ping of two random colors for the whole string
-  # Supports MiniMessage strings, no legacy & and §
-  motd = ["%randomgradient%%servername% - %mcversion%", "Another motd"]
-  colorizeMotd = false
+# Placeholders
+# %mcversion% - The Velocity Version (i.e. 3.1.2-SNAPSHOT)
+# %servername% - The name provided above
+# %randomgradient% - Creates a random gradient every ping of two random colors for the whole string
+# Supports MiniMessage strings, no legacy & and §
+motd = ["%randomgradient%%servername% - %mcversion%", "Another motd"]
+colorizeMotd = false
 
-  # Enables debug messages
-  debug = false
+# Enables debug messages
+debug = false
 
-  # Due to game code only supporting legacy color codes for
-  # player samples and not components, you may only use § or & here
-  # for colors.
-  sample = ["example", "example"]
+# Due to game code only supporting legacy color codes for
+# player samples and not components, you may only use § or & here
+# for colors.
+sample = ["example", "example"]
 
-  # Adds this amount to the current player count
-  add-player-count = 0
+# Adds this amount to the current player count
+add-player-count = 0
 
-  # The max player count will always display as +1 more than the player count
-  plus-one-max-count = true
+# The max player count will always display as +1 more than the player count
+plus-one-max-count = true

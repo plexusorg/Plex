@@ -10,10 +10,11 @@ import dev.plex.config.TomlConfig;
 import dev.plex.handlers.ListenerHandler;
 import dev.plex.settings.ServerSettings;
 import dev.plex.util.PlexLog;
+import lombok.Getter;
+
 import java.io.File;
 import java.nio.file.Path;
 import java.util.logging.Logger;
-import lombok.Getter;
 
 /**
  * Credits for TOML library go to https://github.com/mwanji/toml4j

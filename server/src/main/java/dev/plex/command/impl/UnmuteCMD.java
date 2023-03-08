@@ -8,12 +8,13 @@ import dev.plex.command.exception.CommandFailException;
 import dev.plex.player.PlexPlayer;
 import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexUtils;
-import java.util.List;
 import net.kyori.adventure.text.Component;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 @CommandPermissions(level = Rank.ADMIN, permission = "plex.unmute")
 @CommandParameters(name = "unmute", description = "Unmute a player", usage = "/<command> <player>")

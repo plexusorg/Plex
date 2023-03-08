@@ -1,9 +1,10 @@
 package dev.plex.command.blocking;
 
 import com.google.common.collect.Lists;
-import java.util.List;
 import lombok.Data;
 import net.kyori.adventure.text.Component;
+
+import java.util.List;
 
 @Data
 public class BlockedCommand

@@ -2,9 +2,6 @@ package dev.plex.listener.impl;
 
 import dev.plex.listener.PlexListener;
 import dev.plex.util.PlexUtils;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -13,6 +10,10 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class BlockListener extends PlexListener
 {
@@ -57,7 +58,7 @@ public class BlockListener extends PlexListener
 
         if (SIGNS.contains(block.getType()))
         {
-            Sign sign = (Sign)block.getState();
+            Sign sign = (Sign) block.getState();
             boolean anythingChanged = false;
             for (int i = 0; i < sign.lines().size(); i++)
             {

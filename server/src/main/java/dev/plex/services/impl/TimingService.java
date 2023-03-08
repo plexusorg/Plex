@@ -7,11 +7,12 @@ import dev.plex.punishment.PunishmentType;
 import dev.plex.services.AbstractService;
 import dev.plex.util.PlexLog;
 import dev.plex.util.TimeUtils;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 
 public class TimingService extends AbstractService
 {

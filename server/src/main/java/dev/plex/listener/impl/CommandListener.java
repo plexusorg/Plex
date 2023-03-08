@@ -7,10 +7,6 @@ import dev.plex.player.PlexPlayer;
 import dev.plex.rank.enums.Rank;
 import dev.plex.services.impl.CommandBlockerService;
 import dev.plex.util.PlexLog;
-import java.util.Locale;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.apache.commons.lang3.StringUtils;
@@ -20,12 +16,18 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 
+import java.util.Locale;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class CommandListener extends PlexListener
 {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event)
     {
-        Bukkit.getOnlinePlayers().stream().filter(pl -> {
+        Bukkit.getOnlinePlayers().stream().filter(pl ->
+        {
             PlexPlayer player = plugin.getPlayerCache().getPlexPlayer(pl.getUniqueId());
             return player.isCommandSpy() && hasCommandSpy(plugin.getPlayerCache().getPlexPlayer(pl.getUniqueId()));
         }).forEach(pl ->

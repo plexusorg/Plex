@@ -2,22 +2,11 @@ package dev.plex.toml;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import lombok.Getter;
+
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 
 /**
  * <p>Provides access to the keys and tables in a TOML data source.</p>

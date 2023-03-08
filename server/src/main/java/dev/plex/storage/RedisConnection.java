@@ -2,8 +2,9 @@ package dev.plex.storage;
 
 import dev.plex.PlexBase;
 import dev.plex.util.PlexLog;
-import java.util.function.Consumer;
 import redis.clients.jedis.Jedis;
+
+import java.util.function.Consumer;
 
 public class RedisConnection implements PlexBase
 {

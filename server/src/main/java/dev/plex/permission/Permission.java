@@ -1,8 +1,9 @@
 package dev.plex.permission;
 
 import dev.morphia.annotations.Entity;
-import java.util.UUID;
 import lombok.Data;
+
+import java.util.UUID;
 
 @Data
 @Entity

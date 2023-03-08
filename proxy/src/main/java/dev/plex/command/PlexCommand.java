@@ -9,11 +9,12 @@ import dev.plex.Plex;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.source.RequiredCommandSource;
-import java.util.Arrays;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Arrays;
 
 public abstract class PlexCommand implements SimpleCommand
 {

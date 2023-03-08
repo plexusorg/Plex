@@ -1,6 +1,7 @@
 package dev.plex.toml;
 
 import java.util.Collection;
+
 import static dev.plex.toml.ValueWriters.WRITERS;
 
 class TableArrayValueWriter extends ArrayValueWriter

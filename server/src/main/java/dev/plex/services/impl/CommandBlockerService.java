@@ -5,10 +5,11 @@ import dev.plex.command.blocking.BlockedCommand;
 import dev.plex.services.AbstractService;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
-import java.util.List;
-import java.util.Locale;
 import lombok.Getter;
 import org.bukkit.command.Command;
+
+import java.util.List;
+import java.util.Locale;
 
 public class CommandBlockerService extends AbstractService
 {

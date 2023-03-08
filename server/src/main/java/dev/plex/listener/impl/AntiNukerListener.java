@@ -2,12 +2,13 @@ package dev.plex.listener.impl;
 
 import dev.plex.listener.PlexListener;
 import dev.plex.services.impl.TimingService;
-import java.util.UUID;
 import net.kyori.adventure.text.Component;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+
+import java.util.UUID;
 
 public class AntiNukerListener extends PlexListener
 {

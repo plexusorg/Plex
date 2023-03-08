@@ -7,8 +7,6 @@ import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.Punishment;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.menu.AbstractMenu;
-import java.util.Collections;
-import java.util.List;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
@@ -21,6 +19,9 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
+
+import java.util.Collections;
+import java.util.List;
 
 public class PunishedPlayerMenu extends AbstractMenu
 {
@@ -133,7 +134,7 @@ public class PunishedPlayerMenu extends AbstractMenu
                 {
                     return;
                 }
-                openInv((Player)event.getWhoClicked(), getCurrentInventoryIndex(inv) + 1);
+                openInv((Player) event.getWhoClicked(), getCurrentInventoryIndex(inv) + 1);
             }
             else if (item.getItemMeta().displayName().equals(Component.text("Previous Page").color(NamedTextColor.LIGHT_PURPLE)))
             {
@@ -149,17 +150,17 @@ public class PunishedPlayerMenu extends AbstractMenu
                 {
                     return;
                 }
-                openInv((Player)event.getWhoClicked(), getCurrentInventoryIndex(inv) - 1);
+                openInv((Player) event.getWhoClicked(), getCurrentInventoryIndex(inv) - 1);
             }
 
         }
         else if (item.getType() == Material.BARRIER)
         {
-            new PunishmentMenu().openInv((Player)event.getWhoClicked(), 0);
+            new PunishmentMenu().openInv((Player) event.getWhoClicked(), 0);
         }
         else if (item.getType() == Material.PLAYER_HEAD)
         {
-            SkullMeta meta = (SkullMeta)item.getItemMeta();
+            SkullMeta meta = (SkullMeta) item.getItemMeta();
             OfflinePlayer player = meta.getOwningPlayer();
             assert player != null;
             PlexPlayer punishedPlayer = DataUtils.getPlayer(player.getUniqueId()) == null ? null : Plex.get().getPlayerCache().getPlexPlayer(player.getUniqueId());

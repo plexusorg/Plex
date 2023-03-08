@@ -1,7 +1,6 @@
 package dev.plex.rank;
 
 import dev.plex.Plex;
-import dev.plex.PlexBase;
 import dev.plex.hook.VaultHook;
 import dev.plex.player.PlexPlayer;
 import dev.plex.rank.enums.Rank;

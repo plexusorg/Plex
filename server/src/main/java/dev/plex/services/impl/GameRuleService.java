@@ -3,9 +3,10 @@ package dev.plex.services.impl;
 import dev.plex.services.AbstractService;
 import dev.plex.util.GameRuleUtil;
 import dev.plex.util.PlexLog;
-import java.util.Locale;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
+
+import java.util.Locale;
 
 public class GameRuleService extends AbstractService
 {

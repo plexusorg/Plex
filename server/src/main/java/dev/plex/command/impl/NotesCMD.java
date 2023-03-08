@@ -10,12 +10,6 @@ import dev.plex.rank.enums.Rank;
 import dev.plex.storage.StorageType;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.TimeUtils;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.apache.commons.lang3.ArrayUtils;
@@ -24,6 +18,13 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 @CommandParameters(name = "notes", description = "Manage notes for a player", usage = "/<command> <player> <list | add <note> | remove <id> | clear>")
 @CommandPermissions(level = Rank.ADMIN, permission = "plex.notes")

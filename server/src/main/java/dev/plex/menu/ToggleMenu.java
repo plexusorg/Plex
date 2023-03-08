@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import dev.plex.PlexBase;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.menu.AbstractMenu;
-import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -13,6 +12,8 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+
+import java.util.List;
 
 public class ToggleMenu extends AbstractMenu implements PlexBase
 {
