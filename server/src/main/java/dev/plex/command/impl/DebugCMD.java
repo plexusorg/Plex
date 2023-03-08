@@ -36,13 +36,16 @@ public class DebugCMD extends PlexCommand
         }
         if (args[0].equalsIgnoreCase("redis-reset"))
         {
-            Player player = getNonNullPlayer(args[1]);
-            if (plugin.getRedisConnection().getJedis().exists(player.getUniqueId().toString()))
+            if (args.length == 2)
             {
-                plugin.getRedisConnection().getJedis().del(player.getUniqueId().toString());
-                return componentFromString("Successfully reset " + player.getName() + "'s Redis punishments!").color(NamedTextColor.YELLOW);
+                Player player = getNonNullPlayer(args[1]);
+                if (plugin.getRedisConnection().getJedis().exists(player.getUniqueId().toString()))
+                {
+                    plugin.getRedisConnection().getJedis().del(player.getUniqueId().toString());
+                    return componentFromString("Successfully reset " + player.getName() + "'s Redis punishments!").color(NamedTextColor.YELLOW);
+                }
+                return componentFromString("Couldn't find player in Redis punishments.");
             }
-            return componentFromString("Couldn't find player in Redis punishments.");
         }
         if (args[0].equalsIgnoreCase("gamerules"))
         {
@@ -64,15 +67,18 @@ public class DebugCMD extends PlexCommand
         }
         if (args[0].equalsIgnoreCase("aliases"))
         {
-            String commandName = args[1];
-            Command command = plugin.getServer().getCommandMap().getCommand(commandName);
-            if (command == null)
+            if (args.length == 2)
             {
-                return mmString("<red>That command could not be found!");
+                String commandName = args[1];
+                Command command = plugin.getServer().getCommandMap().getCommand(commandName);
+                if (command == null)
+                {
+                    return mmString("<red>That command could not be found!");
+                }
+                return mmString("<aqua>Aliases for " + commandName + " are: " + Arrays.toString(command.getAliases().toArray(new String[0])));
             }
-            return mmString("<aqua>Aliases for " + commandName + " are: " + Arrays.toString(command.getAliases().toArray(new String[0])));
         }
-        return null;
+        return usage();
     }
 
     @Override
