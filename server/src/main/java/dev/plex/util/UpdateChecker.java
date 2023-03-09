@@ -5,16 +5,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import dev.plex.PlexBase;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicReference;
-import javax.annotation.Nonnull;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.apache.commons.io.FileUtils;
@@ -27,6 +17,17 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import javax.annotation.Nonnull;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class UpdateChecker implements PlexBase
 {
@@ -48,7 +49,7 @@ public class UpdateChecker implements PlexBase
     {
         try
         {
-            HttpURLConnection connection = (HttpURLConnection)new URL("https://api.github.com/repos/" + repo + "/compare/" + branch + "..." + hash).openConnection();
+            HttpURLConnection connection = (HttpURLConnection) new URL("https://api.github.com/repos/" + repo + "/compare/" + branch + "..." + hash).openConnection();
             connection.connect();
             if (connection.getResponseCode() == HttpURLConnection.HTTP_NOT_FOUND)
             {
@@ -164,34 +165,48 @@ public class UpdateChecker implements PlexBase
         try
         {
             HttpResponse response = client.execute(get);
-            JSONObject object = new JSONObject(EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8));
-            JSONObject artifact = object.getJSONArray("artifacts").getJSONObject(0);
-            String jarFile = artifact.getString("fileName");
-            sender.sendMessage(PlexUtils.mmDeserialize("<green>Downloading latest JAR file: " + jarFile));
-            File copyTo;
-            if (!module)
+            int statusCode = response.getStatusLine().getStatusCode();
+
+            if (statusCode == HttpURLConnection.HTTP_OK)
             {
-                copyTo = new File(Bukkit.getUpdateFolderFile(), jarFile);
+                JSONObject object = new JSONObject(EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8));
+                JSONObject artifact = object.getJSONArray("artifacts").getJSONObject(0);
+                String jarFile = artifact.getString("fileName");
+                sender.sendMessage(PlexUtils.mmDeserialize("<green>Downloading latest JAR file: " + jarFile));
+                File copyTo;
+                if (!module)
+                {
+                    copyTo = new File(Bukkit.getUpdateFolderFile(), jarFile);
+                }
+                else
+                {
+                    copyTo = new File(plugin.getModulesFolder().getPath(), jarFile);
+                }
+                CompletableFuture.runAsync(() ->
+                {
+                    try
+                    {
+                        FileUtils.copyURLToFile(
+                                new URL(url + "/lastSuccessfulBuild/artifact/build/libs/" + jarFile),
+                                copyTo
+                        );
+                        sender.sendMessage(PlexUtils.mmDeserialize("<green>New JAR file downloaded successfully."));
+                    }
+                    catch (IOException e)
+                    {
+                        e.printStackTrace();
+                    }
+                });
+            }
+            else if (statusCode == HttpURLConnection.HTTP_NOT_FOUND)
+            {
+                sender.sendMessage(PlexUtils.mmDeserialize("<red>Could not update " + name + " as it can't be found on Jenkins."));
             }
             else
             {
-                copyTo = new File(plugin.getModulesFolder().getPath(), jarFile);
+                sender.sendMessage(PlexUtils.mmDeserialize("<red>Something went wrong while trying to update " + name + ". Please check the log for more information."));
+                PlexLog.error("Unable to update module {0} due to unexpected status code returned from Jenkins - Status Code: {1}", name, statusCode);
             }
-            CompletableFuture.runAsync(() ->
-            {
-                try
-                {
-                    FileUtils.copyURLToFile(
-                            new URL(url + "/lastSuccessfulBuild/artifact/build/libs/" + jarFile),
-                            copyTo
-                    );
-                    sender.sendMessage(PlexUtils.mmDeserialize("<green>New JAR file downloaded successfully."));
-                }
-                catch (IOException e)
-                {
-                    e.printStackTrace();
-                }
-            });
         }
         catch (IOException e)
         {
@@ -199,7 +214,9 @@ public class UpdateChecker implements PlexBase
         }
         catch (JSONException e)
         {
-            sender.sendMessage(PlexUtils.mmDeserialize("<red>The file could not be downloaded because Jenkins returned an invalid response. (Is it on Jenkins?)"));
+            sender.sendMessage(PlexUtils.mmDeserialize("<red>Something went wrong while trying to gather information from Jenkins for " + name + ". Please check the log for more information"));
+            PlexLog.error("Unable to parse JSON information received from Jenkins - see below for more information...");
+            e.printStackTrace();
         }
     }
 }
