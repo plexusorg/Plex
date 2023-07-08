@@ -23,9 +23,11 @@ dependencies {
     library "org.eclipse.jetty:jetty-proxy:11.0.15"
     library "com.google.code.gson:gson:2.10.1"
     compileOnly "io.papermc.paper:paper-api:1.20-R0.1-SNAPSHOT"
+    compileOnly "io.papermc.paper:paper-mojangapi:1.20-R0.1-SNAPSHOT"
     compileOnly("com.github.MilkBowl:VaultAPI:1.7.1") {
         exclude group: "org.bukkit", module: "bukkit"
     }
+    compileOnly("com.mojang:brigadier:1.0.18")
     implementation "org.bstats:bstats-base:3.0.2"
     implementation "org.bstats:bstats-bukkit:3.0.2"
 }

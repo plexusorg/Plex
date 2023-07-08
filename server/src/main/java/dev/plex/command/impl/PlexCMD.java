@@ -29,6 +29,9 @@ import java.util.stream.Collectors;
 @CommandParameters(name = "plex", usage = "/<command> [reload | redis | modules [reload]]", description = "Show information about Plex or reload it")
 public class PlexCMD extends PlexCommand
 {
+    public PlexCMD() {
+        super(false);
+    }
     // Don't modify this command
     @Override
     protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
@@ -73,14 +76,7 @@ public class PlexCMD extends PlexCommand
         else if (args[0].equalsIgnoreCase("redis"))
         {
             checkRank(sender, Rank.SENIOR_ADMIN, "plex.redis");
-            if (!plugin.getRedisConnection().isEnabled())
-            {
-                throw new CommandFailException("&cRedis is not enabled.");
-            }
-            plugin.getRedisConnection().getJedis().set("test", "123");
-            send(sender, "Set test to 123. Now outputting key test...");
-            send(sender, plugin.getRedisConnection().getJedis().get("test"));
-            plugin.getRedisConnection().getJedis().close();
+
             return null;
         }
         else if (args[0].equalsIgnoreCase("modules"))

@@ -5,6 +5,8 @@ import com.google.common.reflect.ClassPath;
 import dev.plex.Plex;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -54,4 +56,31 @@ public class ReflectionsUtil
         });
         return Collections.unmodifiableSet(classes);
     }
+
+    public static void callVoid(Object obj, String function, Object... params) {
+        try
+        {
+            Method method = obj.getClass().getMethod(function, Arrays.stream(params).map(Object::getClass).toArray(Class[]::new));
+            method.setAccessible(true);
+            method.invoke(obj, params);
+        }
+        catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static <T> T callFunction(Object obj, String function, Object... params) {
+        try
+        {
+            Method method = obj.getClass().getMethod(function, Arrays.stream(params).map(Object::getClass).toArray(Class[]::new));
+            method.setAccessible(true);
+            return (T) method.invoke(obj, params);
+        }
+        catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+
 }

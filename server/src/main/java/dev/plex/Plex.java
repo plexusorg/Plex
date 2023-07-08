@@ -4,6 +4,8 @@ import dev.plex.admin.Admin;
 import dev.plex.admin.AdminList;
 import dev.plex.cache.DataUtils;
 import dev.plex.cache.PlayerCache;
+import dev.plex.command.PlexBrigadierCommand;
+import dev.plex.command.impl.brigadier.PlexBrigadierCMD;
 import dev.plex.config.Config;
 import dev.plex.handlers.CommandHandler;
 import dev.plex.handlers.ListenerHandler;
@@ -178,6 +180,7 @@ public class Plex extends JavaPlugin
 
         new ListenerHandler();
         new CommandHandler();
+        new PlexBrigadierCMD();
 
         rankManager = new RankManager();
         rankManager.generateDefaultRanks();

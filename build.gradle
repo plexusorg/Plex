@@ -33,6 +33,11 @@ subprojects {
             }
         }
 
+        maven {
+            url = uri("https://libraries.minecraft.net")
+        }
+
+
         mavenCentral()
     }
 
