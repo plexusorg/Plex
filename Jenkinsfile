@@ -8,18 +8,6 @@ pipeline {
                 }
             }
         }
-        stage("publish") {
-            when {
-                branch "master"
-            }
-            steps {
-            withCredentials([usernamePassword(credentialsId: '85b7099f-2e65-461e-b2ce-124edec41ed6', passwordVariable: 'plexPassword', usernameVariable: 'plexUser')]) {
-                withGradle {
-                    sh "./gradlew publish --no-daemon"
-                    }
-                }
-            }
-        }
     }
     post {
         always {
