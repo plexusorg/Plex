@@ -4,14 +4,16 @@ import com.destroystokyo.paper.brigadier.BukkitBrigadierCommandSource;
 import com.google.common.collect.Maps;
 import com.google.gson.GsonBuilder;
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.*;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.tree.CommandNode;
+import com.mojang.brigadier.tree.LiteralCommandNode;
 import dev.plex.Plex;
 import dev.plex.cache.DataUtils;
-import dev.plex.command.annotation.CommandName;
-import dev.plex.command.annotation.CommandPermission;
-import dev.plex.command.annotation.Default;
-import dev.plex.command.annotation.SubCommand;
+import dev.plex.command.annotation.*;
+import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.player.PlexPlayer;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
@@ -25,10 +27,10 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.System;
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.lang.reflect.Parameter;
+import java.util.*;
 
 /**
  * @author Taah
@@ -47,8 +49,6 @@ public abstract class PlexBrigadierCommand
         {
             final Object dedicatedServer = ReflectionsUtil.callFunction(getCraftServer(), "getServer");
             final Object minecraftServer = Class.forName("net.minecraft.server.MinecraftServer").cast(dedicatedServer);
-            //            System.out.println(Arrays.toString(Arrays.stream(minecraftServer.getClass().getDeclaredMethods()).map(Method::getName).toArray(String[]::new)));
-
             final Object serverFunctionsManager = ReflectionsUtil.callFunction(minecraftServer, "aA");
             this.commandDispatcher = ReflectionsUtil.callFunction(serverFunctionsManager, "b");
         }
@@ -60,7 +60,10 @@ public abstract class PlexBrigadierCommand
 
         if (!this.getClass().isAnnotationPresent(CommandName.class))
         {
-            PlexLog.error("Cannot find command name for class " + this.getClass().getName());
+            if (this.commandDispatcher != null)
+            {
+                this.commandDispatcher.register(execute());
+            }
             return;
         }
 
@@ -89,126 +92,201 @@ public abstract class PlexBrigadierCommand
 
         if (this.commandDispatcher != null)
         {
-            for (String s : commandName)
+            for (String name : commandName)
             {
-                PlexLog.debug("registering command " + s);
-                LiteralArgumentBuilder<BukkitBrigadierCommandSource> builder = LiteralArgumentBuilder.literal(s.toLowerCase());
+                LiteralArgumentBuilder<BukkitBrigadierCommandSource> builder = LiteralArgumentBuilder.literal(name.toLowerCase());
+
                 for (Map.Entry<String, Method> stringMethodEntry : subcommands.entrySet())
                 {
-                    PlexLog.debug("registering subcommand " + stringMethodEntry.getKey());
                     String[] subCommandArgs = stringMethodEntry.getKey().split(" ");
-                    LiteralArgumentBuilder<BukkitBrigadierCommandSource> parentBuilder = LiteralArgumentBuilder.literal(subCommandArgs[0]);
-                    LiteralArgumentBuilder<BukkitBrigadierCommandSource> currSubCommand = parentBuilder;
-                    if (subCommandArgs.length == 1)
+                    LinkedList<LiteralArgumentBuilder<BukkitBrigadierCommandSource>> builders = new LinkedList<>();
+                    for (int i = 0; i < subCommandArgs.length; i++)
                     {
-                        parentBuilder.executes(context ->
-                        {
-                            if (stringMethodEntry.getValue().isAnnotationPresent(CommandPermission.class))
-                            {
-                                String permission = stringMethodEntry.getValue().getAnnotation(CommandPermission.class).value();
-                                if (!context.getSource().getBukkitSender().hasPermission(permission))
-                                {
-                                    send(context, PlexUtils.messageString("noPermissionNode", permission));
-                                    return 0;
-                                }
-                            }
-                            try
-                            {
-                                stringMethodEntry.getValue().invoke(this, context.getSource().getBukkitSender());
-                            }
-                            catch (Exception e)
-                            {
-                                PlexLog.error(e.getMessage());
-                                for (StackTraceElement stackTraceElement : e.getStackTrace())
-                                {
-                                    PlexLog.error(stackTraceElement.toString());
-                                }
-                                return 0;
-                            }
-                            return 1;
-                        });
+                        LiteralArgumentBuilder<BukkitBrigadierCommandSource> newNode = LiteralArgumentBuilder.literal(subCommandArgs[i]);
+                        builders.addLast(newNode);
                     }
-                    else
+
+                    if (builders.size() == 1)
                     {
-                        for (int i = 1; i < subCommandArgs.length; i++)
+                        LiteralArgumentBuilder<BukkitBrigadierCommandSource> parent = builders.removeFirst();
+                        LinkedList<RequiredArgumentBuilder<BukkitBrigadierCommandSource, ?>> argumentBuilders = new LinkedList<>();
+
+                        LinkedHashMap<Parameter, RequiredArgumentBuilder<BukkitBrigadierCommandSource, ?>> arguments = getArguments(stringMethodEntry.getValue());
+                        for (Map.Entry<Parameter, RequiredArgumentBuilder<BukkitBrigadierCommandSource, ?>> parameterArgumentBuilderEntry : arguments.entrySet())
                         {
-                            LiteralArgumentBuilder<BukkitBrigadierCommandSource> curr = LiteralArgumentBuilder.literal(subCommandArgs[i]);
-                            if (i == subCommandArgs.length - 1)
-                            {
-                                curr.executes(context ->
-                                {
-                                    if (stringMethodEntry.getValue().isAnnotationPresent(CommandPermission.class))
-                                    {
-                                        String permission = stringMethodEntry.getValue().getAnnotation(CommandPermission.class).value();
-                                        if (!context.getSource().getBukkitSender().hasPermission(permission))
-                                        {
-                                            send(context, PlexUtils.messageString("noPermissionNode", permission));
-                                            return 0;
-                                        }
-                                    }
-                                    try
-                                    {
-                                        stringMethodEntry.getValue().invoke(this, context.getSource().getBukkitSender());
-                                    }
-                                    catch (Exception e)
-                                    {
-                                        PlexLog.error(e.getMessage());
-                                        for (StackTraceElement stackTraceElement : e.getStackTrace())
-                                        {
-                                            PlexLog.error(stackTraceElement.toString());
-                                        }
-                                        return 0;
-                                    }
-                                    return 1;
-                                });
-                            }
-                            currSubCommand.then(curr);
-                            currSubCommand = curr;
+                            argumentBuilders.addLast(parameterArgumentBuilderEntry.getValue());
                         }
+                        boolean setExecution = false;
+                        CommandNode<BukkitBrigadierCommandSource> parentArg = null;
+                        CommandNode<BukkitBrigadierCommandSource> currArg = null;
+                        while (!argumentBuilders.isEmpty())
+                        {
+                            if (parentArg == null)
+                            {
+                                RequiredArgumentBuilder<BukkitBrigadierCommandSource, ?> newParent = argumentBuilders.removeFirst();
+                                if (argumentBuilders.isEmpty())
+                                {
+                                    newParent.executes(context -> execute(stringMethodEntry.getValue(), context, arguments.keySet()));
+                                    setExecution = true;
+                                }
+                                parentArg = newParent.build();
+                                parent.then(parentArg);
+                                currArg = parentArg;
+                            }
+                            else
+                            {
+                                RequiredArgumentBuilder<BukkitBrigadierCommandSource, ?> newCurr = argumentBuilders.removeFirst();
+                                if (argumentBuilders.isEmpty())
+                                {
+                                    newCurr.executes(context -> execute(stringMethodEntry.getValue(), context, arguments.keySet()));
+                                    setExecution = true;
+                                }
+                                CommandNode<BukkitBrigadierCommandSource> newCurrNode = newCurr.build();
+                                currArg.addChild(newCurrNode);
+                                currArg = newCurrNode;
+                            }
+                        }
+                        if (!setExecution)
+                        {
+                            parent.executes(context -> execute(stringMethodEntry.getValue(), context, arguments.keySet()));
+                        }
+                        builder.then(parent);
                     }
-
-                    PlexLog.debug(new GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create().toJson(parentBuilder));
-
-                    builder = builder.then(
-                            parentBuilder
-                    );
+                    else if (builders.size() > 1)
+                    {
+                        LiteralCommandNode<BukkitBrigadierCommandSource> parent = builders.removeFirst().build();
+                        LiteralCommandNode<BukkitBrigadierCommandSource> curr = null;
+                        while (!builders.isEmpty())
+                        {
+                            LiteralArgumentBuilder<BukkitBrigadierCommandSource> newCurr = builders.removeFirst();
+                            PlexLog.debug("Adding subcommand " + newCurr.getLiteral());
+                            if (builders.isEmpty())
+                            {
+                                LinkedList<RequiredArgumentBuilder<BukkitBrigadierCommandSource, ?>> argumentBuilders = new LinkedList<>();
+                                LinkedHashMap<Parameter, RequiredArgumentBuilder<BukkitBrigadierCommandSource, ?>> arguments = getArguments(stringMethodEntry.getValue());
+                                for (Map.Entry<Parameter, RequiredArgumentBuilder<BukkitBrigadierCommandSource, ?>> parameterArgumentBuilderEntry : arguments.entrySet())
+                                {
+                                    argumentBuilders.addLast(parameterArgumentBuilderEntry.getValue());
+                                }
+                                boolean setExecution = false;
+                                CommandNode<BukkitBrigadierCommandSource> parentArg = null;
+                                CommandNode<BukkitBrigadierCommandSource> currArg = null;
+                                while (!argumentBuilders.isEmpty())
+                                {
+                                    if (parentArg == null)
+                                    {
+                                        RequiredArgumentBuilder<BukkitBrigadierCommandSource, ?> newParent = argumentBuilders.removeFirst();
+                                        if (argumentBuilders.isEmpty())
+                                        {
+                                            newParent.executes(context -> execute(stringMethodEntry.getValue(), context, arguments.keySet()));
+                                            setExecution = true;
+                                        }
+                                        parentArg = newParent.build();
+                                        newCurr.then(parentArg);
+                                        currArg = parentArg;
+                                    }
+                                    else
+                                    {
+                                        RequiredArgumentBuilder<BukkitBrigadierCommandSource, ?> newCurrArg = argumentBuilders.removeFirst();
+                                        if (argumentBuilders.isEmpty())
+                                        {
+                                            newCurrArg.executes(context -> execute(stringMethodEntry.getValue(), context, arguments.keySet()));
+                                            setExecution = true;
+                                        }
+                                        CommandNode<BukkitBrigadierCommandSource> newCurrNode = newCurrArg.build();
+                                        currArg.addChild(newCurrNode);
+                                        currArg = newCurrNode;
+                                    }
+                                }
+                                if (!setExecution)
+                                {
+                                    newCurr.executes(context -> execute(stringMethodEntry.getValue(), context, arguments.keySet()));
+                                }
+                            }
+                            if (curr == null)
+                            {
+                                LiteralCommandNode<BukkitBrigadierCommandSource> temp = newCurr.build();
+                                parent.addChild(temp);
+                                curr = temp;
+                            }
+                            else
+                            {
+                                LiteralCommandNode<BukkitBrigadierCommandSource> temp = newCurr.build();
+                                curr.addChild(temp);
+                                curr = temp;
+                            }
+                        }
+                        builder.then(parent);
+                    }
+                    PlexLog.debug("Overall Builder: " + new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create().toJson(builder));
                 }
+
                 if (defaultMethod != null)
                 {
-                    PlexLog.debug("registering default method");
-                    Method finalDefaultMethod = defaultMethod;
-                    finalDefaultMethod.setAccessible(true);
-                    builder = builder.executes(context ->
+                    LinkedList<RequiredArgumentBuilder<BukkitBrigadierCommandSource, ?>> argumentBuilders = new LinkedList<>();
+                    LinkedHashMap<Parameter, RequiredArgumentBuilder<BukkitBrigadierCommandSource, ?>> arguments = getArguments(defaultMethod);
+                    for (Map.Entry<Parameter, RequiredArgumentBuilder<BukkitBrigadierCommandSource, ?>> parameterArgumentBuilderEntry : arguments.entrySet())
                     {
-                        if (finalDefaultMethod.isAnnotationPresent(CommandPermission.class))
+                        argumentBuilders.addLast(parameterArgumentBuilderEntry.getValue());
+                    }
+                    boolean setExecution = false;
+                    CommandNode<BukkitBrigadierCommandSource> parentArg = null;
+                    CommandNode<BukkitBrigadierCommandSource> currArg = null;
+                    while (!argumentBuilders.isEmpty())
+                    {
+                        if (parentArg == null)
                         {
-                            String permission = finalDefaultMethod.getAnnotation(CommandPermission.class).value();
-                            if (!context.getSource().getBukkitSender().hasPermission(permission))
+                            RequiredArgumentBuilder<BukkitBrigadierCommandSource, ?> newParent = argumentBuilders.removeFirst();
+                            if (argumentBuilders.isEmpty())
                             {
-                                send(context, PlexUtils.messageString("noPermissionNode", permission));
-                                return 0;
+                                Method finalDefaultMethod = defaultMethod;
+                                newParent.executes(context -> execute(finalDefaultMethod, context, arguments.keySet()));
+                                setExecution = true;
                             }
+                            parentArg = newParent.build();
+                            builder.then(parentArg);
+                            currArg = parentArg;
                         }
-                        try
+                        else
                         {
-                            finalDefaultMethod.invoke(this, context.getSource().getBukkitSender());
-                        }
-                        catch (Exception e)
-                        {
-                            PlexLog.error(e.getMessage());
-                            for (StackTraceElement stackTraceElement : e.getStackTrace())
+                            RequiredArgumentBuilder<BukkitBrigadierCommandSource, ?> newCurrArg = argumentBuilders.removeFirst();
+                            if (argumentBuilders.isEmpty())
                             {
-                                PlexLog.error(stackTraceElement.toString());
+                                Method finalDefaultMethod1 = defaultMethod;
+                                newCurrArg.executes(context -> execute(finalDefaultMethod1, context, arguments.keySet()));
+                                setExecution = true;
                             }
-                            return 0;
+                            CommandNode<BukkitBrigadierCommandSource> newCurrNode = newCurrArg.build();
+                            currArg.addChild(newCurrNode);
+                            currArg = newCurrNode;
                         }
-                        return 1;
-                    });
+                    }
+                    if (!setExecution)
+                    {
+                        Method finalDefaultMethod2 = defaultMethod;
+                        builder.executes(context -> execute(finalDefaultMethod2, context, arguments.keySet()));
+                    }
                 }
-                PlexLog.debug(new GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create().toJson(builder));
+
                 this.commandDispatcher.register(builder);
             }
+
+            this.commandDispatcher.register(LiteralArgumentBuilder.<BukkitBrigadierCommandSource>literal("testing")
+                    .then(RequiredArgumentBuilder.<BukkitBrigadierCommandSource, Integer>argument("test0", IntegerArgumentType.integer())
+                            .then(RequiredArgumentBuilder.<BukkitBrigadierCommandSource, String>argument("test", StringArgumentType.word())
+                                    .then(RequiredArgumentBuilder.<BukkitBrigadierCommandSource, String>argument("test1", StringArgumentType.word())
+                                            .executes(context ->
+                                            {
+                                                send(context, context.getArgument("test", String.class));
+                                                send(context, context.getArgument("test1", String.class));
+                                                return 1;
+                                            })))));
         }
+    }
+
+    public LiteralArgumentBuilder<BukkitBrigadierCommandSource> execute()
+    {
+        return LiteralArgumentBuilder.literal(this.getClass().getName().toLowerCase());
     }
 
     /**
@@ -353,6 +431,128 @@ public abstract class PlexBrigadierCommand
             return null;
         }
         return player.getUniqueId();
+    }
+
+    private LinkedHashMap<Parameter, RequiredArgumentBuilder<BukkitBrigadierCommandSource, ?>> getArguments(Method method)
+    {
+        LinkedHashMap<Parameter, RequiredArgumentBuilder<BukkitBrigadierCommandSource, ?>> result = new LinkedHashMap<>();
+        if (!method.canAccess(this))
+        {
+            method.setAccessible(true);
+        }
+        for (Parameter parameter : method.getParameters())
+        {
+            if (parameter.isAnnotationPresent(Argument.class))
+            {
+                Argument argument = parameter.getAnnotation(Argument.class);
+                if (String.class.isAssignableFrom(parameter.getType()))
+                {
+                    result.put(parameter, RequiredArgumentBuilder.argument(argument.value(), argument.argumentType() == StringArgumentType.StringType.SINGLE_WORD ? StringArgumentType.word() : StringArgumentType.greedyString()));
+                }
+                else if (int.class.isAssignableFrom(parameter.getType()))
+                {
+                    result.put(parameter, RequiredArgumentBuilder.argument(argument.value(), IntegerArgumentType.integer(argument.min() == Double.MIN_VALUE ? Integer.MIN_VALUE : (int) argument.min(), argument.max() == Double.MAX_VALUE ? Integer.MAX_VALUE : (int) argument.max())));
+                }
+                else if (double.class.isAssignableFrom(parameter.getType()))
+                {
+                    result.put(parameter, RequiredArgumentBuilder.argument(argument.value(), DoubleArgumentType.doubleArg(argument.min(), argument.max())));
+                }
+                else if (float.class.isAssignableFrom(parameter.getType()))
+                {
+                    result.put(parameter, RequiredArgumentBuilder.argument(argument.value(), FloatArgumentType.floatArg(argument.min() == Double.MIN_VALUE ? Float.MIN_VALUE : (int) argument.min(), argument.max() == Double.MAX_VALUE ? Float.MAX_VALUE : (int) argument.max())));
+                }
+                else if (boolean.class.isAssignableFrom(parameter.getType()))
+                {
+                    result.put(parameter, RequiredArgumentBuilder.argument(argument.value(), BoolArgumentType.bool()));
+                }
+                else if (long.class.isAssignableFrom(parameter.getType()))
+                {
+                    result.put(parameter, RequiredArgumentBuilder.argument(argument.value(), LongArgumentType.longArg(argument.min() == Double.MIN_VALUE ? Long.MIN_VALUE : (int) argument.min(), argument.max() == Double.MAX_VALUE ? Long.MAX_VALUE : (int) argument.max())));
+                }
+            }
+        }
+        return result;
+    }
+
+    private Object getArgument(Class<?> clazz, CommandContext<BukkitBrigadierCommandSource> context, String name)
+    {
+        if (String.class.isAssignableFrom(clazz))
+        {
+            return StringArgumentType.getString(context, name);
+        }
+        else if (int.class.isAssignableFrom(clazz))
+        {
+            return IntegerArgumentType.getInteger(context, name);
+        }
+        else if (double.class.isAssignableFrom(clazz))
+        {
+            return DoubleArgumentType.getDouble(context, name);
+        }
+        else if (float.class.isAssignableFrom(clazz))
+        {
+            return FloatArgumentType.getFloat(context, name);
+        }
+        else if (boolean.class.isAssignableFrom(clazz))
+        {
+            return BoolArgumentType.getBool(context, name);
+        }
+        else if (long.class.isAssignableFrom(clazz))
+        {
+            return LongArgumentType.getLong(context, name);
+        }
+        return null;
+    }
+
+    private int execute(Method method, CommandContext<BukkitBrigadierCommandSource> context, Set<Parameter> arguments)
+    {
+        if (method.isAnnotationPresent(CommandPermission.class))
+        {
+            String permission = method.getAnnotation(CommandPermission.class).value();
+            if (!context.getSource().getBukkitSender().hasPermission(permission))
+            {
+                send(context, PlexUtils.messageComponent("noPermissionNode", permission));
+                return 1;
+            }
+        }
+        try
+        {
+            List<Object> params = arguments
+                    .stream().map(bukkitBrigadierCommandSourceArgumentBuilder -> getArgument(bukkitBrigadierCommandSourceArgumentBuilder.getType(), context, bukkitBrigadierCommandSourceArgumentBuilder.getAnnotation(Argument.class).value())).toList();
+            LinkedList<Object> parameters = new LinkedList<>(params);
+//            parameters.addFirst(context.getSource().getBukkitSender());
+            if (method.isAnnotationPresent(CommandSource.class)) {
+                RequiredCommandSource commandSource = method.getAnnotation(CommandSource.class).value();
+                if (commandSource == RequiredCommandSource.IN_GAME) {
+                    if (!(context.getSource().getBukkitSender() instanceof Player player)) {
+                        send(context, PlexUtils.messageComponent("noPermissionConsole"));
+                        return 1;
+                    } else {
+                        parameters.addFirst(player);
+                    }
+                } else if (commandSource == RequiredCommandSource.CONSOLE) {
+                    if (context.getSource().getBukkitSender() instanceof Player) {
+                        send(context, PlexUtils.messageComponent("noPermissionInGame"));
+                        return 1;
+                    }
+                    parameters.addFirst(context.getSource().getBukkitSender());
+                } else {
+                    parameters.addFirst(context.getSource().getBukkitSender());
+                }
+            }
+            System.out.println(Arrays.toString(parameters.stream().map(Object::getClass).map(Class::getName).toArray()));
+            System.out.println(Arrays.toString(Arrays.stream(method.getParameterTypes()).map(Class::getName).toArray()));
+            method.invoke(this, parameters.toArray());
+            return 1;
+        }
+        catch (Exception e)
+        {
+            PlexLog.error(e.getMessage());
+            for (StackTraceElement stackTraceElement : e.getStackTrace())
+            {
+                PlexLog.error(stackTraceElement.toString());
+            }
+            return 0;
+        }
     }
 
     private Object getCraftServer()
