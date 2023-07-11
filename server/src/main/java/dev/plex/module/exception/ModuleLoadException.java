@@ -6,5 +6,4 @@ public class ModuleLoadException extends RuntimeException
     {
         super(s);
     }
-
 }
