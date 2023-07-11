@@ -3,7 +3,6 @@ package dev.plex.module;
 import com.google.common.collect.Lists;
 import dev.plex.Plex;
 import dev.plex.module.exception.ModuleLoadException;
-import dev.plex.module.loader.LibraryLoader;
 import dev.plex.util.PlexLog;
 import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
@@ -24,11 +23,9 @@ import java.util.List;
 public class ModuleManager
 {
     private final List<PlexModule> modules = Lists.newArrayList();
-    private final LibraryLoader libraryLoader;
 
     public ModuleManager()
     {
-        this.libraryLoader = new LibraryLoader(Plex.get().getLogger());
     }
 
     public void loadAllModules()
