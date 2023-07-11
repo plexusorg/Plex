@@ -48,14 +48,6 @@ public class PlexBrigadierCMD extends PlexBrigadierCommand
         send(sender, "Plex successfully reloaded.");
     }
 
-    @SubCommand("test yourmom")
-    @CommandPermission("plex.test")
-    public void testPlex(CommandSender sender, @Argument(value = "test", min =  0, max = 100) int i, @Argument(value = "test2", min =  0, max = 100) int j, @Argument(value = "param", argumentType = StringArgumentType.StringType.GREEDY_PHRASE) String param) {
-        send(sender, String.valueOf(i));
-        send(sender, String.valueOf(j));
-//        send(sender, param);
-    }
-
     @SubCommand("redis")
     @CommandPermission("plex.redis")
     public void testRedis(CommandSender sender)
@@ -83,15 +75,6 @@ public class PlexBrigadierCMD extends PlexBrigadierCommand
     {
         plugin.getModuleManager().reloadModules();
         send(sender, mmString("<green>All modules reloaded!"));
-    }
-
-    @SubCommand("modules testing more args")
-    @CommandPermission("plex.modules.reload")
-    public void stupidTesting(CommandSender sender)
-    {
-        send(sender, "leave me alone");
-//        send(sender, mmString("<gold>Modules (" + plugin.getModuleManager().getModules().size() + "): <yellow>" + StringUtils.join(plugin.getModuleManager().getModules().stream().map(PlexModule::getPlexModuleFile).map(PlexModuleFile::getName).collect(Collectors.toList()), ", ")));
-
     }
 
     @Default
