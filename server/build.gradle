@@ -1,29 +1,19 @@
 plugins {
-    id "net.minecrell.plugin-yml.bukkit" version "0.5.3"
+    id "net.minecrell.plugin-yml.paper" version "0.6.0"
 }
 
 dependencies {
     library "org.projectlombok:lombok:1.18.28"
     annotationProcessor "org.projectlombok:lombok:1.18.28"
-    library "org.json:json:20230227"
-    library "commons-io:commons-io:2.12.0"
-    library "dev.morphia.morphia:morphia-core:2.3.4"
-    library "redis.clients:jedis:4.4.2"
+    library "org.json:json:20230618"
+    library "commons-io:commons-io:2.13.0"
+    library "dev.morphia.morphia:morphia-core:2.3.5"
+    library "redis.clients:jedis:5.0.0-beta2"
     library "org.mariadb.jdbc:mariadb-java-client:3.1.4"
     library "com.zaxxer:HikariCP:5.0.1"
-    library "org.apache.httpcomponents.client5:httpclient5:5.2.1"
-    library "org.apache.commons:commons-lang3:3.12.0"
-    library "org.apache.maven.resolver:maven-resolver-api:1.9.10"
-    library "org.apache.maven.resolver:maven-resolver-impl:1.9.10"
-    library "org.apache.maven.resolver:maven-resolver-connector-basic:1.9.10"
-    library "org.apache.maven.resolver:maven-resolver-transport-http:1.9.10"
-    library "org.apache.maven:maven-resolver-provider:3.9.2"
-    library "org.eclipse.jetty:jetty-server:11.0.15"
-    library "org.eclipse.jetty:jetty-servlet:11.0.15"
-    library "org.eclipse.jetty:jetty-proxy:11.0.15"
-    library "com.google.code.gson:gson:2.10.1"
-    compileOnly "io.papermc.paper:paper-api:1.20-R0.1-SNAPSHOT"
-    compileOnly "io.papermc.paper:paper-mojangapi:1.20-R0.1-SNAPSHOT"
+    library "org.apache.maven.resolver:maven-resolver-transport-http:1.9.13"
+    compileOnly "io.papermc.paper:paper-api:1.20.1-R0.1-SNAPSHOT"
+    compileOnly "io.papermc.paper:paper-mojangapi:1.20.1-R0.1-SNAPSHOT"
     compileOnly("com.github.MilkBowl:VaultAPI:1.7.1") {
         exclude group: "org.bukkit", module: "bukkit"
     }
@@ -42,16 +32,31 @@ shadowJar {
     relocate "org.bstats", "dev.plex"
 }
 
-bukkit {
+paper {
     name = "Plex"
     version = project.version
     description = "Plex provides a new experience for freedom servers."
     main = "dev.plex.Plex"
+    loader = "dev.plex.PlexLibraryManager"
     website = "https://plex.us.org"
     authors = ["Telesphoreo", "taahanis", "supernt"]
     // Load BukkitTelnet and LibsDisguises before Plex so the modules register properly
-    softDepend = ["BukkitTelnet", "LibsDisguises", "Vault"]
-    apiVersion = "1.18"
+    apiVersion = "1.19"
+    generateLibrariesJson = true
+    serverDependencies {
+        'BukkitTelnet' {
+            required = false
+            load = 'BEFORE'
+        }
+        'LibsDisguises' {
+            required = false
+            load = 'BEFORE'
+        }
+        'Vault' {
+            required = false
+            load = 'BEFORE'
+        }
+    }
 }
 
 String getGitHash() {
