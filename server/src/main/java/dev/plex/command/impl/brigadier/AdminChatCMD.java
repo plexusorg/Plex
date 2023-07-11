@@ -9,14 +9,12 @@ import dev.plex.command.annotation.Default;
 import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.player.PlexPlayer;
 import org.apache.commons.lang3.BooleanUtils;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import static dev.plex.util.PlexUtils.messageComponent;
 
 /**
  * @author Taah
- * @project Plex
  * @since 6:54 AM [09-07-2023]
  */
 @CommandName({"adminchat", "o", "sc", "ac", "staffchat"})

@@ -1,5 +1,6 @@
 package dev.plex.command.impl.brigadier;
 
+import com.mojang.brigadier.arguments.StringArgumentType;
 import dev.plex.command.PlexBrigadierCommand;
 import dev.plex.command.annotation.*;
 import dev.plex.command.exception.CommandFailException;
@@ -14,7 +15,6 @@ import java.util.stream.Collectors;
 
 /**
  * @author Taah
- * @project Plex
  * @since 3:46 PM [07-07-2023]
  */
 @CommandName({"plex", "pplexx"})
@@ -48,13 +48,13 @@ public class PlexBrigadierCMD extends PlexBrigadierCommand
         send(sender, "Plex successfully reloaded.");
     }
 
-    /*@SubCommand("test yourmom")
+    @SubCommand("test yourmom")
     @CommandPermission("plex.test")
-    public void testPlex(CommandSender sender, @Argument(value = "test", min =  0, max = 100) int i, @Argument(value = "test2", min =  0, max = 100) int j*//*, @Argument(value = "param", argumentType = StringArgumentType.StringType.GREEDY_PHRASE) String param*//*) {
-//        send(sender, String.valueOf(i));
+    public void testPlex(CommandSender sender, @Argument(value = "test", min =  0, max = 100) int i, @Argument(value = "test2", min =  0, max = 100) int j, @Argument(value = "param", argumentType = StringArgumentType.StringType.GREEDY_PHRASE) String param) {
+        send(sender, String.valueOf(i));
         send(sender, String.valueOf(j));
 //        send(sender, param);
-    }*/
+    }
 
     @SubCommand("redis")
     @CommandPermission("plex.redis")
@@ -85,14 +85,14 @@ public class PlexBrigadierCMD extends PlexBrigadierCommand
         send(sender, mmString("<green>All modules reloaded!"));
     }
 
-    /*@SubCommand("modules testing more args")
+    @SubCommand("modules testing more args")
     @CommandPermission("plex.modules.reload")
-    public void viewViewModules(CommandSender sender)
+    public void stupidTesting(CommandSender sender)
     {
         send(sender, "leave me alone");
 //        send(sender, mmString("<gold>Modules (" + plugin.getModuleManager().getModules().size() + "): <yellow>" + StringUtils.join(plugin.getModuleManager().getModules().stream().map(PlexModule::getPlexModuleFile).map(PlexModuleFile::getName).collect(Collectors.toList()), ", ")));
 
-    }*/
+    }
 
     @Default
     public void defaultCommand(CommandSender sender)

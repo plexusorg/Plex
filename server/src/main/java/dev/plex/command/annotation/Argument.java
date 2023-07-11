@@ -9,7 +9,6 @@ import java.lang.annotation.Target;
 
 /**
  * @author Taah
- * @project Plex
  * @since 4:31 AM [08-07-2023]
  */
 @Retention(RetentionPolicy.RUNTIME)

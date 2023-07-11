@@ -34,7 +34,6 @@ import java.util.*;
 
 /**
  * @author Taah
- * @project Plex
  * @since 2:27 PM [07-07-2023]
  */
 public abstract class PlexBrigadierCommand

@@ -7,7 +7,6 @@ import java.lang.annotation.Target;
 
 /**
  * @author Taah
- * @project Plex
  * @since 4:46 PM [07-07-2023]
  */
 
