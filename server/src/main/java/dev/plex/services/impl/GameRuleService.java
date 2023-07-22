@@ -3,6 +3,7 @@ package dev.plex.services.impl;
 import dev.plex.services.AbstractService;
 import dev.plex.util.GameRuleUtil;
 import dev.plex.util.PlexLog;
+import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 
@@ -16,7 +17,7 @@ public class GameRuleService extends AbstractService
     }
 
     @Override
-    public void run()
+    public void run(ScheduledTask task)
     {
         for (World world : Bukkit.getWorlds())
         {

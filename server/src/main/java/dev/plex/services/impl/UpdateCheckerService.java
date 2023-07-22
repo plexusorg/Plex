@@ -1,6 +1,7 @@
 package dev.plex.services.impl;
 
 import dev.plex.services.AbstractService;
+import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.Bukkit;
 
 public class UpdateCheckerService extends AbstractService
@@ -13,7 +14,7 @@ public class UpdateCheckerService extends AbstractService
     }
 
     @Override
-    public void run()
+    public void run(ScheduledTask task)
     {
         if (!newVersion)
         {

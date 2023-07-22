@@ -5,6 +5,7 @@ import dev.plex.command.blocking.BlockedCommand;
 import dev.plex.services.AbstractService;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
+import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import lombok.Getter;
 import org.bukkit.command.Command;
 
@@ -22,7 +23,7 @@ public class CommandBlockerService extends AbstractService
     }
 
     @Override
-    public void run()
+    public void run(ScheduledTask task)
     {
         BLOCKED_COMMANDS.clear();
         plugin.commands.getStringList("commands").forEach(s ->

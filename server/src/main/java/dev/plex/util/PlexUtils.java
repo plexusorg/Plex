@@ -105,6 +105,17 @@ public class PlexUtils implements PlexBase
         }
     }
 
+    public static boolean isFolia() {
+        try {
+            Class.forName("io.papermc.paper.threadedregions.ThreadedRegionizer");
+        }
+        catch (Exception e) {
+            return false;
+        }
+
+        return true;
+    }
+
     public static boolean isPluginCMD(String cmd, String pluginName)
     {
         Plugin plugin = Bukkit.getServer().getPluginManager().getPlugin(pluginName);

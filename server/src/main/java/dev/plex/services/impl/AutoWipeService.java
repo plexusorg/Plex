@@ -2,11 +2,12 @@ package dev.plex.services.impl;
 
 import dev.plex.Plex;
 import dev.plex.services.AbstractService;
+import dev.plex.util.PlexLog;
+import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
+import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
-
-import java.util.List;
 
 public class AutoWipeService extends AbstractService
 {
@@ -16,7 +17,7 @@ public class AutoWipeService extends AbstractService
     }
 
     @Override
-    public void run()
+    public void run(ScheduledTask task)
     {
         if (Plex.get().config.getBoolean("autowipe.enabled"))
         {
@@ -28,8 +29,27 @@ public class AutoWipeService extends AbstractService
                 {
                     if (entities.stream().anyMatch(entityName -> entityName.equalsIgnoreCase(entity.getType().name())))
                     {
-                        entity.remove();
+                        Bukkit.getRegionScheduler().run(Plex.get(), entity.getLocation(), this::entityRun);
+                        PlexLog.debug("Started entity scheduler");
                     }
+                }
+            }
+        }
+    }
+
+    private void entityRun(ScheduledTask task)
+    {
+        List<String> entities = plugin.config.getStringList("autowipe.entities");
+
+        for (World world : Bukkit.getWorlds())
+        {
+            for (Entity entity : world.getEntities())
+            {
+                if (entities.stream().anyMatch(entityName -> entityName.equalsIgnoreCase(entity.getType().name())))
+                {
+                    PlexLog.debug("Removed entity " + entity.getName());
+                    entity.remove();
+                    task.cancel();
                 }
             }
         }
