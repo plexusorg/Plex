@@ -39,7 +39,7 @@ publishing {
 dependencies {
     compileOnly("org.projectlombok:lombok:1.18.28")
     annotationProcessor("org.projectlombok:lombok:1.18.28")
-    compileOnly("org.json:json:20230227")
+    compileOnly("org.json:json:20230618")
     compileOnly("com.velocitypowered:velocity-api:3.2.0-SNAPSHOT")
     annotationProcessor("com.velocitypowered:velocity-api:3.2.0-SNAPSHOT")
 }

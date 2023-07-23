@@ -30,7 +30,6 @@ public class AutoWipeService extends AbstractService
                     if (entities.stream().anyMatch(entityName -> entityName.equalsIgnoreCase(entity.getType().name())))
                     {
                         Bukkit.getRegionScheduler().run(Plex.get(), entity.getLocation(), this::entityRun);
-                        PlexLog.debug("Started entity scheduler");
                     }
                 }
             }
@@ -47,7 +46,6 @@ public class AutoWipeService extends AbstractService
             {
                 if (entities.stream().anyMatch(entityName -> entityName.equalsIgnoreCase(entity.getType().name())))
                 {
-                    PlexLog.debug("Removed entity " + entity.getName());
                     entity.remove();
                     task.cancel();
                 }
