@@ -137,19 +137,29 @@ prefixSetTo: "<aqua>Your prefix has been set to {0}"
 # 0 - The action (blocked / unblocked)
 # 1 - The amount of players
 blockeditSize: "<gray>{0} all block modification abilities for {1} players."
+combatSize: "<gray>{0} all combat abilities for {1} players."
 # The action (blocked or restored)
 editsModified: "<gray>Your block modification abilities have been {0}."
+combatModified: "<gray>Your combat abilities have been {0}."
 listOfPlayersBlocked: "<gray>The following have block modification abilities restricted:"
 # 0 - The player name
+listOfPlayersCombatBlocked: "<gray>The following have combat restricted:"
 editsBlocked: "<gray>Blocked block modification abilities for {0}"
 # 0 - The command sender
 # 1 - The player name
 blockingEdits: "<red>{0} - Blocking block modification abilities for {1}"
 # 0 - The command sender
 # 1 - The player
+blockingCombat: "<red>{0} - Blocking combat abilities for {1}"
+# 0 - The command sender
+# 1 - The player
 unblockingEdits: "<aqua>{0} - Unblocking block modification abilities for {1}"
 # 0 - The player name
+unblockingCombat: "<aqua>{0} - Unblocking combat abilities for {1}"
+# 0 - The command sender
+# 1 - Number of entities removed
 editsUnblocked: "<gray>Unblocked block modification abilities for {0}"
+combatUnblocked: "<gray>Unblocked combat abilities for {0}"
 # 0 - The command sender
 # 1 - Number of entities removed
 removedEntities: "<red>{0} - Removed {1} entities"
