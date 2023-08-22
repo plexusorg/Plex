@@ -46,6 +46,7 @@ public class CommandListener extends PlexListener
     {
         String command = "/" + event.getMessage().replaceFirst("/", "").trim();
         Player player = event.getPlayer();
+        if (player.hasPermission("plex.commandblocker.bypass")) return;
         PlexPlayer plexPlayer = DataUtils.getPlayer(player.getUniqueId());
         String commandName = StringUtils.normalizeSpace(command).split(" ")[0].replaceFirst("/", "");
         String arguments = StringUtils.normalizeSpace(StringUtils.normalizeSpace(command).replace(command.split(" ")[0], ""));
