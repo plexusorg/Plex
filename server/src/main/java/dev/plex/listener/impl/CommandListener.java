@@ -1,5 +1,6 @@
 package dev.plex.listener.impl;
 
+import dev.plex.Plex;
 import dev.plex.cache.DataUtils;
 import dev.plex.command.blocking.BlockedCommand;
 import dev.plex.listener.PlexListener;
@@ -46,7 +47,7 @@ public class CommandListener extends PlexListener
     {
         String command = "/" + event.getMessage().replaceFirst("/", "").trim();
         Player player = event.getPlayer();
-        if (player.hasPermission("plex.commandblocker.bypass")) return;
+        if (Plex.get().getPermissions() != null && Plex.get().getPermissions().has(player, "plex.commandblocker.bypass")) return;
         PlexPlayer plexPlayer = DataUtils.getPlayer(player.getUniqueId());
         String commandName = StringUtils.normalizeSpace(command).split(" ")[0].replaceFirst("/", "");
         String arguments = StringUtils.normalizeSpace(StringUtils.normalizeSpace(command).replace(command.split(" ")[0], ""));
