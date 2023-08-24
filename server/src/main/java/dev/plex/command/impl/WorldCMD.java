@@ -1,14 +1,13 @@
 package dev.plex.command.impl;
 
+import com.google.common.collect.Lists;
 import dev.plex.Plex;
 import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.rank.enums.Rank;
-import dev.plex.util.PlexLog;
 import net.kyori.adventure.text.Component;
-import org.apache.commons.compress.utils.Lists;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
@@ -16,7 +15,6 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.regex.Pattern;
