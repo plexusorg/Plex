@@ -17,6 +17,10 @@ banMessage: "<red>You have been banned! You may appeal at <gold>{0}.\n<red>Reaso
 # 0 - The type of indefinite ban
 # 1 - Appeal URL
 indefBanMessage: "<red>Your {0} is indefinitely banned! You may appeal at <gold>{1}."
+# 0 - The type of indefinite ban
+# 1 - Appeal URL
+# 2 - The reason
+indefBanMessageReason: "<red>Your {0} is indefinitely banned! You may appeal at <gold>{1}.\n<red>Reason: <gold>{2}"
 playerNotFound: "<red>Player not found!"
 specifyPlayer: "<red>You must specify a player!"
 worldNotFound: "<red>World not found!"

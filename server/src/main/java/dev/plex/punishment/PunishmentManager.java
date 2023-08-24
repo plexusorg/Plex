@@ -16,6 +16,7 @@ import lombok.Getter;
 import org.apache.commons.io.FileUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,7 +40,7 @@ public class PunishmentManager implements PlexBase
         this.indefiniteBans.clear();
         Plex.get().indefBans.getKeys(false).forEach(key ->
         {
-            IndefiniteBan ban = new IndefiniteBan();
+            IndefiniteBan ban = new IndefiniteBan(Plex.get().getIndefBans().getString("reason", ""));
             ban.ips.addAll(Plex.get().getIndefBans().getStringList(key + ".ips"));
             ban.usernames.addAll(Plex.get().getIndefBans().getStringList(key + ".users"));
             ban.uuids.addAll(Plex.get().getIndefBans().getStringList(key + ".uuids").stream().map(UUID::fromString).toList());
@@ -58,7 +59,8 @@ public class PunishmentManager implements PlexBase
         }
     }
 
-    public boolean isIndefUUIDBanned(UUID uuid)
+    @Nullable
+    public IndefiniteBan getIndefiniteBanByUUID(UUID uuid)
     {
         if (Plex.get().getRedisConnection().isEnabled())
         {
@@ -66,12 +68,12 @@ public class PunishmentManager implements PlexBase
             List<IndefiniteBan> bans = new Gson().fromJson(Plex.get().getRedisConnection().getJedis().get("indefbans"), new TypeToken<List<IndefiniteBan>>()
             {
             }.getType());
-            return bans.stream().anyMatch(indefiniteBan -> indefiniteBan.getUuids().contains(uuid));
+            return bans.stream().filter(indefiniteBan -> indefiniteBan.getUuids().contains(uuid)).findFirst().orElse(null);
         }
-        return this.indefiniteBans.stream().anyMatch(indefiniteBan -> indefiniteBan.getUuids().contains(uuid));
+        return this.indefiniteBans.stream().filter(indefiniteBan -> indefiniteBan.getUuids().contains(uuid)).findFirst().orElse(null);
     }
 
-    public boolean isIndefIPBanned(String ip)
+    public IndefiniteBan getIndefiniteBanByIP(String ip)
     {
         if (Plex.get().getRedisConnection().isEnabled())
         {
@@ -79,12 +81,12 @@ public class PunishmentManager implements PlexBase
             List<IndefiniteBan> bans = new Gson().fromJson(Plex.get().getRedisConnection().getJedis().get("indefbans"), new TypeToken<List<IndefiniteBan>>()
             {
             }.getType());
-            return bans.stream().anyMatch(indefiniteBan -> indefiniteBan.getIps().contains(ip));
+            return bans.stream().filter(indefiniteBan -> indefiniteBan.getIps().contains(ip)).findFirst().orElse(null);
         }
-        return this.indefiniteBans.stream().anyMatch(indefiniteBan -> indefiniteBan.getIps().contains(ip));
+        return this.indefiniteBans.stream().filter(indefiniteBan -> indefiniteBan.getIps().contains(ip)).findFirst().orElse(null);
     }
 
-    public boolean isIndefUserBanned(String username)
+    public IndefiniteBan getIndefiniteBanByUsername(String username)
     {
         if (Plex.get().getRedisConnection().isEnabled())
         {
@@ -92,9 +94,9 @@ public class PunishmentManager implements PlexBase
             List<IndefiniteBan> bans = new Gson().fromJson(Plex.get().getRedisConnection().getJedis().get("indefbans"), new TypeToken<List<IndefiniteBan>>()
             {
             }.getType());
-            return bans.stream().anyMatch(indefiniteBan -> indefiniteBan.getUsernames().contains(username));
+            return bans.stream().filter(indefiniteBan -> indefiniteBan.getUsernames().contains(username)).findFirst().orElse(null);
         }
-        return this.indefiniteBans.stream().anyMatch(indefiniteBan -> indefiniteBan.getUsernames().contains(username));
+        return this.indefiniteBans.stream().filter(indefiniteBan -> indefiniteBan.getUsernames().contains(username)).findFirst().orElse(null);
     }
 
     public void issuePunishment(PlexPlayer plexPlayer, Punishment punishment)
@@ -262,5 +264,6 @@ public class PunishmentManager implements PlexBase
         private final List<String> usernames = Lists.newArrayList();
         private final List<UUID> uuids = Lists.newArrayList();
         private final List<String> ips = Lists.newArrayList();
+        private final String reason;
     }
 }
