@@ -31,7 +31,7 @@ public class WorldCMD extends PlexCommand
             return usage();
         }
         World world = getNonNullWorld(args[0]);
-        playerSender.teleportAsync(new Location(world, 0, world.getHighestBlockYAt(0, 0) + 1, 0, 0, 0));
+        playerSender.teleportAsync(world.getSpawnLocation());
         return messageComponent("playerWorldTeleport", world.getName());
     }
 
