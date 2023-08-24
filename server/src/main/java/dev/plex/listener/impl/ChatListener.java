@@ -18,12 +18,12 @@ import org.bukkit.event.EventHandler;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
+import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 @Toggleable("chat.enabled")
 public class ChatListener extends PlexListener
 {
-
     public static final TextReplacementConfig URL_REPLACEMENT_CONFIG = TextReplacementConfig
             .builder()
             .match("(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]")
@@ -32,6 +32,7 @@ public class ChatListener extends PlexListener
                     .clickEvent(ClickEvent.openUrl(
                             matchResult.group()
                     ))).build();
+    public static BiConsumer<AsyncChatEvent, PlexPlayer> PRE_RENDERER = ChatListener::defaultChatProcessing;
     private final PlexChatRenderer renderer = new PlexChatRenderer();
 
     @EventHandler
@@ -58,6 +59,8 @@ public class ChatListener extends PlexListener
             renderer.prefix = null;
         }
 
+        PRE_RENDERER.accept(event, plexPlayer);
+
         event.renderer(renderer);
     }
 
@@ -70,8 +73,6 @@ public class ChatListener extends PlexListener
         @Override
         public @NotNull Component render(@NotNull Player source, @NotNull Component sourceDisplayName, @NotNull Component message, @NotNull Audience viewer)
         {
-            String text = PlexUtils.cleanString(PlexUtils.getTextFromComponent(message));
-
             Component component = Component.empty();
 
             if (before != null)
@@ -92,8 +93,14 @@ public class ChatListener extends PlexListener
                     .append(Component.space())
                     .append(Component.text("»").color(NamedTextColor.GRAY))
                     .append(Component.space())
-                    .append(SafeMiniMessage.mmDeserializeWithoutEvents(text))
+                    .append(message)
                     .replaceText(URL_REPLACEMENT_CONFIG);
         }
+    }
+
+    private static void defaultChatProcessing(AsyncChatEvent event, PlexPlayer plexPlayer)
+    {
+        String text = PlexUtils.cleanString(PlexUtils.getTextFromComponent(event.message()));
+        event.message(SafeMiniMessage.mmDeserializeWithoutEvents(text));
     }
 }
