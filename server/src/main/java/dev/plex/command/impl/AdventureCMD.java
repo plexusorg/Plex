@@ -58,7 +58,7 @@ public class AdventureCMD extends PlexCommand
     @Override
     public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
     {
-        if (checkTab(sender, Rank.ADMIN, "plex.gamemode.adventure.others"))
+        if (silentCheckRank(sender, Rank.ADMIN, "plex.gamemode.adventure.others"))
         {
             return PlexUtils.getPlayerNameList();
         }

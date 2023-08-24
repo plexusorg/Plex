@@ -11,6 +11,7 @@ import org.bukkit.entity.Ageable;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
@@ -53,6 +54,7 @@ public class MobListener extends PlexListener
     @EventHandler
     public void onEntitySpawn(EntitySpawnEvent event)
     {
+        if (event.isCancelled()) return;
         if (event.getEntity().getEntitySpawnReason() == CreatureSpawnEvent.SpawnReason.SPAWNER_EGG)
         {
             // for the future, we can instead filter and restrict nbt tags right here.
@@ -90,6 +92,7 @@ public class MobListener extends PlexListener
     @EventHandler(priority = EventPriority.HIGH)
     public void onEntityClick(PlayerInteractEntityEvent event)
     {
+        if (event.isCancelled()) return;
         Material handItem = event.getPlayer().getEquipment().getItem(event.getHand()).getType();
         if (event.getRightClicked() instanceof Ageable entity)
         {
@@ -111,6 +114,8 @@ public class MobListener extends PlexListener
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerInteract(PlayerInteractEvent event)
     {
+        if (event.useItemInHand() == Event.Result.DENY) return;
+        if (event.useInteractedBlock() == Event.Result.DENY) return;
         if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK)
         {
             if (SPAWN_EGGS.contains(event.getMaterial()))

@@ -55,6 +55,10 @@ paper {
             required = false
             load = 'BEFORE'
         }
+        'Essentials' {
+            required = false
+            load = 'BEFORE'
+        }
     }
 }
 

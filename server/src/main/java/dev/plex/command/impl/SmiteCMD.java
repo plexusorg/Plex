@@ -144,7 +144,7 @@ public class SmiteCMD extends PlexCommand
     @Override
     public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
     {
-        if (checkTab(sender, Rank.ADMIN, "plex.smite") && args.length == 1)
+        if (silentCheckRank(sender, Rank.ADMIN, "plex.smite") && args.length == 1)
         {
             return PlexUtils.getPlayerNameList();
         }

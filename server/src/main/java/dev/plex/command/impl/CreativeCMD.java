@@ -62,7 +62,7 @@ public class CreativeCMD extends PlexCommand
     @Override
     public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
     {
-        if (checkTab(sender, Rank.ADMIN, "plex.gamemode.creative.others"))
+        if (silentCheckRank(sender, Rank.ADMIN, "plex.gamemode.creative.others"))
         {
             return PlexUtils.getPlayerNameList();
         }

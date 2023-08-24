@@ -61,6 +61,6 @@ public class UnbanCMD extends PlexCommand
     @Override
     public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
     {
-        return args.length == 1 && checkTab(sender, Rank.ADMIN, "plex.unban") ? PlexUtils.getPlayerNameList() : ImmutableList.of();
+        return args.length == 1 && silentCheckRank(sender, Rank.ADMIN, "plex.unban") ? PlexUtils.getPlayerNameList() : ImmutableList.of();
     }
 }

@@ -1,5 +1,6 @@
 package dev.plex.listener.impl;
 
+import com.destroystokyo.paper.event.entity.PlayerNaturallySpawnCreaturesEvent;
 import dev.plex.Plex;
 import dev.plex.listener.PlexListener;
 import dev.plex.player.PlexPlayer;
@@ -12,6 +13,10 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
+import org.bukkit.block.data.Openable;
+import org.bukkit.block.data.Powerable;
+import org.bukkit.block.data.type.Door;
+import org.bukkit.block.data.type.TrapDoor;
 import org.bukkit.command.Command;
 import org.bukkit.command.PluginIdentifiableCommand;
 import org.bukkit.entity.EntityType;
@@ -20,9 +25,9 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
-import org.bukkit.event.player.PlayerCommandPreprocessEvent;
-import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.event.player.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -33,7 +38,7 @@ public class WorldListener extends PlexListener
 {
     private final List<String> EDIT_COMMANDS = Arrays.asList("bigtree", "ebigtree", "largetree", "elargetree", "break", "ebreak", "antioch", "nuke", "editsign", "tree", "etree");
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onBlockPlace(BlockPlaceEvent event)
     {
         if (!canModifyWorld(event.getPlayer(), true))
@@ -42,7 +47,7 @@ public class WorldListener extends PlexListener
         }
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onBlockBreak(BlockBreakEvent event)
     {
         if (!canModifyWorld(event.getPlayer(), true))
@@ -51,7 +56,45 @@ public class WorldListener extends PlexListener
         }
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onInteractWorld(PlayerInteractEvent event)
+    {
+        if (event.getInteractionPoint() != null && event.getInteractionPoint().getBlock().getBlockData() instanceof Openable) return;
+        if (!canModifyWorld(event.getPlayer(), true))
+        {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onInteractWorld(PlayerInteractEntityEvent event)
+    {
+        if (!canModifyWorld(event.getPlayer(), true))
+        {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onInteractWorld(PlayerItemDamageEvent event)
+    {
+        if (!canModifyWorld(event.getPlayer(), true))
+        {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onInteractWorld(EntityDamageByEntityEvent event)
+    {
+        if (!(event.getDamager() instanceof Player player)) return;
+        if (!canModifyWorld(player, true))
+        {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onEntitySpawn(EntitySpawnEvent event)
     {
         if (event.getEntityType() != EntityType.SLIME)
@@ -87,10 +130,10 @@ public class WorldListener extends PlexListener
         }
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onWorldTeleport(PlayerTeleportEvent event)
     {
-        if (!canEnterWorld(event.getPlayer()))
+        if (!canEnterWorld(event.getPlayer(), event.getTo().getWorld()))
         {
             event.setCancelled(true);
         }
@@ -193,13 +236,12 @@ public class WorldListener extends PlexListener
      * @param player The player who wants to enter the world
      * @return Returns true if the person has the ability to enter the world
      */
-    private boolean canEnterWorld(Player player)
+    private boolean canEnterWorld(Player player, World destination)
     {
         PlexPlayer plexPlayer = plugin.getPlayerCache().getPlexPlayerMap().get(player.getUniqueId());
-        World world = player.getWorld();
         if (plugin.getSystem().equalsIgnoreCase("permissions"))
         {
-            String permission = plugin.config.getString("worlds." + world.getName().toLowerCase() + ".entry.permission");
+            String permission = plugin.config.getString("worlds." + destination.getName().toLowerCase() + ".entry.permission");
             if (permission == null)
             {
                 return true;
@@ -211,9 +253,9 @@ public class WorldListener extends PlexListener
         }
         else if (plugin.getSystem().equalsIgnoreCase("ranks"))
         {
-            if (plugin.config.contains("worlds." + world.getName().toLowerCase() + ".entry.requiredLevels"))
+            if (plugin.config.contains("worlds." + destination.getName().toLowerCase() + ".entry.requiredLevels"))
             {
-                @NotNull List<String> requiredLevel = plugin.config.getStringList("worlds." + world.getName().toLowerCase() + ".entry.requiredLevels");
+                @NotNull List<String> requiredLevel = plugin.config.getStringList("worlds." + destination.getName().toLowerCase() + ".entry.requiredLevels");
                 if (checkLevel(plexPlayer, requiredLevel.toArray(String[]::new)))
                 {
                     return true;
@@ -225,7 +267,7 @@ public class WorldListener extends PlexListener
             }
         }
 
-        String noEntry = plugin.config.getString("worlds." + world.getName().toLowerCase() + ".entry.message");
+        String noEntry = plugin.config.getString("worlds." + destination.getName().toLowerCase() + ".entry.message");
         if (noEntry != null)
         {
             player.sendMessage(MiniMessage.miniMessage().deserialize(noEntry));

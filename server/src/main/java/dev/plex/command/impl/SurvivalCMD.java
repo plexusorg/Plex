@@ -59,7 +59,7 @@ public class SurvivalCMD extends PlexCommand
     @Override
     public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
     {
-        if (checkTab(sender, Rank.ADMIN, "plex.gamemode.survival.others"))
+        if (silentCheckRank(sender, Rank.ADMIN, "plex.gamemode.survival.others"))
         {
             return PlexUtils.getPlayerNameList();
         }

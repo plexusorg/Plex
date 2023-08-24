@@ -58,7 +58,7 @@ public class SpectatorCMD extends PlexCommand
     @Override
     public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
     {
-        if (checkTab(sender, Rank.ADMIN, "plex.gamemode.spectator.others"))
+        if (silentCheckRank(sender, Rank.ADMIN, "plex.gamemode.spectator.others"))
         {
             return PlexUtils.getPlayerNameList();
         }
