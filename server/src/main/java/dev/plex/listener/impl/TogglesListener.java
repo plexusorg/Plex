@@ -15,6 +15,7 @@ public class TogglesListener extends PlexListener
     {
         if (!plugin.toggles.getBoolean("explosions"))
         {
+            event.getEntity().remove();
             event.setCancelled(true);
         }
     }
@@ -24,6 +25,7 @@ public class TogglesListener extends PlexListener
     {
         if (!plugin.toggles.getBoolean("explosions"))
         {
+            event.getEntity().remove();
             event.setCancelled(true);
         }
     }
