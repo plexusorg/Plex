@@ -281,6 +281,6 @@ public class PlexUtils implements PlexBase
 
     public static String cleanString(String input)
     {
-        return CharMatcher.forPredicate(c -> Character.getDirectionality(c) != Character.DIRECTIONALITY_RIGHT_TO_LEFT_OVERRIDE || Character.getDirectionality(c) != Character.DIRECTIONALITY_RIGHT_TO_LEFT).retainFrom(input);
+        return CharMatcher.forPredicate(c -> Character.getDirectionality(c) != Character.DIRECTIONALITY_RIGHT_TO_LEFT_OVERRIDE && Character.getDirectionality(c) != Character.DIRECTIONALITY_RIGHT_TO_LEFT).retainFrom(input);
     }
 }
