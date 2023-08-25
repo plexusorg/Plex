@@ -11,7 +11,6 @@ import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.Punishment;
 import dev.plex.punishment.PunishmentType;
-import dev.plex.rank.enums.Rank;
 import dev.plex.util.*;
 import net.kyori.adventure.text.Component;
 import org.apache.commons.lang3.StringUtils;
@@ -24,10 +23,9 @@ import org.jetbrains.annotations.Nullable;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
-import java.util.UUID;
 
 @CommandParameters(name = "ban", usage = "/<command> <player> [reason]", aliases = "offlineban,gtfo", description = "Bans a player, offline or online")
-@CommandPermissions(level = Rank.ADMIN, permission = "plex.ban", source = RequiredCommandSource.ANY)
+@CommandPermissions(permission = "plex.ban", source = RequiredCommandSource.ANY)
 
 public class BanCMD extends PlexCommand
 {
@@ -47,22 +45,6 @@ public class BanCMD extends PlexCommand
         }
 
         Player player = Bukkit.getPlayer(plexPlayer.getUuid());
-
-        if (plugin.getSystem().equalsIgnoreCase("ranks"))
-        {
-            if (isAdmin(plexPlayer))
-            {
-                if (!isConsole(sender))
-                {
-                    assert playerSender != null;
-                    PlexPlayer plexPlayer1 = getPlexPlayer(playerSender);
-                    if (!plexPlayer1.getRankFromString().isAtLeast(plexPlayer.getRankFromString()))
-                    {
-                        return messageComponent("higherRankThanYou");
-                    }
-                }
-            }
-        }
 
         plugin.getPunishmentManager().isAsyncBanned(plexPlayer.getUuid()).whenComplete((aBoolean, throwable) ->
         {
@@ -87,7 +69,7 @@ public class BanCMD extends PlexCommand
             ZonedDateTime date = ZonedDateTime.now(ZoneId.of(TimeUtils.TIMEZONE));
             punishment.setEndDate(date.plusDays(1));
             punishment.setCustomTime(false);
-            punishment.setActive(!isAdmin(plexPlayer));
+            punishment.setActive(true);
             if (player != null)
             {
                 punishment.setIp(player.getAddress().getAddress().getHostAddress().trim());
@@ -110,6 +92,6 @@ public class BanCMD extends PlexCommand
     @Override
     public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
     {
-        return args.length == 1 && silentCheckRank(sender, Rank.ADMIN, "plex.ban") ? PlexUtils.getPlayerNameList() : ImmutableList.of();
+        return args.length == 1 && silentCheckPermission(sender, "plex.ban") ? PlexUtils.getPlayerNameList() : ImmutableList.of();
     }
 }

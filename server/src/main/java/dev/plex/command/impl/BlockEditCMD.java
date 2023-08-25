@@ -4,7 +4,6 @@ import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.listener.impl.BlockListener;
-import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -13,7 +12,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-@CommandPermissions(level = Rank.ADMIN, permission = "plex.blockedit")
+@CommandPermissions(permission = "plex.blockedit")
 @CommandParameters(name = "blockedit", usage = "/<command> [list | purge | all | <player>]", aliases = "bedit", description = "Prevent players from modifying blocks")
 public class BlockEditCMD extends PlexCommand
 {
@@ -63,7 +62,7 @@ public class BlockEditCMD extends PlexCommand
             int count = 0;
             for (final Player player : Bukkit.getOnlinePlayers())
             {
-                if (!silentCheckRank(player, Rank.ADMIN, "plex.blockedit"))
+                if (!silentCheckPermission(player, "plex.blockedit"))
                 {
                     bl.blockedPlayers.add(player.getName());
                     ++count;
@@ -76,7 +75,7 @@ public class BlockEditCMD extends PlexCommand
         final Player player = getNonNullPlayer(args[0]);
         if (!bl.blockedPlayers.contains(player.getName()))
         {
-            if (silentCheckRank(player, Rank.ADMIN, "plex.blockedit"))
+            if (silentCheckPermission(player, "plex.blockedit"))
             {
                 send(sender, messageComponent("higherRankThanYou"));
                 return null;

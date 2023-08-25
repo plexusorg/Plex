@@ -4,7 +4,7 @@ import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.source.RequiredCommandSource;
-import dev.plex.rank.enums.Rank;
+
 import dev.plex.util.PlexUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -18,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 
-@CommandPermissions(level = Rank.ADMIN, permission = "plex.mobpurge", source = RequiredCommandSource.ANY)
+@CommandPermissions(permission = "plex.mobpurge", source = RequiredCommandSource.ANY)
 @CommandParameters(name = "mobpurge", description = "Purge all mobs.", usage = "/<command>", aliases = "mp")
 public class MobPurgeCMD extends PlexCommand
 {

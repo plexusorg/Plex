@@ -5,7 +5,7 @@ import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.hook.VaultHook;
-import dev.plex.rank.enums.Rank;
+
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 @CommandParameters(name = "list", description = "Show a list of all online players", aliases = "lsit,who,playerlist,online")
-@CommandPermissions(level = Rank.OP, permission = "plex.list")
+@CommandPermissions(permission = "plex.list")
 public class ListCMD extends PlexCommand
 {
     @Override
@@ -44,18 +44,11 @@ public class ListCMD extends PlexCommand
         for (int i = 0; i < players.size(); i++)
         {
             Player player = players.get(i);
-            if (plugin.getSystem().equals("ranks"))
-            {
-                list = list.append(getPlexPlayer(player).getRankFromString().getPrefix()).append(Component.space()).append(Component.text(player.getName()).color(NamedTextColor.WHITE));
+            Component prefix = VaultHook.getPrefix(getPlexPlayer(player));
+            if (prefix != null && !prefix.equals(Component.empty()) && !prefix.equals(Component.space())) {
+                list = list.append(prefix).append(Component.space());
             }
-            else
-            {
-                Component prefix = VaultHook.getPrefix(getPlexPlayer(player));
-                if (prefix != null && !prefix.equals(Component.empty()) && !prefix.equals(Component.space())) {
-                    list = list.append(prefix).append(Component.space());
-                }
-                list = list.append(Component.text(player.getName()).color(NamedTextColor.WHITE));
-            }
+            list = list.append(Component.text(player.getName()).color(NamedTextColor.WHITE));
             if (i != players.size() - 1)
             {
                 list = list.append(Component.text(",")).append(Component.space());

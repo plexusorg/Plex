@@ -4,7 +4,7 @@ import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.source.RequiredCommandSource;
-import dev.plex.rank.enums.Rank;
+
 import dev.plex.util.PlexUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -18,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-@CommandPermissions(level = Rank.ADMIN, permission = "plex.entitywipe", source = RequiredCommandSource.ANY)
+@CommandPermissions(permission = "plex.entitywipe", source = RequiredCommandSource.ANY)
 @CommandParameters(name = "entitywipe", description = "Remove various server entities that may cause lag, such as dropped items, minecarts, and boats.", usage = "/<command> [name]", aliases = "ew,rd")
 public class EntityWipeCMD extends PlexCommand
 {

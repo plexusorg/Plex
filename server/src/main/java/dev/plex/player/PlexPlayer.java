@@ -2,23 +2,16 @@ package dev.plex.player;
 
 import com.google.common.collect.Lists;
 import com.google.gson.GsonBuilder;
-import dev.morphia.annotations.Entity;
-import dev.morphia.annotations.Id;
-import dev.morphia.annotations.IndexOptions;
-import dev.morphia.annotations.Indexed;
 import dev.plex.Plex;
-import dev.plex.permission.Permission;
 import dev.plex.punishment.Punishment;
 import dev.plex.punishment.extra.Note;
-import dev.plex.rank.enums.Rank;
-import dev.plex.storage.StorageType;
+import dev.plex.storage.annotation.PrimaryKey;
 import dev.plex.util.adapter.ZonedDateTimeAdapter;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachment;
 
@@ -28,18 +21,11 @@ import java.util.UUID;
 
 @Getter
 @Setter
-@Entity(value = "players", useDiscriminator = false)
 public class PlexPlayer
 {
     @Setter(AccessLevel.NONE)
-    @Id
-    private String id;
-
-    @Setter(AccessLevel.NONE)
-    @Indexed(options = @IndexOptions(unique = true))
+    @PrimaryKey
     private UUID uuid;
-
-    @Indexed
     private String name;
 
     private String loginMessage;
@@ -63,7 +49,6 @@ public class PlexPlayer
     private List<String> ips = Lists.newArrayList();
     private List<Punishment> punishments = Lists.newArrayList();
     private List<Note> notes = Lists.newArrayList();
-    private List<Permission> permissions = Lists.newArrayList();
 
     private transient PermissionAttachment permissionAttachment;
 
@@ -74,9 +59,6 @@ public class PlexPlayer
     public PlexPlayer(UUID playerUUID, boolean loadExtraData)
     {
         this.uuid = playerUUID;
-
-        this.id = uuid.toString().substring(0, 8);
-
         this.name = "";
 
         this.loginMessage = "";
@@ -103,26 +85,6 @@ public class PlexPlayer
     public String displayName()
     {
         return PlainTextComponentSerializer.plainText().serialize(getPlayer().displayName());
-    }
-
-    public Rank getRankFromString()
-    {
-        OfflinePlayer player = Bukkit.getOfflinePlayer(uuid);
-        if (rank.isEmpty() || !isAdminActive())
-        {
-            if (player.isOp())
-            {
-                return Rank.OP;
-            }
-            else
-            {
-                return Rank.NONOP;
-            }
-        }
-        else
-        {
-            return Rank.valueOf(rank.toUpperCase());
-        }
     }
 
     public void loadPunishments()

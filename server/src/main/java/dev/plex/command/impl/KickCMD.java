@@ -9,11 +9,10 @@ import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.Punishment;
 import dev.plex.punishment.PunishmentType;
-import dev.plex.rank.enums.Rank;
+
 import dev.plex.util.BungeeUtil;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.TimeUtils;
-import dev.plex.util.WebUtils;
 import net.kyori.adventure.text.Component;
 import org.apache.commons.lang3.StringUtils;
 import org.bukkit.Bukkit;
@@ -24,10 +23,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.UUID;
 
 @CommandParameters(name = "kick", description = "Kicks a player", usage = "/<command> <player>")
-@CommandPermissions(level = Rank.ADMIN, permission = "plex.kick", source = RequiredCommandSource.ANY)
+@CommandPermissions(permission = "plex.kick", source = RequiredCommandSource.ANY)
 public class KickCMD extends PlexCommand
 {
     @Override

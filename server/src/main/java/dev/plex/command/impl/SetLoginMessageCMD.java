@@ -7,7 +7,6 @@ import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.exception.CommandFailException;
 import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.player.PlexPlayer;
-import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexLog;
 import net.kyori.adventure.text.Component;
 import org.apache.commons.lang3.StringUtils;
@@ -16,7 +15,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-@CommandPermissions(level = Rank.ADMIN, permission = "plex.setloginmessage", source = RequiredCommandSource.ANY)
+@CommandPermissions(permission = "plex.setloginmessage", source = RequiredCommandSource.ANY)
 @CommandParameters(name = "setloginmessage", usage = "/<command> [-o <player>] <message>", description = "Sets your (or someone else's) login message", aliases = "slm,setloginmsg")
 public class SetLoginMessageCMD extends PlexCommand
 {
@@ -34,7 +33,7 @@ public class SetLoginMessageCMD extends PlexCommand
         {
             if (args[0].equals("-o"))
             {
-                checkRank(sender, Rank.SENIOR_ADMIN, "plex.setloginmessage.others");
+                checkPermission(sender, "plex.setloginmessage.others");
 
                 if (args.length < 2)
                 {
@@ -79,11 +78,6 @@ public class SetLoginMessageCMD extends PlexCommand
         {
             PlexLog.debug("Validating login message has a valid name in it");
             throw new CommandFailException(messageString("nameRequired"));
-        }
-        if (plugin.getSystem().equalsIgnoreCase("ranks") && rankRequired && !message.contains("%rank%"))
-        {
-            PlexLog.debug("Validating login message has a valid rank in it");
-            throw new CommandFailException(messageString("rankRequired"));
         }
     }
 }

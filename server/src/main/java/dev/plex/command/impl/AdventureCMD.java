@@ -7,7 +7,6 @@ import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.exception.CommandFailException;
 import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.event.GameModeUpdateEvent;
-import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -19,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-@CommandPermissions(level = Rank.OP, permission = "plex.gamemode.adventure", source = RequiredCommandSource.ANY)
+@CommandPermissions(permission = "plex.gamemode.adventure", source = RequiredCommandSource.ANY)
 @CommandParameters(name = "adventure", aliases = "gma,egma,eadventure,adventuremode,eadventuremode", description = "Set your own or another player's gamemode to adventure mode")
 public class AdventureCMD extends PlexCommand
 {
@@ -36,29 +35,27 @@ public class AdventureCMD extends PlexCommand
             return null;
         }
 
-        if (checkRank(sender, Rank.ADMIN, "plex.gamemode.adventure.others"))
+        checkPermission(sender, "plex.gamemode.adventure.others");
+        if (args[0].equals("-a"))
         {
-            if (args[0].equals("-a"))
+            for (Player targetPlayer : Bukkit.getServer().getOnlinePlayers())
             {
-                for (Player targetPlayer : Bukkit.getServer().getOnlinePlayers())
-                {
-                    targetPlayer.setGameMode(GameMode.ADVENTURE);
-                    messageComponent("gameModeSetTo", "adventure");
-                }
-                PlexUtils.broadcast(messageComponent("setEveryoneGameMode", sender.getName(), "adventure"));
-                return null;
+                targetPlayer.setGameMode(GameMode.ADVENTURE);
+                messageComponent("gameModeSetTo", "adventure");
             }
-
-            Player nPlayer = getNonNullPlayer(args[0]);
-            Bukkit.getServer().getPluginManager().callEvent(new GameModeUpdateEvent(sender, nPlayer, GameMode.ADVENTURE));
+            PlexUtils.broadcast(messageComponent("setEveryoneGameMode", sender.getName(), "adventure"));
+            return null;
         }
+
+        Player nPlayer = getNonNullPlayer(args[0]);
+        Bukkit.getServer().getPluginManager().callEvent(new GameModeUpdateEvent(sender, nPlayer, GameMode.ADVENTURE));
         return null;
     }
 
     @Override
     public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
     {
-        if (silentCheckRank(sender, Rank.ADMIN, "plex.gamemode.adventure.others"))
+        if (silentCheckPermission(sender, "plex.gamemode.adventure.others"))
         {
             return PlexUtils.getPlayerNameList();
         }

@@ -6,8 +6,7 @@ import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.extra.Note;
-import dev.plex.rank.enums.Rank;
-import dev.plex.storage.StorageType;
+
 import dev.plex.util.PlexUtils;
 import dev.plex.util.TimeUtils;
 import net.kyori.adventure.text.Component;
@@ -27,7 +26,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 @CommandParameters(name = "notes", description = "Manage notes for a player", usage = "/<command> <player> <list | add <note> | remove <id> | clear>")
-@CommandPermissions(level = Rank.ADMIN, permission = "plex.notes")
+@CommandPermissions(permission = "plex.notes")
 public class NotesCMD extends PlexCommand
 {
     @Override

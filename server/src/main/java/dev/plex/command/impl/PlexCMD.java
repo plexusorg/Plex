@@ -7,7 +7,6 @@ import dev.plex.command.exception.CommandFailException;
 import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.module.PlexModule;
 import dev.plex.module.PlexModuleFile;
-import dev.plex.rank.enums.Rank;
 import dev.plex.util.BuildInfo;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.TimeUtils;
@@ -25,7 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@CommandPermissions(level = Rank.IMPOSTOR, source = RequiredCommandSource.ANY)
+@CommandPermissions(source = RequiredCommandSource.ANY)
 @CommandParameters(name = "plex", usage = "/<command> [reload | redis | modules [reload]]", description = "Show information about Plex or reload it")
 public class PlexCMD extends PlexCommand
 {
@@ -45,7 +44,7 @@ public class PlexCMD extends PlexCommand
         }
         if (args[0].equalsIgnoreCase("reload"))
         {
-            checkRank(sender, Rank.SENIOR_ADMIN, "plex.reload");
+            checkPermission(sender, "plex.reload");
             plugin.config.load();
             send(sender, "Reloaded config file");
             plugin.messages.load();
@@ -55,10 +54,8 @@ public class PlexCMD extends PlexCommand
             send(sender, "Reloaded indefinite bans");
             plugin.commands.load();
             send(sender, "Reloaded blocked commands file");
-            plugin.getRankManager().importDefaultRanks();
             send(sender, "Imported ranks");
-            plugin.setSystem(plugin.config.getString("system"));
-            if (plugin.getSystem().equalsIgnoreCase("permissions") && !plugin.getServer().getPluginManager().isPluginEnabled("Vault"))
+            if (!plugin.getServer().getPluginManager().isPluginEnabled("Vault"))
             {
                 throw new RuntimeException("Vault is required to run on the server if you use permissions!");
             }
@@ -72,7 +69,7 @@ public class PlexCMD extends PlexCommand
         }
         else if (args[0].equalsIgnoreCase("redis"))
         {
-            checkRank(sender, Rank.SENIOR_ADMIN, "plex.redis");
+            checkPermission(sender, "plex.redis");
             if (!plugin.getRedisConnection().isEnabled())
             {
                 throw new CommandFailException("&cRedis is not enabled.");
@@ -91,7 +88,7 @@ public class PlexCMD extends PlexCommand
             }
             if (args[1].equalsIgnoreCase("reload"))
             {
-                checkRank(sender, Rank.EXECUTIVE, "plex.modules.reload");
+                checkPermission(sender, "plex.modules.reload");
                 plugin.getModuleManager().reloadModules();
                 return mmString("<green>All modules reloaded!");
             }

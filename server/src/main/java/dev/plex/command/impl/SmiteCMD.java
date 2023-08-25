@@ -7,7 +7,7 @@ import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.Punishment;
 import dev.plex.punishment.PunishmentType;
-import dev.plex.rank.enums.Rank;
+
 import dev.plex.util.PlexUtils;
 import dev.plex.util.TimeUtils;
 import net.kyori.adventure.text.Component;
@@ -28,7 +28,7 @@ import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.List;
 
-@CommandPermissions(level = Rank.ADMIN, permission = "plex.smite", source = RequiredCommandSource.ANY)
+@CommandPermissions(permission = "plex.smite", source = RequiredCommandSource.ANY)
 @CommandParameters(name = "smite", usage = "/<command> <player> [reason] [-ci | -q]", description = "Someone being a little bitch? Smite them down...")
 public class SmiteCMD extends PlexCommand
 {
@@ -96,12 +96,6 @@ public class SmiteCMD extends PlexCommand
             send(sender, "Smitten " + player.getName() + " quietly.");
         }
 
-        // Deop
-        if (plugin.getSystem().equalsIgnoreCase("ranks"))
-        {
-            player.setOp(false);
-        }
-
         // Set gamemode to survival
         player.setGameMode(GameMode.SURVIVAL);
 
@@ -144,7 +138,7 @@ public class SmiteCMD extends PlexCommand
     @Override
     public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
     {
-        if (silentCheckRank(sender, Rank.ADMIN, "plex.smite") && args.length == 1)
+        if (silentCheckPermission(sender,"plex.smite") && args.length == 1)
         {
             return PlexUtils.getPlayerNameList();
         }

@@ -3,7 +3,7 @@ package dev.plex.handlers;
 import com.google.common.collect.Lists;
 import dev.plex.PlexBase;
 import dev.plex.command.PlexCommand;
-import dev.plex.command.annotation.System;
+import dev.plex.command.impl.DebugCMD;
 import dev.plex.util.PlexLog;
 import dev.plex.util.ReflectionsUtil;
 
@@ -22,18 +22,9 @@ public class CommandHandler implements PlexBase
         {
             try
             {
-                if (clazz.isAnnotationPresent(System.class))
+                if (plugin.config.getBoolean("debug") && DebugCMD.class.isAssignableFrom(clazz))
                 {
-                    System annotation = clazz.getDeclaredAnnotation(System.class);
-                    if (annotation.value().equalsIgnoreCase(plugin.getSystem().toLowerCase()))
-                    {
-                        commands.add(clazz.getConstructor().newInstance());
-                    }
-
-                    if (plugin.config.getBoolean("debug") && annotation.debug())
-                    {
-                        commands.add(clazz.getConstructor().newInstance());
-                    }
+                    commands.add(clazz.getConstructor().newInstance());
                 }
                 else
                 {

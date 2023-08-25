@@ -1,7 +1,5 @@
 package dev.plex;
 
-import dev.plex.admin.Admin;
-import dev.plex.admin.AdminList;
 import dev.plex.cache.DataUtils;
 import dev.plex.cache.PlayerCache;
 import dev.plex.config.Config;
@@ -10,23 +8,16 @@ import dev.plex.handlers.ListenerHandler;
 import dev.plex.module.ModuleManager;
 import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.PunishmentManager;
-import dev.plex.rank.RankManager;
 import dev.plex.services.ServiceManager;
 import dev.plex.storage.RedisConnection;
 import dev.plex.storage.SQLConnection;
 import dev.plex.storage.StorageType;
-import dev.plex.storage.permission.SQLPermissions;
 import dev.plex.storage.player.SQLPlayerData;
 import dev.plex.storage.punishment.SQLNotes;
 import dev.plex.storage.punishment.SQLPunishment;
-import dev.plex.util.BuildInfo;
-import dev.plex.util.BungeeUtil;
-import dev.plex.util.PlexLog;
-import dev.plex.util.PlexUtils;
-import dev.plex.util.UpdateChecker;
+import dev.plex.util.*;
 import dev.plex.util.redis.MessageUtil;
 import dev.plex.world.CustomWorld;
-import java.io.File;
 import lombok.Getter;
 import lombok.Setter;
 import net.milkbowl.vault.chat.Chat;
@@ -35,6 +26,8 @@ import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.io.File;
 
 @Getter
 @Setter
@@ -58,16 +51,11 @@ public class Plex extends JavaPlugin
 
     private SQLPunishment sqlPunishment;
     private SQLNotes sqlNotes;
-    private SQLPermissions sqlPermissions;
 
     private ModuleManager moduleManager;
-    private RankManager rankManager;
     private ServiceManager serviceManager;
     private PunishmentManager punishmentManager;
-
-    private AdminList adminList;
     private UpdateChecker updateChecker;
-    private String system;
 
     private Permission permissions;
     private Chat chat;
@@ -119,8 +107,6 @@ public class Plex extends JavaPlugin
 
         playerCache = new PlayerCache();
 
-        system = config.getString("system");
-
         PlexLog.log("Attempting to connect to DB: {0}", plugin.config.getString("data.central.db"));
         try
         {
@@ -133,16 +119,13 @@ public class Plex extends JavaPlugin
             e.printStackTrace();
         }
 
-        if (system.equals("permissions"))
+        if (!getServer().getPluginManager().isPluginEnabled("Vault"))
         {
-            if (!getServer().getPluginManager().isPluginEnabled("Vault"))
-            {
-                throw new RuntimeException("Vault is required to run on the server if you use permissions!");
-            }
-
-            permissions = setupPermissions();
-            chat = setupChat();
+            throw new RuntimeException("Vault is required to run on the server if you use permissions alongside a permissions plugin, we recommend LuckPerms!");
         }
+
+        permissions = setupPermissions();
+        chat = setupChat();
 
         updateChecker = new UpdateChecker();
         PlexLog.log("Update checking enabled");
@@ -166,16 +149,9 @@ public class Plex extends JavaPlugin
         sqlPlayerData = new SQLPlayerData();
         sqlPunishment = new SQLPunishment();
         sqlNotes = new SQLNotes();
-        sqlPermissions = new SQLPermissions();
 
         new ListenerHandler();
         new CommandHandler();
-
-        rankManager = new RankManager();
-        rankManager.generateDefaultRanks();
-        rankManager.importDefaultRanks();
-        adminList = new AdminList();
-        PlexLog.log("Rank Manager initialized");
 
         punishmentManager = new PunishmentManager();
         punishmentManager.mergeIndefiniteBans();
@@ -211,12 +187,6 @@ public class Plex extends JavaPlugin
         Bukkit.getOnlinePlayers().forEach(player ->
         {
             PlexPlayer plexPlayer = playerCache.getPlexPlayerMap().get(player.getUniqueId()); //get the player because it's literally impossible for them to not have an object
-
-            if (plugin.getRankManager().isAdmin(plexPlayer))
-            {
-                plugin.getAdminList().removeFromCache(plexPlayer.getUuid());
-            }
-
             sqlPlayerData.update(plexPlayer);
         });
         if (redisConnection != null && redisConnection.isEnabled() && redisConnection.getJedis().isConnected())
@@ -246,13 +216,6 @@ public class Plex extends JavaPlugin
         {
             PlexPlayer plexPlayer = DataUtils.getPlayer(player.getUniqueId());
             playerCache.getPlexPlayerMap().put(player.getUniqueId(), plexPlayer); //put them into the cache
-            if (plugin.getRankManager().isAdmin(plexPlayer))
-            {
-                Admin admin = new Admin(plexPlayer.getUuid());
-                admin.setRank(plexPlayer.getRankFromString());
-
-                plugin.getAdminList().addToCache(admin);
-            }
         });
     }
 

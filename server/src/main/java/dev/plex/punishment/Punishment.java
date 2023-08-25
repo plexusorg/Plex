@@ -2,7 +2,6 @@ package dev.plex.punishment;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import dev.morphia.annotations.Entity;
 import dev.plex.Plex;
 import dev.plex.util.MojangUtils;
 import dev.plex.util.PlexUtils;
@@ -17,7 +16,6 @@ import java.util.UUID;
 
 @Getter
 @Setter
-@Entity
 public class Punishment
 {
     private static final Gson gson = new GsonBuilder().registerTypeAdapter(ZonedDateTime.class, new ZonedDateTimeAdapter()).create();

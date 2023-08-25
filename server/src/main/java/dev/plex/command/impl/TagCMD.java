@@ -6,7 +6,7 @@ import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.player.PlexPlayer;
-import dev.plex.rank.enums.Rank;
+
 import dev.plex.util.PlexUtils;
 import dev.plex.util.minimessage.SafeMiniMessage;
 import net.kyori.adventure.text.Component;
@@ -19,7 +19,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-@CommandPermissions(level = Rank.OP, permission = "plex.tag", source = RequiredCommandSource.ANY)
+@CommandPermissions(permission = "plex.tag", source = RequiredCommandSource.ANY)
 @CommandParameters(name = "tag", aliases = "prefix", description = "Set or clear your prefix", usage = "/<command> <set <prefix> | clear <player>>")
 public class TagCMD extends PlexCommand
 {
@@ -80,7 +80,7 @@ public class TagCMD extends PlexCommand
                 DataUtils.update(player);
                 return messageComponent("prefixCleared");
             }
-            checkRank(sender, Rank.ADMIN, "plex.tag.clear.others");
+            checkPermission(sender,"plex.tag.clear.others");
             Player target = getNonNullPlayer(args[1]);
             PlexPlayer plexTarget = DataUtils.getPlayer(target.getUniqueId());
             plexTarget.setPrefix(null);

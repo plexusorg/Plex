@@ -1,22 +1,12 @@
 package dev.plex.listener.impl;
 
-import com.destroystokyo.paper.event.entity.PlayerNaturallySpawnCreaturesEvent;
-import dev.plex.Plex;
 import dev.plex.listener.PlexListener;
-import dev.plex.player.PlexPlayer;
-import dev.plex.rank.enums.Rank;
-import dev.plex.rank.enums.Title;
-import dev.plex.util.PlexLog;
-import dev.plex.util.PlexUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.block.data.Openable;
-import org.bukkit.block.data.Powerable;
-import org.bukkit.block.data.type.Door;
-import org.bukkit.block.data.type.TrapDoor;
 import org.bukkit.command.Command;
 import org.bukkit.command.PluginIdentifiableCommand;
 import org.bukkit.entity.EntityType;
@@ -28,11 +18,9 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.player.*;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 
 public class WorldListener extends PlexListener
 {
@@ -139,47 +127,6 @@ public class WorldListener extends PlexListener
         }
     }
 
-    private boolean checkLevel(PlexPlayer player, String[] requiredList)
-    {
-        PlexLog.debug("Checking world required levels " + Arrays.toString(requiredList));
-        boolean hasAccess = false;
-        for (String required : requiredList)
-        {
-            PlexLog.debug("Checking if player has " + required);
-            if (required.startsWith("Title"))
-            {
-                String titleString = required.split("\\.")[1];
-                Title title = Title.valueOf(titleString.toUpperCase(Locale.ROOT));
-                switch (title)
-                {
-                    case DEV ->
-                    {
-                        hasAccess = PlexUtils.DEVELOPERS.contains(player.getUuid().toString());
-                    }
-                    case MASTER_BUILDER ->
-                    {
-                        hasAccess = Plex.get().config.contains("titles.masterbuilders") && Plex.get().config.getStringList("titles.masterbuilders").contains(player.getName());
-                    }
-                    case OWNER ->
-                    {
-                        hasAccess = Plex.get().config.contains("titles.owners") && Plex.get().config.getStringList("titles.owners").contains(player.getName());
-                    }
-                    default ->
-                    {
-                        return false;
-                    }
-                }
-            }
-            else if (required.startsWith("Rank"))
-            {
-                String rankString = required.split("\\.")[1];
-                Rank rank = Rank.valueOf(rankString.toUpperCase(Locale.ROOT));
-                hasAccess = rank.isAtLeast(Rank.ADMIN) ? player.isAdminActive() && player.getRankFromString().isAtLeast(rank) : player.getRankFromString().isAtLeast(rank);
-            }
-        }
-        return hasAccess;
-    }
-
     /**
      * Check if a Player has the ability to modify the world they are in
      *
@@ -189,34 +136,15 @@ public class WorldListener extends PlexListener
      */
     private boolean canModifyWorld(Player player, boolean showMessage)
     {
-        PlexPlayer plexPlayer = plugin.getPlayerCache().getPlexPlayerMap().get(player.getUniqueId());
         World world = player.getWorld();
-        if (plugin.getSystem().equalsIgnoreCase("permissions"))
+        String permission = plugin.config.getString("worlds." + world.getName().toLowerCase() + ".modification.permission");
+        if (permission == null)
         {
-            String permission = plugin.config.getString("worlds." + world.getName().toLowerCase() + ".modification.permission");
-            if (permission == null)
-            {
-                return true;
-            }
-            if (player.hasPermission(permission))
-            {
-                return true;
-            }
+            return true;
         }
-        else if (plugin.getSystem().equalsIgnoreCase("ranks"))
+        if (player.hasPermission(permission))
         {
-            if (plugin.config.contains("worlds." + world.getName().toLowerCase() + ".modification.requiredLevels"))
-            {
-                @NotNull List<String> requiredLevel = plugin.config.getStringList("worlds." + world.getName().toLowerCase() + ".modification.requiredLevels");
-                if (checkLevel(plexPlayer, requiredLevel.toArray(String[]::new)))
-                {
-                    return true;
-                }
-            }
-            else
-            {
-                return true;
-            }
+            return true;
         }
 
         if (showMessage)
@@ -238,33 +166,14 @@ public class WorldListener extends PlexListener
      */
     private boolean canEnterWorld(Player player, World destination)
     {
-        PlexPlayer plexPlayer = plugin.getPlayerCache().getPlexPlayerMap().get(player.getUniqueId());
-        if (plugin.getSystem().equalsIgnoreCase("permissions"))
+        String permission = plugin.config.getString("worlds." + destination.getName().toLowerCase() + ".entry.permission");
+        if (permission == null)
         {
-            String permission = plugin.config.getString("worlds." + destination.getName().toLowerCase() + ".entry.permission");
-            if (permission == null)
-            {
-                return true;
-            }
-            if (player.hasPermission(permission))
-            {
-                return true;
-            }
+            return true;
         }
-        else if (plugin.getSystem().equalsIgnoreCase("ranks"))
+        if (player.hasPermission(permission))
         {
-            if (plugin.config.contains("worlds." + destination.getName().toLowerCase() + ".entry.requiredLevels"))
-            {
-                @NotNull List<String> requiredLevel = plugin.config.getStringList("worlds." + destination.getName().toLowerCase() + ".entry.requiredLevels");
-                if (checkLevel(plexPlayer, requiredLevel.toArray(String[]::new)))
-                {
-                    return true;
-                }
-            }
-            else
-            {
-                return true;
-            }
+            return true;
         }
 
         String noEntry = plugin.config.getString("worlds." + destination.getName().toLowerCase() + ".entry.message");

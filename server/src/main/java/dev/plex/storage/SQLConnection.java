@@ -8,6 +8,8 @@ import lombok.Getter;
 
 import java.io.File;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 @Getter
@@ -62,6 +64,10 @@ public class SQLConnection implements PlexBase
 
         try (Connection con = getCon())
         {
+            if (tableExistsSQL("players"))
+            {
+
+            }
             con.prepareStatement("CREATE TABLE IF NOT EXISTS `players` (" +
                     "`uuid` VARCHAR(46) NOT NULL, " +
                     "`name` VARCHAR(18), " +
@@ -93,24 +99,30 @@ public class SQLConnection implements PlexBase
                     "`note` VARCHAR(2000), " +
                     "`timestamp` BIGINT" +
                     ");").execute();
-            con.prepareStatement("CREATE TABLE IF NOT EXISTS `permissions` (" +
-                    "`uuid` VARCHAR(46) NOT NULL," +
-                    "`permission` VARCHAR(1000) NOT NULL," +
-                    "`allowed` BOOLEAN" +
-                    ");").execute();
-            // Plex 1.2
-
-            try
-            {
-                con.prepareStatement("ALTER TABLE `players` ADD COLUMN `staffChat` BOOLEAN DEFAULT false;").execute();
-            }
-            catch (SQLException ignored)
-            {
-            }
         }
         catch (SQLException throwables)
         {
             throwables.printStackTrace();
+        }
+    }
+
+    private boolean tableExistsSQL(String tableName) throws SQLException
+    {
+        try (Connection connection = getCon())
+        {
+            PreparedStatement preparedStatement = connection.prepareStatement("SELECT count(*) "
+                    + "FROM information_schema.tables "
+                    + "WHERE table_name = ?"
+                    + "LIMIT 1;");
+            preparedStatement.setString(1, tableName);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            resultSet.next();
+            return resultSet.getInt(1) != 0;
+        }
+        catch (SQLException ignored)
+        {
+            return false;
         }
     }
 

@@ -6,7 +6,6 @@ import dev.plex.Plex;
 import dev.plex.PlexBase;
 import dev.plex.listener.impl.ChatListener;
 import dev.plex.player.PlexPlayer;
-import dev.plex.rank.enums.Rank;
 import dev.plex.storage.StorageType;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
@@ -252,22 +251,10 @@ public class PlexUtils implements PlexBase
             {
                 continue;
             }
-            if (plugin.getSystem().equalsIgnoreCase("ranks"))
+            if (player.hasPermission("plex.adminchat"))
             {
-                PlexPlayer plexPlayer = plugin.getPlayerCache().getPlexPlayerMap().get(player.getUniqueId());
-                if (plexPlayer.getRankFromString().isAtLeast(Rank.ADMIN) && plexPlayer.isAdminActive())
-                {
-                    player.sendMessage(messageComponent("adminChatFormat", senderName, message).replaceText(ChatListener.URL_REPLACEMENT_CONFIG));
-                    sent.add(player.getUniqueId());
-                }
-            }
-            else if (plugin.getSystem().equalsIgnoreCase("permissions"))
-            {
-                if (player.hasPermission("plex.adminchat"))
-                {
-                    player.sendMessage(PlexUtils.messageComponent("adminChatFormat", senderName, message).replaceText(ChatListener.URL_REPLACEMENT_CONFIG));
-                    sent.add(player.getUniqueId());
-                }
+                player.sendMessage(PlexUtils.messageComponent("adminChatFormat", senderName, message).replaceText(ChatListener.URL_REPLACEMENT_CONFIG));
+                sent.add(player.getUniqueId());
             }
         }
         return sent;

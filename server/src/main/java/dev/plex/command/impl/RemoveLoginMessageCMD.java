@@ -6,14 +6,13 @@ import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.player.PlexPlayer;
-import dev.plex.rank.enums.Rank;
 import net.kyori.adventure.text.Component;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-@CommandPermissions(level = Rank.ADMIN, permission = "plex.removeloginmessage", source = RequiredCommandSource.ANY)
+@CommandPermissions(permission = "plex.removeloginmessage", source = RequiredCommandSource.ANY)
 @CommandParameters(name = "removeloginmessage", usage = "/<command> [-o <player>]", description = "Remove your own (or someone else's) login message", aliases = "rlm,removeloginmsg")
 public class RemoveLoginMessageCMD extends PlexCommand
 {
@@ -31,7 +30,7 @@ public class RemoveLoginMessageCMD extends PlexCommand
         }
         else if (args[0].equalsIgnoreCase("-o"))
         {
-            checkRank(sender, Rank.SENIOR_ADMIN, "plex.removeloginmessage.others");
+            checkPermission(sender, "plex.removeloginmessage.others");
 
             if (args.length < 2)
             {

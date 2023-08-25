@@ -6,7 +6,6 @@ import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.player.PlexPlayer;
-import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.minimessage.SafeMiniMessage;
 import dev.plex.util.redis.MessageUtil;
@@ -20,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
-@CommandPermissions(level = Rank.ADMIN, permission = "plex.adminchat", source = RequiredCommandSource.ANY)
+@CommandPermissions(permission = "plex.adminchat", source = RequiredCommandSource.ANY)
 @CommandParameters(name = "adminchat", description = "Talk privately with other admins", usage = "/<command> <message>", aliases = "o,ac,sc,staffchat")
 public class AdminChatCMD extends PlexCommand
 {

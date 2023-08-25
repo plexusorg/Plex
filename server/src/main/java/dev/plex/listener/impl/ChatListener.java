@@ -2,6 +2,7 @@ package dev.plex.listener.impl;
 
 import dev.plex.listener.PlexListener;
 import dev.plex.listener.annotation.Toggleable;
+import dev.plex.meta.PlayerMeta;
 import dev.plex.player.PlexPlayer;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.minimessage.SafeMiniMessage;
@@ -46,7 +47,7 @@ public class ChatListener extends PlexListener
             event.setCancelled(true);
             return;
         }
-        Component prefix = plugin.getRankManager().getPrefix(plexPlayer);
+        Component prefix = PlayerMeta.getPrefix(plexPlayer);
 
         if (prefix != null && !prefix.equals(Component.empty()) && !prefix.equals(Component.space()))
         {

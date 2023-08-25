@@ -1,7 +1,6 @@
 package dev.plex.punishment.extra;
 
 import com.google.gson.GsonBuilder;
-import dev.morphia.annotations.Entity;
 import dev.plex.util.adapter.ZonedDateTimeAdapter;
 import lombok.Data;
 
@@ -9,7 +8,6 @@ import java.time.ZonedDateTime;
 import java.util.UUID;
 
 @Data
-@Entity
 public class Note
 {
     private final UUID uuid;
