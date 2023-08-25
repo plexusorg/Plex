@@ -20,7 +20,7 @@ public class BanListener extends PlexListener
         if (uuidBan != null)
         {
             event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED,
-                    uuidBan.getReason().isEmpty() ? Punishment.generateIndefBanMessageWithReason("UUID", uuidBan.getReason()) : Punishment.generateIndefBanMessage("UUID"));
+                    !uuidBan.getReason().isEmpty() ? Punishment.generateIndefBanMessageWithReason("UUID", uuidBan.getReason()) : Punishment.generateIndefBanMessage("UUID"));
             return;
         }
 
@@ -28,7 +28,7 @@ public class BanListener extends PlexListener
         if (ipBan != null)
         {
             event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED,
-                    ipBan.getReason().isEmpty() ? Punishment.generateIndefBanMessageWithReason("IP", ipBan.getReason()) : Punishment.generateIndefBanMessage("IP"));
+                    !ipBan.getReason().isEmpty() ? Punishment.generateIndefBanMessageWithReason("IP", ipBan.getReason()) : Punishment.generateIndefBanMessage("IP"));
             return;
         }
 
@@ -37,7 +37,7 @@ public class BanListener extends PlexListener
         if (userBan != null)
         {
             event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED,
-                    userBan.getReason().isEmpty() ? Punishment.generateIndefBanMessageWithReason("username", userBan.getReason()) : Punishment.generateIndefBanMessage("username"));
+                    !userBan.getReason().isEmpty() ? Punishment.generateIndefBanMessageWithReason("username", userBan.getReason()) : Punishment.generateIndefBanMessage("username"));
             return;
         }
 
