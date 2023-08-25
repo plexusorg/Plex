@@ -91,10 +91,7 @@ public class PlexPlayer
         if (loadExtraData)
         {
             this.loadPunishments();
-            if (Plex.get().getStorageType() != StorageType.MONGODB)
-            {
-                this.permissions.addAll(Plex.get().getSqlPermissions().getPermissions(this.uuid));
-            }
+//            this.permissions.addAll(Plex.get().getSqlPermissions().getPermissions(this.uuid));
         }
     }
 
@@ -130,18 +127,12 @@ public class PlexPlayer
 
     public void loadPunishments()
     {
-        if (Plex.get().getStorageType() != StorageType.MONGODB)
-        {
-            this.setPunishments(Plex.get().getSqlPunishment().getPunishments(this.getUuid()));
-        }
+        this.setPunishments(Plex.get().getSqlPunishment().getPunishments(this.getUuid()));
     }
 
     public void loadNotes()
     {
-        if (Plex.get().getStorageType() != StorageType.MONGODB)
-        {
-            Plex.get().getSqlNotes().getNotes(this.getUuid());
-        }
+        Plex.get().getSqlNotes().getNotes(this.getUuid());
     }
 
     public String toJSON()

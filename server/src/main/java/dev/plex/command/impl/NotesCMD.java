@@ -49,27 +49,15 @@ public class NotesCMD extends PlexCommand
         {
             case "list":
             {
-                if (plugin.getStorageType() != StorageType.MONGODB)
+                plugin.getSqlNotes().getNotes(plexPlayer.getUuid()).whenComplete((notes, ex) ->
                 {
-                    plugin.getSqlNotes().getNotes(plexPlayer.getUuid()).whenComplete((notes, ex) ->
-                    {
-                        if (notes.size() == 0)
-                        {
-                            send(sender, messageComponent("noNotes"));
-                            return;
-                        }
-                        readNotes(sender, plexPlayer, notes);
-                    });
-                }
-                else
-                {
-                    List<Note> notes = plexPlayer.getNotes();
                     if (notes.size() == 0)
                     {
-                        return messageComponent("noNotes");
+                        send(sender, messageComponent("noNotes"));
+                        return;
                     }
                     readNotes(sender, plexPlayer, notes);
-                }
+                });
                 return null;
             }
             case "add":
@@ -83,14 +71,7 @@ public class NotesCMD extends PlexCommand
                 {
                     Note note = new Note(plexPlayer.getUuid(), content, playerSender.getUniqueId(), ZonedDateTime.now(ZoneId.of(TimeUtils.TIMEZONE)));
                     plexPlayer.getNotes().add(note);
-                    if (plugin.getStorageType() != StorageType.MONGODB)
-                    {
-                        plugin.getSqlNotes().addNote(note);
-                    }
-                    else
-                    {
-                        DataUtils.update(plexPlayer);
-                    }
+                    plugin.getSqlNotes().addNote(note);
                     return messageComponent("noteAdded");
                 }
             }
@@ -109,59 +90,32 @@ public class NotesCMD extends PlexCommand
                 {
                     return messageComponent("unableToParseNumber", args[2]);
                 }
-                if (plugin.getStorageType() != StorageType.MONGODB)
+                plugin.getSqlNotes().getNotes(plexPlayer.getUuid()).whenComplete((notes, ex) ->
                 {
-                    plugin.getSqlNotes().getNotes(plexPlayer.getUuid()).whenComplete((notes, ex) ->
+                    boolean deleted = false;
+                    for (Note note : notes)
                     {
-                        boolean deleted = false;
-                        for (Note note : notes)
+                        if (note.getId() == id)
                         {
-                            if (note.getId() == id)
-                            {
-                                plugin.getSqlNotes().deleteNote(id, plexPlayer.getUuid()).whenComplete((notes1, ex1) ->
-                                        send(sender, messageComponent("removedNote", id)));
-                                deleted = true;
-                            }
+                            plugin.getSqlNotes().deleteNote(id, plexPlayer.getUuid()).whenComplete((notes1, ex1) ->
+                                    send(sender, messageComponent("removedNote", id)));
+                            deleted = true;
                         }
-                        if (!deleted)
-                        {
-                            send(sender, messageComponent("noteNotFound"));
-                        }
-                        plexPlayer.getNotes().removeIf(note -> note.getId() == id);
-                    });
-                }
-                else
-                {
-                    if (plexPlayer.getNotes().removeIf(note -> note.getId() == id))
-                    {
-                        return messageComponent("removedNote", id);
                     }
-                    return messageComponent("noteNotFound");
-                }
+                    if (!deleted)
+                    {
+                        send(sender, messageComponent("noteNotFound"));
+                    }
+                    plexPlayer.getNotes().removeIf(note -> note.getId() == id);
+                });
                 return null;
             }
             case "clear":
             {
-                if (plugin.getStorageType() != StorageType.MONGODB)
-                {
-                    plugin.getSqlNotes().getNotes(plexPlayer.getUuid()).whenComplete((notes, ex) ->
-                    {
-                        for (Note note : notes)
-                        {
-                            plugin.getSqlNotes().deleteNote(note.getId(), plexPlayer.getUuid());
-                        }
-                        plexPlayer.getNotes().clear();
-                        send(sender, messageComponent("clearedNotes", notes.size()));
-                    });
-                }
-                else
-                {
-                    int count = plexPlayer.getNotes().size();
-                    plexPlayer.getNotes().clear();
-                    DataUtils.update(plexPlayer);
-                    return messageComponent("clearedNotes", count);
-                }
-                return null;
+                int count = plexPlayer.getNotes().size();
+                plexPlayer.getNotes().clear();
+                DataUtils.update(plexPlayer);
+                return messageComponent("clearedNotes", count);
             }
             default:
             {

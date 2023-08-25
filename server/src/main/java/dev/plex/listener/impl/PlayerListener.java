@@ -82,28 +82,17 @@ public class PlayerListener<T> extends PlexListener
 
         PermissionsUtil.setupPermissions(player);
 
-        if (plugin.getStorageType() != StorageType.MONGODB)
-        {
-            plexPlayer.loadNotes();
-        }
+        plexPlayer.loadNotes();
 
-        if (plugin.getStorageType() == StorageType.MONGODB)
+        plugin.getSqlNotes().getNotes(plexPlayer.getUuid()).whenComplete((notes, ex) ->
         {
-            plexPlayer.loadPunishments();
-        }
-
-        if (plugin.getStorageType() != StorageType.MONGODB)
-        {
-            plugin.getSqlNotes().getNotes(plexPlayer.getUuid()).whenComplete((notes, ex) ->
+            String plural = notes.size() == 1 ? "note." : "notes.";
+            if (!notes.isEmpty())
             {
-                String plural = notes.size() == 1 ? "note." : "notes.";
-                if (!notes.isEmpty())
-                {
-                    PlexUtils.broadcastToAdmins(Component.text(plexPlayer.getName() + " has " + notes.size() + " " + plural).color(NamedTextColor.GOLD));
-                    PlexUtils.broadcastToAdmins(Component.text("Click to view their " + plural).clickEvent(ClickEvent.runCommand("/notes " + plexPlayer.getName() + " list")).color(NamedTextColor.GOLD));
-                }
-            });
-        }
+                PlexUtils.broadcastToAdmins(Component.text(plexPlayer.getName() + " has " + notes.size() + " " + plural).color(NamedTextColor.GOLD), "plex.notes.notify");
+                PlexUtils.broadcastToAdmins(Component.text("Click to view their " + plural).clickEvent(ClickEvent.runCommand("/notes " + plexPlayer.getName() + " list")).color(NamedTextColor.GOLD), "plex.notes.notify");
+            }
+        });
     }
 
     // saving the player's data

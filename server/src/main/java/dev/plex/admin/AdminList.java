@@ -62,31 +62,22 @@ public class AdminList implements PlexBase
     public List<String> getAllAdmins()
     {
         List<String> admins = Lists.newArrayList();
-        if (plugin.getStorageType() == StorageType.MONGODB)
+        try (Connection con = plugin.getSqlConnection().getCon())
         {
-            Datastore store = plugin.getMongoConnection().getDatastore();
-            Query<PlexPlayer> query = store.find(PlexPlayer.class);
-            admins.addAll(query.stream().filter(plexPlayer -> plexPlayer.getRankFromString().isAtLeast(Rank.ADMIN) && plexPlayer.isAdminActive()).map(PlexPlayer::getName).toList());
-        }
-        else
-        {
-            try (Connection con = plugin.getSqlConnection().getCon())
-            {
-                PreparedStatement statement = con.prepareStatement("SELECT * FROM `players` WHERE rank IN(?, ?, ?) AND adminActive=true");
-                statement.setString(1, Rank.ADMIN.name().toLowerCase());
-                statement.setString(2, Rank.SENIOR_ADMIN.name().toLowerCase());
-                statement.setString(3, Rank.EXECUTIVE.name().toLowerCase());
+            PreparedStatement statement = con.prepareStatement("SELECT * FROM `players` WHERE rank IN(?, ?, ?) AND adminActive=true");
+            statement.setString(1, Rank.ADMIN.name().toLowerCase());
+            statement.setString(2, Rank.SENIOR_ADMIN.name().toLowerCase());
+            statement.setString(3, Rank.EXECUTIVE.name().toLowerCase());
 
-                ResultSet set = statement.executeQuery();
-                while (set.next())
-                {
-                    admins.add(set.getString("name"));
-                }
-            }
-            catch (SQLException throwables)
+            ResultSet set = statement.executeQuery();
+            while (set.next())
             {
-                throwables.printStackTrace();
+                admins.add(set.getString("name"));
             }
+        }
+        catch (SQLException throwables)
+        {
+            throwables.printStackTrace();
         }
         return admins;
     }
@@ -99,52 +90,43 @@ public class AdminList implements PlexBase
     public List<PlexPlayer> getAllAdminPlayers()
     {
         List<PlexPlayer> plexPlayers = Lists.newArrayList();
-        if (plugin.getStorageType() == StorageType.MONGODB)
+        try (Connection con = plugin.getSqlConnection().getCon())
         {
-            Datastore store = plugin.getMongoConnection().getDatastore();
-            Query<PlexPlayer> query = store.find(PlexPlayer.class);
-            return query.stream().toList().stream().filter(player -> plugin.getRankManager().isAdmin(player)).collect(Collectors.toList());
-        }
-        else
-        {
-            try (Connection con = plugin.getSqlConnection().getCon())
-            {
-                PreparedStatement statement = con.prepareStatement("SELECT * FROM `players` WHERE rank IN(?, ?, ?) AND adminActive=true");
-                statement.setString(1, Rank.ADMIN.name().toLowerCase());
-                statement.setString(2, Rank.SENIOR_ADMIN.name().toLowerCase());
-                statement.setString(3, Rank.EXECUTIVE.name().toLowerCase());
+            PreparedStatement statement = con.prepareStatement("SELECT * FROM `players` WHERE rank IN(?, ?, ?) AND adminActive=true");
+            statement.setString(1, Rank.ADMIN.name().toLowerCase());
+            statement.setString(2, Rank.SENIOR_ADMIN.name().toLowerCase());
+            statement.setString(3, Rank.EXECUTIVE.name().toLowerCase());
 
-                ResultSet set = statement.executeQuery();
-                while (set.next())
+            ResultSet set = statement.executeQuery();
+            while (set.next())
+            {
+                String uuid = set.getString("uuid");
+                String name = set.getString("name");
+                String loginMSG = set.getString("login_msg");
+                String prefix = set.getString("prefix");
+                String rankName = set.getString("rank").toUpperCase();
+                long coins = set.getLong("coins");
+                boolean vanished = set.getBoolean("vanished");
+                boolean commandspy = set.getBoolean("commandspy");
+                List<String> ips = new Gson().fromJson(set.getString("ips"), new TypeToken<List<String>>()
                 {
-                    String uuid = set.getString("uuid");
-                    String name = set.getString("name");
-                    String loginMSG = set.getString("login_msg");
-                    String prefix = set.getString("prefix");
-                    String rankName = set.getString("rank").toUpperCase();
-                    long coins = set.getLong("coins");
-                    boolean vanished = set.getBoolean("vanished");
-                    boolean commandspy = set.getBoolean("commandspy");
-                    List<String> ips = new Gson().fromJson(set.getString("ips"), new TypeToken<List<String>>()
-                    {
-                    }.getType());
+                }.getType());
 
-                    PlexPlayer plexPlayer = new PlexPlayer(UUID.fromString(uuid));
-                    plexPlayer.setName(name);
-                    plexPlayer.setLoginMessage(loginMSG);
-                    plexPlayer.setPrefix(prefix);
-                    plexPlayer.setRank(rankName);
-                    plexPlayer.setIps(ips);
-                    plexPlayer.setCoins(coins);
-                    plexPlayer.setVanished(vanished);
-                    plexPlayer.setCommandSpy(commandspy);
-                    plexPlayers.add(plexPlayer);
-                }
+                PlexPlayer plexPlayer = new PlexPlayer(UUID.fromString(uuid));
+                plexPlayer.setName(name);
+                plexPlayer.setLoginMessage(loginMSG);
+                plexPlayer.setPrefix(prefix);
+                plexPlayer.setRank(rankName);
+                plexPlayer.setIps(ips);
+                plexPlayer.setCoins(coins);
+                plexPlayer.setVanished(vanished);
+                plexPlayer.setCommandSpy(commandspy);
+                plexPlayers.add(plexPlayer);
             }
-            catch (SQLException throwables)
-            {
-                throwables.printStackTrace();
-            }
+        }
+        catch (SQLException throwables)
+        {
+            throwables.printStackTrace();
         }
         return plexPlayers;
     }

@@ -43,7 +43,7 @@ loginmessages:
 
 data:
   central:
-    storage: sqlite # Use mariadb, mongodb, or sqlite here
+    storage: sqlite # Use mariadb, or sqlite here
     user: ""
     password: ""
     hostname: 127.0.0.1

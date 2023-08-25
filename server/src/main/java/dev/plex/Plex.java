@@ -12,12 +12,10 @@ import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.PunishmentManager;
 import dev.plex.rank.RankManager;
 import dev.plex.services.ServiceManager;
-import dev.plex.storage.MongoConnection;
 import dev.plex.storage.RedisConnection;
 import dev.plex.storage.SQLConnection;
 import dev.plex.storage.StorageType;
 import dev.plex.storage.permission.SQLPermissions;
-import dev.plex.storage.player.MongoPlayerData;
 import dev.plex.storage.player.SQLPlayerData;
 import dev.plex.storage.punishment.SQLNotes;
 import dev.plex.storage.punishment.SQLPunishment;
@@ -52,12 +50,10 @@ public class Plex extends JavaPlugin
     public File modulesFolder;
     private StorageType storageType = StorageType.SQLITE;
     private SQLConnection sqlConnection;
-    private MongoConnection mongoConnection;
+//    private MongoConnection mongoConnection;
     private RedisConnection redisConnection;
 
     private PlayerCache playerCache;
-
-    private MongoPlayerData mongoPlayerData;
     private SQLPlayerData sqlPlayerData;
 
     private SQLPunishment sqlPunishment;
@@ -118,7 +114,7 @@ public class Plex extends JavaPlugin
         commands.load(false);
 
         sqlConnection = new SQLConnection();
-        mongoConnection = new MongoConnection();
+//        mongoConnection = new MongoConnection();
         redisConnection = new RedisConnection();
 
         playerCache = new PlayerCache();
@@ -167,17 +163,10 @@ public class Plex extends JavaPlugin
             PlexLog.log("Redis is disabled in the configuration file, not connecting.");
         }
 
-        if (storageType == StorageType.MONGODB)
-        {
-            mongoPlayerData = new MongoPlayerData();
-        }
-        else
-        {
-            sqlPlayerData = new SQLPlayerData();
-            sqlPunishment = new SQLPunishment();
-            sqlNotes = new SQLNotes();
-            sqlPermissions = new SQLPermissions();
-        }
+        sqlPlayerData = new SQLPlayerData();
+        sqlPunishment = new SQLPunishment();
+        sqlNotes = new SQLNotes();
+        sqlPermissions = new SQLPermissions();
 
         new ListenerHandler();
         new CommandHandler();
@@ -228,14 +217,7 @@ public class Plex extends JavaPlugin
                 plugin.getAdminList().removeFromCache(plexPlayer.getUuid());
             }
 
-            if (mongoPlayerData != null) //back to mongo checking
-            {
-                mongoPlayerData.update(plexPlayer); //update the player's document
-            }
-            else if (sqlPlayerData != null) //sql checking
-            {
-                sqlPlayerData.update(plexPlayer);
-            }
+            sqlPlayerData.update(plexPlayer);
         });
         if (redisConnection != null && redisConnection.isEnabled() && redisConnection.getJedis().isConnected())
         {

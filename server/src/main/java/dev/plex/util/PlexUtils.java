@@ -90,18 +90,12 @@ public class PlexUtils implements PlexBase
             }
             catch (SQLException e)
             {
-                if (Plex.get().getMongoConnection().getDatastore() != null)
-                {
-                    PlexLog.log("Successfully enabled MongoDB!");
-                }
+                PlexLog.error("Unable to connect to the SQL Server");
             }
         }
         else
         {
-            if (Plex.get().getMongoConnection().getDatastore() != null)
-            {
-                PlexLog.log("Successfully enabled MongoDB!");
-            }
+            PlexLog.error("Unable to initialize hikari data source!");
         }
     }
 
@@ -241,9 +235,9 @@ public class PlexUtils implements PlexBase
         Bukkit.broadcast(component);
     }
 
-    public static void broadcastToAdmins(Component component)
+    public static void broadcastToAdmins(Component component, String permission)
     {
-        Bukkit.getOnlinePlayers().stream().filter(pl -> plugin.getPlayerCache().getPlexPlayer(pl.getUniqueId()).isAdminActive()).forEach(pl ->
+        Bukkit.getOnlinePlayers().stream().filter(pl -> plugin.getPlayerCache().getPlexPlayer(pl.getUniqueId()).isAdminActive() || pl.hasPermission(permission)).forEach(pl ->
         {
             pl.sendMessage(component);
         });
