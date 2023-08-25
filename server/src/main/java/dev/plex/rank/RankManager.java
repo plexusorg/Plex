@@ -124,7 +124,7 @@ public class RankManager
         }
         if (getConfigPrefixes(plexPlayer) != null)
         {
-            getConfigPrefixes(plexPlayer);
+            return getConfigPrefixes(plexPlayer);
         }
         if (Bukkit.getServer().getPluginManager().isPluginEnabled("Vault") && Plex.get().getSystem().equalsIgnoreCase("permissions"))
         {

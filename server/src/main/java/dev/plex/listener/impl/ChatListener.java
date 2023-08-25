@@ -48,7 +48,7 @@ public class ChatListener extends PlexListener
         }
         Component prefix = plugin.getRankManager().getPrefix(plexPlayer);
 
-        if (prefix != null)
+        if (prefix != null && !prefix.equals(Component.empty()) && !prefix.equals(Component.space()))
         {
             renderer.hasPrefix = true;
             renderer.prefix = prefix;

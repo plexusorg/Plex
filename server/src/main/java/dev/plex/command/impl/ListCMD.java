@@ -50,7 +50,11 @@ public class ListCMD extends PlexCommand
             }
             else
             {
-                list = list.append(VaultHook.getPrefix(getPlexPlayer(player))).append(Component.space()).append(Component.text(player.getName()).color(NamedTextColor.WHITE));
+                Component prefix = VaultHook.getPrefix(getPlexPlayer(player));
+                if (prefix != null && !prefix.equals(Component.empty()) && !prefix.equals(Component.space())) {
+                    list = list.append(prefix).append(Component.space());
+                }
+                list = list.append(Component.text(player.getName()).color(NamedTextColor.WHITE));
             }
             if (i != players.size() - 1)
             {

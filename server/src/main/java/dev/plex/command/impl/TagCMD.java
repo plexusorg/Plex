@@ -76,15 +76,14 @@ public class TagCMD extends PlexCommand
                 }
 
                 PlexPlayer player = DataUtils.getPlayer(playerSender.getUniqueId());
-                player.setPrefix("");
+                player.setPrefix(null);
                 DataUtils.update(player);
                 return messageComponent("prefixCleared");
             }
-
             checkRank(sender, Rank.ADMIN, "plex.tag.clear.others");
             Player target = getNonNullPlayer(args[1]);
             PlexPlayer plexTarget = DataUtils.getPlayer(target.getUniqueId());
-            plexTarget.setPrefix("");
+            plexTarget.setPrefix(null);
             DataUtils.update(plexTarget);
             return messageComponent("otherPrefixCleared", target.getName());
         }
