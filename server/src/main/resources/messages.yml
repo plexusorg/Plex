@@ -14,6 +14,9 @@
 # 2 - Expiry
 # 3 - Punisher
 banMessage: "<red>You have been banned! You may appeal at <gold>{0}.\n<red>Reason: <gold>{1}\n<red>End date: <gold>{2}\n<red>Banned by: <gold>{3}"
+# 0 - Reason
+# 1 - Punisher
+kickMessage: "<red>You have been kicked! \n<red>Reason: <gold>{0}\n<red>Kicked by: <gold>{1}"
 # 0 - The type of indefinite ban
 # 1 - Appeal URL
 indefBanMessage: "<red>Your {0} is indefinitely banned! You may appeal at <gold>{1}."

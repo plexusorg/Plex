@@ -38,21 +38,20 @@ public class KickCMD extends PlexCommand
             return usage();
         }
 
-        UUID targetUUID = WebUtils.getFromName(args[0]);
+        PlexPlayer plexPlayer = DataUtils.getPlayer(args[0]);
         String reason = "No reason provided";
 
-        if (targetUUID == null || !DataUtils.hasPlayedBefore(targetUUID))
+        if (plexPlayer == null)
         {
             throw new PlayerNotFoundException();
         }
-        PlexPlayer plexPlayer = DataUtils.getPlayer(targetUUID);
-        Player player = Bukkit.getPlayer(targetUUID);
+        Player player = Bukkit.getPlayer(plexPlayer.getUuid());
 
         if (player == null)
         {
             throw new PlayerNotFoundException();
         }
-        Punishment punishment = new Punishment(targetUUID, getUUID(sender));
+        Punishment punishment = new Punishment(plexPlayer.getUuid(), getUUID(sender));
         punishment.setType(PunishmentType.KICK);
         if (args.length > 1)
         {
@@ -67,7 +66,7 @@ public class KickCMD extends PlexCommand
         punishment.setIp(player.getAddress().getAddress().getHostAddress().trim());
         plugin.getPunishmentManager().punish(plexPlayer, punishment);
         PlexUtils.broadcast(messageComponent("kickedPlayer", sender.getName(), plexPlayer.getName()));
-        BungeeUtil.kickPlayer(player, Punishment.generateBanMessage(punishment));
+        BungeeUtil.kickPlayer(player, Punishment.generateKickMessage(punishment));
         return null;
     }
 }

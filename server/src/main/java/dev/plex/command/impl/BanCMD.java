@@ -39,14 +39,14 @@ public class BanCMD extends PlexCommand
             return usage();
         }
 
-        UUID targetUUID = WebUtils.getFromName(args[0]);
+        final PlexPlayer plexPlayer = DataUtils.getPlayer(args[0]);
 
-        if (targetUUID == null || !DataUtils.hasPlayedBefore(targetUUID))
+        if (plexPlayer == null)
         {
             throw new PlayerNotFoundException();
         }
-        PlexPlayer plexPlayer = DataUtils.getPlayer(targetUUID);
-        Player player = Bukkit.getPlayer(targetUUID);
+
+        Player player = Bukkit.getPlayer(plexPlayer.getUuid());
 
         if (plugin.getSystem().equalsIgnoreCase("ranks"))
         {
@@ -64,7 +64,7 @@ public class BanCMD extends PlexCommand
             }
         }
 
-        plugin.getPunishmentManager().isAsyncBanned(targetUUID).whenComplete((aBoolean, throwable) ->
+        plugin.getPunishmentManager().isAsyncBanned(plexPlayer.getUuid()).whenComplete((aBoolean, throwable) ->
         {
             if (aBoolean)
             {
@@ -72,7 +72,7 @@ public class BanCMD extends PlexCommand
                 return;
             }
             String reason;
-            Punishment punishment = new Punishment(targetUUID, getUUID(sender));
+            Punishment punishment = new Punishment(plexPlayer.getUuid(), getUUID(sender));
             punishment.setType(PunishmentType.BAN);
             if (args.length > 1)
             {

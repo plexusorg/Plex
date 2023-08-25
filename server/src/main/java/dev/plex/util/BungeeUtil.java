@@ -10,6 +10,7 @@ import org.bukkit.entity.Player;
 
 public class BungeeUtil
 {
+    public static final boolean PROXIED_SERVER = isBungeeCord() || isVelocity();
     public static boolean isBungeeCord()
     {
         return Bukkit.spigot().getSpigotConfig().getBoolean("settings.bungeecord");
@@ -23,7 +24,7 @@ public class BungeeUtil
     @SuppressWarnings("UnstableApiUsage")
     public static void kickPlayer(Player player, Component message)
     {
-        if (isBungeeCord() || isVelocity())
+        if (PROXIED_SERVER)
         {
             ByteArrayDataOutput out = ByteStreams.newDataOutput();
             out.writeUTF("KickPlayer");
