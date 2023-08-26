@@ -101,7 +101,7 @@ public class ChatListener extends PlexListener
 
     private static void defaultChatProcessing(AsyncChatEvent event, PlexPlayer plexPlayer)
     {
-        String text = PlexUtils.cleanString(PlexUtils.getTextFromComponent(event.message()));
+        String text = PlexUtils.legacyToMiniString(PlexUtils.getTextFromComponent(event.message()));
         event.message(SafeMiniMessage.mmDeserializeWithoutEvents(text));
     }
 }

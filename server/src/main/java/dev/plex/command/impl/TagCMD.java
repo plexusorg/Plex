@@ -47,7 +47,7 @@ public class TagCMD extends PlexCommand
             {
                 return usage("/tag set <prefix>");
             }
-            String prefix = PlexUtils.cleanString(StringUtils.join(args, " ", 1, args.length));
+            String prefix = PlexUtils.legacyToMiniString(StringUtils.join(args, " ", 1, args.length));
 
             Component convertedComponent = SafeMiniMessage.mmDeserializeWithoutEvents(prefix);
 

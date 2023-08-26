@@ -37,8 +37,7 @@ public class PlayerMeta
         if (!plexPlayer.getLoginMessage().isEmpty())
         {
             return plexPlayer.getLoginMessage()
-                    .replace("%player%", plexPlayer.getName())
-                    .replace("%rank%", plexPlayer.getRank());
+                    .replace("%player%", plexPlayer.getName());
         }
         else
         {

@@ -7,12 +7,12 @@ import java.lang.annotation.Target;
 
 /**
  * @author Taah
- * @since 1:42 AM [25-08-2023]
+ * @since 4:27 AM [25-08-2023]
  */
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.FIELD)
-public @interface PrimaryKey
+@Target(ElementType.TYPE)
+public @interface SQLTable
 {
-    boolean dontSet() default false;
+    String value();
 }

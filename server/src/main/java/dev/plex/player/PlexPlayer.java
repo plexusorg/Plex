@@ -5,7 +5,10 @@ import com.google.gson.GsonBuilder;
 import dev.plex.Plex;
 import dev.plex.punishment.Punishment;
 import dev.plex.punishment.extra.Note;
+import dev.plex.storage.annotation.MapObjectList;
 import dev.plex.storage.annotation.PrimaryKey;
+import dev.plex.storage.annotation.SQLTable;
+import dev.plex.storage.annotation.VarcharLimit;
 import dev.plex.util.adapter.ZonedDateTimeAdapter;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -14,6 +17,7 @@ import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachment;
+import org.jetbrains.annotations.NotNull;
 
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -21,11 +25,16 @@ import java.util.UUID;
 
 @Getter
 @Setter
+@SQLTable("players")
 public class PlexPlayer
 {
     @Setter(AccessLevel.NONE)
     @PrimaryKey
+    @NotNull
     private UUID uuid;
+
+    @VarcharLimit(16)
+    @NotNull
     private String name;
 
     private String loginMessage;
@@ -44,13 +53,13 @@ public class PlexPlayer
 
     private long coins;
 
-    private String rank;
-
     private List<String> ips = Lists.newArrayList();
-    private List<Punishment> punishments = Lists.newArrayList();
-    private List<Note> notes = Lists.newArrayList();
 
-    private transient PermissionAttachment permissionAttachment;
+    @MapObjectList
+    private List<Punishment> punishments = Lists.newArrayList();
+
+    @MapObjectList
+    private List<Note> notes = Lists.newArrayList();
 
     public PlexPlayer()
     {
@@ -69,7 +78,6 @@ public class PlexPlayer
 
         this.coins = 0;
 
-        this.rank = "";
         if (loadExtraData)
         {
             this.loadPunishments();

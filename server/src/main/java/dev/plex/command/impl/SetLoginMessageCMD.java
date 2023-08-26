@@ -8,6 +8,7 @@ import dev.plex.command.exception.CommandFailException;
 import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.player.PlexPlayer;
 import dev.plex.util.PlexLog;
+import dev.plex.util.PlexUtils;
 import net.kyori.adventure.text.Component;
 import org.apache.commons.lang3.StringUtils;
 import org.bukkit.command.CommandSender;
@@ -53,8 +54,7 @@ public class SetLoginMessageCMD extends PlexCommand
                 validateMessage(message);
                 plexPlayer.setLoginMessage(message);
                 return messageComponent("setOtherPlayersLoginMessage", plexPlayer.getName(),
-                        message.replace("%player%", plexPlayer.getName())
-                                .replace("%rank%", plexPlayer.getRank()));
+                        message.replace("%player%", plexPlayer.getName()));
             }
             if (isConsole(sender))
             {
@@ -63,11 +63,11 @@ public class SetLoginMessageCMD extends PlexCommand
             PlexPlayer plexPlayer = plugin.getPlayerCache().getPlexPlayer(playerSender.getUniqueId());
             String message = StringUtils.join(args, " ", 0, args.length);
             message = message.replace(plexPlayer.getName(), "%player%");
+            message = PlexUtils.legacyToMiniString(message);
             validateMessage(message);
             plexPlayer.setLoginMessage(message);
             return messageComponent("setOwnLoginMessage",
-                    message.replace("%player%", plexPlayer.getName())
-                            .replace("%rank%", plexPlayer.getRank()));
+                    message.replace("%player%", plexPlayer.getName()));
         }
         return null;
     }
