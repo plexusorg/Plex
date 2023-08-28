@@ -2,9 +2,8 @@ package dev.plex.listener.impl;
 
 import dev.plex.cache.DataUtils;
 import dev.plex.listener.PlexListener;
+import dev.plex.meta.PlayerMeta;
 import dev.plex.player.PlexPlayer;
-import dev.plex.storage.StorageType;
-import dev.plex.util.PermissionsUtil;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import net.kyori.adventure.text.Component;
@@ -29,17 +28,6 @@ public class PlayerListener<T> extends PlexListener
     {
         Player player = event.getPlayer();
         PlexPlayer plexPlayer;
-
-        if (plugin.getSystem().equalsIgnoreCase("ranks"))
-        {
-            player.setOp(true);
-            PlexLog.debug("Automatically opped " + player.getName() + " since ranks are enabled.");
-        }
-        else if (plugin.getSystem().equalsIgnoreCase("permissions"))
-        {
-            player.setOp(false);
-            PlexLog.debug("Automatically deopped " + player.getName() + " since ranks are disabled.");
-        }
 
         if (!DataUtils.hasPlayedBefore(player.getUniqueId()))
         {
@@ -74,36 +62,23 @@ public class PlayerListener<T> extends PlexListener
             player.openInventory(player.getInventory());
         }
 
-        String loginMessage = plugin.getRankManager().getLoginMessage(plexPlayer);
+        String loginMessage = PlayerMeta.getLoginMessage(plexPlayer);
         if (!loginMessage.isEmpty())
         {
             PlexUtils.broadcast(loginMessage);
         }
 
-        PermissionsUtil.setupPermissions(player);
+        plexPlayer.loadNotes();
 
-        if (plugin.getStorageType() != StorageType.MONGODB)
+        plugin.getSqlNotes().getNotes(plexPlayer.getUuid()).whenComplete((notes, ex) ->
         {
-            plexPlayer.loadNotes();
-        }
-
-        if (plugin.getStorageType() == StorageType.MONGODB)
-        {
-            plexPlayer.loadPunishments();
-        }
-
-        if (plugin.getStorageType() != StorageType.MONGODB)
-        {
-            plugin.getSqlNotes().getNotes(plexPlayer.getUuid()).whenComplete((notes, ex) ->
+            String plural = notes.size() == 1 ? "note." : "notes.";
+            if (!notes.isEmpty())
             {
-                String plural = notes.size() == 1 ? "note." : "notes.";
-                if (!notes.isEmpty())
-                {
-                    PlexUtils.broadcastToAdmins(Component.text(plexPlayer.getName() + " has " + notes.size() + " " + plural).color(NamedTextColor.GOLD));
-                    PlexUtils.broadcastToAdmins(Component.text("Click to view their " + plural).clickEvent(ClickEvent.runCommand("/notes " + plexPlayer.getName() + " list")).color(NamedTextColor.GOLD));
-                }
-            });
-        }
+                PlexUtils.broadcastToAdmins(Component.text(plexPlayer.getName() + " has " + notes.size() + " " + plural).color(NamedTextColor.GOLD), "plex.notes.notify");
+                PlexUtils.broadcastToAdmins(Component.text("Click to view their " + plural).clickEvent(ClickEvent.runCommand("/notes " + plexPlayer.getName() + " list")).color(NamedTextColor.GOLD), "plex.notes.notify");
+            }
+        });
     }
 
     // saving the player's data
@@ -111,12 +86,6 @@ public class PlayerListener<T> extends PlexListener
     public void onPlayerSave(PlayerQuitEvent event)
     {
         PlexPlayer plexPlayer = plugin.getPlayerCache().getPlexPlayerMap().get(event.getPlayer().getUniqueId()); //get the player because it's literally impossible for them to not have an object
-
-        if (plugin.getRankManager().isAdmin(plexPlayer))
-        {
-            plugin.getAdminList().removeFromCache(plexPlayer.getUuid());
-        }
-
         DataUtils.update(plexPlayer);
         plugin.getPlayerCache().getPlexPlayerMap().remove(event.getPlayer().getUniqueId()); //remove them from cache
     }

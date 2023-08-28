@@ -5,7 +5,7 @@ import com.google.common.collect.Lists;
 import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
-import dev.plex.rank.enums.Rank;
+
 import dev.plex.util.*;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -18,7 +18,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @CommandParameters(name = "namehistory", description = "Get the name history of a player", usage = "/<command> <player>", aliases = "nh")
-@CommandPermissions(level = Rank.OP, permission = "plex.namehistory")
+@CommandPermissions(permission = "plex.namehistory")
 public class NameHistoryCMD extends PlexCommand
 {
     @Override

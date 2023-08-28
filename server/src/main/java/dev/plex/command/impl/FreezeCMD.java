@@ -7,7 +7,7 @@ import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.Punishment;
 import dev.plex.punishment.PunishmentType;
-import dev.plex.rank.enums.Rank;
+
 import dev.plex.util.PlexUtils;
 import dev.plex.util.TimeUtils;
 import net.kyori.adventure.text.Component;
@@ -21,7 +21,7 @@ import java.time.ZonedDateTime;
 import java.util.List;
 
 @CommandParameters(name = "freeze", description = "Freeze a player on the server", usage = "/<command> <player>", aliases = "fr")
-@CommandPermissions(level = Rank.ADMIN, permission = "plex.freeze")
+@CommandPermissions(permission = "plex.freeze")
 public class FreezeCMD extends PlexCommand
 {
     @Override
@@ -37,19 +37,6 @@ public class FreezeCMD extends PlexCommand
         if (punishedPlayer.isFrozen())
         {
             return messageComponent("playerFrozen");
-        }
-
-        if (isAdmin(getPlexPlayer(player)))
-        {
-            if (!isConsole(sender))
-            {
-                assert playerSender != null;
-                PlexPlayer plexPlayer1 = getPlexPlayer(playerSender);
-                if (!plexPlayer1.getRankFromString().isAtLeast(getPlexPlayer(player).getRankFromString()) && getPlexPlayer(player).isAdminActive())
-                {
-                    return messageComponent("higherRankThanYou");
-                }
-            }
         }
 
         Punishment punishment = new Punishment(punishedPlayer.getUuid(), getUUID(sender));
@@ -69,6 +56,6 @@ public class FreezeCMD extends PlexCommand
     @Override
     public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
     {
-        return args.length == 1 && silentCheckRank(sender, Rank.ADMIN, "plex.freeze") ? PlexUtils.getPlayerNameList() : ImmutableList.of();
+        return args.length == 1 && silentCheckPermission(sender, "plex.freeze") ? PlexUtils.getPlayerNameList() : ImmutableList.of();
     }
 }

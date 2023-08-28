@@ -10,11 +10,6 @@ server:
   # What timezone should various messages appear in (e.g. ban message end date)
   timezone: Etc/UTC
 
-titles:
-  masterbuilders: [ ]
-  owners:
-    - Telesphoreo
-
 # Ban message is customized in the messages.yml file. The URL to appeal at is below.
 banning:
   ban_url: "https://forum.plex.us.org"
@@ -29,21 +24,14 @@ chat:
   # Color tag for name color
   name-color: '<white>'
 
-# Should Plex use a "true op" system with ranks or only permission nodes
-# Options are "permissions" or "ranks"
-# NOTE: If you are using a proxy such as BungeeCord or Velocity, it is highly recommended to use permissions
-system: ranks
-
 # Login Messages
 loginmessages:
   # Should the player be required to put their name in the login message?
   name: true
-  # If ranks are enabled, should the player be required to put their rank in the login message?
-  rank: true
 
 data:
   central:
-    storage: sqlite # Use mariadb, mongodb, or sqlite here
+    storage: sqlite # Use mariadb, or sqlite here
     user: ""
     password: ""
     hostname: 127.0.0.1
@@ -193,15 +181,9 @@ worlds:
     name: "Admin World"
     entry:
       permission: "plex.world.adminworld.enter"
-      # Minimum rank requirement
-      requiredLevels:
-        - "Rank.ADMIN"
       message: "<red>You do not have permission to enter this world."
     modification:
       permission: "plex.world.adminworld.modify"
-      # Minimum rank requirement
-      requiredLevels:
-        - "Rank.ADMIN"
       message: "<red>You do not have permission to modify this world."
     gameRules:
       - "doWeatherCycle;false"
@@ -215,14 +197,9 @@ worlds:
     name: "MasterBuilder World"
     entry:
       permission: "plex.world.masterbuilderworld.enter"
-      requiredLevels:
-        - "Rank.OP"
       message: "<red>You do not have permission to enter this world."
     modification:
       permission: "plex.world.masterbuilderworld.modify"
-      requiredLevels:
-        # Title has no "minimum", so this will have to be their title
-        - "Title.MASTER_BUILDER"
       message: "<red>You do not have permission to modify this world."
     gameRules:
       - "doWeatherCycle;false"

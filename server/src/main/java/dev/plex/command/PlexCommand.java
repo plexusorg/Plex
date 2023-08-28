@@ -7,7 +7,6 @@ import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.exception.*;
 import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.player.PlexPlayer;
-import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import net.kyori.adventure.audience.Audience;
@@ -46,11 +45,6 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
     private final CommandPermissions perms;
 
     /**
-     * Minimum required rank fetched from the permissions
-     */
-    private final Rank level;
-
-    /**
      * Required command source fetched from the permissions
      */
     private final RequiredCommandSource commandSource;
@@ -72,7 +66,6 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
         {
             setAliases(Arrays.asList(params.aliases().split(",")));
         }
-        this.level = perms.level();
         this.commandSource = perms.source();
 
         if (register)
@@ -140,34 +133,9 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
                 return false;
             }
 
-            if (plugin.getSystem().equalsIgnoreCase("ranks"))
+            if (!perms.permission().isEmpty() && !player.hasPermission(perms.permission()))
             {
-                if (!plexPlayer.getRankFromString().isAtLeast(getLevel()))
-                {
-                    send(sender, messageComponent("noPermissionRank", ChatColor.stripColor(getLevel().getLoginMessage())));
-                    return true;
-                }
-                else
-                {
-                    if (getLevel().isAtLeast(Rank.ADMIN) && !plexPlayer.isAdminActive())
-                    {
-                        send(sender, messageComponent("noPermissionRank", ChatColor.stripColor(getLevel().getLoginMessage())));
-                        return true;
-                    }
-                }
-            }
-            else if (plugin.getSystem().equalsIgnoreCase("permissions"))
-            {
-                if (!perms.permission().isEmpty() && !player.hasPermission(perms.permission()))
-                {
-                    send(sender, messageComponent("noPermissionNode", perms.permission()));
-                    return true;
-                }
-            }
-            else
-            {
-                PlexLog.error("Neither permissions or ranks were selected to be used in the configuration file!");
-                send(sender, "There is a server misconfiguration. Please alert a developer or the owner");
+                send(sender, messageComponent("noPermissionNode", perms.permission()));
                 return true;
             }
         }
@@ -176,34 +144,9 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
         {
             PlexPlayer plexPlayer = DataUtils.getPlayer(sender.getName());
 
-            if (plugin.getSystem().equalsIgnoreCase("ranks"))
+            if (!perms.permission().isEmpty() && !plugin.getPermissions().playerHas(null, Bukkit.getPlayer(plexPlayer.getName()), perms.permission()))
             {
-                if (!plexPlayer.getRankFromString().isAtLeast(getLevel()))
-                {
-                    send(sender, messageComponent("noPermissionRank", ChatColor.stripColor(getLevel().getLoginMessage())));
-                    return true;
-                }
-                else
-                {
-                    if (getLevel().isAtLeast(Rank.ADMIN) && !plexPlayer.isAdminActive())
-                    {
-                        send(sender, messageComponent("noPermissionRank", ChatColor.stripColor(getLevel().getLoginMessage())));
-                        return true;
-                    }
-                }
-            }
-            else if (plugin.getSystem().equalsIgnoreCase("permissions"))
-            {
-                if (!perms.permission().isEmpty() && !plugin.getPermissions().playerHas(null, Bukkit.getPlayer(plexPlayer.getName()), perms.permission()))
-                {
-                    send(sender, messageComponent("noPermissionNode", perms.permission()));
-                    return true;
-                }
-            }
-            else
-            {
-                PlexLog.error("Neither permissions or ranks were selected to be used in the configuration file!");
-                send(sender, "There is a server misconfiguration. Please alert a developer or the owner");
+                send(sender, messageComponent("noPermissionNode", perms.permission()));
                 return true;
             }
         }
@@ -286,39 +229,15 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
      * Checks whether a sender has enough permissions or is high enough a rank
      *
      * @param sender     A CommandSender
-     * @param rank       The rank to check (if the server is using ranks)
-     * @param permission The permission to check (if the server is using permissions)
+     * @param permission The permission to check
      * @return true if the sender has enough permissions
-     * @see Rank
      */
-    protected boolean checkRank(CommandSender sender, Rank rank, String permission)
+    protected boolean checkPermission(CommandSender sender, String permission)
     {
         if (!isConsole(sender))
         {
-            return checkRank((Player) sender, rank, permission);
+            return checkPermission((Player) sender, permission);
         }
-        /*if (!sender.getName().equalsIgnoreCase("console"))
-        {
-            PlexPlayer plexPlayer = DataUtils.getPlayer(sender.getName());
-            if (plugin.getSystem().equalsIgnoreCase("ranks"))
-            {
-                if (!plexPlayer.getRankFromString().isAtLeast(rank))
-                {
-                    throw new CommandFailException(PlexUtils.messageString("noPermissionRank", ChatColor.stripColor(rank.getLoginMessage())));
-                }
-                if (rank.isAtLeast(Rank.ADMIN) && !plexPlayer.isAdminActive())
-                {
-                    throw new CommandFailException(PlexUtils.messageString("noPermissionRank", ChatColor.stripColor(rank.getLoginMessage())));
-                }
-            }
-            else if (plugin.getSystem().equalsIgnoreCase("permissions"))
-            {
-                if (!perms.permission().isEmpty() && !plugin.getPermissions().playerHas(null, Bukkit.getOfflinePlayer(plexPlayer.getName()), perms.permission()))
-                {
-                    throw new CommandFailException(PlexUtils.messageString("noPermissionNode", permission));
-                }
-            }
-        }*/
         return true;
     }
 
@@ -326,40 +245,16 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
      * Checks whether a sender has enough permissions or is high enough a rank
      *
      * @param sender     A CommandSender
-     * @param rank       The rank to check (if the server is using ranks)
-     * @param permission The permission to check (if the server is using permissions)
+     * @param permission The permission to check
      * @return true if the sender has enough permissions
-     * @see Rank
      */
-    protected boolean silentCheckRank(CommandSender sender, Rank rank, String permission)
+    protected boolean silentCheckPermission(CommandSender sender, String permission)
     {
         PlexLog.debug("Checking {0} with {1}", sender.getName(), permission);
         if (!isConsole(sender))
         {
-            return silentCheckRank((Player) sender, rank, permission);
+            return silentCheckPermission((Player) sender, permission);
         }
-        /*if (!sender.getName().equalsIgnoreCase("console"))
-        {
-            PlexPlayer plexPlayer = DataUtils.getPlayer(sender.getName());
-            if (plugin.getSystem().equalsIgnoreCase("ranks"))
-            {
-                if (!plexPlayer.getRankFromString().isAtLeast(rank))
-                {
-                    throw new CommandFailException(PlexUtils.messageString("noPermissionRank", ChatColor.stripColor(rank.getLoginMessage())));
-                }
-                if (rank.isAtLeast(Rank.ADMIN) && !plexPlayer.isAdminActive())
-                {
-                    throw new CommandFailException(PlexUtils.messageString("noPermissionRank", ChatColor.stripColor(rank.getLoginMessage())));
-                }
-            }
-            else if (plugin.getSystem().equalsIgnoreCase("permissions"))
-            {
-                if (!perms.permission().isEmpty() && !plugin.getPermissions().playerHas(null, Bukkit.getOfflinePlayer(plexPlayer.getName()), perms.permission()))
-                {
-                    throw new CommandFailException(PlexUtils.messageString("noPermissionNode", permission));
-                }
-            }
-        }*/
         return true;
     }
 
@@ -367,47 +262,25 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
      * Checks whether a player has enough permissions or is high enough a rank
      *
      * @param player     The player object
-     * @param rank       The rank to check (if the server is using ranks)
-     * @param permission The permission to check (if the server is using permissions)
+     * @param permission The permission to check
      * @return true if the sender has enough permissions
-     * @see Rank
      */
-    protected boolean checkRank(Player player, Rank rank, String permission)
+    protected boolean checkPermission(Player player, String permission)
     {
         if (player instanceof ConsoleCommandSender)
         {
             return true;
         }
-        PlexPlayer plexPlayer = getPlexPlayer(player);
-        if (plugin.getSystem().equalsIgnoreCase("ranks"))
+        if (!permission.isEmpty() && !player.hasPermission(permission))
         {
-            if (!plexPlayer.getRankFromString().isAtLeast(rank) || (rank.isAtLeast(Rank.ADMIN) && !plexPlayer.isAdminActive()))
-            {
-                throw new CommandFailException(PlexUtils.messageString("noPermissionRank", ChatColor.stripColor(rank.getLoginMessage())));
-            }
-        }
-        else if (plugin.getSystem().equalsIgnoreCase("permissions"))
-        {
-            if (!permission.isEmpty() && !player.hasPermission(permission))
-            {
-                throw new CommandFailException(PlexUtils.messageString("noPermissionNode", permission));
-            }
+            throw new CommandFailException(PlexUtils.messageString("noPermissionNode", permission));
         }
         return true;
     }
 
-    protected boolean silentCheckRank(Player player, Rank rank, String permission)
+    protected boolean silentCheckPermission(Player player, String permission)
     {
-        PlexPlayer plexPlayer = getPlexPlayer(player);
-        if (plugin.getSystem().equalsIgnoreCase("ranks"))
-        {
-            return rank.isAtLeast(Rank.ADMIN) ? plexPlayer.isAdminActive() && plexPlayer.getRankFromString().isAtLeast(rank) : plexPlayer.getRankFromString().isAtLeast(rank);
-        }
-        else if (plugin.getSystem().equalsIgnoreCase("permissions"))
-        {
-            return !permission.isEmpty() && player.hasPermission(permission);
-        }
-        return false;
+        return !permission.isEmpty() && player.hasPermission(permission);
     }
 
 /*    *//**
@@ -419,11 +292,11 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
      * @return true if the sender has enough permissions
      * @see Rank
      *//*
-    protected boolean silentCheckRank(CommandSender sender, Rank rank, String permission)
+    protected boolean silentCheckPermission(CommandSender sender, Rank rank, String permission)
     {
         if (!isConsole(sender))
         {
-            return silentCheckRank((Player) sender, rank, permission);
+            return silentCheckPermission((Player) sender, rank, permission);
         }
         return true;
     }
@@ -437,7 +310,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
      * @return true if the sender has enough permissions
      * @see Rank
      *//*
-    protected boolean silentCheckRank(Player player, Rank rank, String permission)
+    protected boolean silentCheckPermission(Player player, Rank rank, String permission)
     {
         PlexPlayer plexPlayer = getPlexPlayer(player);
         if (plugin.getSystem().equalsIgnoreCase("ranks"))
@@ -450,62 +323,6 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
         }
         return true;
     }*/
-
-    /**
-     * Checks if a player is an admin
-     *
-     * @param plexPlayer The PlexPlayer object
-     * @return true if the player is an admin
-     * @see PlexPlayer
-     */
-    protected boolean isAdmin(PlexPlayer plexPlayer)
-    {
-        return Plex.get().getRankManager().isAdmin(plexPlayer);
-    }
-
-    /**
-     * Checks if a sender is an admin
-     *
-     * @param sender A command sender
-     * @return true if the sender is an admin or if console
-     */
-    protected boolean isAdmin(CommandSender sender)
-    {
-        if (!(sender instanceof Player player))
-        {
-            return true;
-        }
-        PlexPlayer plexPlayer = getPlexPlayer(player);
-        return plugin.getRankManager().isAdmin(plexPlayer);
-    }
-
-    /**
-     * Checks if a username is an admin
-     *
-     * @param name The username
-     * @return true if the username is an admin
-     */
-    protected boolean isAdmin(String name)
-    {
-        PlexPlayer plexPlayer = DataUtils.getPlayer(name);
-        return plugin.getRankManager().isAdmin(plexPlayer);
-    }
-
-    /**
-     * Checks if a sender is a senior admin
-     *
-     * @param sender A command sender
-     * @return true if the sender is a senior admin or if console
-     */
-    protected boolean isSeniorAdmin(CommandSender sender)
-    {
-        if (!(sender instanceof Player player))
-        {
-            return true;
-        }
-        PlexPlayer plexPlayer = getPlexPlayer(player);
-        return plugin.getRankManager().isSeniorAdmin(plexPlayer);
-    }
 
     /**
      * Gets the UUID of the sender
@@ -680,11 +497,6 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
     protected Component mmString(String s)
     {
         return PlexUtils.mmDeserialize(s);
-    }
-
-    public Rank getLevel()
-    {
-        return level;
     }
 
     public CommandMap getMap()

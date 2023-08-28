@@ -102,17 +102,7 @@ public class PunishmentManager implements PlexBase
     public void issuePunishment(PlexPlayer plexPlayer, Punishment punishment)
     {
         plexPlayer.getPunishments().add(punishment);
-        if (Plex.get().getStorageType() == StorageType.MONGODB)
-        {
-            CompletableFuture.runAsync(() ->
-            {
-                DataUtils.update(plexPlayer);
-            });
-        }
-        else
-        {
-            Plex.get().getSqlPunishment().insertPunishment(punishment);
-        }
+        Plex.get().getSqlPunishment().insertPunishment(punishment);
     }
 
     private boolean isNotEmpty(File file)
@@ -160,27 +150,16 @@ public class PunishmentManager implements PlexBase
 
     public CompletableFuture<List<Punishment>> getActiveBans()
     {
-        if (Plex.get().getStorageType() == StorageType.MONGODB)
+        //PlexLog.debug("Checking active bans mysql");
+        CompletableFuture<List<Punishment>> future = new CompletableFuture<>();
+        Plex.get().getSqlPunishment().getPunishments().whenComplete((punishments, throwable) ->
         {
-            return CompletableFuture.supplyAsync(() ->
-            {
-                List<PlexPlayer> players = Plex.get().getMongoPlayerData().getPlayers();
-                return players.stream().map(PlexPlayer::getPunishments).flatMap(Collection::stream).filter(Punishment::isActive).filter(punishment -> punishment.getType() == PunishmentType.BAN || punishment.getType() == PunishmentType.TEMPBAN).toList();
-            });
-        }
-        else
-        {
-            //PlexLog.debug("Checking active bans mysql");
-            CompletableFuture<List<Punishment>> future = new CompletableFuture<>();
-            Plex.get().getSqlPunishment().getPunishments().whenComplete((punishments, throwable) ->
-            {
-                //PlexLog.debug("Received Punishments");
-                List<Punishment> punishmentList = punishments.stream().filter(Punishment::isActive).filter(punishment -> punishment.getType() == PunishmentType.BAN || punishment.getType() == PunishmentType.TEMPBAN).toList();
-                //PlexLog.debug("Completing with {0} punishments", punishmentList.size());
-                future.complete(punishmentList);
-            });
-            return future;
-        }
+            //PlexLog.debug("Received Punishments");
+            List<Punishment> punishmentList = punishments.stream().filter(Punishment::isActive).filter(punishment -> punishment.getType() == PunishmentType.BAN || punishment.getType() == PunishmentType.TEMPBAN).toList();
+            //PlexLog.debug("Completing with {0} punishments", punishmentList.size());
+            future.complete(punishmentList);
+        });
+        return future;
     }
 
     public void unban(Punishment punishment)
@@ -190,20 +169,7 @@ public class PunishmentManager implements PlexBase
 
     public CompletableFuture<Void> unban(UUID uuid)
     {
-        if (Plex.get().getStorageType() == StorageType.MONGODB)
-        {
-            return CompletableFuture.runAsync(() ->
-            {
-                PlexPlayer plexPlayer = DataUtils.getPlayer(uuid);
-                plexPlayer.setPunishments(plexPlayer.getPunishments().stream().filter(Punishment::isActive).filter(punishment -> punishment.getType() == PunishmentType.BAN || punishment.getType() == PunishmentType.TEMPBAN)
-                        .peek(punishment -> punishment.setActive(false)).collect(Collectors.toList()));
-                DataUtils.update(plexPlayer);
-            });
-        }
-        else
-        {
-            return Plex.get().getSqlPunishment().removeBan(uuid);
-        }
+        return Plex.get().getSqlPunishment().removeBan(uuid);
     }
 
     private void doPunishment(PlexPlayer player, Punishment punishment)

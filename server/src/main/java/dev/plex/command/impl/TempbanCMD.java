@@ -10,7 +10,7 @@ import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.Punishment;
 import dev.plex.punishment.PunishmentType;
-import dev.plex.rank.enums.Rank;
+
 import dev.plex.util.BungeeUtil;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.TimeUtils;
@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.UUID;
 
 @CommandParameters(name = "tempban", usage = "/<command> <player> <time> [reason]", description = "Temporarily ban a player")
-@CommandPermissions(level = Rank.ADMIN, permission = "plex.tempban", source = RequiredCommandSource.ANY)
+@CommandPermissions(permission = "plex.tempban", source = RequiredCommandSource.ANY)
 
 public class TempbanCMD extends PlexCommand
 {
@@ -50,19 +50,6 @@ public class TempbanCMD extends PlexCommand
         PlexPlayer plexPlayer = DataUtils.getPlayer(targetUUID);
         Player player = Bukkit.getPlayer(targetUUID);
 
-        if (isAdmin(plexPlayer))
-        {
-            if (!isConsole(sender))
-            {
-                assert playerSender != null;
-                PlexPlayer plexPlayer1 = getPlexPlayer(playerSender);
-                if (!plexPlayer1.getRankFromString().isAtLeast(plexPlayer.getRankFromString()) && plexPlayer.isAdminActive())
-                {
-                    return messageComponent("higherRankThanYou");
-                }
-            }
-        }
-
         if (plugin.getPunishmentManager().isBanned(targetUUID))
         {
             return messageComponent("playerBanned");
@@ -81,7 +68,7 @@ public class TempbanCMD extends PlexCommand
         punishment.setPunishedUsername(plexPlayer.getName());
         punishment.setEndDate(TimeUtils.createDate(args[1]));
         punishment.setCustomTime(false);
-        punishment.setActive(!isAdmin(plexPlayer));
+        punishment.setActive(true);
         if (player != null)
         {
             punishment.setIp(player.getAddress().getAddress().getHostAddress().trim());
@@ -98,6 +85,6 @@ public class TempbanCMD extends PlexCommand
     @Override
     public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
     {
-        return args.length == 1 && silentCheckRank(sender, Rank.ADMIN, "plex.tempban") ? PlexUtils.getPlayerNameList() : ImmutableList.of();
+        return args.length == 1 && silentCheckPermission(sender,"plex.tempban") ? PlexUtils.getPlayerNameList() : ImmutableList.of();
     }
 }

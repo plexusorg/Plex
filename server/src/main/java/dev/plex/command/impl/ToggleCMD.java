@@ -6,7 +6,7 @@ import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.menu.ToggleMenu;
-import dev.plex.rank.enums.Rank;
+
 import dev.plex.util.PlexUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -18,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 @CommandParameters(name = "toggle", description = "Allows toggling various server aspects through a GUI", aliases = "toggles")
-@CommandPermissions(level = Rank.ADMIN, permission = "plex.toggle", source = RequiredCommandSource.ANY)
+@CommandPermissions(permission = "plex.toggle", source = RequiredCommandSource.ANY)
 public class ToggleCMD extends PlexCommand
 {
     @Override

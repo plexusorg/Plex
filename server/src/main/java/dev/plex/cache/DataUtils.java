@@ -20,26 +20,12 @@ public class DataUtils
      */
     public static boolean hasPlayedBefore(UUID uuid)
     {
-        if (Plex.get().getStorageType() == StorageType.MONGODB)
-        {
-            return Plex.get().getMongoPlayerData().exists(uuid);
-        }
-        else
-        {
-            return Plex.get().getSqlPlayerData().exists(uuid);
-        }
+        return Plex.get().getSqlPlayerData().exists(uuid);
     }
 
     public static boolean hasPlayedBefore(String username)
     {
-        if (Plex.get().getStorageType() == StorageType.MONGODB)
-        {
-            return Plex.get().getMongoPlayerData().exists(username);
-        }
-        else
-        {
-            return Plex.get().getSqlPlayerData().exists(username);
-        }
+        return Plex.get().getSqlPlayerData().exists(username);
     }
 
     /**
@@ -61,14 +47,7 @@ public class DataUtils
             return Plex.get().getPlayerCache().getPlexPlayerMap().get(uuid);
         }
 
-        if (Plex.get().getStorageType() == StorageType.MONGODB)
-        {
-            return Plex.get().getMongoPlayerData().getByUUID(uuid);
-        }
-        else
-        {
-            return Plex.get().getSqlPlayerData().getByUUID(uuid, loadExtraData);
-        }
+        return Plex.get().getSqlPlayerData().getByUUID(uuid, loadExtraData);
     }
 
     public static PlexPlayer getPlayer(String username)
@@ -84,14 +63,7 @@ public class DataUtils
             return plexPlayer.get();
         }
 
-        if (Plex.get().getStorageType() == StorageType.MONGODB)
-        {
-            return Plex.get().getMongoPlayerData().getByName(username);
-        }
-        else
-        {
-            return Plex.get().getSqlPlayerData().getByName(username, loadExtraData);
-        }
+        return Plex.get().getSqlPlayerData().getByName(username, loadExtraData);
     }
 
     /**
@@ -109,14 +81,7 @@ public class DataUtils
             return player;
         }
 
-        if (Plex.get().getStorageType() == StorageType.MONGODB)
-        {
-            return Plex.get().getMongoPlayerData().getByIP(ip);
-        }
-        else
-        {
-            return Plex.get().getSqlPlayerData().getByIP(ip);
-        }
+        return Plex.get().getSqlPlayerData().getByIP(ip);
     }
 
     /**
@@ -127,14 +92,7 @@ public class DataUtils
      */
     public static void update(PlexPlayer plexPlayer)
     {
-        if (Plex.get().getStorageType() == StorageType.MONGODB)
-        {
-            Plex.get().getMongoPlayerData().update(plexPlayer);
-        }
-        else
-        {
-            Plex.get().getSqlPlayerData().update(plexPlayer);
-        }
+        Plex.get().getSqlPlayerData().update(plexPlayer);
     }
 
     /**
@@ -145,16 +103,7 @@ public class DataUtils
      */
     public static void insert(PlexPlayer plexPlayer)
     {
-        if (Plex.get().getStorageType() == StorageType.MONGODB)
-        {
-            Plex.get().getMongoPlayerData().save(plexPlayer);
-        }
-        else
-        {
-            Plex.get().getSqlPlayerData().insert(plexPlayer);
-        }
+        Plex.get().getSqlPlayerData().insert(plexPlayer);
     }
-
-    /*           REDIS METHODS AT ONE POINT FOR BANS, AND JSON METHODS FOR PUNISHMENTS       */
 
 }

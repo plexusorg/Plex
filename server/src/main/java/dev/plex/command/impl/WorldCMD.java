@@ -6,7 +6,7 @@ import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.source.RequiredCommandSource;
-import dev.plex.rank.enums.Rank;
+
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
-@CommandPermissions(level = Rank.OP, permission = "plex.world", source = RequiredCommandSource.IN_GAME)
+@CommandPermissions(permission = "plex.world", source = RequiredCommandSource.IN_GAME)
 @CommandParameters(name = "world", description = "Teleport to a world.", usage = "/<command> <world>")
 public class WorldCMD extends PlexCommand
 {
@@ -38,7 +38,7 @@ public class WorldCMD extends PlexCommand
         boolean playerWorld = args[0].matches("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}");
         if (playerWorld && Plex.get().getModuleManager().getModules().stream().anyMatch(plexModule -> plexModule.getPlexModuleFile().getName().equalsIgnoreCase("Module-TFMExtras")))
         {
-            checkRank(playerSender, Rank.ADMIN, "plex.world.playerworlds");
+            checkPermission(playerSender,"plex.world.playerworlds");
         }
         playerSender.teleportAsync(world.getSpawnLocation());
         return messageComponent("playerWorldTeleport", world.getName());
@@ -60,7 +60,7 @@ public class WorldCMD extends PlexCommand
                 try
                 {
                     final UUID uuid = UUID.fromString(worldName);
-                    if (uuid.equals(player.getUniqueId()) || silentCheckRank(player, Rank.ADMIN, "plex.world.playerworlds"))
+                    if (uuid.equals(player.getUniqueId()) || silentCheckPermission(player,"plex.world.playerworlds"))
                     {
                         completions.add(worldName);
                     }

@@ -2,9 +2,13 @@ package dev.plex.util;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.reflect.ClassPath;
+import com.google.common.reflect.TypeToken;
 import dev.plex.Plex;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -53,5 +57,15 @@ public class ReflectionsUtil
             }
         });
         return Collections.unmodifiableSet(classes);
+    }
+
+    public static Class<?> getGenericField(Field field)
+    {
+        Type type = field.getGenericType();
+        if (type instanceof ParameterizedType parameterizedType)
+        {
+            return TypeToken.of(parameterizedType.getActualTypeArguments()[0]).getRawType();
+        }
+        return field.getType();
     }
 }

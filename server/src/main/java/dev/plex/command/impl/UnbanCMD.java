@@ -9,7 +9,7 @@ import dev.plex.command.exception.PlayerNotBannedException;
 import dev.plex.command.exception.PlayerNotFoundException;
 import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.player.PlexPlayer;
-import dev.plex.rank.enums.Rank;
+
 import dev.plex.util.PlexUtils;
 import dev.plex.util.WebUtils;
 import net.kyori.adventure.text.Component;
@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.UUID;
 
 @CommandParameters(name = "unban", usage = "/<command> <player>", description = "Unbans a player, offline or online")
-@CommandPermissions(level = Rank.ADMIN, permission = "plex.ban", source = RequiredCommandSource.ANY)
+@CommandPermissions(permission = "plex.ban", source = RequiredCommandSource.ANY)
 
 public class UnbanCMD extends PlexCommand
 {
@@ -61,6 +61,6 @@ public class UnbanCMD extends PlexCommand
     @Override
     public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
     {
-        return args.length == 1 && silentCheckRank(sender, Rank.ADMIN, "plex.unban") ? PlexUtils.getPlayerNameList() : ImmutableList.of();
+        return args.length == 1 && silentCheckPermission(sender,"plex.unban") ? PlexUtils.getPlayerNameList() : ImmutableList.of();
     }
 }

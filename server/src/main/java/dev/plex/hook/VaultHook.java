@@ -1,7 +1,9 @@
 package dev.plex.hook;
 
 import dev.plex.Plex;
+import dev.plex.meta.PlayerMeta;
 import dev.plex.player.PlexPlayer;
+import dev.plex.util.PlexUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.milkbowl.vault.chat.Chat;
@@ -57,9 +59,9 @@ public class VaultHook
         {
             return null;
         }
-        if (Plex.get().getRankManager().getConfigPrefixes(plexPlayer) != null)
+        if (PlexUtils.DEVELOPERS.contains(plexPlayer.getUuid().toString()))
         {
-            return Plex.get().getRankManager().getConfigPrefixes(plexPlayer);
+            return PlexUtils.mmDeserialize("<dark_gray>[<dark_purple>Developer<dark_gray>]");
         }
         Player bukkitPlayer = Bukkit.getPlayer(plexPlayer.getUuid());
         String group = VaultHook.getPermission().getPrimaryGroup(bukkitPlayer);

@@ -5,8 +5,6 @@ import com.google.common.collect.Lists;
 import dev.plex.Plex;
 import dev.plex.PlexBase;
 import dev.plex.listener.impl.ChatListener;
-import dev.plex.player.PlexPlayer;
-import dev.plex.rank.enums.Rank;
 import dev.plex.storage.StorageType;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
@@ -28,6 +26,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Stack;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -90,26 +89,23 @@ public class PlexUtils implements PlexBase
             }
             catch (SQLException e)
             {
-                if (Plex.get().getMongoConnection().getDatastore() != null)
-                {
-                    PlexLog.log("Successfully enabled MongoDB!");
-                }
+                PlexLog.error("Unable to connect to the SQL Server");
             }
         }
         else
         {
-            if (Plex.get().getMongoConnection().getDatastore() != null)
-            {
-                PlexLog.log("Successfully enabled MongoDB!");
-            }
+            PlexLog.error("Unable to initialize hikari data source!");
         }
     }
 
-    public static boolean isFolia() {
-        try {
+    public static boolean isFolia()
+    {
+        try
+        {
             Class.forName("io.papermc.paper.threadedregions.ThreadedRegionizer");
         }
-        catch (Exception e) {
+        catch (Exception e)
+        {
             return false;
         }
 
@@ -134,6 +130,45 @@ public class PlexUtils implements PlexBase
             }
         }
         return false;
+    }
+
+    public static Component removeHoverAndClick(Component component)
+    {
+        Stack<Component> components = new Stack<>();
+        components.push(component);
+        while (!components.isEmpty())
+        {
+            Component curr = components.pop();
+            curr.clickEvent(null).hoverEvent(null);
+            curr.children().forEach(components::push);
+        }
+        return component;
+    }
+
+    public static String legacyToMiniString(String input)
+    {
+        return cleanString(input.replace("&a", "<green>")
+                .replace("&b", "<aqua>")
+                .replace("&c", "<red>")
+                .replace("&d", "<light_purple>")
+                .replace("&e", "<yellow>")
+                .replace("&f", "<white>")
+                .replace("&1", "<dark_blue>")
+                .replace("&2", "<dark_green>")
+                .replace("&3", "<dark_aqua>")
+                .replace("&4", "<dark_red>")
+                .replace("&5", "<dark_purple>")
+                .replace("&6", "<gold>")
+                .replace("&7", "<gray>")
+                .replace("&8", "<dark_gray>")
+                .replace("&9", "<blue>")
+                .replace("&0", "<black>")
+                .replace("&r", "<reset>")
+                .replace("&l", "<bold>")
+                .replace("&o", "<italic>")
+                .replace("&n", "<underlined>")
+                .replace("&m", "<strikethrough>")
+                .replace("&k", "<obf>"));
     }
 
     public static String mmStripColor(String input)
@@ -241,9 +276,9 @@ public class PlexUtils implements PlexBase
         Bukkit.broadcast(component);
     }
 
-    public static void broadcastToAdmins(Component component)
+    public static void broadcastToAdmins(Component component, String permission)
     {
-        Bukkit.getOnlinePlayers().stream().filter(pl -> plugin.getPlayerCache().getPlexPlayer(pl.getUniqueId()).isAdminActive()).forEach(pl ->
+        Bukkit.getOnlinePlayers().stream().filter(pl -> plugin.getPlayerCache().getPlexPlayer(pl.getUniqueId()).isAdminActive() || pl.hasPermission(permission)).forEach(pl ->
         {
             pl.sendMessage(component);
         });
@@ -258,22 +293,10 @@ public class PlexUtils implements PlexBase
             {
                 continue;
             }
-            if (plugin.getSystem().equalsIgnoreCase("ranks"))
+            if (player.hasPermission("plex.adminchat"))
             {
-                PlexPlayer plexPlayer = plugin.getPlayerCache().getPlexPlayerMap().get(player.getUniqueId());
-                if (plexPlayer.getRankFromString().isAtLeast(Rank.ADMIN) && plexPlayer.isAdminActive())
-                {
-                    player.sendMessage(messageComponent("adminChatFormat", senderName, message).replaceText(ChatListener.URL_REPLACEMENT_CONFIG));
-                    sent.add(player.getUniqueId());
-                }
-            }
-            else if (plugin.getSystem().equalsIgnoreCase("permissions"))
-            {
-                if (player.hasPermission("plex.adminchat"))
-                {
-                    player.sendMessage(PlexUtils.messageComponent("adminChatFormat", senderName, message).replaceText(ChatListener.URL_REPLACEMENT_CONFIG));
-                    sent.add(player.getUniqueId());
-                }
+                player.sendMessage(PlexUtils.messageComponent("adminChatFormat", senderName, message).replaceText(ChatListener.URL_REPLACEMENT_CONFIG));
+                sent.add(player.getUniqueId());
             }
         }
         return sent;

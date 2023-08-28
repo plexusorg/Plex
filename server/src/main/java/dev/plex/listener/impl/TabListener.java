@@ -1,10 +1,8 @@
 package dev.plex.listener.impl;
 
 import dev.plex.cache.DataUtils;
-import dev.plex.event.AdminAddEvent;
-import dev.plex.event.AdminRemoveEvent;
-import dev.plex.event.AdminSetRankEvent;
 import dev.plex.listener.PlexListener;
+import dev.plex.meta.PlayerMeta;
 import dev.plex.player.PlexPlayer;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
@@ -19,42 +17,6 @@ public class TabListener extends PlexListener
     {
         Player player = event.getPlayer();
         PlexPlayer plexPlayer = DataUtils.getPlayer(player.getUniqueId());
-        player.playerListName(Component.text(player.getName()).color(plugin.getRankManager().getColor(plexPlayer)));
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void onAdminAdd(AdminAddEvent event)
-    {
-        PlexPlayer plexPlayer = event.getPlexPlayer();
-        Player player = event.getPlexPlayer().getPlayer();
-        if (player == null)
-        {
-            return;
-        }
-        player.playerListName(Component.text(player.getName()).color(plugin.getRankManager().getColor(plexPlayer)));
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void onAdminRemove(AdminRemoveEvent event)
-    {
-        PlexPlayer plexPlayer = event.getPlexPlayer();
-        Player player = event.getPlexPlayer().getPlayer();
-        if (player == null)
-        {
-            return;
-        }
-        player.playerListName(Component.text(player.getName()).color(plugin.getRankManager().getColor(plexPlayer)));
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void onAdminSetRank(AdminSetRankEvent event)
-    {
-        PlexPlayer plexPlayer = event.getPlexPlayer();
-        Player player = event.getPlexPlayer().getPlayer();
-        if (player == null)
-        {
-            return;
-        }
-        player.playerListName(Component.text(player.getName()).color(plugin.getRankManager().getColor(plexPlayer)));
+        player.playerListName(Component.text(player.getName()).color(PlayerMeta.getColor(plexPlayer)));
     }
 }

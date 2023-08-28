@@ -7,7 +7,7 @@ import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.exception.CommandFailException;
 import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.event.GameModeUpdateEvent;
-import dev.plex.rank.enums.Rank;
+
 import dev.plex.util.PlexUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -19,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-@CommandPermissions(level = Rank.ADMIN, permission = "plex.gamemode.spectator", source = RequiredCommandSource.ANY)
+@CommandPermissions(permission = "plex.gamemode.spectator", source = RequiredCommandSource.ANY)
 @CommandParameters(name = "spectator", aliases = "gmsp,egmsp,spec", description = "Set your own or another player's gamemode to spectator mode")
 public class SpectatorCMD extends PlexCommand
 {
@@ -36,7 +36,7 @@ public class SpectatorCMD extends PlexCommand
             return null;
         }
 
-        if (checkRank(sender, Rank.ADMIN, "plex.gamemode.spectator.others"))
+        if (checkPermission(sender,"plex.gamemode.spectator.others"))
         {
             if (args[0].equals("-a"))
             {
@@ -58,7 +58,7 @@ public class SpectatorCMD extends PlexCommand
     @Override
     public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
     {
-        if (silentCheckRank(sender, Rank.ADMIN, "plex.gamemode.spectator.others"))
+        if (silentCheckPermission(sender,"plex.gamemode.spectator.others"))
         {
             return PlexUtils.getPlayerNameList();
         }

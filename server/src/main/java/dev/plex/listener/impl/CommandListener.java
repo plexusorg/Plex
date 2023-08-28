@@ -5,7 +5,7 @@ import dev.plex.cache.DataUtils;
 import dev.plex.command.blocking.BlockedCommand;
 import dev.plex.listener.PlexListener;
 import dev.plex.player.PlexPlayer;
-import dev.plex.rank.enums.Rank;
+
 import dev.plex.services.impl.CommandBlockerService;
 import dev.plex.util.PlexLog;
 import net.kyori.adventure.text.Component;
@@ -108,7 +108,10 @@ public class CommandListener extends PlexListener
         if (cmdRef.get() != null)
         {
             BlockedCommand cmd = cmdRef.get();
-            switch (cmd.getRequiredLevel().toLowerCase(Locale.ROOT))
+            event.setCancelled(true);
+            event.getPlayer().sendMessage(cmd.getMessage());
+            //TODO: Look into removing this or fixing it so they require permissions instead
+            /*switch (cmd.getRequiredLevel().toLowerCase(Locale.ROOT))
             {
                 case "e" ->
                 {
@@ -133,20 +136,12 @@ public class CommandListener extends PlexListener
                     event.setCancelled(true);
                     event.getPlayer().sendMessage(cmd.getMessage());
                 }
-            }
+            }*/
         }
     }
 
     private boolean hasCommandSpy(PlexPlayer plexPlayer)
     {
-        if (plugin.getSystem().equalsIgnoreCase("ranks"))
-        {
-            return plexPlayer.isAdminActive();
-        }
-        else if (plugin.getSystem().equalsIgnoreCase("permissions"))
-        {
-            return plexPlayer.getPlayer().hasPermission("plex.commandspy");
-        }
-        return false;
+        return plexPlayer.getPlayer().hasPermission("plex.commandspy");
     }
 }

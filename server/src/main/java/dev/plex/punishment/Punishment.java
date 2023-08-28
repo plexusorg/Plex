@@ -2,8 +2,8 @@ package dev.plex.punishment;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import dev.morphia.annotations.Entity;
 import dev.plex.Plex;
+import dev.plex.storage.annotation.SQLTable;
 import dev.plex.util.MojangUtils;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.TimeUtils;
@@ -11,17 +11,19 @@ import dev.plex.util.adapter.ZonedDateTimeAdapter;
 import lombok.Getter;
 import lombok.Setter;
 import net.kyori.adventure.text.Component;
+import org.jetbrains.annotations.NotNull;
 
 import java.time.ZonedDateTime;
 import java.util.UUID;
 
 @Getter
 @Setter
-@Entity
+@SQLTable("punishments")
 public class Punishment
 {
     private static final Gson gson = new GsonBuilder().registerTypeAdapter(ZonedDateTime.class, new ZonedDateTimeAdapter()).create();
     private static final String banUrl = Plex.get().config.getString("banning.ban_url");
+    @NotNull
     private final UUID punished;
     private final UUID punisher;
     private String ip;

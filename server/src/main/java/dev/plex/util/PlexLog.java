@@ -13,6 +13,7 @@ public class PlexLog
     {
         for (int i = 0; i < strings.length; i++)
         {
+            if (strings[i] == null) continue;
             if (message.contains("{" + i + "}"))
             {
                 message = message.replace("{" + i + "}", strings[i].toString());
@@ -30,6 +31,7 @@ public class PlexLog
     {
         for (int i = 0; i < strings.length; i++)
         {
+            if (strings[i] == null) continue;
             if (message.contains("{" + i + "}"))
             {
                 message = message.replace("{" + i + "}", strings[i].toString());
@@ -42,6 +44,7 @@ public class PlexLog
     {
         for (int i = 0; i < strings.length; i++)
         {
+            if (strings[i] == null) continue;
             if (message.contains("{" + i + "}"))
             {
                 message = message.replace("{" + i + "}", strings[i].toString());
@@ -56,6 +59,7 @@ public class PlexLog
         {
             for (int i = 0; i < strings.length; i++)
             {
+                if (strings[i] == null) continue;
                 if (message.contains("{" + i + "}"))
                 {
                     message = message.replace("{" + i + "}", strings[i].toString());

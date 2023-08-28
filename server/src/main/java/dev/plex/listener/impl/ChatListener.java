@@ -2,6 +2,7 @@ package dev.plex.listener.impl;
 
 import dev.plex.listener.PlexListener;
 import dev.plex.listener.annotation.Toggleable;
+import dev.plex.meta.PlayerMeta;
 import dev.plex.player.PlexPlayer;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.minimessage.SafeMiniMessage;
@@ -15,6 +16,7 @@ import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
@@ -35,7 +37,7 @@ public class ChatListener extends PlexListener
     public static BiConsumer<AsyncChatEvent, PlexPlayer> PRE_RENDERER = ChatListener::defaultChatProcessing;
     private final PlexChatRenderer renderer = new PlexChatRenderer();
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onChat(AsyncChatEvent event)
     {
         PlexPlayer plexPlayer = plugin.getPlayerCache().getPlexPlayerMap().get(event.getPlayer().getUniqueId());
@@ -46,7 +48,7 @@ public class ChatListener extends PlexListener
             event.setCancelled(true);
             return;
         }
-        Component prefix = plugin.getRankManager().getPrefix(plexPlayer);
+        Component prefix = PlayerMeta.getPrefix(plexPlayer);
 
         if (prefix != null && !prefix.equals(Component.empty()) && !prefix.equals(Component.space()))
         {
@@ -100,7 +102,7 @@ public class ChatListener extends PlexListener
 
     private static void defaultChatProcessing(AsyncChatEvent event, PlexPlayer plexPlayer)
     {
-        String text = PlexUtils.cleanString(PlexUtils.getTextFromComponent(event.message()));
+        String text = PlexUtils.legacyToMiniString(PlexUtils.getTextFromComponent(event.message()));
         event.message(SafeMiniMessage.mmDeserializeWithoutEvents(text));
     }
 }

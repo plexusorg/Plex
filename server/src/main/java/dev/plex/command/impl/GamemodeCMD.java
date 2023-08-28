@@ -6,7 +6,6 @@ import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.exception.CommandFailException;
 import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.event.GameModeUpdateEvent;
-import dev.plex.rank.enums.Rank;
 import dev.plex.util.PlexUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -21,7 +20,7 @@ import java.util.Collections;
 import java.util.List;
 
 @CommandParameters(name = "gamemode", usage = "/<command> <creative | survival | adventure | default | spectator> [player]", description = "Change your gamemode", aliases = "gm,egamemode,gmt,egmt")
-@CommandPermissions(level = Rank.OP, permission = "plex.gamemode", source = RequiredCommandSource.ANY)
+@CommandPermissions(permission = "plex.gamemode", source = RequiredCommandSource.ANY)
 public class GamemodeCMD extends PlexCommand
 {
     private GameMode gamemode;
@@ -62,14 +61,14 @@ public class GamemodeCMD extends PlexCommand
             case "spectator", "sp", "3", "6" ->
             {
                 gamemode = GameMode.SPECTATOR;
-                checkRank(sender, Rank.ADMIN, "plex.gamemode.spectator");
+                checkPermission(sender, "plex.gamemode.spectator");
                 update(sender, playerSender, GameMode.SPECTATOR);
                 return null;
             }
         }
         if (args.length > 1)
         {
-            checkRank(sender, Rank.ADMIN, "plex.gamemode.others");
+            checkPermission(sender, "plex.gamemode.others");
             Player player = getNonNullPlayer(args[1]);
             Bukkit.getServer().getPluginManager().callEvent(new GameModeUpdateEvent(sender, player, gamemode));
         }

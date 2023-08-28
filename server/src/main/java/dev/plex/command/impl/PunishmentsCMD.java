@@ -6,7 +6,7 @@ import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.menu.PunishmentMenu;
-import dev.plex.rank.enums.Rank;
+
 import dev.plex.util.PlexUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.command.CommandSender;
@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 @CommandParameters(name = "punishments", usage = "/<command> [player]", description = "Opens the Punishments GUI", aliases = "punishlist,punishes")
-@CommandPermissions(level = Rank.ADMIN, permission = "plex.punishments", source = RequiredCommandSource.IN_GAME)
+@CommandPermissions(permission = "plex.punishments", source = RequiredCommandSource.IN_GAME)
 public class PunishmentsCMD extends PlexCommand
 {
     @Override
