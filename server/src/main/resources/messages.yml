@@ -130,8 +130,9 @@ toggleCommandSpy: "<gray>CommandSpy has been"
 enabled: "<gray>enabled."
 disabled: "<gray>disabled."
 # 0 - The admin / staff member
-# 1 - The message
-adminChatFormat: '<dark_gray>[<blue>AdminChat<dark_gray>] <dark_red>{0} <gray>» <gold>{1}'
+# 1 - The player's prefix
+# 2 - The message
+adminChatFormat: '<dark_gray>[<blue>AdminChat<dark_gray>] <dark_red>{0} {1} <gray>» <gold>{2}'
 # 0 - Whether it was toggled on or off
 adminChatToggled: '<gray>AdminChat was toggled {0}'
 # 0 - Maximum length, configured in config.yml

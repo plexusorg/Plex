@@ -16,6 +16,7 @@ import redis.clients.jedis.JedisPubSub;
 
 import java.util.UUID;
 
+import static dev.plex.PlexBase.plugin;
 import static dev.plex.util.PlexUtils.messageComponent;
 
 public class MessageUtil
@@ -40,7 +41,7 @@ public class MessageUtil
                         {
                         }.getType());
                         String sender = object.getString("sender").isEmpty() ? "CONSOLE" : object.getString("sender");
-                        PlexUtils.adminChat(sender, object.getString("message"), ignore);
+                        PlexUtils.adminChat(sender, plugin.getPlayerCache().getPlexPlayer(Bukkit.getPlayer(sender).getUniqueId()).getPrefix(), object.getString("message"), ignore);
                         String[] server = object.getString("server").split(":");
                         if (!Bukkit.getServer().getIp().equalsIgnoreCase(server[0]) || Bukkit.getServer().getPort() != Integer.parseInt(server[1]))
                         {

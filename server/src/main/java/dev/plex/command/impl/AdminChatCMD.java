@@ -10,6 +10,7 @@ import dev.plex.util.PlexUtils;
 import dev.plex.util.minimessage.SafeMiniMessage;
 import dev.plex.util.redis.MessageUtil;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bukkit.command.CommandSender;
@@ -26,20 +27,31 @@ public class AdminChatCMD extends PlexCommand
     @Override
     protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
     {
+        PlexPlayer player;
         if (args.length == 0)
         {
             if (playerSender != null)
             {
-                PlexPlayer player = DataUtils.getPlayer(playerSender.getUniqueId());
+                player = plugin.getPlayerCache().getPlexPlayer(playerSender.getUniqueId());
                 player.setStaffChat(!player.isStaffChat());
                 return messageComponent("adminChatToggled", BooleanUtils.toStringOnOff(player.isStaffChat()));
             }
             return usage();
         }
 
+        String prefix;
+        if (playerSender != null)
+        {
+            player = plugin.getPlayerCache().getPlexPlayer(playerSender.getUniqueId());
+            prefix = player.getPrefix();
+        }
+        else
+        {
+            prefix = messageString(LegacyComponentSerializer.legacyAmpersand().serialize(mmString("<dark_gray>[<dark_purple>Console<dark_gray]")));
+        }
         String message = StringUtils.join(args, " ");
-        plugin.getServer().getConsoleSender().sendMessage(messageComponent("adminChatFormat", sender.getName(), message));
-        MessageUtil.sendStaffChat(sender, SafeMiniMessage.mmDeserialize(message), PlexUtils.adminChat(sender.getName(), message).toArray(UUID[]::new));
+        plugin.getServer().getConsoleSender().sendMessage(messageComponent("adminChatFormat", sender.getName(), prefix, message));
+        MessageUtil.sendStaffChat(sender, SafeMiniMessage.mmDeserialize(message), PlexUtils.adminChat(sender.getName(), prefix, message).toArray(UUID[]::new));
         return null;
     }
 }

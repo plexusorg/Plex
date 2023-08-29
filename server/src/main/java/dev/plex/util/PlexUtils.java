@@ -284,7 +284,7 @@ public class PlexUtils implements PlexBase
         });
     }
 
-    public static List<UUID> adminChat(String senderName, String message, UUID... ignore)
+    public static List<UUID> adminChat(String senderName, String prefix, String message, UUID... ignore)
     {
         List<UUID> sent = Lists.newArrayList();
         for (Player player : Bukkit.getOnlinePlayers())
@@ -295,7 +295,7 @@ public class PlexUtils implements PlexBase
             }
             if (player.hasPermission("plex.adminchat"))
             {
-                player.sendMessage(PlexUtils.messageComponent("adminChatFormat", senderName, message).replaceText(ChatListener.URL_REPLACEMENT_CONFIG));
+                player.sendMessage(PlexUtils.messageComponent("adminChatFormat", senderName, prefix, message).replaceText(ChatListener.URL_REPLACEMENT_CONFIG));
                 sent.add(player.getUniqueId());
             }
         }

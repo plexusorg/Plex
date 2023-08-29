@@ -43,7 +43,7 @@ public class ChatListener extends PlexListener
         PlexPlayer plexPlayer = plugin.getPlayerCache().getPlexPlayerMap().get(event.getPlayer().getUniqueId());
         if (plexPlayer.isStaffChat())
         {
-            MessageUtil.sendStaffChat(event.getPlayer(), event.message(), PlexUtils.adminChat(event.getPlayer().getName(), SafeMiniMessage.mmSerialize(event.message())).toArray(UUID[]::new));
+            MessageUtil.sendStaffChat(event.getPlayer(), event.message(), PlexUtils.adminChat(event.getPlayer().getName(), plexPlayer.getPrefix(), SafeMiniMessage.mmSerialize(event.message())).toArray(UUID[]::new));
             plugin.getServer().getConsoleSender().sendMessage(PlexUtils.messageComponent("adminChatFormat", event.getPlayer().getName(), SafeMiniMessage.mmSerialize(event.message())).replaceText(URL_REPLACEMENT_CONFIG));
             event.setCancelled(true);
             return;
