@@ -96,7 +96,7 @@ public class PlexCMD extends PlexCommand
             {
                 if (!hasUpdateAccess(playerSender, sender))
                 {
-                    return messageComponent("noPermissionRank", "an Owner or Developer");
+                    return messageComponent("noPermissionRank", "a Developer");
                 }
                 for (PlexModule module : plugin.getModuleManager().getModules())
                 {
@@ -110,7 +110,7 @@ public class PlexCMD extends PlexCommand
         {
             if (!hasUpdateAccess(playerSender, sender))
             {
-                return messageComponent("noPermissionRank", "an Owner or Developer");
+                return messageComponent("noPermissionRank", "a Developer");
             }
             if (!plugin.getUpdateChecker().getUpdateStatusMessage(sender, false, 0))
             {
@@ -153,13 +153,11 @@ public class PlexCMD extends PlexCommand
             OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(sender.getName());
             if (offlinePlayer.hasPlayedBefore())
             {
-                return PlexUtils.DEVELOPERS.contains(offlinePlayer.getUniqueId().toString())
-                        || plugin.config.getStringList("titles.owners").contains(sender.getName());
+                return PlexUtils.DEVELOPERS.contains(offlinePlayer.getUniqueId().toString());
             }
             return false;
         }
         assert player != null;
-        return PlexUtils.DEVELOPERS.contains(player.getUniqueId().toString())
-                || plugin.config.getStringList("titles.owners").contains(player.getName());
+        return PlexUtils.DEVELOPERS.contains(player.getUniqueId().toString());
     }
 }
