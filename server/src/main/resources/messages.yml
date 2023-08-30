@@ -130,7 +130,7 @@ toggleCommandSpy: "<gray>CommandSpy has been"
 enabled: "<gray>enabled."
 disabled: "<gray>disabled."
 # 0 - The admin / staff member
-# 1 - The player's prefix
+# 1 - The player's group's prefix if any
 # 2 - The message
 adminChatFormat: '<dark_gray>[<blue>AdminChat<dark_gray>] <dark_red>{0} {1} <gray>» <gold>{2}'
 # 0 - Whether it was toggled on or off

@@ -3,6 +3,7 @@ package dev.plex.util.redis;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import dev.plex.Plex;
+import dev.plex.hook.VaultHook;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.minimessage.SafeMiniMessage;
@@ -41,7 +42,7 @@ public class MessageUtil
                         {
                         }.getType());
                         String sender = object.getString("sender").isEmpty() ? "CONSOLE" : object.getString("sender");
-                        PlexUtils.adminChat(sender, plugin.getPlayerCache().getPlexPlayer(Bukkit.getPlayer(sender).getUniqueId()).getPrefix(), object.getString("message"), ignore);
+                        PlexUtils.adminChat(sender, !sender.equals("CONSOLE") ? PlexUtils.mmSerialize(VaultHook.getPrefix(UUID.fromString(sender))) : "<dark_gray>[<dark_purple>Console<dark_gray>]", object.getString("message"), ignore);
                         String[] server = object.getString("server").split(":");
                         if (!Bukkit.getServer().getIp().equalsIgnoreCase(server[0]) || Bukkit.getServer().getPort() != Integer.parseInt(server[1]))
                         {
@@ -77,7 +78,7 @@ public class MessageUtil
 
         String miniMessage = SafeMiniMessage.mmSerialize(message);
         JSONObject object = new JSONObject();
-        object.put("sender", sender instanceof Player player ? player.getName() : "");
+        object.put("sender", sender instanceof Player player ? player.getUniqueId().toString() : "");
         object.put("message", miniMessage);
         object.put("ignore", GSON.toJson(ignore));
         object.put("server", String.format("%s:%s", Bukkit.getServer().getIp(), Bukkit.getServer().getPort()));

@@ -5,11 +5,14 @@ import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.source.RequiredCommandSource;
+import dev.plex.hook.VaultHook;
 import dev.plex.player.PlexPlayer;
+import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.minimessage.SafeMiniMessage;
 import dev.plex.util.redis.MessageUtil;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -43,12 +46,13 @@ public class AdminChatCMD extends PlexCommand
         if (playerSender != null)
         {
             player = plugin.getPlayerCache().getPlexPlayer(playerSender.getUniqueId());
-            prefix = player.getPrefix();
+            prefix = PlexUtils.mmSerialize(VaultHook.getPrefix(player));
         }
         else
         {
-            prefix = messageString(LegacyComponentSerializer.legacyAmpersand().serialize(mmString("<dark_gray>[<dark_purple>Console<dark_gray]")));
+            prefix = "<dark_gray>[<dark_purple>Console<dark_gray>]";
         }
+        PlexLog.debug("admin chat prefix: {0}", prefix);
         String message = StringUtils.join(args, " ");
         plugin.getServer().getConsoleSender().sendMessage(messageComponent("adminChatFormat", sender.getName(), prefix, message));
         MessageUtil.sendStaffChat(sender, SafeMiniMessage.mmDeserialize(message), PlexUtils.adminChat(sender.getName(), prefix, message).toArray(UUID[]::new));

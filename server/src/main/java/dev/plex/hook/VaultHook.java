@@ -1,16 +1,17 @@
 package dev.plex.hook;
 
-import dev.plex.Plex;
-import dev.plex.meta.PlayerMeta;
 import dev.plex.player.PlexPlayer;
+import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
+import dev.plex.util.minimessage.SafeMiniMessage;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.milkbowl.vault.chat.Chat;
 import net.milkbowl.vault.permission.Permission;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.plugin.RegisteredServiceProvider;
+
+import java.util.UUID;
 
 public class VaultHook
 {
@@ -53,20 +54,36 @@ public class VaultHook
         return PERMISSIONS;
     }
 
+    public static Component getPrefix(UUID uuid)
+    {
+        return getPrefix(Bukkit.getOfflinePlayer(uuid));
+    }
+
     public static Component getPrefix(PlexPlayer plexPlayer)
+    {
+        return getPrefix(Bukkit.getOfflinePlayer(plexPlayer.getUuid()));
+    }
+
+    public static Component getPrefix(OfflinePlayer player)
     {
         if (VaultHook.getChat() == null || VaultHook.getPermission() == null)
         {
-            return null;
+            return Component.empty();
         }
-        if (PlexUtils.DEVELOPERS.contains(plexPlayer.getUuid().toString()))
+        if (PlexUtils.DEVELOPERS.contains(player.getUniqueId().toString()))
         {
-            return PlexUtils.mmDeserialize("<dark_gray>[<dark_purple>Developer<dark_gray>]");
+            return PlexUtils.mmDeserialize("<dark_gray>[<dark_purple>Developer</dark_gray>]");
         }
-        Player bukkitPlayer = Bukkit.getPlayer(plexPlayer.getUuid());
-        String group = VaultHook.getPermission().getPrimaryGroup(bukkitPlayer);
-        String vaultPrefix = VaultHook.getChat().getGroupPrefix(bukkitPlayer.getWorld(), group);
-        return LegacyComponentSerializer.legacyAmpersand().deserialize(vaultPrefix);
+        String group = VaultHook.getPermission().getPrimaryGroup(null, player);
+        if (group == null || group.isEmpty()) {
+            return Component.empty();
+        }
+        String vaultPrefix = VaultHook.getChat().getGroupPrefix((String) null, group);
+        if (vaultPrefix == null || vaultPrefix.isEmpty()) {
+            return Component.empty();
+        }
+        PlexLog.debug("prefix: {0}", PlexUtils.legacyToMiniString(vaultPrefix).replace("<", "\\<"));
+        return SafeMiniMessage.mmDeserializeWithoutEvents(PlexUtils.legacyToMiniString(vaultPrefix));
     }
 
     public static Permission getPermission()

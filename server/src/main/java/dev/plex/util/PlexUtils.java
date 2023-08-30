@@ -192,6 +192,11 @@ public class PlexUtils implements PlexBase
         return MINI_MESSAGE.deserialize(input);
     }
 
+    public static String mmSerialize(Component input)
+    {
+        return MINI_MESSAGE.serialize(input);
+    }
+
     public static Component mmCustomDeserialize(String input, TagResolver... resolvers)
     {
         return MiniMessage.builder().tags(TagResolver.builder().resolvers(resolvers).build()).build().deserialize(input);
