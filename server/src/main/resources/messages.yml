@@ -204,3 +204,9 @@ removedOwnLoginMessage: "<gray>Your login message has been removed."
 removedOtherLoginMessage: "<gray>You removed {0}'s login message."
 nameRequired: "<red>Policy requires that you must state your player name in your login message. You can either do this by inserting your name or %player%."
 rankRequired: "<red>Policy requires that you must state your rank in your login message. You can do this by using %rank% in your login message."
+# 0 - The material name
+# 1 - The players who have the material in their inventory
+playersWithMaterial: "<gray>Players with {0} in their inventory: {1}"
+nobodyHasThatMaterial: "<gray>No one online has that in their inventory."
+# 0 - The attempted material name
+materialNotFound: "<red>{0} is not a valid item/block name."
