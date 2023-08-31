@@ -72,7 +72,7 @@ public class VaultHook
         }
         if (PlexUtils.DEVELOPERS.contains(player.getUniqueId().toString()))
         {
-            return PlexUtils.mmDeserialize("<dark_gray>[<dark_purple>Developer</dark_gray>]");
+            return PlexUtils.mmDeserialize("<dark_gray>[<dark_purple>Developer<dark_gray>]");
         }
         String group = VaultHook.getPermission().getPrimaryGroup(null, player);
         if (group == null || group.isEmpty()) {
