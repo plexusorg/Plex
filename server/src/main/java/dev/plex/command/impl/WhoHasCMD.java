@@ -1,6 +1,5 @@
 package dev.plex.command.impl;
 
-import com.destroystokyo.paper.MaterialSetTag;
 import com.google.common.collect.ImmutableList;
 import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
