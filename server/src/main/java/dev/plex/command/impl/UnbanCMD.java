@@ -11,7 +11,6 @@ import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.player.PlexPlayer;
 
 import dev.plex.util.PlexUtils;
-import dev.plex.util.WebUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -19,7 +18,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.UUID;
 
 @CommandParameters(name = "unban", usage = "/<command> <player>", description = "Unbans a player, offline or online")
 @CommandPermissions(permission = "plex.ban", source = RequiredCommandSource.ANY)
@@ -36,23 +34,22 @@ public class UnbanCMD extends PlexCommand
 
         if (args.length == 1)
         {
-            UUID targetUUID = WebUtils.getFromName(args[0]);
+            PlexPlayer target = DataUtils.getPlayer(args[0]);
 
-            if (targetUUID == null || !DataUtils.hasPlayedBefore(targetUUID))
+            if (target == null)
             {
                 throw new PlayerNotFoundException();
             }
 
-            plugin.getPunishmentManager().isAsyncBanned(targetUUID).whenComplete((aBoolean, throwable) ->
+            plugin.getPunishmentManager().isAsyncBanned(target.getUuid()).whenComplete((aBoolean, throwable) ->
             {
-                PlexPlayer plexPlayer = getOfflinePlexPlayer(targetUUID);
                 if (!aBoolean)
                 {
                     send(sender, PlexUtils.mmDeserialize(new PlayerNotBannedException().getMessage()));
                     return;
                 }
-                plugin.getPunishmentManager().unban(targetUUID);
-                PlexUtils.broadcast(messageComponent("unbanningPlayer", sender.getName(), plexPlayer.getName()));
+                plugin.getPunishmentManager().unban(target.getUuid());
+                PlexUtils.broadcast(messageComponent("unbanningPlayer", sender.getName(), target.getName()));
             });
         }
         return null;

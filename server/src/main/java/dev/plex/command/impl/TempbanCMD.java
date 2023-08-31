@@ -14,7 +14,6 @@ import dev.plex.punishment.PunishmentType;
 import dev.plex.util.BungeeUtil;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.TimeUtils;
-import dev.plex.util.WebUtils;
 import net.kyori.adventure.text.Component;
 import org.apache.commons.lang3.StringUtils;
 import org.bukkit.Bukkit;
@@ -24,7 +23,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.UUID;
 
 @CommandParameters(name = "tempban", usage = "/<command> <player> <time> [reason]", description = "Temporarily ban a player")
 @CommandPermissions(permission = "plex.tempban", source = RequiredCommandSource.ANY)
@@ -39,22 +37,20 @@ public class TempbanCMD extends PlexCommand
             return usage();
         }
 
-        UUID targetUUID = WebUtils.getFromName(args[0]);
+        PlexPlayer target = DataUtils.getPlayer(args[0]);
         String reason;
 
-        if (targetUUID == null || !DataUtils.hasPlayedBefore(targetUUID))
+        if (target == null)
         {
             throw new PlayerNotFoundException();
         }
+        Player player = Bukkit.getPlayer(target.getUuid());
 
-        PlexPlayer plexPlayer = DataUtils.getPlayer(targetUUID);
-        Player player = Bukkit.getPlayer(targetUUID);
-
-        if (plugin.getPunishmentManager().isBanned(targetUUID))
+        if (plugin.getPunishmentManager().isBanned(target.getUuid()))
         {
             return messageComponent("playerBanned");
         }
-        Punishment punishment = new Punishment(targetUUID, getUUID(sender));
+        Punishment punishment = new Punishment(target.getUuid(), getUUID(sender));
         punishment.setType(PunishmentType.TEMPBAN);
         if (args.length > 2)
         {
@@ -65,7 +61,7 @@ public class TempbanCMD extends PlexCommand
         {
             punishment.setReason("No reason provided.");
         }
-        punishment.setPunishedUsername(plexPlayer.getName());
+        punishment.setPunishedUsername(target.getName());
         punishment.setEndDate(TimeUtils.createDate(args[1]));
         punishment.setCustomTime(false);
         punishment.setActive(true);
@@ -73,8 +69,8 @@ public class TempbanCMD extends PlexCommand
         {
             punishment.setIp(player.getAddress().getAddress().getHostAddress().trim());
         }
-        plugin.getPunishmentManager().punish(plexPlayer, punishment);
-        PlexUtils.broadcast(messageComponent("banningPlayer", sender.getName(), plexPlayer.getName()));
+        plugin.getPunishmentManager().punish(target, punishment);
+        PlexUtils.broadcast(messageComponent("banningPlayer", sender.getName(), target.getName()));
         if (player != null)
         {
             BungeeUtil.kickPlayer(player, Punishment.generateBanMessage(punishment));
