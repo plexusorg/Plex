@@ -43,12 +43,12 @@ public class PunishedPlayerMenu extends AbstractMenu
 
             ItemStack previousPage = new ItemStack(Material.FEATHER);
             ItemMeta meta2 = previousPage.getItemMeta();
-            meta2.displayName(Component.text("Next Page").color(NamedTextColor.LIGHT_PURPLE));
+            meta2.displayName(Component.text("Previous Page").color(NamedTextColor.LIGHT_PURPLE));
             previousPage.setItemMeta(meta2);
 
             ItemStack back = new ItemStack(Material.BARRIER);
             ItemMeta meta3 = back.getItemMeta();
-            meta3.displayName(Component.text("Next Page").color(NamedTextColor.LIGHT_PURPLE));
+            meta3.displayName(Component.text("Back").color(NamedTextColor.LIGHT_PURPLE));
             back.setItemMeta(meta3);
 
             inventory.setItem(50, nextPage);
@@ -86,7 +86,7 @@ public class PunishedPlayerMenu extends AbstractMenu
             ItemStack item = new ItemStack(Material.NETHER_STAR);
             ItemMeta meta = item.getItemMeta();
             meta.displayName(Component.text(punishment.getType().name().toUpperCase()).color(NamedTextColor.RED));
-            meta.lore(Collections.singletonList(Component.text("Reason: ").color(NamedTextColor.YELLOW).append(Component.newline()).append(Component.text(punishment.getReason()).color(NamedTextColor.GRAY))));
+            meta.lore(Collections.singletonList(Component.text("Reason: ").color(NamedTextColor.YELLOW).append(Component.text(punishment.getReason()).color(NamedTextColor.GRAY))));
             item.setItemMeta(meta);
 
             inv.setItem(currentItemIndex, item);
