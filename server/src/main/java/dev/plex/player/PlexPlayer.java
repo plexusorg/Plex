@@ -65,7 +65,7 @@ public class PlexPlayer
     {
     }
 
-    public PlexPlayer(UUID playerUUID, boolean loadExtraData)
+    public PlexPlayer(UUID playerUUID, boolean loadPunishments)
     {
         this.uuid = playerUUID;
         this.name = "";
@@ -78,7 +78,7 @@ public class PlexPlayer
 
         this.coins = 0;
 
-        if (loadExtraData)
+        if (loadPunishments)
         {
             this.loadPunishments();
 //            this.permissions.addAll(Plex.get().getSqlPermissions().getPermissions(this.uuid));

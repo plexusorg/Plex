@@ -3,6 +3,7 @@ package dev.plex.punishment;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import dev.plex.Plex;
+import dev.plex.cache.DataUtils;
 import dev.plex.storage.annotation.SQLTable;
 import dev.plex.util.MojangUtils;
 import dev.plex.util.PlexUtils;
@@ -48,12 +49,12 @@ public class Punishment
 
     public static Component generateBanMessage(Punishment punishment)
     {
-        return PlexUtils.messageComponent("banMessage", banUrl, punishment.getReason(), TimeUtils.useTimezone(punishment.getEndDate()), punishment.getPunisher() == null ? "CONSOLE" : MojangUtils.getInfo(punishment.getPunisher().toString()).getUsername());
+        return PlexUtils.messageComponent("banMessage", banUrl, punishment.getReason(), TimeUtils.useTimezone(punishment.getEndDate()), punishment.getPunisher() == null ? "CONSOLE" : Plex.get().getSqlPlayerData().getNameByUUID(punishment.getPunisher()));
     }
 
     public static Component generateKickMessage(Punishment punishment)
     {
-        return PlexUtils.messageComponent("kickMessage", punishment.getReason(), punishment.getPunisher() == null ? "CONSOLE" : MojangUtils.getInfo(punishment.getPunisher().toString()).getUsername());
+        return PlexUtils.messageComponent("kickMessage", punishment.getReason(), punishment.getPunisher() == null ? "CONSOLE" : Plex.get().getSqlPlayerData().getNameByUUID(punishment.getPunisher()));
     }
 
     public static Component generateIndefBanMessageWithReason(String type, String reason)

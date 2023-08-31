@@ -111,6 +111,38 @@ public class SQLPlayerData
         return null;
     }
 
+
+    /**
+     * Gets the player from cache or from the SQL database
+     *
+     * @param uuid The unique ID of the player
+     * @return a PlexPlayer object
+     * @see PlexPlayer
+     */
+    public String getNameByUUID(UUID uuid)
+    {
+        if (Plex.get().getPlayerCache().getPlexPlayerMap().containsKey(uuid))
+        {
+            return Plex.get().getPlayerCache().getPlexPlayerMap().get(uuid).getName();
+        }
+
+        try (Connection con = Plex.get().getSqlConnection().getCon())
+        {
+            PreparedStatement statement = con.prepareStatement("SELECT `name` FROM `players` WHERE uuid=?");
+            statement.setString(1, uuid.toString());
+            ResultSet set = statement.executeQuery();
+            if (set.next())
+            {
+                return set.getString("name");
+            }
+        }
+        catch (SQLException throwables)
+        {
+            throwables.printStackTrace();
+        }
+        return null;
+    }
+
     public PlexPlayer getByUUID(UUID uuid)
     {
         return this.getByUUID(uuid, true);
