@@ -56,6 +56,11 @@ public class PlayerMeta
         {
             return NamedTextColor.DARK_PURPLE;
         }
+        String group = VaultHook.getPermission().getPrimaryGroup(null, plexPlayer.getPlayer());
+        if (Plex.get().getConfig().isSet("colors." + group))
+        {
+            return NamedTextColor.namedColor(Plex.get().getConfig().getInt("colors." + group));
+        }
         return NamedTextColor.WHITE;
     }
 }
