@@ -39,12 +39,12 @@ public abstract class AbstractMenu
         this(SafeMiniMessage.mmDeserializeWithoutEvents(name), rows);
     }
 
+    public abstract boolean onClick(InventoryView view, Inventory inventory, Player player, ItemStack clicked);
+
     public void open(Player player)
     {
         player.openInventory(this.inventory);
     }
-
-    public abstract boolean onClick(InventoryView view, Inventory inventory, Player player, ItemStack clicked);
 
     public enum Rows
     {

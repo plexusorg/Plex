@@ -117,6 +117,10 @@ public abstract class PageableMenu<T>
         this(SafeMiniMessage.mmDeserializeWithoutEvents(name), rows);
     }
 
+    protected abstract ItemStack toItem(T object);
+
+    protected abstract List<T> list();
+
     public void open(Player player)
     {
         open(player, 0);
@@ -143,10 +147,6 @@ public abstract class PageableMenu<T>
         this.onClick = onClick;
         this.pages.forEach((integer, page) -> page.onClick(this.onClick));
     }
-
-    protected abstract ItemStack toItem(T object);
-
-    protected abstract List<T> list();
 
 
     @Getter
