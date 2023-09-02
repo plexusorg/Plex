@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
+import dev.plex.menu.impl.MaterialMenu;
 import dev.plex.util.GameRuleUtil;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
@@ -20,6 +21,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.CompletableFuture;
 
 @CommandParameters(name = "pdebug", description = "Plex's debug command", usage = "/<command> <aliases <command> | redis-reset <player> | gamerules>")
 @CommandPermissions(permission = "plex.debug")
@@ -75,6 +77,15 @@ public class DebugCMD extends PlexCommand
                 }
                 return mmString("<aqua>Aliases for " + commandName + " are: " + Arrays.toString(command.getAliases().toArray(new String[0])));
             }
+        }
+        if (args[0].equalsIgnoreCase("pagination"))
+        {
+            if (playerSender == null)
+            {
+                return messageComponent("noPermissionConsole");
+            }
+            new MaterialMenu().open(playerSender);
+            return null;
         }
         return usage();
     }

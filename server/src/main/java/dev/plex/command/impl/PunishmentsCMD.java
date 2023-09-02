@@ -5,8 +5,8 @@ import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.source.RequiredCommandSource;
-import dev.plex.menu.PunishmentMenu;
 
+import dev.plex.menu.impl.PunishmentMenu;
 import dev.plex.util.PlexUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.command.CommandSender;
@@ -23,7 +23,7 @@ public class PunishmentsCMD extends PlexCommand
     @Override
     protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
     {
-        new PunishmentMenu().openInv(playerSender, 0);
+        new PunishmentMenu().open(playerSender);
         return null;
     }
 
