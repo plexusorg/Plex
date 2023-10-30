@@ -20,8 +20,8 @@ import java.util.UUID;
 public class SQLPlayerData
 {
     private final String SELECT = "SELECT * FROM `players` WHERE uuid=?";
-    private final String UPDATE = "UPDATE `players` SET name=?, login_msg=?, prefix=?, rank=?, adminActive=?, ips=?, coins=?, vanished=?, commandspy=? WHERE uuid=?";
-    private final String INSERT = "INSERT INTO `players` (`uuid`, `name`, `login_msg`, `prefix`, `rank`, `adminActive`, `ips`, `coins`, `vanished`, `commandspy`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+    private final String UPDATE = "UPDATE `players` SET name=?, login_msg=?, prefix=?, ips=?, coins=?, vanished=?, commandspy=? WHERE uuid=?";
+    private final String INSERT = "INSERT INTO `players` (`uuid`, `name`, `login_msg`, `prefix`, `ips`, `coins`, `vanished`, `commandspy`) VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
 
     /**
      * Checks if a player exists in the SQL database
@@ -163,7 +163,6 @@ public class SQLPlayerData
                 PlexPlayer plexPlayer = new PlexPlayer(UUID.fromString(set.getString("uuid")), loadExtraData);
                 String loginMSG = set.getString("login_msg");
                 String prefix = set.getString("prefix");
-                boolean adminActive = set.getBoolean("adminActive");
                 long coins = set.getLong("coins");
                 boolean vanished = set.getBoolean("vanished");
                 boolean commandspy = set.getBoolean("commandspy");

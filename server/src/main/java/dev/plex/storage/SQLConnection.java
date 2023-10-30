@@ -73,8 +73,6 @@ public class SQLConnection implements PlexBase
                     "`name` VARCHAR(18), " +
                     "`login_msg` VARCHAR(2000), " +
                     "`prefix` VARCHAR(2000), " +
-                    "`rank` VARCHAR(20), " +
-                    "`adminActive` BOOLEAN, " +
                     "`staffChat` BOOLEAN, " +
                     "`ips` VARCHAR(2000), " +
                     "`coins` BIGINT, " +

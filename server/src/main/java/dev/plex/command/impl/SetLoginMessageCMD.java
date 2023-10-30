@@ -21,7 +21,6 @@ import org.jetbrains.annotations.Nullable;
 public class SetLoginMessageCMD extends PlexCommand
 {
     private final boolean nameRequired = plugin.getConfig().getBoolean("loginmessages.name");
-    private final boolean rankRequired = plugin.getConfig().getBoolean("loginmessages.rank");
 
     @Override
     protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
