@@ -283,7 +283,7 @@ public class PlexUtils implements PlexBase
 
     public static void broadcastToAdmins(Component component, String permission)
     {
-        Bukkit.getOnlinePlayers().stream().filter(pl -> plugin.getPlayerCache().getPlexPlayer(pl.getUniqueId()).isAdminActive() || pl.hasPermission(permission)).forEach(pl ->
+        Bukkit.getOnlinePlayers().stream().filter(pl -> pl.hasPermission(permission)).forEach(pl ->
         {
             pl.sendMessage(component);
         });

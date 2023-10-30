@@ -57,7 +57,6 @@ public class TimingService extends AbstractService
         }
         punishment.setEndDate(TimeUtils.createDate("5m"));
         punishment.setCustomTime(false);
-        punishment.setActive(!plexPlayer.isAdminActive());
         plugin.getPunishmentManager().punish(plexPlayer, punishment);
     }
 

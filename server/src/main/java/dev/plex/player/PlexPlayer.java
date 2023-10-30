@@ -49,8 +49,6 @@ public class PlexPlayer
     private transient boolean muted;
     private transient boolean lockedUp;
 
-    private boolean adminActive;
-
     private long coins;
 
     private List<String> ips = Lists.newArrayList();
