@@ -86,6 +86,7 @@ public class MobListener extends PlexListener
             {
                 blockLoc.getWorld().spawnEntity(blockLoc, eggType);
             }
+            event.setCancelled(true);
         }
     }
 
