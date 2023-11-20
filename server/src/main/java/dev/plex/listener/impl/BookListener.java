@@ -14,7 +14,7 @@ import java.util.List;
 
 public class BookListener extends PlexListener
 {
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.LOW)
     public void onBookEdit(PlayerEditBookEvent event)
     {
         List<Component> pages = new ArrayList<>();
