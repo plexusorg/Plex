@@ -11,7 +11,7 @@ public class SignListener extends PlexListener
 {
     private static final LegacyComponentSerializer LEGACY_COMPONENT_SERIALIZER = LegacyComponentSerializer.legacyAmpersand();
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.LOW)
     public void onSignEdit(SignChangeEvent event)
     {
         for (int i = 0; i < event.lines().size(); i++)
