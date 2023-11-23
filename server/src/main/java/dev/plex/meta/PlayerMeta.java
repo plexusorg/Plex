@@ -7,6 +7,7 @@ import dev.plex.util.PlexUtils;
 import dev.plex.util.minimessage.SafeMiniMessage;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 
@@ -50,7 +51,7 @@ public class PlayerMeta
         return "";
     }
 
-    public static NamedTextColor getColor(PlexPlayer plexPlayer)
+    public static TextColor getColor(PlexPlayer plexPlayer)
     {
         if (PlexUtils.DEVELOPERS.contains(plexPlayer.getUuid().toString())) // don't remove or we will front door ur mother
         {
@@ -59,7 +60,7 @@ public class PlayerMeta
         String group = VaultHook.getPermission().getPrimaryGroup(null, plexPlayer.getPlayer());
         if (Plex.get().getConfig().isSet("colors." + group))
         {
-            return NamedTextColor.namedColor(Plex.get().getConfig().getInt("colors." + group));
+            return TextColor.color(Plex.get().getConfig().getInt("colors." + group));
         }
         return NamedTextColor.WHITE;
     }
