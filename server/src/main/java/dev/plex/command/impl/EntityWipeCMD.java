@@ -33,8 +33,8 @@ public class EntityWipeCMD extends PlexCommand
         boolean useBlacklist = args.length == 0 || (args.length == 1 && radiusSpecified); // if there are no arguments or the one argument is a number
         int radius = 0;
 
-        PlexLog.log("using blacklist: " + useBlacklist);
-        PlexLog.log("radius specified: " + radiusSpecified);
+        PlexLog.debug("using blacklist: " + useBlacklist);
+        PlexLog.debug("radius specified: " + radiusSpecified);
 
         if (radiusSpecified)
         {
@@ -42,7 +42,7 @@ public class EntityWipeCMD extends PlexCommand
             entityWhitelist.remove(entityWhitelist.size() - 1); // remove the radius from the list
         }
 
-        PlexLog.log("radius: " + radius);
+        PlexLog.debug("radius: " + radius);
 
         EntityType[] entityTypes = EntityType.values();
         entityWhitelist.removeIf(name ->
@@ -69,14 +69,14 @@ public class EntityWipeCMD extends PlexCommand
                     {
                         if (radius > 0)
                         {
-                            PlexLog.log("we got here, radius is > 0");
+                            PlexLog.debug("we got here, radius is > 0");
                             if (playerSender != null && entity.getWorld() == playerSender.getWorld() && playerSender.getLocation().distance(entity.getLocation()) > radius)
                             {
-                                PlexLog.log("continuing");
+                                PlexLog.debug("continuing");
                                 continue;
                             }
                         }
-                        PlexLog.log("removed entity: " + entity.getType().name());
+                        PlexLog.debug("removed entity: " + entity.getType().name());
                         entity.remove();
 
                         entityCounts.put(type, entityCounts.getOrDefault(type, 0) + 1);
