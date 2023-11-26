@@ -4,7 +4,7 @@ import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.source.RequiredCommandSource;
-
+import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -19,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 
 @CommandPermissions(permission = "plex.entitywipe", source = RequiredCommandSource.ANY)
-@CommandParameters(name = "entitywipe", description = "Remove various server entities that may cause lag, such as dropped items, minecarts, and boats.", usage = "/<command> [name]", aliases = "ew,rd")
+@CommandParameters(name = "entitywipe", description = "Remove various server entities that may cause lag, such as dropped items, minecarts, and boats.", usage = "/<command> [entity] [radius]", aliases = "ew,rd")
 public class EntityWipeCMD extends PlexCommand
 {
     @Override
@@ -28,6 +28,21 @@ public class EntityWipeCMD extends PlexCommand
         List<String> entityBlacklist = plugin.config.getStringList("entitywipe_list");
 
         List<String> entityWhitelist = new LinkedList<>(Arrays.asList(args));
+
+        boolean radiusSpecified = !entityWhitelist.isEmpty() && isNumeric(entityWhitelist.get(entityWhitelist.size() - 1)); // try and detect if the last argument of the command is a number
+        boolean useBlacklist = args.length == 0 || (args.length == 1 && radiusSpecified); // if there are no arguments or the one argument is a number
+        int radius = 0;
+
+        PlexLog.log("using blacklist: " + useBlacklist);
+        PlexLog.log("radius specified: " + radiusSpecified);
+
+        if (radiusSpecified)
+        {
+            radius = parseInt(sender, args[entityWhitelist.size() - 1]); // get the args length as the size of the list
+            entityWhitelist.remove(entityWhitelist.size() - 1); // remove the radius from the list
+        }
+
+        PlexLog.log("radius: " + radius);
 
         EntityType[] entityTypes = EntityType.values();
         entityWhitelist.removeIf(name ->
@@ -39,8 +54,6 @@ public class EntityWipeCMD extends PlexCommand
             }
             return res;
         });
-
-        boolean useBlacklist = args.length == 0;
 
         HashMap<String, Integer> entityCounts = new HashMap<>();
 
@@ -54,6 +67,16 @@ public class EntityWipeCMD extends PlexCommand
 
                     if (useBlacklist ? entityBlacklist.stream().noneMatch(entityName -> entityName.equalsIgnoreCase(type)) : entityWhitelist.stream().anyMatch(entityName -> entityName.equalsIgnoreCase(type)))
                     {
+                        if (radius > 0)
+                        {
+                            PlexLog.log("we got here, radius is > 0");
+                            if (playerSender != null && playerSender.getLocation().distanceSquared(entity.getLocation()) > radius)
+                            {
+                                PlexLog.log("continuing");
+                                continue;
+                            }
+                        }
+                        PlexLog.log("removed entity: " + entity.getType().name());
                         entity.remove();
 
                         entityCounts.put(type, entityCounts.getOrDefault(type, 0) + 1);
@@ -96,5 +119,35 @@ public class EntityWipeCMD extends PlexCommand
             }
         }
         return entities.stream().toList();
+    }
+
+    private Integer parseInt(CommandSender sender, String string)
+    {
+        try
+        {
+            return Integer.parseInt(string);
+        }
+        catch (NumberFormatException ex)
+        {
+            sender.sendMessage(mmString("<red>" + string + "<red> is not a valid number!"));
+        }
+        return null;
+    }
+
+    private boolean isNumeric(String string)
+    {
+        if (string == null)
+        {
+            return false;
+        }
+        try
+        {
+            int num = Integer.parseInt(string);
+        }
+        catch (NumberFormatException nfe)
+        {
+            return false;
+        }
+        return true;
     }
 }
