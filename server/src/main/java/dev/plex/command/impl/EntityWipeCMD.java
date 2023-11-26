@@ -70,7 +70,7 @@ public class EntityWipeCMD extends PlexCommand
                         if (radius > 0)
                         {
                             PlexLog.log("we got here, radius is > 0");
-                            if (playerSender != null && playerSender.getLocation().distanceSquared(entity.getLocation()) > radius)
+                            if (playerSender != null && entity.getWorld() == playerSender.getWorld() && playerSender.getLocation().distance(entity.getLocation()) > radius)
                             {
                                 PlexLog.log("continuing");
                                 continue;
