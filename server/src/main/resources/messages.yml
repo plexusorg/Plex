@@ -29,16 +29,6 @@ specifyPlayer: "<red>You must specify a player!"
 worldNotFound: "<red>World not found!"
 # 0 - The world you have been teleported to
 playerWorldTeleport: "<aqua>You have been teleported to {0}."
-# 0 - The sender who opped everyone
-oppedAllPlayers: "<aqua>{0} - Opped all players on the server"
-# 0 - The sender who de-opped everyone
-deoppedAllPlayers: "<aqua>{0} - De-opped all players on the server"
-# 0 - The person who is opping
-# 1 - The person who has been opped
-oppedPlayer: "<aqua>{0} - Opped {1}"
-# 0 - The person who is deopped
-# 1 - The person who has been deopped
-deoppedPlayer: "<red>{0} - Deopped {1}"
 # 0 - The person who is freezing
 # 1 - The person who has been frozen
 frozePlayer: "<red>{0} - Froze {1}"
@@ -57,8 +47,6 @@ lockedUpPlayer: "<aqua>{0} - Locking up {1}"
 # 0 - The person who is unlocking
 # 1 - The person who has been unlocked
 unlockedPlayer: "<aqua>{0} - Unlocking {1}"
-# 0 - The rank required to use the command
-noPermissionRank: "<red>You must be at least {0} <red>to use this command!"
 # 0 - The permission node required to use the command
 noPermissionNode: "<red>You must have the permission: {0} <red>to use this command!"
 noPermissionInGame: "<red>You must be in console to use this command!"

@@ -5,7 +5,6 @@ import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.hook.VaultHook;
-
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
@@ -14,9 +13,10 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collections;
 import java.util.List;
 
-@CommandParameters(name = "list", description = "Show a list of all online players", aliases = "lsit,who,playerlist,online")
+@CommandParameters(name = "list", description = "Show a list of all online players", usage = "/<command> [-d]", aliases = "lsit,who,playerlist,online")
 @CommandPermissions(permission = "plex.list")
 public class ListCMD extends PlexCommand
 {
@@ -37,7 +37,7 @@ public class ListCMD extends PlexCommand
                 .append(Component.space())
                 .append(Component.text(Bukkit.getMaxPlayers() == 1 ? "player." : "players.").color(NamedTextColor.GRAY));
         send(sender, header);
-        if (players.size() == 0)
+        if (players.isEmpty())
         {
             return null;
         }
@@ -45,15 +45,32 @@ public class ListCMD extends PlexCommand
         {
             Player player = players.get(i);
             Component prefix = VaultHook.getPrefix(getPlexPlayer(player));
-            if (prefix != null && !prefix.equals(Component.empty()) && !prefix.equals(Component.space())) {
+            if (prefix != null && !prefix.equals(Component.empty()) && !prefix.equals(Component.space()))
+            {
                 list = list.append(prefix).append(Component.space());
             }
             list = list.append(Component.text(player.getName()).color(NamedTextColor.WHITE));
+            if (args.length > 0 && args[0].equalsIgnoreCase("-d"))
+            {
+                list = list.append(Component.space());
+                list = list.append(Component.text("(").color(NamedTextColor.WHITE));
+                list = list.append(player.displayName());
+                list = list.append(Component.text(")").color(NamedTextColor.WHITE));
+            }
             if (i != players.size() - 1)
             {
                 list = list.append(Component.text(",")).append(Component.space());
             }
         }
         return list;
+    }
+
+    public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
+    {
+        if (args.length == 1)
+        {
+            return Collections.singletonList("-d");
+        }
+        return Collections.emptyList();
     }
 }
