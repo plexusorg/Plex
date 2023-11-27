@@ -39,6 +39,7 @@ public class EntityWipeCMD extends PlexCommand
         if (radiusSpecified)
         {
             radius = parseInt(sender, args[entityWhitelist.size() - 1]); // get the args length as the size of the list
+            radius *= radius;
             entityWhitelist.remove(entityWhitelist.size() - 1); // remove the radius from the list
         }
 
@@ -70,7 +71,7 @@ public class EntityWipeCMD extends PlexCommand
                         if (radius > 0)
                         {
                             PlexLog.debug("we got here, radius is > 0");
-                            if (playerSender != null && entity.getWorld() == playerSender.getWorld() && playerSender.getLocation().distance(entity.getLocation()) > radius)
+                            if (playerSender != null && entity.getWorld() == playerSender.getWorld() && playerSender.getLocation().distanceSquared(entity.getLocation()) > radius)
                             {
                                 PlexLog.debug("continuing");
                                 continue;
