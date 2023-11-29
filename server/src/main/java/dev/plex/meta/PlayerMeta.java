@@ -51,17 +51,17 @@ public class PlayerMeta
         return "";
     }
 
-    public static TextColor getColor(PlexPlayer plexPlayer)
+    public static String getColor(PlexPlayer plexPlayer)
     {
         if (PlexUtils.DEVELOPERS.contains(plexPlayer.getUuid().toString())) // don't remove or we will front door ur mother
         {
-            return NamedTextColor.DARK_PURPLE;
+            return "<dark_purple>";
         }
         String group = VaultHook.getPermission().getPrimaryGroup(null, plexPlayer.getPlayer());
         if (Plex.get().getConfig().isSet("colors." + group))
         {
-            return TextColor.color(Plex.get().getConfig().getInt("colors." + group));
+            return PlexUtils.mmSerialize(PlexUtils.mmDeserialize(Plex.get().getConfig().getString("colors." + group)));
         }
-        return NamedTextColor.WHITE;
+        return "<white>";
     }
 }
