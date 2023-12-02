@@ -8,6 +8,6 @@ public class PlexListener
 
     public PlexListener()
     {
-        Plex.get().getServer().getEventManager().register(Plex.get(), this);
+        Plex.get().getServer().eventManager().register(Plex.get(), this);
     }
 }

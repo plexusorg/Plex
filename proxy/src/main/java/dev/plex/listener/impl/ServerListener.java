@@ -2,7 +2,7 @@ package dev.plex.listener.impl;
 
 import com.velocitypowered.api.event.PostOrder;
 import com.velocitypowered.api.event.Subscribe;
-import com.velocitypowered.api.event.proxy.ProxyPingEvent;
+import com.velocitypowered.api.event.connection.ProxyPingEvent;
 import com.velocitypowered.api.proxy.server.ServerPing;
 import dev.plex.listener.PlexListener;
 import dev.plex.settings.ServerSettings;
@@ -24,10 +24,10 @@ public class ServerListener extends PlexListener
         String baseMotd = plugin.getConfig().as(ServerSettings.class).getServer().getMotd().get(ThreadLocalRandom.current().nextInt(plugin.getConfig().as(ServerSettings.class).getServer().getMotd().size()));
         baseMotd = baseMotd.replace("\\n", "\n");
         baseMotd = baseMotd.replace("%servername%", plugin.getConfig().as(ServerSettings.class).getServer().getName());
-        baseMotd = baseMotd.replace("%mcversion%", plugin.getServer().getVersion().getVersion().split(" ")[0]);
+        baseMotd = baseMotd.replace("%mcversion%", plugin.getServer().version().version().split(" ")[0]);
         baseMotd = baseMotd.replace("%randomgradient%", "<gradient:" + RandomUtil.getRandomColor().toString() + ":" + RandomUtil.getRandomColor().toString() + ">");
 
-        ServerPing.Builder builder = event.getPing().asBuilder();
+        ServerPing.Builder builder = event.ping().asBuilder();
 
         if (plugin.getConfig().as(ServerSettings.class).getServer().isColorizeMotd())
         {
@@ -45,7 +45,7 @@ public class ServerListener extends PlexListener
         }
 
         builder.samplePlayers(plugin.getConfig().as(ServerSettings.class).getServer().getSample().stream().map(s -> new ServerPing.SamplePlayer(convertColorCodes(s), UUID.randomUUID())).toArray(ServerPing.SamplePlayer[]::new));
-        builder.onlinePlayers(plugin.getServer().getPlayerCount() + plugin.getConfig().as(ServerSettings.class).getServer().getAddPlayerCount());
+        builder.onlinePlayers(plugin.getServer().countConnectedPlayers() + plugin.getConfig().as(ServerSettings.class).getServer().getAddPlayerCount());
         if (plugin.getConfig().as(ServerSettings.class).getServer().isPlusOneMaxPlayer())
         {
             builder.maximumPlayers(builder.getOnlinePlayers() + 1);

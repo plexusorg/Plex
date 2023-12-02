@@ -2,9 +2,9 @@ package dev.plex.command;
 
 import com.velocitypowered.api.command.CommandMeta;
 import com.velocitypowered.api.command.CommandSource;
+import com.velocitypowered.api.command.ConsoleCommandSource;
 import com.velocitypowered.api.command.SimpleCommand;
-import com.velocitypowered.api.proxy.ConsoleCommandSource;
-import com.velocitypowered.api.proxy.Player;
+import com.velocitypowered.api.proxy.connection.Player;
 import dev.plex.Plex;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
@@ -43,10 +43,9 @@ public abstract class PlexCommand implements SimpleCommand
         this.perms = getClass().getAnnotation(CommandPermissions.class);
         this.commandSource = this.perms.source();
 
-        CommandMeta.Builder meta = plugin.getServer().getCommandManager().metaBuilder(this.params.name());
+        CommandMeta.Builder meta = plugin.getServer().commandManager().createMetaBuilder(this.params.name());
         meta.aliases(this.params.aliases());
-        meta.plugin(Plex.get());
-        plugin.getServer().getCommandManager().register(meta.build(), this);
+        plugin.getServer().commandManager().register(meta.build(), this);
     }
 
     protected abstract Component execute(@NotNull CommandSource source, @Nullable Player player, @NotNull String[] args);

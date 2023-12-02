@@ -1,0 +1,5 @@
+package dev.plex;
+
+class BuildParameters {
+    public static final String VERSION = "{{ version }}";
+}

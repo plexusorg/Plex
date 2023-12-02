@@ -1,5 +1,6 @@
 plugins {
-    id("net.kyori.blossom") version "1.3.1"
+    id("org.jetbrains.gradle.plugin.idea-ext") version "1.1.7"
+    id("net.kyori.blossom") version "2.1.0"
 }
 
 group = rootProject.group
@@ -24,8 +25,14 @@ tasks {
     }
 }
 
-blossom {
-    replaceToken("@version@", rootProject.version)
+sourceSets {
+    main {
+        blossom {
+            javaSources {
+                property("version", project.version.toString())
+            }
+        }
+    }
 }
 
 publishing {
@@ -40,6 +47,7 @@ dependencies {
     compileOnly("org.projectlombok:lombok:1.18.30")
     annotationProcessor("org.projectlombok:lombok:1.18.30")
     compileOnly("org.json:json:20231013")
-    compileOnly("com.velocitypowered:velocity-api:3.2.0-SNAPSHOT")
-    annotationProcessor("com.velocitypowered:velocity-api:3.2.0-SNAPSHOT")
+    implementation("net.kyori:adventure-text-minimessage:4.14.0")
+    compileOnly("com.velocitypowered:velocity-api:4.0.0-SNAPSHOT")
+    annotationProcessor("com.velocitypowered:velocity-api:4.0.0-SNAPSHOT")
 }

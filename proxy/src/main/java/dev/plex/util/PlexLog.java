@@ -17,12 +17,12 @@ public class PlexLog
                 message = message.replace("{" + i + "}", strings[i].toString());
             }
         }
-        Plex.get().getServer().getConsoleCommandSource().sendMessage(MiniMessage.miniMessage().deserialize("<yellow>[Plex] <gray>" + message));
+        Plex.get().getServer().consoleCommandSource().sendMessage(MiniMessage.miniMessage().deserialize("<yellow>[Plex] <gray>" + message));
     }
 
     public static void log(Component component)
     {
-        Plex.get().getServer().getConsoleCommandSource().sendMessage(Component.text("[Plex] ").color(NamedTextColor.YELLOW).append(component).colorIfAbsent(NamedTextColor.GRAY));
+        Plex.get().getServer().consoleCommandSource().sendMessage(Component.text("[Plex] ").color(NamedTextColor.YELLOW).append(component).colorIfAbsent(NamedTextColor.GRAY));
     }
 
     public static void error(String message, Object... strings)
@@ -34,7 +34,7 @@ public class PlexLog
                 message = message.replace("{" + i + "}", strings[i].toString());
             }
         }
-        Plex.get().getServer().getConsoleCommandSource().sendMessage(MiniMessage.miniMessage().deserialize("<red>[Plex Error] <gold>" + message));
+        Plex.get().getServer().consoleCommandSource().sendMessage(MiniMessage.miniMessage().deserialize("<red>[Plex Error] <gold>" + message));
     }
 
     public static void warn(String message, Object... strings)
@@ -46,7 +46,7 @@ public class PlexLog
                 message = message.replace("{" + i + "}", strings[i].toString());
             }
         }
-        Plex.get().getServer().getConsoleCommandSource().sendMessage(MiniMessage.miniMessage().deserialize("<#eb7c0e>[Plex Warning] <gold>" + message));
+        Plex.get().getServer().consoleCommandSource().sendMessage(MiniMessage.miniMessage().deserialize("<#eb7c0e>[Plex Warning] <gold>" + message));
     }
 
     public static void debug(String message, Object... strings)
@@ -60,7 +60,7 @@ public class PlexLog
         }
         if (Plex.get().getConfig().as(ServerSettings.class).getServer().isDebug())
         {
-            Plex.get().getServer().getConsoleCommandSource().sendMessage(MiniMessage.miniMessage().deserialize("<dark_purple>[Plex Debug] <gold>" + message));
+            Plex.get().getServer().consoleCommandSource().sendMessage(MiniMessage.miniMessage().deserialize("<dark_purple>[Plex Debug] <gold>" + message));
         }
     }
 }

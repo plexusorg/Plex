@@ -2,7 +2,7 @@ package dev.plex;
 
 import com.google.inject.Inject;
 import com.velocitypowered.api.event.Subscribe;
-import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
+import com.velocitypowered.api.event.lifecycle.ProxyInitializeEvent;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.ProxyServer;
@@ -28,7 +28,7 @@ import java.util.logging.Logger;
 @Plugin(
         name = "Plex",
         id = "plex",
-        version = "@version@",
+        version = "{{ version }}",
         url = "https://plex.us.org",
         description = "Plex provides a new experience for freedom servers.",
         authors = {"Telesphoreo", "Taah"}
