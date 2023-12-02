@@ -96,7 +96,7 @@ public class UpdateChecker implements PlexBase
         // If it's -4, it hasn't checked for updates yet
         if (distance == -4)
         {
-            distance = fetchDistanceFromGitHub(REPO, BRANCH, BuildInfo.getHead());
+            distance = fetchDistanceFromGitHub(REPO, BRANCH, BuildInfo.getCommit());
             PlexLog.debug("Never checked for updates, checking now...");
         }
         else
@@ -104,7 +104,7 @@ public class UpdateChecker implements PlexBase
             // If the request isn't asked to be cached, fetch it
             if (!cached)
             {
-                distance = fetchDistanceFromGitHub(REPO, BRANCH, BuildInfo.getHead());
+                distance = fetchDistanceFromGitHub(REPO, BRANCH, BuildInfo.getCommit());
                 PlexLog.debug("We have checked for updates before, but this request was not asked to be cached.");
             }
             else

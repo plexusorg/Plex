@@ -1,6 +1,5 @@
 package dev.plex;
 
-import com.google.common.collect.Lists;
 import dev.plex.cache.DataUtils;
 import dev.plex.cache.PlayerCache;
 import dev.plex.config.Config;
@@ -18,13 +17,11 @@ import dev.plex.storage.punishment.SQLNotes;
 import dev.plex.storage.punishment.SQLPunishment;
 import dev.plex.util.*;
 import dev.plex.util.redis.MessageUtil;
-import dev.plex.util.sql.SQLUtil;
 import dev.plex.world.CustomWorld;
 import lombok.Getter;
 import lombok.Setter;
 import net.milkbowl.vault.chat.Chat;
 import net.milkbowl.vault.permission.Permission;
-import org.apache.commons.lang3.StringUtils;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -46,7 +43,6 @@ public class Plex extends JavaPlugin
     public File modulesFolder;
     private StorageType storageType = StorageType.SQLITE;
     private SQLConnection sqlConnection;
-//    private MongoConnection mongoConnection;
     private RedisConnection redisConnection;
 
     private PlayerCache playerCache;

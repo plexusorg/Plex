@@ -28,7 +28,7 @@ import java.util.logging.Logger;
 @Plugin(
         name = "Plex",
         id = "plex",
-        version = "@version@",
+        version = BuildParameters.VERSION,
         url = "https://plex.us.org",
         description = "Plex provides a new experience for freedom servers.",
         authors = {"Telesphoreo", "Taah"}

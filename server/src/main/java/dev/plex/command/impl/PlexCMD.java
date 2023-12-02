@@ -35,7 +35,7 @@ public class PlexCMD extends PlexCommand
         if (args.length == 0)
         {
             send(sender, mmString("<light_purple>Plex - A new freedom plugin."));
-            send(sender, mmString("<light_purple>Plugin version: <gold>" + plugin.getDescription().getVersion() + " #" + BuildInfo.getNumber() + " <light_purple>Git: <gold>" + BuildInfo.getHead()));
+            send(sender, mmString("<light_purple>Plugin version: <gold>" + plugin.getDescription().getVersion() + " #" + BuildInfo.getNumber() + " <light_purple>Git: <gold>" + BuildInfo.getCommit()));
             send(sender, mmString("<light_purple>Authors: <gold>Telesphoreo, Taahh"));
             send(sender, mmString("<light_purple>Built by: <gold>" + BuildInfo.getAuthor() + " <light_purple>on <gold>" + BuildInfo.getDate()));
             send(sender, mmString("<light_purple>Run <gold>/plex modules <light_purple>to see a list of modules."));

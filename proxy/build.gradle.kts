@@ -1,7 +1,3 @@
-plugins {
-    id("net.kyori.blossom") version "1.3.1"
-}
-
 group = rootProject.group
 version = rootProject.version
 description = "Plex-Velocity"
@@ -24,8 +20,14 @@ tasks {
     }
 }
 
-blossom {
-    replaceToken("@version@", rootProject.version)
+sourceSets {
+    main {
+        blossom {
+            javaSources {
+                property("version", project.version.toString())
+            }
+        }
+    }
 }
 
 publishing {
