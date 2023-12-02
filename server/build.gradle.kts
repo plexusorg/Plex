@@ -1,4 +1,5 @@
 import net.minecrell.pluginyml.paper.PaperPluginDescription
+import java.io.ByteArrayOutputStream
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -18,7 +19,9 @@ dependencies {
     library("org.apache.maven.resolver:maven-resolver-transport-http:1.9.18")
     library("org.jetbrains:annotations:24.1.0")
     compileOnly("dev.folia:folia-api:1.20.2-R0.1-SNAPSHOT")
-    compileOnly("com.github.MilkBowl:VaultAPI:1.7.1")
+    compileOnly("com.github.MilkBowl:VaultAPI:1.7.1") {
+        exclude("org.bukkit", "bukkit")
+    }
     implementation("org.bstats:bstats-base:3.0.2")
     implementation("org.bstats:bstats-bukkit:3.0.2")
 }
@@ -63,6 +66,20 @@ paper {
     }
 }
 
+fun getBuildNumber(): String {
+    val stdout = ByteArrayOutputStream()
+    try {
+        exec {
+            commandLine("git", "rev-list", "HEAD", "--count")
+            standardOutput = stdout
+            isIgnoreExitValue = true
+        }
+    } catch (e: GradleException) {
+        logger.error("Couldn't determine build number because Git is not installed. " + e.message)
+    }
+    return if (stdout.size() > 0) stdout.toString().trim() else "unknown"
+}
+
 tasks {
     build {
         dependsOn(shadowJar)
@@ -77,7 +94,7 @@ tasks {
             blossom {
                 resources {
                     property("author", if (System.getenv("JENKINS_URL") != null) "jenkins" else System.getProperty("user.name"))
-                    property("buildNumber", if (System.getenv("BUILD_NUMBER") != null) System.getenv("BUILD_NUMBER") else "unknown")
+                    property("buildNumber", if (System.getenv("BUILD_NUMBER") != null) System.getenv("BUILD_NUMBER") else getBuildNumber())
                     property("date", SimpleDateFormat("MM/dd/yyyy '<light_purple>at<gold>' hh:mm:ss a z").format(Date()))
                     property("gitCommit", grgit.head().abbreviatedId)
                 }

@@ -13,7 +13,6 @@ import org.bukkit.Bukkit;
 
 public class PlayerMeta
 {
-
     public static Component getPrefix(PlexPlayer plexPlayer)
     {
         if (plexPlayer.getPrefix() != null && !plexPlayer.getPrefix().isEmpty())
