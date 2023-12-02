@@ -4,7 +4,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 plugins {
-    id("org.ajoberstar.grgit") version "5.2.1"
+    id("net.kyori.indra.git") version "3.1.3"
     id("net.minecrell.plugin-yml.paper") version "0.6.0"
 }
 
@@ -96,7 +96,7 @@ tasks {
                     property("author", if (System.getenv("JENKINS_URL") != null) "jenkins" else System.getProperty("user.name"))
                     property("buildNumber", if (System.getenv("BUILD_NUMBER") != null) System.getenv("BUILD_NUMBER") else getBuildNumber())
                     property("date", SimpleDateFormat("MM/dd/yyyy '<light_purple>at<gold>' hh:mm:ss a z").format(Date()))
-                    property("gitCommit", grgit.head().abbreviatedId)
+                    property("gitCommit", indraGit.commit()?.name?.take(7))
                 }
             }
         }
