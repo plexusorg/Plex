@@ -72,15 +72,19 @@ subprojects {
 }
 
 tasks.clean {
-    // Is there any way to not need to specify each subproject?
-    dependsOn(":server:clean")
-    dependsOn(":proxy:clean")
+    dependsOn(subprojects.map {
+        it.project.tasks.clean
+    })
 }
 
 tasks.create<Copy>("copyJars") {
+    dependsOn(tasks.jar)
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    // Is there any way to not need to specify each subproject?
-    from(tasks.getByPath(":server:shadowJar"))
-    from(tasks.getByPath(":proxy:jar"))
+    from(subprojects.map {
+        it.project.tasks.shadowJar
+    })
+    from(subprojects.map {
+        it.project.tasks.jar
+    })
     into(file("build/libs"))
 }
