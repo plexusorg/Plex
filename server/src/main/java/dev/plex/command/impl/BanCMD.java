@@ -12,6 +12,9 @@ import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.Punishment;
 import dev.plex.punishment.PunishmentType;
 import dev.plex.util.*;
+//import me.botsko.prism.api.PrismParameters;
+//import me.botsko.prism.api.Result;
+//import me.botsko.prism.api.actions.PrismProcessType;
 import net.kyori.adventure.text.Component;
 import org.apache.commons.lang3.StringUtils;
 import org.bukkit.Bukkit;
@@ -20,11 +23,15 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
-@CommandParameters(name = "ban", usage = "/<command> <player> [reason]", aliases = "offlineban,gtfo", description = "Bans a player, offline or online")
+@CommandParameters(name = "ban", usage = "/<command> <player> [-nrb] [reason] [-nrb]", aliases = "offlineban,gtfo", description = "Bans a player, offline or online")
 @CommandPermissions(permission = "plex.ban", source = RequiredCommandSource.ANY)
 
 public class BanCMD extends PlexCommand
@@ -56,10 +63,13 @@ public class BanCMD extends PlexCommand
             String reason;
             Punishment punishment = new Punishment(plexPlayer.getUuid(), getUUID(sender));
             punishment.setType(PunishmentType.BAN);
+            boolean rollBack = true;
             if (args.length > 1)
             {
                 reason = StringUtils.join(args, " ", 1, args.length);
-                punishment.setReason(reason);
+                String newReason = StringUtils.normalizeSpace(reason.replace("-nrb", ""));
+                punishment.setReason(newReason.trim().isEmpty() ? "No reason provided." : newReason);
+                rollBack = !reason.startsWith("-nrb") && !reason.endsWith("-nrb");
             }
             else
             {
@@ -84,6 +94,41 @@ public class BanCMD extends PlexCommand
                 }
             });
             PlexLog.debug("(From /ban command) PunishedPlayer UUID: " + plexPlayer.getUuid());
+
+            if (rollBack)
+            {
+                /*if (plugin.getPrismHook().hasPrism()) {
+                    PrismParameters parameters = plugin.getPrismHook().prismApi().createParameters();
+                    parameters.addActionType("block-place");
+                    parameters.addActionType("block-break");
+                    parameters.addActionType("block-burn");
+                    parameters.addActionType("entity-spawn");
+                    parameters.addActionType("entity-kill");
+                    parameters.addActionType("entity-explode");
+                    parameters.addPlayerName(plexPlayer.getName());
+                    parameters.setBeforeTime(Instant.now().toEpochMilli());
+                    parameters.setProcessType(PrismProcessType.ROLLBACK);
+                    final Future<Result> result = plugin.getPrismHook().prismApi().performLookup(parameters, sender);
+                    Bukkit.getAsyncScheduler().runNow(plugin, scheduledTask -> {
+                        try
+                        {
+                            final Result done = result.get();
+                        } catch (InterruptedException | ExecutionException e)
+                        {
+                            throw new RuntimeException(e);
+                        }
+                    });
+                }
+                else */
+                if (plugin.getCoreProtectHook().hasCoreProtect())
+                {
+                    PlexLog.debug("Testing coreprotect");
+                    Bukkit.getAsyncScheduler().runNow(plugin, scheduledTask ->
+                    {
+                        plugin.getCoreProtectHook().coreProtectAPI().performRollback(86400, Collections.singletonList(plexPlayer.getName()), null, null, null, null, 0, null);
+                    });
+                }
+            }
         });
 
         return null;

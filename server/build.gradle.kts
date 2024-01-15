@@ -8,9 +8,13 @@ plugins {
     id("net.minecrell.plugin-yml.paper") version "0.6.0"
 }
 
+repositories {
+    maven(url = uri("https://maven.playpro.com"))
+//    maven(url = uri("https://nexus.darkhelmet.network/repository/maven-snapshots"))
+}
+
 dependencies {
     library("org.projectlombok:lombok:1.18.30")
-    annotationProcessor("org.projectlombok:lombok:1.18.30")
     library("org.json:json:20231013")
     library("commons-io:commons-io:2.15.1")
     library("redis.clients:jedis:5.1.0")
@@ -18,12 +22,18 @@ dependencies {
     library("com.zaxxer:HikariCP:5.1.0")
     library("org.apache.maven.resolver:maven-resolver-transport-http:1.9.18")
     library("org.jetbrains:annotations:24.1.0")
+
     compileOnly("dev.folia:folia-api:1.20.2-R0.1-SNAPSHOT")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7.1") {
         exclude("org.bukkit", "bukkit")
     }
+    compileOnly("net.coreprotect:coreprotect:22.2")
+//    compileOnly("network.darkhelmet:prism:3.3.1")
+
     implementation("org.bstats:bstats-base:3.0.2")
     implementation("org.bstats:bstats-bukkit:3.0.2")
+
+    annotationProcessor("org.projectlombok:lombok:1.18.30")
 }
 
 group = rootProject.group
@@ -56,6 +66,10 @@ paper {
             load = PaperPluginDescription.RelativeLoadOrder.BEFORE
         }
         register("Prism") {
+            required = false
+            load = PaperPluginDescription.RelativeLoadOrder.BEFORE
+        }
+        register("CoreProtect") {
             required = false
             load = PaperPluginDescription.RelativeLoadOrder.BEFORE
         }

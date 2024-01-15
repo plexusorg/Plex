@@ -5,6 +5,8 @@ import dev.plex.cache.PlayerCache;
 import dev.plex.config.Config;
 import dev.plex.handlers.CommandHandler;
 import dev.plex.handlers.ListenerHandler;
+import dev.plex.hook.CoreProtectHook;
+//import dev.plex.hook.PrismHook;
 import dev.plex.module.ModuleManager;
 import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.PunishmentManager;
@@ -58,6 +60,9 @@ public class Plex extends JavaPlugin
 
     private Permission permissions;
     private Chat chat;
+
+    private CoreProtectHook coreProtectHook;
+//    private PrismHook prismHook;
 
     public static Plex get()
     {
@@ -120,11 +125,21 @@ public class Plex extends JavaPlugin
 
         if (!getServer().getPluginManager().isPluginEnabled("Vault"))
         {
-            throw new RuntimeException("Vault is required to run on the server if you use permissions alongside a permissions plugin, we recommend LuckPerms!");
+            throw new RuntimeException("Vault is required to run on the server alongside a permissions plugin, we recommend LuckPerms!");
         }
 
         permissions = setupPermissions();
         chat = setupChat();
+
+        if (plugin.getServer().getPluginManager().isPluginEnabled("CoreProtect")) {
+            PlexLog.log("Hooked into CoreProtect!");
+            coreProtectHook = new CoreProtectHook(this);
+        } else {
+            PlexLog.debug("Not hooking into CoreProtect");
+        }
+//        if (plugin.getServer().getPluginManager().isPluginEnabled("Prism")) {
+//            prismHook = new PrismHook(this);
+//        }
 
         updateChecker = new UpdateChecker();
         PlexLog.log("Update checking enabled");
