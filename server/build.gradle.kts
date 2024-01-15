@@ -47,21 +47,25 @@ paper {
             required = false
             load = PaperPluginDescription.RelativeLoadOrder.BEFORE
         }
+        register("Essentials") {
+            required = false
+            load = PaperPluginDescription.RelativeLoadOrder.BEFORE
+        }
         register("LibsDisguises") {
             required = false
             load = PaperPluginDescription.RelativeLoadOrder.BEFORE
         }
-        register("Vault") {
-            required = false
-            load = PaperPluginDescription.RelativeLoadOrder.BEFORE
-        }
-        register("Essentials") {
+        register("Prism") {
             required = false
             load = PaperPluginDescription.RelativeLoadOrder.BEFORE
         }
         register("SlimeWorldManager") {
             required = false
             load = PaperPluginDescription.RelativeLoadOrder.AFTER
+        }
+        register("Vault") {
+            required = false
+            load = PaperPluginDescription.RelativeLoadOrder.BEFORE
         }
     }
 }
