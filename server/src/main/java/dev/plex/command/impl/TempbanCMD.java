@@ -12,6 +12,7 @@ import dev.plex.punishment.Punishment;
 import dev.plex.punishment.PunishmentType;
 
 import dev.plex.util.BungeeUtil;
+import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.TimeUtils;
 import net.kyori.adventure.text.Component;
@@ -22,6 +23,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collections;
 import java.util.List;
 
 @CommandParameters(name = "tempban", usage = "/<command> <player> <time> [reason]", description = "Temporarily ban a player")
@@ -52,10 +54,13 @@ public class TempbanCMD extends PlexCommand
         }
         Punishment punishment = new Punishment(target.getUuid(), getUUID(sender));
         punishment.setType(PunishmentType.TEMPBAN);
+        boolean rollBack = true;
         if (args.length > 2)
         {
             reason = StringUtils.join(args, " ", 2, args.length);
-            punishment.setReason(reason);
+            String newReason = StringUtils.normalizeSpace(reason.replace("-nrb", ""));
+            punishment.setReason(newReason.trim().isEmpty() ? "No reason provided." : newReason);
+            rollBack = !reason.startsWith("-nrb") && !reason.endsWith("-nrb");
         }
         else
         {
@@ -74,6 +79,40 @@ public class TempbanCMD extends PlexCommand
         if (player != null)
         {
             BungeeUtil.kickPlayer(player, Punishment.generateBanMessage(punishment));
+        }
+        if (rollBack)
+        {
+                /*if (plugin.getPrismHook().hasPrism()) {
+                    PrismParameters parameters = plugin.getPrismHook().prismApi().createParameters();
+                    parameters.addActionType("block-place");
+                    parameters.addActionType("block-break");
+                    parameters.addActionType("block-burn");
+                    parameters.addActionType("entity-spawn");
+                    parameters.addActionType("entity-kill");
+                    parameters.addActionType("entity-explode");
+                    parameters.addPlayerName(plexPlayer.getName());
+                    parameters.setBeforeTime(Instant.now().toEpochMilli());
+                    parameters.setProcessType(PrismProcessType.ROLLBACK);
+                    final Future<Result> result = plugin.getPrismHook().prismApi().performLookup(parameters, sender);
+                    Bukkit.getAsyncScheduler().runNow(plugin, scheduledTask -> {
+                        try
+                        {
+                            final Result done = result.get();
+                        } catch (InterruptedException | ExecutionException e)
+                        {
+                            throw new RuntimeException(e);
+                        }
+                    });
+                }
+                else */
+            if (plugin.getCoreProtectHook().hasCoreProtect())
+            {
+                PlexLog.debug("Testing coreprotect");
+                Bukkit.getAsyncScheduler().runNow(plugin, scheduledTask ->
+                {
+                    plugin.getCoreProtectHook().coreProtectAPI().performRollback(86400, Collections.singletonList(target.getName()), null, null, null, null, 0, null);
+                });
+            }
         }
         return null;
     }
