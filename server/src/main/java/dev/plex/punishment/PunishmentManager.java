@@ -7,17 +7,9 @@ import dev.plex.Plex;
 import dev.plex.PlexBase;
 import dev.plex.cache.DataUtils;
 import dev.plex.player.PlexPlayer;
-import dev.plex.storage.StorageType;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.TimeUtils;
-import lombok.Data;
-import lombok.Getter;
-import org.apache.commons.io.FileUtils;
-import org.bukkit.Bukkit;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.jetbrains.annotations.Nullable;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -28,7 +20,12 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
+import lombok.Data;
+import lombok.Getter;
+import org.apache.commons.io.FileUtils;
+import org.bukkit.Bukkit;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.Nullable;
 
 public class PunishmentManager implements PlexBase
 {
@@ -135,12 +132,28 @@ public class PunishmentManager implements PlexBase
 
     public boolean isBanned(UUID uuid)
     {
-        // TODO: If a person is using MongoDB, this will error out because it is checking for bans on a player that doesn't exist yet
         if (!DataUtils.hasPlayedBefore(uuid))
         {
             return false;
         }
         return DataUtils.getPlayer(uuid).getPunishments().stream().anyMatch(punishment -> (punishment.getType() == PunishmentType.BAN || punishment.getType() == PunishmentType.TEMPBAN) && punishment.isActive());
+    }
+
+    /*public void isIPBanned(PlexPlayer player)
+    {
+        return getActiveBans().whenComplete(((punishments, throwable) ->
+                punishments.forEach(punishment ->
+                        player.getIps().stream().forEach())
+    }*/
+
+    public boolean isBanned(String ip)
+    {
+        final PlexPlayer player = DataUtils.getPlayerByIP(ip);
+        if (player == null)
+        {
+            return false;
+        }
+        return player.getPunishments().stream().filter(punishment -> punishment.getType() == PunishmentType.BAN || punishment.getType() == PunishmentType.TEMPBAN).anyMatch(Punishment::isActive);
     }
 
     public boolean isBanned(PlexPlayer player)

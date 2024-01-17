@@ -43,8 +43,23 @@ public class BanListener extends PlexListener
 
         if (plugin.getPunishmentManager().isBanned(event.getUniqueId()))
         {
-            if (Plex.get().getPermissions() != null && Plex.get().getPermissions().playerHas(null, Bukkit.getOfflinePlayer(event.getUniqueId()), "plex.ban.bypass")) return;
+            if (Plex.get().getPermissions() != null && Plex.get().getPermissions().playerHas(null, Bukkit.getOfflinePlayer(event.getUniqueId()), "plex.ban.bypass"))
+            {
+                return;
+            }
             PlexPlayer player = DataUtils.getPlayer(event.getUniqueId());
+            player.getPunishments().stream().filter(punishment -> (punishment.getType() == PunishmentType.BAN || punishment.getType() == PunishmentType.TEMPBAN) && punishment.isActive()).findFirst().ifPresent(punishment ->
+                    event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED,
+                            Punishment.generateBanMessage(punishment)));
+        }
+        else if (plugin.getPunishmentManager().isBanned(event.getAddress().getHostAddress()))
+        {
+            // Don't check if the other account that's banned has bypass abilities, check if current has only
+            if (Plex.get().getPermissions() != null && Plex.get().getPermissions().playerHas(null, Bukkit.getOfflinePlayer(event.getUniqueId()), "plex.ban.bypass"))
+            {
+                return;
+            }
+            PlexPlayer player = DataUtils.getPlayerByIP(event.getAddress().getHostAddress());
             player.getPunishments().stream().filter(punishment -> (punishment.getType() == PunishmentType.BAN || punishment.getType() == PunishmentType.TEMPBAN) && punishment.isActive()).findFirst().ifPresent(punishment ->
                     event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED,
                             Punishment.generateBanMessage(punishment)));
