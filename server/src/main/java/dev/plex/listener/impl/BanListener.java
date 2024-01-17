@@ -7,6 +7,8 @@ import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.Punishment;
 import dev.plex.punishment.PunishmentManager;
 import dev.plex.punishment.PunishmentType;
+import dev.plex.util.PlexLog;
+import it.unimi.dsi.fastutil.Pair;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
@@ -51,18 +53,18 @@ public class BanListener extends PlexListener
             player.getPunishments().stream().filter(punishment -> (punishment.getType() == PunishmentType.BAN || punishment.getType() == PunishmentType.TEMPBAN) && punishment.isActive()).findFirst().ifPresent(punishment ->
                     event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED,
                             Punishment.generateBanMessage(punishment)));
+            return;
         }
-        else if (plugin.getPunishmentManager().isBanned(event.getAddress().getHostAddress()))
+        Punishment ipBannedPunishment = plugin.getPunishmentManager().getBanByIP(event.getAddress().getHostAddress());
+        if (ipBannedPunishment != null)
         {
             // Don't check if the other account that's banned has bypass abilities, check if current has only
             if (Plex.get().getPermissions() != null && Plex.get().getPermissions().playerHas(null, Bukkit.getOfflinePlayer(event.getUniqueId()), "plex.ban.bypass"))
             {
                 return;
             }
-            PlexPlayer player = DataUtils.getPlayerByIP(event.getAddress().getHostAddress());
-            player.getPunishments().stream().filter(punishment -> (punishment.getType() == PunishmentType.BAN || punishment.getType() == PunishmentType.TEMPBAN) && punishment.isActive()).findFirst().ifPresent(punishment ->
-                    event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED,
-                            Punishment.generateBanMessage(punishment)));
+            event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED,
+                    Punishment.generateBanMessage(ipBannedPunishment));
         }
     }
 }

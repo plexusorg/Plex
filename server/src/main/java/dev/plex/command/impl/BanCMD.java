@@ -80,10 +80,7 @@ public class BanCMD extends PlexCommand
             punishment.setEndDate(date.plusDays(1));
             punishment.setCustomTime(false);
             punishment.setActive(true);
-            if (player != null)
-            {
-                punishment.setIp(player.getAddress().getAddress().getHostAddress().trim());
-            }
+            punishment.setIp(player != null ? player.getAddress().getAddress().getHostAddress().trim() : plexPlayer.getIps().get(plexPlayer.getIps().size() - 1));
             plugin.getPunishmentManager().punish(plexPlayer, punishment);
             PlexUtils.broadcast(messageComponent("banningPlayer", sender.getName(), plexPlayer.getName()));
             Bukkit.getScheduler().runTask(Plex.get(), () ->

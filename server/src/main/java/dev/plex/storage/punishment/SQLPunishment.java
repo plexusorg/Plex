@@ -21,6 +21,7 @@ import java.util.concurrent.CompletableFuture;
 public class SQLPunishment
 {
     private static final String SELECT = "SELECT * FROM `punishments` WHERE punished=?";
+    private static final String SELECT_BY_IP = "SELECT * FROM `punishments` WHERE ip=?";
     private static final String SELECT_BY = "SELECT * FROM `punishments` WHERE punisher=?";
 
     private static final String INSERT = "INSERT INTO `punishments` (`punished`, `punisher`, `punishedUsername`, `ip`, `type`, `reason`, `customTime`, `active`, `endDate`) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)";
@@ -64,6 +65,33 @@ public class SQLPunishment
         {
             PreparedStatement statement = con.prepareStatement(SELECT);
             statement.setString(1, uuid.toString());
+            ResultSet set = statement.executeQuery();
+            while (set.next())
+            {
+                Punishment punishment = new Punishment(UUID.fromString(set.getString("punished")), set.getString("punisher") == null ? null : UUID.fromString(set.getString("punisher")));
+                punishment.setActive(set.getBoolean("active"));
+                punishment.setType(PunishmentType.valueOf(set.getString("type")));
+                punishment.setCustomTime(set.getBoolean("customTime"));
+                punishment.setPunishedUsername(set.getString("punishedUsername"));
+                punishment.setEndDate(ZonedDateTime.ofInstant(Instant.ofEpochMilli(set.getLong("endDate")), ZoneId.of(TimeUtils.TIMEZONE)));
+                punishment.setReason(set.getString("reason"));
+                punishment.setIp(set.getString("ip"));
+                punishments.add(punishment);
+            }
+        }
+        catch (SQLException e)
+        {
+            e.printStackTrace();
+        }
+        return punishments;
+    }
+    public List<Punishment> getPunishments(String ip)
+    {
+        List<Punishment> punishments = Lists.newArrayList();
+        try (Connection con = Plex.get().getSqlConnection().getCon())
+        {
+            PreparedStatement statement = con.prepareStatement(SELECT_BY_IP);
+            statement.setString(1, ip);
             ResultSet set = statement.executeQuery();
             while (set.next())
             {

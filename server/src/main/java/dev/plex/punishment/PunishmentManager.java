@@ -3,6 +3,7 @@ package dev.plex.punishment;
 import com.google.common.collect.Lists;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import dev.plex.Plex;
 import dev.plex.PlexBase;
 import dev.plex.cache.DataUtils;
@@ -20,6 +21,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
+
+import dev.plex.util.adapter.ZonedDateTimeAdapter;
+import it.unimi.dsi.fastutil.Pair;
 import lombok.Data;
 import lombok.Getter;
 import org.apache.commons.io.FileUtils;
@@ -139,21 +145,10 @@ public class PunishmentManager implements PlexBase
         return DataUtils.getPlayer(uuid).getPunishments().stream().anyMatch(punishment -> (punishment.getType() == PunishmentType.BAN || punishment.getType() == PunishmentType.TEMPBAN) && punishment.isActive());
     }
 
-    /*public void isIPBanned(PlexPlayer player)
+    public Punishment getBanByIP(String ip)
     {
-        return getActiveBans().whenComplete(((punishments, throwable) ->
-                punishments.forEach(punishment ->
-                        player.getIps().stream().forEach())
-    }*/
-
-    public boolean isBanned(String ip)
-    {
-        final PlexPlayer player = DataUtils.getPlayerByIP(ip);
-        if (player == null)
-        {
-            return false;
-        }
-        return player.getPunishments().stream().filter(punishment -> punishment.getType() == PunishmentType.BAN || punishment.getType() == PunishmentType.TEMPBAN).anyMatch(Punishment::isActive);
+        final Gson gson = new GsonBuilder().registerTypeAdapter(ZonedDateTime.class, new ZonedDateTimeAdapter()).setPrettyPrinting().create();
+        return plugin.getSqlPunishment().getPunishments(ip).stream().filter(punishment -> punishment.getType() == PunishmentType.TEMPBAN || punishment.getType() == PunishmentType.BAN).filter(Punishment::isActive).filter(punishment -> punishment.getIp().equals(ip)).findFirst().orElse(null);
     }
 
     public boolean isBanned(PlexPlayer player)
