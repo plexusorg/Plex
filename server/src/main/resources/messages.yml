@@ -160,7 +160,9 @@ removedEntitiesOfType: "<gray>Removed {1} {2}"
 # 0 - Entity type that is invalid
 invalidEntityType: "<gray>Notice: Entity type {0} is invalid!"
 noRemovedEntities: "<gray>No entities were removed."
-noRemovedMobs: "<gray>No mobs were removed."
+# 0 - Number of mobs removed
+# 1 - Type of mob removed
+amountOfMobsRemoved: "<gray>{0} {1} removed."
 notAValidMob: "<red>That is not a valid mob."
 notAValidMobButValidEntity: "<red>That is a valid entity, but is not a valid mob."
 # 0 - The command sender
