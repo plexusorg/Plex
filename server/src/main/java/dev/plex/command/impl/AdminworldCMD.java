@@ -12,6 +12,9 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collections;
+import java.util.List;
+
 @CommandPermissions(permission = "plex.adminworld", source = RequiredCommandSource.IN_GAME)
 @CommandParameters(name = "adminworld", aliases = "aw", description = "Teleport to the adminworld")
 public class AdminworldCMD extends PlexCommand
@@ -28,5 +31,11 @@ public class AdminworldCMD extends PlexCommand
             return messageComponent("teleportedToWorld", "adminworld");
         }
         return null;
+    }
+
+    @Override
+    public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
+    {
+        return Collections.emptyList();
     }
 }

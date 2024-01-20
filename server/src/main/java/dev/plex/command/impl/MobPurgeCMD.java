@@ -113,7 +113,7 @@ public class MobPurgeCMD extends PlexCommand
 
     public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
     {
-        if (args.length == 1)
+        if (args.length == 1 && silentCheckPermission(sender, this.getPermission()))
         {
             return getAllMobs();
         }

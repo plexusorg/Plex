@@ -12,6 +12,9 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collections;
+import java.util.List;
+
 @CommandPermissions(permission = "plex.consolesay", source = RequiredCommandSource.CONSOLE)
 @CommandParameters(name = "consolesay", usage = "/<command> <message>", description = "Displays a message to everyone", aliases = "csay")
 public class ConsoleSayCMD extends PlexCommand
@@ -26,5 +29,11 @@ public class ConsoleSayCMD extends PlexCommand
 
         PlexUtils.broadcast(PlexUtils.messageComponent("consoleSayMessage", sender.getName(), PlexUtils.mmStripColor(StringUtils.join(args, " "))));
         return null;
+    }
+
+    @Override
+    public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
+    {
+        return Collections.emptyList();
     }
 }

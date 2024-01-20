@@ -96,7 +96,10 @@ public class GamemodeCMD extends PlexCommand
         }
         if (args.length == 2)
         {
-            return PlexUtils.getPlayerNameList();
+            if (silentCheckPermission(sender, "plex.gamemode.others"))
+            {
+                return PlexUtils.getPlayerNameList();
+            }
         }
         return Collections.emptyList();
     }

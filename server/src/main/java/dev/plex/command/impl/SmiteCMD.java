@@ -7,7 +7,6 @@ import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.Punishment;
 import dev.plex.punishment.PunishmentType;
-
 import dev.plex.util.PlexUtils;
 import dev.plex.util.TimeUtils;
 import net.kyori.adventure.text.Component;
@@ -138,7 +137,7 @@ public class SmiteCMD extends PlexCommand
     @Override
     public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
     {
-        if (silentCheckPermission(sender,"plex.smite") && args.length == 1)
+        if (silentCheckPermission(sender, this.getPermission()) && args.length == 1)
         {
             return PlexUtils.getPlayerNameList();
         }

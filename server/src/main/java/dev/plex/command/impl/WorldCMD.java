@@ -6,7 +6,6 @@ import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.source.RequiredCommandSource;
-
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -38,19 +37,18 @@ public class WorldCMD extends PlexCommand
         boolean playerWorld = args[0].matches("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}");
         if (playerWorld && Plex.get().getModuleManager().getModules().stream().anyMatch(plexModule -> plexModule.getPlexModuleFile().getName().equalsIgnoreCase("Module-TFMExtras")))
         {
-            checkPermission(playerSender,"plex.world.playerworlds");
+            checkPermission(playerSender, "plex.world.playerworlds");
         }
         playerSender.teleportAsync(world.getSpawnLocation());
         return messageComponent("playerWorldTeleport", world.getName());
     }
-
 
     @Override
     public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
     {
         final List<String> completions = Lists.newArrayList();
         final Player player = (Player) sender;
-        if (args.length == 1)
+        if (args.length == 1 && silentCheckPermission(sender, this.getPermission()))
         {
             @NotNull List<World> worlds = Bukkit.getWorlds();
             for (World world : worlds)
@@ -60,7 +58,7 @@ public class WorldCMD extends PlexCommand
                 try
                 {
                     final UUID uuid = UUID.fromString(worldName);
-                    if (uuid.equals(player.getUniqueId()) || silentCheckPermission(player,"plex.world.playerworlds"))
+                    if (uuid.equals(player.getUniqueId()) || silentCheckPermission(player, "plex.world.playerworlds"))
                     {
                         completions.add(worldName);
                     }

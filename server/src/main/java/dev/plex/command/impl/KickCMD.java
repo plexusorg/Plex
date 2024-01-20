@@ -1,5 +1,6 @@
 package dev.plex.command.impl;
 
+import com.google.common.collect.ImmutableList;
 import dev.plex.cache.DataUtils;
 import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
@@ -9,7 +10,6 @@ import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.Punishment;
 import dev.plex.punishment.PunishmentType;
-
 import dev.plex.util.BungeeUtil;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.TimeUtils;
@@ -23,6 +23,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.List;
 
 @CommandParameters(name = "kick", description = "Kicks a player", usage = "/<command> <player>")
 @CommandPermissions(permission = "plex.kick", source = RequiredCommandSource.ANY)
@@ -66,5 +67,11 @@ public class KickCMD extends PlexCommand
         PlexUtils.broadcast(messageComponent("kickedPlayer", sender.getName(), plexPlayer.getName()));
         BungeeUtil.kickPlayer(player, Punishment.generateKickMessage(punishment));
         return null;
+    }
+
+    @Override
+    public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
+    {
+        return args.length == 1 && silentCheckPermission(sender, this.getPermission()) ? PlexUtils.getPlayerNameList() : ImmutableList.of();
     }
 }

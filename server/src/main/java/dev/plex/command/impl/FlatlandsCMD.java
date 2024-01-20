@@ -4,7 +4,6 @@ import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.source.RequiredCommandSource;
-
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -12,6 +11,9 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Collections;
+import java.util.List;
 
 @CommandPermissions(permission = "plex.flatlands", source = RequiredCommandSource.IN_GAME)
 @CommandParameters(name = "flatlands", description = "Teleport to the flatlands")
@@ -28,5 +30,11 @@ public class FlatlandsCMD extends PlexCommand
             return messageComponent("teleportedToWorld", "flatlands");
         }
         return null;
+    }
+
+    @Override
+    public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
+    {
+        return Collections.emptyList();
     }
 }

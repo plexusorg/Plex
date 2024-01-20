@@ -1,5 +1,6 @@
 package dev.plex.command.impl;
 
+import com.google.common.collect.ImmutableList;
 import dev.plex.cache.DataUtils;
 import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
@@ -15,6 +16,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 @CommandPermissions(permission = "plex.setloginmessage", source = RequiredCommandSource.ANY)
 @CommandParameters(name = "setloginmessage", usage = "/<command> [-o <player>] <message>", description = "Sets your (or someone else's) login message", aliases = "slm,setloginmsg")
@@ -78,5 +81,18 @@ public class SetLoginMessageCMD extends PlexCommand
             PlexLog.debug("Validating login message has a valid name in it");
             throw new CommandFailException(messageString("nameRequired"));
         }
+    }
+
+    @Override
+    public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
+    {
+        if (args.length == 1)
+        {
+            if (silentCheckPermission(sender, "plex.setloginmessage"))
+            {
+                return List.of("-o");
+            }
+        }
+        return args.length == 2 && args[0].equalsIgnoreCase("-o") && silentCheckPermission(sender, "plex.setloginmessage") ? PlexUtils.getPlayerNameList() : ImmutableList.of();
     }
 }

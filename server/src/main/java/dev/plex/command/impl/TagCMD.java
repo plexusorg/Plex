@@ -6,7 +6,6 @@ import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.player.PlexPlayer;
-
 import dev.plex.util.PlexUtils;
 import dev.plex.util.minimessage.SafeMiniMessage;
 import net.kyori.adventure.text.Component;
@@ -18,6 +17,10 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 @CommandPermissions(permission = "plex.tag", source = RequiredCommandSource.ANY)
 @CommandParameters(name = "tag", aliases = "prefix", description = "Set or clear your prefix", usage = "/<command> <set <prefix> | clear <player>>")
@@ -80,7 +83,7 @@ public class TagCMD extends PlexCommand
                 DataUtils.update(player);
                 return messageComponent("prefixCleared");
             }
-            checkPermission(sender,"plex.tag.clear.others");
+            checkPermission(sender, "plex.tag.clear.others");
             Player target = getNonNullPlayer(args[1]);
             PlexPlayer plexTarget = DataUtils.getPlayer(target.getUniqueId());
             plexTarget.setPrefix(null);
@@ -88,6 +91,26 @@ public class TagCMD extends PlexCommand
             return messageComponent("otherPrefixCleared", target.getName());
         }
         return usage();
+    }
+
+    @Override
+    public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
+    {
+        if (args.length == 1)
+        {
+            return Arrays.asList("set", "clear");
+        }
+        if (args.length == 2)
+        {
+            if (args[0].equalsIgnoreCase("clear"))
+            {
+                if (silentCheckPermission(sender, "plex.tag.clear.others"))
+                {
+                    return PlexUtils.getPlayerNameList();
+                }
+            }
+        }
+        return Collections.emptyList();
     }
 }
 

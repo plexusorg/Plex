@@ -7,7 +7,6 @@ import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.exception.PlayerNotFoundException;
 import dev.plex.command.source.RequiredCommandSource;
-
 import dev.plex.menu.impl.PunishedPlayerMenu;
 import dev.plex.menu.impl.PunishmentMenu;
 import dev.plex.player.PlexPlayer;
@@ -52,6 +51,6 @@ public class PunishmentsCMD extends PlexCommand
     @Override
     public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
     {
-        return args.length == 1 ? PlexUtils.getPlayerNameList() : ImmutableList.of();
+        return args.length == 1 && silentCheckPermission(sender, this.getPermission()) ? PlexUtils.getPlayerNameList() : ImmutableList.of();
     }
 }

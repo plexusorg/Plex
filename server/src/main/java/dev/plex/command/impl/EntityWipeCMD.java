@@ -108,18 +108,22 @@ public class EntityWipeCMD extends PlexCommand
 
     public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
     {
-        List<String> entities = new ArrayList<>();
-        for (World world : Bukkit.getWorlds())
+        if (silentCheckPermission(sender, this.getPermission()))
         {
-            for (Entity entity : world.getEntities())
+            List<String> entities = new ArrayList<>();
+            for (World world : Bukkit.getWorlds())
             {
-                if (entity.getType() != EntityType.PLAYER)
+                for (Entity entity : world.getEntities())
                 {
-                    entities.add(entity.getType().name());
+                    if (entity.getType() != EntityType.PLAYER)
+                    {
+                        entities.add(entity.getType().name());
+                    }
                 }
             }
+            return entities.stream().toList();
         }
-        return entities.stream().toList();
+        return Collections.emptyList();
     }
 
     private Integer parseInt(CommandSender sender, String string)
