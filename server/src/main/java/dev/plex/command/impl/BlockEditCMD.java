@@ -1,6 +1,5 @@
 package dev.plex.command.impl;
 
-import dev.plex.command.IPlexCommand;
 import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
@@ -20,7 +19,7 @@ import java.util.List;
 
 @CommandPermissions(permission = "plex.blockedit")
 @CommandParameters(name = "blockedit", usage = "/<command> [list | purge | all | <player>]", aliases = "bedit", description = "Prevent players from modifying blocks")
-public class BlockEditCMD extends PlexCommand implements IPlexCommand
+public class BlockEditCMD extends PlexCommand
 {
     private final BlockListener bl = new BlockListener();
 
@@ -102,7 +101,7 @@ public class BlockEditCMD extends PlexCommand implements IPlexCommand
     }
 
     @Override
-    public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
+    public @NotNull List<String> smartTabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
     {
         if (silentCheckPermission(sender, this.getPermission()))
         {

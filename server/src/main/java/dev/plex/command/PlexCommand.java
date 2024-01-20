@@ -29,7 +29,7 @@ import java.util.UUID;
 /**
  * Superclass for all commands
  */
-public abstract class PlexCommand extends Command implements PluginIdentifiableCommand, IPlexCommand
+public abstract class PlexCommand extends Command implements PluginIdentifiableCommand
 {
     /**
      * Returns the instance of the plugin
@@ -157,7 +157,6 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
         try
         {
             Component component = this.execute(sender, isConsole(sender) ? null : (Player) sender, args);
-            this.tabComplete(sender, label, args, List.of(args));
             if (component != null)
             {
                 send(sender, component);
@@ -172,15 +171,14 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
     }
 
     @NotNull
-    public abstract List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException;
+    public abstract List<String> smartTabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException;
 
     @NotNull
     @Override
-    public List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args, List<String> list) throws IllegalArgumentException
+    public List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
     {
-        list = tabComplete(sender, alias, args);
+        List<String> list = smartTabComplete(sender, alias, args);
         return StringUtil.copyPartialMatches(args[args.length - 1], list, Lists.newArrayList());
-        //return List.of("test1", "test2");
     }
 
     /**

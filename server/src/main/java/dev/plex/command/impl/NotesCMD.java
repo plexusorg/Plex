@@ -136,7 +136,7 @@ public class NotesCMD extends PlexCommand
     }
 
     @Override
-    public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
+    public @NotNull List<String> smartTabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
     {
         if (silentCheckPermission(sender, this.getPermission()))
         {
