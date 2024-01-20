@@ -1,5 +1,6 @@
 package dev.plex.command.impl;
 
+import dev.plex.command.IPlexCommand;
 import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
@@ -19,7 +20,7 @@ import java.util.List;
 
 @CommandPermissions(permission = "plex.blockedit")
 @CommandParameters(name = "blockedit", usage = "/<command> [list | purge | all | <player>]", aliases = "bedit", description = "Prevent players from modifying blocks")
-public class BlockEditCMD extends PlexCommand
+public class BlockEditCMD extends PlexCommand implements IPlexCommand
 {
     private final BlockListener bl = new BlockListener();
 
