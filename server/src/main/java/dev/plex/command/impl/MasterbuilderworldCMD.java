@@ -13,6 +13,9 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collections;
+import java.util.List;
+
 @CommandPermissions(permission = "plex.masterbuilderworld", source = RequiredCommandSource.IN_GAME)
 @CommandParameters(name = "masterbuilderworld", aliases = "mbw", description = "Teleport to the Master Builder world")
 public class MasterbuilderworldCMD extends PlexCommand
@@ -29,5 +32,11 @@ public class MasterbuilderworldCMD extends PlexCommand
             return messageComponent("teleportedToWorld", "Master Builder World");
         }
         return null;
+    }
+
+    @Override
+    public @NotNull List<String> smartTabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
+    {
+        return Collections.emptyList();
     }
 }

@@ -12,6 +12,11 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 @CommandPermissions(permission = "plex.blockedit")
 @CommandParameters(name = "blockedit", usage = "/<command> [list | purge | all | <player>]", aliases = "bedit", description = "Prevent players from modifying blocks")
 public class BlockEditCMD extends PlexCommand
@@ -93,5 +98,21 @@ public class BlockEditCMD extends PlexCommand
             send(sender, messageComponent("editsUnblocked", player.getName()));
         }
         return null;
+    }
+
+    @Override
+    public @NotNull List<String> smartTabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
+    {
+        if (silentCheckPermission(sender, this.getPermission()))
+        {
+            List<String> options = new ArrayList<>();
+            if (args.length == 1)
+            {
+                options.addAll(Arrays.asList("list", "purge", "all"));
+                options.addAll(PlexUtils.getPlayerNameList());
+                return options;
+            }
+        }
+        return Collections.emptyList();
     }
 }

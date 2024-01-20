@@ -11,6 +11,9 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collections;
+import java.util.List;
+
 @CommandParameters(name = "localspawn", description = "Teleport to the spawnpoint of the world you are in")
 @CommandPermissions(permission = "plex.localspawn", source = RequiredCommandSource.IN_GAME)
 public class LocalSpawnCMD extends PlexCommand
@@ -21,5 +24,11 @@ public class LocalSpawnCMD extends PlexCommand
         assert playerSender != null;
         playerSender.teleportAsync(playerSender.getWorld().getSpawnLocation());
         return messageComponent("teleportedToWorldSpawn");
+    }
+
+    @Override
+    public @NotNull List<String> smartTabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
+    {
+        return Collections.emptyList();
     }
 }

@@ -88,7 +88,7 @@ public class GamemodeCMD extends PlexCommand
     }
 
     @Override
-    public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
+    public @NotNull List<String> smartTabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
     {
         if (args.length == 1)
         {
@@ -96,7 +96,10 @@ public class GamemodeCMD extends PlexCommand
         }
         if (args.length == 2)
         {
-            return PlexUtils.getPlayerNameList();
+            if (silentCheckPermission(sender, "plex.gamemode.others"))
+            {
+                return PlexUtils.getPlayerNameList();
+            }
         }
         return Collections.emptyList();
     }

@@ -65,9 +65,9 @@ public class ListCMD extends PlexCommand
         return list;
     }
 
-    public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
+    public @NotNull List<String> smartTabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
     {
-        if (args.length == 1)
+        if (args.length == 1 && silentCheckPermission(sender, this.getPermission()))
         {
             return Collections.singletonList("-d");
         }

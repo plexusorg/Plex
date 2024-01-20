@@ -45,8 +45,8 @@ public class WhoHasCMD extends PlexCommand
     }
 
     @Override
-    public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
+    public @NotNull List<String> smartTabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
     {
-        return args.length == 1 && silentCheckPermission(sender, "plex.whohas") ? Arrays.stream(Material.values()).map(Enum::name).toList() : ImmutableList.of();
+        return args.length == 1 && silentCheckPermission(sender, this.getPermission()) ? Arrays.stream(Material.values()).map(Enum::name).toList() : ImmutableList.of();
     }
 }

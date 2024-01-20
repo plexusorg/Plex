@@ -12,6 +12,9 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collections;
+import java.util.List;
+
 @CommandPermissions(permission = "plex.commandspy", source = RequiredCommandSource.IN_GAME)
 @CommandParameters(name = "commandspy", aliases = "cmdspy", description = "Spy on other player's commands")
 public class CommandSpyCMD extends PlexCommand
@@ -29,5 +32,11 @@ public class CommandSpyCMD extends PlexCommand
                     .append(plexPlayer.isCommandSpy() ? messageComponent("enabled") : messageComponent("disabled")));
         }
         return null;
+    }
+
+    @Override
+    public @NotNull List<String> smartTabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
+    {
+        return Collections.emptyList();
     }
 }

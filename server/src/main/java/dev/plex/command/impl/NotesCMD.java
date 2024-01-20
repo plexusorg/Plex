@@ -6,7 +6,6 @@ import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.extra.Note;
-
 import dev.plex.util.PlexUtils;
 import dev.plex.util.TimeUtils;
 import net.kyori.adventure.text.Component;
@@ -137,15 +136,19 @@ public class NotesCMD extends PlexCommand
     }
 
     @Override
-    public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
+    public @NotNull List<String> smartTabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
     {
-        if (args.length == 1)
+        if (silentCheckPermission(sender, this.getPermission()))
         {
-            return PlexUtils.getPlayerNameList();
-        }
-        if (args.length == 2)
-        {
-            return Arrays.asList("list", "add", "remove", "clear");
+            if (args.length == 1)
+            {
+                return PlexUtils.getPlayerNameList();
+            }
+            if (args.length == 2)
+            {
+                return Arrays.asList("list", "add", "remove", "clear");
+            }
+            return Collections.emptyList();
         }
         return Collections.emptyList();
     }

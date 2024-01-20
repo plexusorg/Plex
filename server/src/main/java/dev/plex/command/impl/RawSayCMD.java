@@ -13,6 +13,9 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collections;
+import java.util.List;
+
 @CommandPermissions(permission = "plex.rawsay", source = RequiredCommandSource.ANY)
 @CommandParameters(name = "rawsay", usage = "/<command> <message>", description = "Displays a raw message to everyone")
 public class RawSayCMD extends PlexCommand
@@ -27,5 +30,11 @@ public class RawSayCMD extends PlexCommand
 
         PlexUtils.broadcast(StringUtils.join(args, " "));
         return null;
+    }
+
+    @Override
+    public @NotNull List<String> smartTabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
+    {
+        return Collections.emptyList();
     }
 }

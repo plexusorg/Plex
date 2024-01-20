@@ -1,5 +1,6 @@
 package dev.plex.command;
 
+import com.google.common.collect.Lists;
 import dev.plex.Plex;
 import dev.plex.cache.DataUtils;
 import dev.plex.command.annotation.CommandParameters;
@@ -14,14 +15,15 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
+import org.bukkit.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -61,6 +63,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
         setName(this.params.name());
         setLabel(this.params.name());
         setDescription(params.description());
+        setPermission(this.perms.permission());
         setUsage(params.usage().replace("<command>", this.params.name()));
         if (params.aliases().split(",").length > 0)
         {
@@ -74,7 +77,8 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
             {
                 getMap().getKnownCommands().remove(this.getName().toLowerCase());
             }
-            this.getAliases().forEach(s -> {
+            this.getAliases().forEach(s ->
+            {
                 if (getMap().getKnownCommands().containsKey(s.toLowerCase()))
                 {
                     getMap().getKnownCommands().remove(s.toLowerCase());
@@ -164,6 +168,17 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
             send(sender, PlexUtils.mmDeserialize(ex.getMessage()));
         }
         return true;
+    }
+
+    @NotNull
+    public abstract List<String> smartTabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException;
+
+    @NotNull
+    @Override
+    public List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
+    {
+        List<String> list = smartTabComplete(sender, alias, args);
+        return StringUtil.copyPartialMatches(args[args.length - 1], list, Lists.newArrayList());
     }
 
     /**
@@ -282,47 +297,6 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
     {
         return !permission.isEmpty() && player.hasPermission(permission);
     }
-
-/*    *//**
-     * Checks whether a sender has enough permissions or is high enough a rank
-     *
-     * @param sender     The player object
-     * @param rank       The rank to check (if the server is using ranks)
-     * @param permission The permission to check (if the server is using permissions)
-     * @return true if the sender has enough permissions
-     * @see Rank
-     *//*
-    protected boolean silentCheckPermission(CommandSender sender, Rank rank, String permission)
-    {
-        if (!isConsole(sender))
-        {
-            return silentCheckPermission((Player) sender, rank, permission);
-        }
-        return true;
-    }
-
-    *//**
-     * Checks whether a player has enough permissions or is high enough a rank
-     *
-     * @param player     The player object
-     * @param rank       The rank to check (if the server is using ranks)
-     * @param permission The permission to check (if the server is using permissions)
-     * @return true if the sender has enough permissions
-     * @see Rank
-     *//*
-    protected boolean silentCheckPermission(Player player, Rank rank, String permission)
-    {
-        PlexPlayer plexPlayer = getPlexPlayer(player);
-        if (plugin.getSystem().equalsIgnoreCase("ranks"))
-        {
-            return rank.isAtLeast(Rank.ADMIN) ? plexPlayer.isAdminActive() && plexPlayer.getRankFromString().isAtLeast(rank) : plexPlayer.getRankFromString().isAtLeast(rank);
-        }
-        else if (plugin.getSystem().equalsIgnoreCase("permissions"))
-        {
-            return !permission.isEmpty() && player.hasPermission(permission);
-        }
-        return true;
-    }*/
 
     /**
      * Gets the UUID of the sender
