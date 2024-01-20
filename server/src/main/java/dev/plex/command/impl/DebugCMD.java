@@ -21,7 +21,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.CompletableFuture;
 
 @CommandParameters(name = "pdebug", description = "Plex's debug command", usage = "/<command> <aliases <command> | redis-reset <player> | gamerules>")
 @CommandPermissions(permission = "plex.debug")
@@ -93,6 +92,6 @@ public class DebugCMD extends PlexCommand
     @Override
     public @NotNull List<String> smartTabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
     {
-        return args.length == 1 ? PlexUtils.getPlayerNameList() : ImmutableList.of();
+        return args.length == 1 && silentCheckPermission(sender, this.getPermission()) ? PlexUtils.getPlayerNameList() : ImmutableList.of();
     }
 }

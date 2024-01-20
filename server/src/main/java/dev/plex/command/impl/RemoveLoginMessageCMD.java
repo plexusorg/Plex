@@ -61,11 +61,11 @@ public class RemoveLoginMessageCMD extends PlexCommand
     {
         if (args.length == 1)
         {
-            if (silentCheckPermission(sender, "plex.removeloginmessage"))
+            if (silentCheckPermission(sender, "plex.removeloginmessage.others"))
             {
                 return List.of("-o");
             }
         }
-        return args.length == 2 && silentCheckPermission(sender, "plex.removeloginmessage") ? PlexUtils.getPlayerNameList() : ImmutableList.of();
+        return args.length == 2 && silentCheckPermission(sender, "plex.removeloginmessage.others") ? PlexUtils.getPlayerNameList() : ImmutableList.of();
     }
 }
