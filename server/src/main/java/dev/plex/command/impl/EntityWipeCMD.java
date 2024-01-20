@@ -20,11 +20,9 @@ import java.util.*;
 
 @CommandPermissions(permission = "plex.entitywipe", source = RequiredCommandSource.ANY)
 @CommandParameters(name = "entitywipe", description = "Remove various server entities that may cause lag, such as dropped items, minecarts, and boats.", usage = "/<command> [entity] [radius]", aliases = "ew,rd")
-public class EntityWipeCMD extends PlexCommand
-{
+public class EntityWipeCMD extends PlexCommand {
     @Override
-    protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, @NotNull String[] args)
-    {
+    protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, @NotNull String[] args) {
         List<String> entityBlacklist = plugin.config.getStringList("entitywipe_list");
 
         List<String> entityWhitelist = new LinkedList<>(Arrays.asList(args));
@@ -36,8 +34,7 @@ public class EntityWipeCMD extends PlexCommand
         PlexLog.debug("using blacklist: " + useBlacklist);
         PlexLog.debug("radius specified: " + radiusSpecified);
 
-        if (radiusSpecified)
-        {
+        if (radiusSpecified) {
             radius = parseInt(sender, args[entityWhitelist.size() - 1]); // get the args length as the size of the list
             radius *= radius;
             entityWhitelist.remove(entityWhitelist.size() - 1); // remove the radius from the list
@@ -49,8 +46,7 @@ public class EntityWipeCMD extends PlexCommand
         entityWhitelist.removeIf(name ->
         {
             boolean res = Arrays.stream(entityTypes).noneMatch(entityType -> name.equalsIgnoreCase(entityType.name()));
-            if (res)
-            {
+            if (res) {
                 sender.sendMessage(messageComponent("invalidEntityType", name));
             }
             return res;
@@ -58,21 +54,15 @@ public class EntityWipeCMD extends PlexCommand
 
         HashMap<String, Integer> entityCounts = new HashMap<>();
 
-        for (World world : Bukkit.getWorlds())
-        {
-            for (Entity entity : world.getEntities())
-            {
-                if (entity.getType() != EntityType.PLAYER)
-                {
+        for (World world : Bukkit.getWorlds()) {
+            for (Entity entity : world.getEntities()) {
+                if (entity.getType() != EntityType.PLAYER) {
                     String type = entity.getType().name();
 
-                    if (useBlacklist ? entityBlacklist.stream().noneMatch(entityName -> entityName.equalsIgnoreCase(type)) : entityWhitelist.stream().anyMatch(entityName -> entityName.equalsIgnoreCase(type)))
-                    {
-                        if (radius > 0)
-                        {
+                    if (useBlacklist ? entityBlacklist.stream().noneMatch(entityName -> entityName.equalsIgnoreCase(type)) : entityWhitelist.stream().anyMatch(entityName -> entityName.equalsIgnoreCase(type))) {
+                        if (radius > 0) {
                             PlexLog.debug("we got here, radius is > 0");
-                            if (playerSender != null && entity.getWorld() == playerSender.getWorld() && playerSender.getLocation().distanceSquared(entity.getLocation()) > radius)
-                            {
+                            if (playerSender != null && entity.getWorld() == playerSender.getWorld() && playerSender.getLocation().distanceSquared(entity.getLocation()) > radius) {
                                 PlexLog.debug("continuing");
                                 continue;
                             }
@@ -88,14 +78,10 @@ public class EntityWipeCMD extends PlexCommand
 
         int entityCount = entityCounts.values().stream().mapToInt(a -> a).sum();
 
-        if (useBlacklist)
-        {
+        if (useBlacklist) {
             PlexUtils.broadcast(messageComponent("removedEntities", sender.getName(), entityCount));
-        }
-        else
-        {
-            if (entityCount == 0)
-            {
+        } else {
+            if (entityCount == 0) {
                 sender.sendMessage(messageComponent("noRemovedEntities"));
                 return null;
             }
@@ -106,15 +92,11 @@ public class EntityWipeCMD extends PlexCommand
         return null;
     }
 
-    public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
-    {
+    public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
         List<String> entities = new ArrayList<>();
-        for (World world : Bukkit.getWorlds())
-        {
-            for (Entity entity : world.getEntities())
-            {
-                if (entity.getType() != EntityType.PLAYER)
-                {
+        for (World world : Bukkit.getWorlds()) {
+            for (Entity entity : world.getEntities()) {
+                if (entity.getType() != EntityType.PLAYER) {
                     entities.add(entity.getType().name());
                 }
             }
@@ -122,31 +104,22 @@ public class EntityWipeCMD extends PlexCommand
         return entities.stream().toList();
     }
 
-    private Integer parseInt(CommandSender sender, String string)
-    {
-        try
-        {
+    private Integer parseInt(CommandSender sender, String string) {
+        try {
             return Integer.parseInt(string);
-        }
-        catch (NumberFormatException ex)
-        {
+        } catch (NumberFormatException ex) {
             sender.sendMessage(mmString("<red>" + string + "<red> is not a valid number!"));
         }
         return null;
     }
 
-    private boolean isNumeric(String string)
-    {
-        if (string == null)
-        {
+    private boolean isNumeric(String string) {
+        if (string == null) {
             return false;
         }
-        try
-        {
+        try {
             int num = Integer.parseInt(string);
-        }
-        catch (NumberFormatException nfe)
-        {
+        } catch (NumberFormatException nfe) {
             return false;
         }
         return true;
