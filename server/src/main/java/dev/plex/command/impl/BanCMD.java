@@ -1,6 +1,5 @@
 package dev.plex.command.impl;
 
-import com.google.common.collect.ImmutableList;
 import dev.plex.Plex;
 import dev.plex.cache.DataUtils;
 import dev.plex.command.PlexCommand;
@@ -16,6 +15,10 @@ import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.TimeUtils;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import net.kyori.adventure.text.Component;
@@ -28,11 +31,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.Collections;
-import java.util.List;
 
 @CommandParameters(name = "ban", usage = "/<command> <player> [-nrb] [reason] [-nrb]", aliases = "offlineban,gtfo", description = "Bans a player, offline or online")
 @CommandPermissions(permission = "plex.ban", source = RequiredCommandSource.ANY)
@@ -97,7 +95,8 @@ public class BanCMD extends PlexCommand
 
             if (rollBack)
             {
-                if (plugin.getPrismHook().hasPrism()) {
+                if (plugin.getPrismHook().hasPrism())
+                {
                     PrismParameters parameters = plugin.getPrismHook().prismApi().createParameters();
                     parameters.addActionType("block-place");
                     parameters.addActionType("block-break");
@@ -109,18 +108,19 @@ public class BanCMD extends PlexCommand
                     parameters.setBeforeTime(Instant.now().toEpochMilli());
                     parameters.setProcessType(PrismProcessType.ROLLBACK);
                     final Future<Result> result = plugin.getPrismHook().prismApi().performLookup(parameters, sender);
-                    Bukkit.getAsyncScheduler().runNow(plugin, scheduledTask -> {
+                    Bukkit.getAsyncScheduler().runNow(plugin, scheduledTask ->
+                    {
                         try
                         {
                             final Result done = result.get();
-                        } catch (InterruptedException | ExecutionException e)
+                        }
+                        catch (InterruptedException | ExecutionException e)
                         {
                             throw new RuntimeException(e);
                         }
                     });
                 }
-                else
-                if (plugin.getCoreProtectHook().hasCoreProtect())
+                else if (plugin.getCoreProtectHook().hasCoreProtect())
                 {
                     PlexLog.debug("Testing coreprotect");
                     Bukkit.getAsyncScheduler().runNow(plugin, scheduledTask ->
@@ -137,6 +137,14 @@ public class BanCMD extends PlexCommand
     @Override
     public @NotNull List<String> smartTabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
     {
-        return args.length == 1 && silentCheckPermission(sender, this.getPermission()) ? PlexUtils.getPlayerNameList() : ImmutableList.of();
+        if (args.length == 1 && silentCheckPermission(sender, this.getPermission()))
+        {
+            return PlexUtils.getPlayerNameList();
+        }
+        if (args.length != 1 && silentCheckPermission(sender, this.getPermission()))
+        {
+            return Collections.singletonList("-nrb");
+        }
+        return Collections.emptyList();
     }
 }
