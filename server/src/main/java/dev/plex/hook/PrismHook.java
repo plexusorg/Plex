@@ -1,7 +1,7 @@
-/*
 package dev.plex.hook;
 
 import dev.plex.Plex;
+import network.darkhelmet.prism.api.PrismApi;
 import org.bukkit.plugin.Plugin;
 
 public class PrismHook
@@ -31,4 +31,4 @@ public class PrismHook
         return prismApi;
     }
 }
-*/
+

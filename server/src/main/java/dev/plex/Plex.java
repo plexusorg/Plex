@@ -6,7 +6,7 @@ import dev.plex.config.Config;
 import dev.plex.handlers.CommandHandler;
 import dev.plex.handlers.ListenerHandler;
 import dev.plex.hook.CoreProtectHook;
-//import dev.plex.hook.PrismHook;
+import dev.plex.hook.PrismHook;
 import dev.plex.module.ModuleManager;
 import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.PunishmentManager;
@@ -17,9 +17,14 @@ import dev.plex.storage.StorageType;
 import dev.plex.storage.player.SQLPlayerData;
 import dev.plex.storage.punishment.SQLNotes;
 import dev.plex.storage.punishment.SQLPunishment;
-import dev.plex.util.*;
+import dev.plex.util.BuildInfo;
+import dev.plex.util.BungeeUtil;
+import dev.plex.util.PlexLog;
+import dev.plex.util.PlexUtils;
+import dev.plex.util.UpdateChecker;
 import dev.plex.util.redis.MessageUtil;
 import dev.plex.world.CustomWorld;
+import java.io.File;
 import lombok.Getter;
 import lombok.Setter;
 import net.milkbowl.vault.chat.Chat;
@@ -28,8 +33,6 @@ import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import java.io.File;
 
 @Getter
 @Setter
@@ -62,7 +65,7 @@ public class Plex extends JavaPlugin
     private Chat chat;
 
     private CoreProtectHook coreProtectHook;
-//    private PrismHook prismHook;
+    private PrismHook prismHook;
 
     public static Plex get()
     {
@@ -131,15 +134,24 @@ public class Plex extends JavaPlugin
         permissions = setupPermissions();
         chat = setupChat();
 
-        if (plugin.getServer().getPluginManager().isPluginEnabled("CoreProtect")) {
+        if (plugin.getServer().getPluginManager().isPluginEnabled("CoreProtect"))
+        {
             PlexLog.log("Hooked into CoreProtect!");
             coreProtectHook = new CoreProtectHook(this);
-        } else {
+        }
+        else
+        {
             PlexLog.debug("Not hooking into CoreProtect");
         }
-//        if (plugin.getServer().getPluginManager().isPluginEnabled("Prism")) {
-//            prismHook = new PrismHook(this);
-//        }
+        if (plugin.getServer().getPluginManager().isPluginEnabled("Prism"))
+        {
+            PlexLog.log("Hooked into Prism!");
+            prismHook = new PrismHook(this);
+        }
+        else
+        {
+            PlexLog.debug("Not hooking into Prism");
+        }
 
         updateChecker = new UpdateChecker();
         PlexLog.log("Update checking enabled");

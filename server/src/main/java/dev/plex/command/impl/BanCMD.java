@@ -15,7 +15,13 @@ import dev.plex.util.BungeeUtil;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.TimeUtils;
+import java.time.Instant;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import net.kyori.adventure.text.Component;
+import network.darkhelmet.prism.api.PrismParameters;
+import network.darkhelmet.prism.api.Result;
+import network.darkhelmet.prism.api.actions.PrismProcessType;
 import org.apache.commons.lang3.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -91,7 +97,7 @@ public class BanCMD extends PlexCommand
 
             if (rollBack)
             {
-                /*if (plugin.getPrismHook().hasPrism()) {
+                if (plugin.getPrismHook().hasPrism()) {
                     PrismParameters parameters = plugin.getPrismHook().prismApi().createParameters();
                     parameters.addActionType("block-place");
                     parameters.addActionType("block-break");
@@ -113,7 +119,7 @@ public class BanCMD extends PlexCommand
                         }
                     });
                 }
-                else */
+                else
                 if (plugin.getCoreProtectHook().hasCoreProtect())
                 {
                     PlexLog.debug("Testing coreprotect");

@@ -10,7 +10,7 @@ plugins {
 
 repositories {
     maven(url = uri("https://maven.playpro.com"))
-//    maven(url = uri("https://nexus.darkhelmet.network/repository/maven-snapshots"))
+    maven(url = uri("https://nexus.telesphoreo.me/repository/plex-modules/"))
 }
 
 dependencies {
@@ -28,7 +28,7 @@ dependencies {
         exclude("org.bukkit", "bukkit")
     }
     compileOnly("net.coreprotect:coreprotect:22.2")
-//    compileOnly("network.darkhelmet:prism:3.3.1")
+    compileOnly("network.darkhelmet.prism:Prism-Api:1.0.0")
 
     implementation("org.bstats:bstats-base:3.0.2")
     implementation("org.bstats:bstats-bukkit:3.0.2")
