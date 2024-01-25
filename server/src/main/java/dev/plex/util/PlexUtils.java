@@ -4,6 +4,7 @@ import com.google.common.base.CharMatcher;
 import com.google.common.collect.Lists;
 import dev.plex.Plex;
 import dev.plex.PlexBase;
+import dev.plex.event.BroadcastEvent;
 import dev.plex.listener.impl.ChatListener;
 import dev.plex.storage.StorageType;
 import net.kyori.adventure.text.Component;
@@ -274,11 +275,13 @@ public class PlexUtils implements PlexBase
     public static void broadcast(String s)
     {
         Bukkit.broadcast(MINI_MESSAGE.deserialize(s));
+        Bukkit.getServer().getPluginManager().callEvent(new BroadcastEvent(null, s));
     }
 
     public static void broadcast(Component component)
     {
         Bukkit.broadcast(component);
+        Bukkit.getServer().getPluginManager().callEvent(new BroadcastEvent(component, null));
     }
 
     public static void broadcastToAdmins(Component component, String permission)
