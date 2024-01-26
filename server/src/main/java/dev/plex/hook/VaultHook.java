@@ -82,8 +82,8 @@ public class VaultHook
         if (vaultPrefix == null || vaultPrefix.isEmpty()) {
             return Component.empty();
         }
-        PlexLog.debug("prefix: {0}", PlexUtils.legacyToMiniString(vaultPrefix).replace("<", "\\<"));
-        return SafeMiniMessage.mmDeserializeWithoutEvents(PlexUtils.legacyToMiniString(vaultPrefix));
+        PlexLog.debug("prefix: {0}", SafeMiniMessage.mmSerializeWithoutEvents(PlexUtils.stringToComponent(vaultPrefix)).replace("<", "\\<"));
+        return PlexUtils.stringToComponent(vaultPrefix);
     }
 
     public static Permission getPermission()

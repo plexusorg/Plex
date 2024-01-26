@@ -12,7 +12,6 @@ import io.papermc.paper.chat.ChatRenderer;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.TextReplacementConfig;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -47,7 +46,7 @@ public class ChatListener extends PlexListener
         {
             String prefix = PlexUtils.mmSerialize(VaultHook.getPrefix(event.getPlayer())); // Don't use PlexPlayer#getPrefix because that returns their custom set prefix and not their group's
             MessageUtil.sendStaffChat(event.getPlayer(), event.message(), PlexUtils.adminChat(event.getPlayer().getName(), prefix, SafeMiniMessage.mmSerialize(event.message())).toArray(UUID[]::new));
-            plugin.getServer().getConsoleSender().sendMessage(PlexUtils.messageComponent("adminChatFormat", event.getPlayer().getName(), prefix, PlexUtils.legacyToMiniString(SafeMiniMessage.mmSerializeWithoutEvents(event.message()))).replaceText(URL_REPLACEMENT_CONFIG));
+            plugin.getServer().getConsoleSender().sendMessage(PlexUtils.messageComponent("adminChatFormat", event.getPlayer().getName(), prefix, SafeMiniMessage.mmSerialize(event.message().replaceText(URL_REPLACEMENT_CONFIG))));
             event.setCancelled(true);
             return;
         }
@@ -105,7 +104,7 @@ public class ChatListener extends PlexListener
 
     private static void defaultChatProcessing(AsyncChatEvent event, PlexPlayer plexPlayer)
     {
-        String text = PlexUtils.legacyToMiniString(PlexUtils.getTextFromComponent(event.message()));
-        event.message(SafeMiniMessage.mmDeserializeWithoutEvents(text));
+        String text = PlexUtils.getTextFromComponent(event.message());
+        event.message(PlexUtils.stringToComponent(text));
     }
 }

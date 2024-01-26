@@ -11,6 +11,7 @@ import dev.plex.player.PlexPlayer;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.apache.commons.lang3.StringUtils;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -56,20 +57,18 @@ public class SetLoginMessageCMD extends PlexCommand
                 validateMessage(message);
                 plexPlayer.setLoginMessage(message);
                 return messageComponent("setOtherPlayersLoginMessage", plexPlayer.getName(),
-                        message.replace("%player%", plexPlayer.getName()));
+                        MiniMessage.miniMessage().serialize(PlexUtils.stringToComponent(message.replace("%player%", plexPlayer.getName()))));
             }
             if (isConsole(sender))
             {
                 return messageComponent("noPermissionConsole");
             }
             PlexPlayer plexPlayer = plugin.getPlayerCache().getPlexPlayer(playerSender.getUniqueId());
-            String message = StringUtils.join(args, " ", 0, args.length);
-            message = message.replace(plexPlayer.getName(), "%player%");
-            message = PlexUtils.legacyToMiniString(message);
+            String message = StringUtils.join(args, " ", 0, args.length)
+                    .replace(plexPlayer.getName(), "%player%");
             validateMessage(message);
             plexPlayer.setLoginMessage(message);
-            return messageComponent("setOwnLoginMessage",
-                    message.replace("%player%", plexPlayer.getName()));
+            return messageComponent("setOwnLoginMessage", PlexUtils.stringToComponent(message.replace("%player%", plexPlayer.getName())));
         }
         return null;
     }
