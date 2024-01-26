@@ -65,7 +65,7 @@ public class PlayerListener<T> extends PlexListener
         String loginMessage = PlayerMeta.getLoginMessage(plexPlayer);
         if (!loginMessage.isEmpty())
         {
-            PlexUtils.broadcast(loginMessage);
+            PlexUtils.broadcast(PlexUtils.stringToComponent(loginMessage));
         }
 
         plexPlayer.loadNotes();

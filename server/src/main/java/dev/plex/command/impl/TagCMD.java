@@ -50,16 +50,15 @@ public class TagCMD extends PlexCommand
             {
                 return usage("/tag set <prefix>");
             }
-            String prefix = PlexUtils.legacyToMiniString(StringUtils.join(args, " ", 1, args.length));
 
-            Component convertedComponent = SafeMiniMessage.mmDeserializeWithoutEvents(prefix);
+            Component convertedComponent = PlexUtils.stringToComponent(StringUtils.join(args, " ", 1, args.length));
 
             if (PlainTextComponentSerializer.plainText().serialize(convertedComponent).length() > plugin.config.getInt("chat.max-tag-length", 16))
             {
                 return messageComponent("maximumPrefixLength", plugin.config.getInt("chat.max-tag-length", 16));
             }
 
-            player.setPrefix(prefix);
+            player.setPrefix(MiniMessage.miniMessage().serialize(convertedComponent));
             DataUtils.update(player);
             return messageComponent("prefixSetTo", MiniMessage.miniMessage().serialize(convertedComponent));
         }

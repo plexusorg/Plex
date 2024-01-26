@@ -7,10 +7,13 @@ import dev.plex.PlexBase;
 import dev.plex.event.BroadcastEvent;
 import dev.plex.listener.impl.ChatListener;
 import dev.plex.storage.StorageType;
+import dev.plex.util.minimessage.SafeMiniMessage;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -29,6 +32,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Stack;
 import java.util.UUID;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class PlexUtils implements PlexBase
@@ -43,6 +47,8 @@ public class PlexUtils implements PlexBase
                     "2e06e049-24c8-42e4-8bcf-d35372af31e6", // Fleek
                     "a52f1f08-a398-400a-bca4-2b74b81feae6" // Allink
             );
+
+    private static final Pattern LEGACY_FORMATTING_PATTERN = Pattern.compile(".*(?i)(([§&])((#[a-f0-9]{3,6})|([0-9a-fklmnor]))).*");
 
     public static <T> T addToArrayList(List<T> list, T object)
     {
@@ -146,6 +152,17 @@ public class PlexUtils implements PlexBase
         return component;
     }
 
+    public static Component stringToComponent(String input)
+    {
+        input = cleanString(input);
+
+        return LEGACY_FORMATTING_PATTERN.matcher(input).find() ?
+                LegacyComponentSerializer.legacyAmpersand().deserialize(input.replaceAll("([§&]+)(k+)", "") // Ugly hack, but it tries to prevent &k and any attempts to bypass it.
+                        ).decoration(TextDecoration.OBFUSCATED, TextDecoration.State.FALSE) :
+                SafeMiniMessage.mmDeserializeWithoutEvents(input);
+    }
+
+    @Deprecated
     public static String legacyToMiniString(String input)
     {
         return cleanString(input.replace("&a", "<green>")
