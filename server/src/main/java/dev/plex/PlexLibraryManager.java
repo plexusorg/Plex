@@ -33,11 +33,6 @@ public class PlexLibraryManager implements PluginLoader
             resolver.addDependency(new Dependency(new DefaultArtifact("org.eclipse.jetty:jetty-servlet:11.0.19"), null));
             resolver.addDependency(new Dependency(new DefaultArtifact("org.eclipse.jetty:jetty-proxy:11.0.19"), null));
         }
-        if (new File("plugins/Plex/modules/Module-DiscordSRV.jar").isFile())
-        {
-            resolver.addRepository(new RemoteRepository.Builder("discordsrv", "default", "https://nexus.scarsz.me/content/groups/public/").build());
-            resolver.addDependency(new Dependency(new DefaultArtifact("com.discordsrv:discordsrv:1.27.0"), null));
-        }
         classpathBuilder.addLibrary(resolver);
     }
 

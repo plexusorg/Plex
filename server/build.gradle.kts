@@ -57,10 +57,6 @@ paper {
             required = false
             load = PaperPluginDescription.RelativeLoadOrder.BEFORE
         }
-        register("DiscordSRV") {
-            required = false
-            load = PaperPluginDescription.RelativeLoadOrder.AFTER
-        }
         register("Essentials") {
             required = false
             load = PaperPluginDescription.RelativeLoadOrder.BEFORE
