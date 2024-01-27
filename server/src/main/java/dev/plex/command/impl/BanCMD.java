@@ -1,6 +1,5 @@
 package dev.plex.command.impl;
 
-import dev.plex.Plex;
 import dev.plex.cache.DataUtils;
 import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
@@ -84,7 +83,7 @@ public class BanCMD extends PlexCommand
             punishment.setIp(player != null ? player.getAddress().getAddress().getHostAddress().trim() : plexPlayer.getIps().get(plexPlayer.getIps().size() - 1));
             plugin.getPunishmentManager().punish(plexPlayer, punishment);
             PlexUtils.broadcast(messageComponent("banningPlayer", sender.getName(), plexPlayer.getName()));
-            Bukkit.getScheduler().runTask(Plex.get(), () ->
+            Bukkit.getGlobalRegionScheduler().execute(plugin, () ->
             {
                 if (player != null)
                 {
@@ -123,7 +122,7 @@ public class BanCMD extends PlexCommand
                 else if (plugin.getCoreProtectHook().hasCoreProtect())
                 {
                     PlexLog.debug("Testing coreprotect");
-                    Bukkit.getAsyncScheduler().runNow(plugin, scheduledTask ->
+                    Bukkit.getGlobalRegionScheduler().run(plugin, scheduledTask ->
                     {
                         plugin.getCoreProtectHook().coreProtectAPI().performRollback(86400, Collections.singletonList(plexPlayer.getName()), null, null, null, null, 0, null);
                     });
@@ -146,5 +145,10 @@ public class BanCMD extends PlexCommand
             return Collections.singletonList("-nrb");
         }
         return Collections.emptyList();
+    }
+
+    private void kickPlayer(Player player, Punishment punishment)
+    {
+
     }
 }
