@@ -31,7 +31,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-@CommandParameters(name = "ban", usage = "/<command> <player> [-nrb] [reason] [-nrb]", aliases = "offlineban,gtfo", description = "Bans a player, offline or online")
+@CommandParameters(name = "ban", usage = "/<command> <player> [reason] [-nrb]", aliases = "offlineban,gtfo", description = "Bans a player, offline or online")
 @CommandPermissions(permission = "plex.ban", source = RequiredCommandSource.ANY)
 
 public class BanCMD extends PlexCommand
@@ -145,10 +145,5 @@ public class BanCMD extends PlexCommand
             return Collections.singletonList("-nrb");
         }
         return Collections.emptyList();
-    }
-
-    private void kickPlayer(Player player, Punishment punishment)
-    {
-
     }
 }

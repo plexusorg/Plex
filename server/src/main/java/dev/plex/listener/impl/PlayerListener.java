@@ -6,6 +6,7 @@ import dev.plex.meta.PlayerMeta;
 import dev.plex.player.PlexPlayer;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
+import java.util.List;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -17,8 +18,6 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-
-import java.util.List;
 
 public class PlayerListener<T> extends PlexListener
 {
@@ -96,7 +95,7 @@ public class PlayerListener<T> extends PlexListener
         PlexPlayer player = DataUtils.getPlayer(event.getPlayer().getUniqueId());
         if (player.isLockedUp())
         {
-            Bukkit.getScheduler().runTaskLater(plugin, () -> event.getPlayer().openInventory(event.getInventory()), 1L);
+            Bukkit.getGlobalRegionScheduler().runDelayed(plugin, (scheduledTask) -> event.getPlayer().openInventory(event.getInventory()), 1L);
         }
     }
 
