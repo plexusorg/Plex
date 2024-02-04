@@ -70,7 +70,7 @@ public class WhoHasCMD extends PlexCommand
         {
             return Arrays.stream(Material.values()).map(Enum::name).toList();
         }
-        else if (args.length == 2 && silentCheckPermission(sender, this.getPermission()))
+        else if (args.length == 2 && silentCheckPermission(sender, "plex.whohas.clear"))
         {
             return Collections.singletonList("clear");
         }
