@@ -36,12 +36,30 @@ public class WhoHasCMD extends PlexCommand
             return messageComponent("materialNotFound", args[0]);
         }
 
-        final List<TextComponent> players = Bukkit.getOnlinePlayers().stream().filter(player ->
-                player.getInventory().contains(material)).map(player -> Component.text(player.getName())).toList();
+        boolean clearInventory = args.length > 1 && args[1].equalsIgnoreCase("clear");
 
-        return players.isEmpty() ? messageComponent("nobodyHasThatMaterial") :
-                messageComponent("playersWithMaterial", Component.text(material.name()),
-                        Component.join(JoinConfiguration.commas(true), players));
+        if (clearInventory && !sender.hasPermission("plex.whohas.clear"))
+        {
+            return messageComponent("noPermissionNode", "plex.whohas.clear");
+        }
+
+        List<TextComponent> players = Bukkit.getOnlinePlayers().stream().filter(player ->
+                player.getInventory().contains(material)).map(player -> {
+            if (clearInventory)
+            {
+                player.getInventory().remove(material);
+                player.updateInventory();
+            }
+            return Component.text(player.getName());
+        }).toList();
+
+        return players.isEmpty() ?
+                messageComponent("nobodyHasThatMaterial") :
+                (clearInventory ?
+                        messageComponent("playersMaterialCleared", Component.text(material.name()),
+                                Component.join(JoinConfiguration.commas(true), players)) :
+                        messageComponent("playersWithMaterial", Component.text(material.name()),
+                                Component.join(JoinConfiguration.commas(true), players)));
     }
 
     @Override
