@@ -200,6 +200,9 @@ rankRequired: "<red>Policy requires that you must state your rank in your login 
 # 0 - The material name
 # 1 - The players who have the material in their inventory
 playersWithMaterial: "<gray>Players with {0} in their inventory: {1}"
+# 0 - The material name
+# 1 - The players who have the material in their inventory
+playersMaterialCleared: "<gray>{0} has been removed from the following players: {1}"
 nobodyHasThatMaterial: "<gray>No one online has that in their inventory."
 # 0 - The attempted material name
 materialNotFound: "<red>{0} is not a valid item/block name."

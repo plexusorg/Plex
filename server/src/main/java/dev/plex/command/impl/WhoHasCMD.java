@@ -16,6 +16,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Collections;
 
 @CommandPermissions(permission = "plex.whohas")
 @CommandParameters(name = "whohas", description = "Returns a list of players with a specific item in their inventory.", usage = "/<command> <material>", aliases = "wh")
@@ -36,17 +37,43 @@ public class WhoHasCMD extends PlexCommand
             return messageComponent("materialNotFound", args[0]);
         }
 
-        final List<TextComponent> players = Bukkit.getOnlinePlayers().stream().filter(player ->
-                player.getInventory().contains(material)).map(player -> Component.text(player.getName())).toList();
+        boolean clearInventory = args.length > 1 && args[1].equalsIgnoreCase("clear");
 
-        return players.isEmpty() ? messageComponent("nobodyHasThatMaterial") :
-                messageComponent("playersWithMaterial", Component.text(material.name()),
-                        Component.join(JoinConfiguration.commas(true), players));
+        if (clearInventory && !sender.hasPermission("plex.whohas.clear"))
+        {
+            return messageComponent("noPermissionNode", "plex.whohas.clear");
+        }
+
+        List<TextComponent> players = Bukkit.getOnlinePlayers().stream().filter(player ->
+                player.getInventory().contains(material)).map(player -> {
+            if (clearInventory)
+            {
+                player.getInventory().remove(material);
+                player.updateInventory();
+            }
+            return Component.text(player.getName());
+        }).toList();
+
+        return players.isEmpty() ?
+                messageComponent("nobodyHasThatMaterial") :
+                (clearInventory ?
+                        messageComponent("playersMaterialCleared", Component.text(material.name()),
+                                Component.join(JoinConfiguration.commas(true), players)) :
+                        messageComponent("playersWithMaterial", Component.text(material.name()),
+                                Component.join(JoinConfiguration.commas(true), players)));
     }
 
     @Override
     public @NotNull List<String> smartTabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
     {
-        return args.length == 1 && silentCheckPermission(sender, this.getPermission()) ? Arrays.stream(Material.values()).map(Enum::name).toList() : ImmutableList.of();
+        if (args.length == 1 && silentCheckPermission(sender, this.getPermission()))
+        {
+            return Arrays.stream(Material.values()).map(Enum::name).toList();
+        }
+        else if (args.length == 2 && silentCheckPermission(sender, "plex.whohas.clear"))
+        {
+            return Collections.singletonList("clear");
+        }
+        return ImmutableList.of();
     }
 }
