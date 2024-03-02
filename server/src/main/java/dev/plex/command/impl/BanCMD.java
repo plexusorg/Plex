@@ -94,7 +94,7 @@ public class BanCMD extends PlexCommand
 
             if (rollBack)
             {
-                if (plugin.getPrismHook().hasPrism())
+                if (plugin.getPrismHook() != null && plugin.getPrismHook().hasPrism())
                 {
                     PrismParameters parameters = plugin.getPrismHook().prismApi().createParameters();
                     parameters.addActionType("block-place");
@@ -119,7 +119,7 @@ public class BanCMD extends PlexCommand
                         }
                     });
                 }
-                else if (plugin.getCoreProtectHook().hasCoreProtect())
+                else if (plugin.getCoreProtectHook() != null && plugin.getCoreProtectHook().hasCoreProtect())
                 {
                     PlexLog.debug("Testing coreprotect");
                     Bukkit.getGlobalRegionScheduler().run(plugin, scheduledTask ->

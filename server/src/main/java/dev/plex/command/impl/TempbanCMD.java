@@ -104,7 +104,7 @@ public class TempbanCMD extends PlexCommand
                     });
                 }
                 else */
-            if (plugin.getCoreProtectHook().hasCoreProtect())
+            if (plugin.getCoreProtectHook() != null && plugin.getCoreProtectHook().hasCoreProtect())
             {
                 PlexLog.debug("Testing coreprotect");
                 Bukkit.getAsyncScheduler().runNow(plugin, scheduledTask ->
