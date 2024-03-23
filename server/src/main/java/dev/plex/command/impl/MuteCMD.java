@@ -47,11 +47,12 @@ public class MuteCMD extends PlexCommand
         Punishment punishment = new Punishment(punishedPlayer.getUuid(), getUUID(sender));
         punishment.setCustomTime(false);
         ZonedDateTime date = ZonedDateTime.now(ZoneId.of(TimeUtils.TIMEZONE));
-        punishment.setEndDate(date.plusMinutes(5));
+        punishment.setEndDate(date.plusSeconds(plugin.config.getInt("punishments.mute-timer", 300)));
         punishment.setType(PunishmentType.MUTE);
         punishment.setPunishedUsername(player.getName());
         punishment.setIp(player.getAddress().getAddress().getHostAddress().trim());
         punishment.setReason("");
+        punishment.setActive(true);
 
         plugin.getPunishmentManager().punish(punishedPlayer, punishment);
         PlexUtils.broadcast(messageComponent("mutedPlayer", sender.getName(), player.getName()));

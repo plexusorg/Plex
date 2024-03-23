@@ -26,7 +26,7 @@ public class PunishedPlayerMenu extends PageableMenu<Punishment>
     @Override
     protected ItemStack toItem(Punishment object)
     {
-        return new ItemBuilder(Material.PAPER).displayName("<!italic><red>" + object.getType().name()).lore("<!italic><red>By: <gold>" + (object.getPunisher() == null ? "CONSOLE" : Plex.get().getSqlPlayerData().getNameByUUID(object.getPunished())), "<!italic><red>Expire(d/s): <gold>" + TimeUtils.useTimezone(object.getEndDate()), "<!italic><red>Reason: <gold>" + object.getReason()).build();
+        return new ItemBuilder(Material.PAPER).displayName("<!italic><red>" + object.getType().name()).lore("<!italic><red>By: <gold>" + (object.getPunisher() == null ? "CONSOLE" : Plex.get().getSqlPlayerData().getNameByUUID(object.getPunisher())), "<!italic><red>Expire(d/s): <gold>" + TimeUtils.useTimezone(object.getEndDate()), "<!italic><red>Reason: <gold>" + object.getReason()).build();
     }
 
     @Override

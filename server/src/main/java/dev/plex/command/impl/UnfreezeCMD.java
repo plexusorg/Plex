@@ -1,11 +1,14 @@
 package dev.plex.command.impl;
 
 import com.google.common.collect.ImmutableList;
+import dev.plex.cache.DataUtils;
 import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.exception.CommandFailException;
+import dev.plex.command.exception.PlayerNotFoundException;
 import dev.plex.player.PlexPlayer;
+import dev.plex.punishment.PunishmentType;
 import dev.plex.util.PlexUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.command.CommandSender;
@@ -26,14 +29,22 @@ public class UnfreezeCMD extends PlexCommand
         {
             return usage();
         }
-        Player player = getNonNullPlayer(args[0]);
-        PlexPlayer punishedPlayer = getOfflinePlexPlayer(player.getUniqueId());
+        PlexPlayer punishedPlayer = DataUtils.getPlayer(args[0]);
+        if (punishedPlayer == null)
+        {
+            throw new PlayerNotFoundException();
+        }
+
         if (!punishedPlayer.isFrozen())
         {
             throw new CommandFailException(PlexUtils.messageString("playerNotFrozen"));
         }
         punishedPlayer.setFrozen(false);
-        PlexUtils.broadcast(messageComponent("unfrozePlayer", sender.getName(), player.getName()));
+        punishedPlayer.getPunishments().stream().filter(punishment -> punishment.getType() == PunishmentType.FREEZE && punishment.isActive()).forEach(punishment -> {
+            punishment.setActive(false);
+            plugin.getSqlPunishment().updatePunishment(punishment.getType(), false, punishment.getPunished());
+        });
+        PlexUtils.broadcast(messageComponent("unfrozePlayer", sender.getName(), punishedPlayer.getName()));
         return null;
     }
 

@@ -2,6 +2,7 @@ package dev.plex.util.sql;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import dev.plex.punishment.PunishmentType;
 import dev.plex.storage.annotation.*;
 import dev.plex.util.PlexLog;
@@ -13,10 +14,7 @@ import org.jetbrains.annotations.NotNull;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.time.ZonedDateTime;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -25,7 +23,7 @@ import java.util.stream.Collectors;
  */
 public class SQLUtil
 {
-    public static final List<Table> TABLES = Lists.newArrayList();
+    public static final Map<String, Table> TABLES = Maps.newHashMap();
 
     public static List<String> createTable(List<String> result, Class<?> clazz)
     {
@@ -83,7 +81,7 @@ public class SQLUtil
         mainResult.append(");");
         result.add(mainResult.toString());
 
-        TABLES.add(table);
+        TABLES.put(table.name(), table);
 
         if (primaryKey == null && !collectionFields.isEmpty())
         {
@@ -113,9 +111,20 @@ public class SQLUtil
             writeFieldToSQL(listTable, sql, Mapper.getByClass(finalPrimaryKey.getType()), finalPrimaryKey);
             sql.append(");");
             result.add(sql.toString());
-            table.mappedTables().add(listTable);
+            table.mappedTables().put(field, listTable);
         });
         return result;
+    }
+
+    public static void update(String tableName, Object object)
+    {
+        final Table table = TABLES.get(tableName);
+        if (table == null)
+        {
+            PlexLog.error("Table {0} was not found", tableName);
+            return;
+        }
+
     }
 
     private static void writeFieldToSQL(Table table, StringBuilder sb, Mapper mapped, Field field)

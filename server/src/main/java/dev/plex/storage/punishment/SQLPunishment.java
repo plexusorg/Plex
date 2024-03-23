@@ -25,7 +25,7 @@ public class SQLPunishment
     private static final String SELECT_BY = "SELECT * FROM `punishments` WHERE punisher=?";
 
     private static final String INSERT = "INSERT INTO `punishments` (`punished`, `punisher`, `punishedUsername`, `ip`, `type`, `reason`, `customTime`, `active`, `endDate`) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)";
-    private static final String UPDATE_BAN = "UPDATE `punishments` SET active=? WHERE active=? AND punished=? AND type=?";
+    private static final String UPDATE_PUNISHMENT = "UPDATE `punishments` SET active=? WHERE punished=? AND type=?";
 
     public CompletableFuture<List<Punishment>> getPunishments()
     {
@@ -145,17 +145,16 @@ public class SQLPunishment
     {
         try (Connection con = Plex.get().getSqlConnection().getCon())
         {
-            PreparedStatement statement = con.prepareStatement(UPDATE_BAN);
+            PreparedStatement statement = con.prepareStatement(UPDATE_PUNISHMENT);
             statement.setBoolean(1, false);
-            statement.setBoolean(2, true);
-            statement.setString(3, uuid.toString());
-            statement.setString(4, PunishmentType.BAN.name());
+            statement.setString(2, uuid.toString());
+            statement.setString(3, PunishmentType.BAN.name());
+            statement.executeUpdate();
 
-            PreparedStatement statement1 = con.prepareStatement(UPDATE_BAN);
+            PreparedStatement statement1 = con.prepareStatement(UPDATE_PUNISHMENT);
             statement1.setBoolean(1, false);
-            statement1.setBoolean(2, true);
-            statement1.setString(3, uuid.toString());
-            statement1.setString(4, PunishmentType.TEMPBAN.name());
+            statement1.setString(2, uuid.toString());
+            statement1.setString(3, PunishmentType.TEMPBAN.name());
             statement1.executeUpdate();
         }
         catch (SQLException e)
@@ -164,24 +163,41 @@ public class SQLPunishment
         }
     }
 
+    public CompletableFuture<Void> updatePunishment(PunishmentType type, boolean active, UUID punished)
+    {
+        return CompletableFuture.runAsync(() ->
+        {
+            try (Connection con = Plex.get().getSqlConnection().getCon())
+            {
+                PreparedStatement statement = con.prepareStatement(UPDATE_PUNISHMENT);
+                statement.setBoolean(1, active);
+                statement.setString(2, punished.toString());
+                statement.setString(3, type.name());
+                statement.executeUpdate();
+            }
+            catch (SQLException e)
+            {
+                e.printStackTrace();
+            }
+        });
+    }
+
     public CompletableFuture<Void> removeBan(UUID uuid)
     {
         return CompletableFuture.runAsync(() ->
         {
             try (Connection con = Plex.get().getSqlConnection().getCon())
             {
-                PreparedStatement statement = con.prepareStatement(UPDATE_BAN);
+                PreparedStatement statement = con.prepareStatement(UPDATE_PUNISHMENT);
                 statement.setBoolean(1, false);
-                statement.setBoolean(2, true);
-                statement.setString(3, uuid.toString());
-                statement.setString(4, PunishmentType.BAN.name());
+                statement.setString(2, uuid.toString());
+                statement.setString(3, PunishmentType.BAN.name());
                 statement.executeUpdate();
 
-                PreparedStatement statement1 = con.prepareStatement(UPDATE_BAN);
+                PreparedStatement statement1 = con.prepareStatement(UPDATE_PUNISHMENT);
                 statement1.setBoolean(1, false);
-                statement1.setBoolean(2, true);
-                statement1.setString(3, uuid.toString());
-                statement1.setString(4, PunishmentType.TEMPBAN.name());
+                statement1.setString(2, uuid.toString());
+                statement1.setString(3, PunishmentType.TEMPBAN.name());
                 statement1.executeUpdate();
             }
             catch (SQLException e)
@@ -190,4 +206,5 @@ public class SQLPunishment
             }
         });
     }
+
 }
