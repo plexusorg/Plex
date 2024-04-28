@@ -32,6 +32,7 @@ public class ToggleCMD extends PlexCommand
                 sender.sendMessage(PlexUtils.mmDeserialize("<gray>  - Fluidspread" + status("fluidspread")));
                 sender.sendMessage(PlexUtils.mmDeserialize("<gray>  - Drops" + status("drops")));
                 sender.sendMessage(PlexUtils.mmDeserialize("<gray>  - Redstone" + status("redstone")));
+                sender.sendMessage(PlexUtils.mmDeserialize("<gray>  - Chat" + status("chat")));
                 return null;
             }
             switch (args[0].toLowerCase())
@@ -51,6 +52,11 @@ public class ToggleCMD extends PlexCommand
                 case "redstone" ->
                 {
                     return toggle("redstone");
+                }
+                case "chat" ->
+                {
+                    PlexUtils.broadcast(PlexUtils.messageComponent("chatToggled", sender.getName(), plugin.toggles.getBoolean("chat") ? "off" : "on"));
+                    return toggle("chat");
                 }
                 default ->
                 {
