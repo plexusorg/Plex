@@ -110,10 +110,11 @@ playerFrozen: "<red>That player is already frozen!"
 playerMuted: "<red>That player is already muted!"
 playerLockedUp: "<red>That player is already locked up!"
 muted: "<red>You are currently muted - STFU!"
-chatIsDisabled: "<red>Public chat is currently restricted!"
+chatIsOff: "<red>Chat is currently toggled off!"
 # 0 - The command sender
-modModeOn: "<red>{0} - Restricting public chat to administrators"
-modModeOff: "<aqua>{0} - Unrestricting public chat"
+chatOff: "<red>{0} - Toggled chat off"
+# 0 - The command sender
+chatOn: "<aqua>{0} - Toggled chat on"
 # 0 - The command sender
 # 1 - The player
 kickedPlayer: "<red>{0} - Kicking {1}"
