@@ -10,7 +10,6 @@ import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ToggleMenu extends AbstractMenu
@@ -62,7 +61,7 @@ public class ToggleMenu extends AbstractMenu
     {
         ItemStack redstone = new ItemStack(Material.REDSTONE);
         ItemMeta redstoneItemMeta = redstone.getItemMeta();
-        redstoneItemMeta.displayName(PlexUtils.mmDeserialize("<!italic><light_purple>Redstone"));
+        redstoneItemMeta.displayName(PlexUtils.mmDeserialize("<!italic><light_purple>Toggle redstone"));
         redstoneItemMeta.lore(List.of(PlexUtils.mmDeserialize("<!italic><yellow>Redstone is " + (plugin.toggles.getBoolean("redstone") ? "<green>enabled" : "<red>disabled"))));
         redstone.setItemMeta(redstoneItemMeta);
         inventory.setItem(3, redstone);
@@ -108,7 +107,7 @@ public class ToggleMenu extends AbstractMenu
         if (clicked.getType() == Material.OAK_SIGN)
         {
             plugin.toggles.set("moderated", !plugin.toggles.getBoolean("moderated"));
-            PlexUtils.broadcast(PlexUtils.messageComponent(plugin.toggles.getBoolean("moderated") ? "modmodeon" : "modmodeoff", player.getName()));
+            PlexUtils.broadcast(PlexUtils.messageComponent(plugin.toggles.getBoolean("moderated") ? "modModeOn" : "modModeOff", player.getName()));
             resetChatItem(inventory);
             player.sendMessage(PlexUtils.mmDeserialize("<gray>Toggled moderated mode."));
         }
