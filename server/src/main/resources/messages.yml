@@ -112,9 +112,8 @@ playerLockedUp: "<red>That player is already locked up!"
 muted: "<red>You are currently muted - STFU!"
 chatIsOff: "<red>Chat is currently toggled off!"
 # 0 - The command sender
-chatOff: "<red>{0} - Toggled chat off"
-# 0 - The command sender
-chatOn: "<aqua>{0} - Toggled chat on"
+# 1 - The set value of the chat toggle
+chatToggled: "<red>{0} - Toggled chat {1}"
 # 0 - The command sender
 # 1 - The player
 kickedPlayer: "<red>{0} - Kicking {1}"
