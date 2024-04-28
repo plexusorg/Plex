@@ -55,7 +55,7 @@ public class ToggleCMD extends PlexCommand
                 }
                 case "modmode" ->
                 {
-                    PlexUtils.broadcast(messageComponent(plugin.toggles.getBoolean("moderated") ? "modmodeoff" : "modmodeon", sender.getName()));
+                    PlexUtils.broadcast(messageComponent(plugin.toggles.getBoolean("moderated") ? "modModeOff" : "modModeOn", sender.getName()));
                     return toggle("moderated");
                 }
                 default ->
