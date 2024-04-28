@@ -12,5 +12,5 @@ drops: true
 # Should redstone be enabled?
 redstone: true
 
-# Should public chat be restricted to admins only? This does not affect commands such as /w, but will affect commands such as /me.
-moderated: false
+# Is chat enabled?
+chat: true
