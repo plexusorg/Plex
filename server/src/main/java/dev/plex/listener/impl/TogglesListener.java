@@ -2,14 +2,12 @@ package dev.plex.listener.impl;
 
 import dev.plex.Plex;
 import dev.plex.listener.PlexListener;
-import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockFromToEvent;
 import org.bukkit.event.block.BlockRedstoneEvent;
@@ -76,7 +74,7 @@ public class TogglesListener extends PlexListener
         Player player = event.getPlayer();
         if (plugin.toggles.getBoolean("moderated") && !Plex.get().getPermissions().has(player, "plex.togglechat.bypass"))
         {
-            event.getPlayer().sendMessage(PlexUtils.messageComponent("chatisdisabled"));
+            event.getPlayer().sendMessage(PlexUtils.messageComponent("chatIsDisabled"));
             event.setCancelled(true);
         }
     }
@@ -91,7 +89,7 @@ public class TogglesListener extends PlexListener
             message = message.replaceAll("\\s.*", "").replaceFirst("/", "");
             if (commands.contains(message.toLowerCase()))
             {
-                event.getPlayer().sendMessage(PlexUtils.messageComponent("chatisdisabled"));
+                event.getPlayer().sendMessage(PlexUtils.messageComponent("chatIsDisabled"));
                 event.setCancelled(true);
                 return;
             }
@@ -103,7 +101,7 @@ public class TogglesListener extends PlexListener
                     return;
                 }
                 if (cmd.getAliases().contains(message.toLowerCase())) {
-                    event.getPlayer().sendMessage(PlexUtils.messageComponent("chatisdisabled"));
+                    event.getPlayer().sendMessage(PlexUtils.messageComponent("chatIsDisabled"));
                     event.setCancelled(true);
                     return;
                 }
