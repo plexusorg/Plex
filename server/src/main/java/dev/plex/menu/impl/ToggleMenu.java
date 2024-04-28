@@ -72,7 +72,7 @@ public class ToggleMenu extends AbstractMenu
         ItemStack chat = new ItemStack(Material.OAK_SIGN);
         ItemMeta chatItemMeta = chat.getItemMeta();
         chatItemMeta.displayName(PlexUtils.mmDeserialize("<!italic><light_purple>Toggle chat"));
-        chatItemMeta.lore(List.of(PlexUtils.mmDeserialize("<!italic><yellow>Public chat is currently " + (plugin.toggles.getBoolean("moderated") ? "<red>restricted to administrators" : "<green>unrestricted"))));
+        chatItemMeta.lore(List.of(PlexUtils.mmDeserialize("<!italic><yellow>Chat is currently " + (plugin.toggles.getBoolean("chat") ? "<green>on" : "<red>off"))));
         chat.setItemMeta(chatItemMeta);
         inventory.setItem(4, chat);
     }
@@ -106,10 +106,10 @@ public class ToggleMenu extends AbstractMenu
         }
         if (clicked.getType() == Material.OAK_SIGN)
         {
-            plugin.toggles.set("moderated", !plugin.toggles.getBoolean("moderated"));
-            PlexUtils.broadcast(PlexUtils.messageComponent(plugin.toggles.getBoolean("moderated") ? "modModeOn" : "modModeOff", player.getName()));
+            plugin.toggles.set("chat", !plugin.toggles.getBoolean("chat"));
+            PlexUtils.broadcast(PlexUtils.messageComponent(plugin.toggles.getBoolean("chat") ? "chatOn" : "chatOff", player.getName()));
             resetChatItem(inventory);
-            player.sendMessage(PlexUtils.mmDeserialize("<gray>Toggled moderated mode."));
+            player.sendMessage(PlexUtils.mmDeserialize("<gray>Toggled chat."));
         }
         return true;
     }
