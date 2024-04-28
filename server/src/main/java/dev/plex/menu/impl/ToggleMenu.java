@@ -10,6 +10,7 @@ import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ToggleMenu extends AbstractMenu
@@ -24,6 +25,7 @@ public class ToggleMenu extends AbstractMenu
         resetFluidspreadItem(this.inventory());
         resetDropsItem(this.inventory());
         resetRedstoneItem(this.inventory());
+        resetChatItem(this.inventory());
     }
 
     private void resetExplosionItem(Inventory inventory)
@@ -60,10 +62,20 @@ public class ToggleMenu extends AbstractMenu
     {
         ItemStack redstone = new ItemStack(Material.REDSTONE);
         ItemMeta redstoneItemMeta = redstone.getItemMeta();
-        redstoneItemMeta.displayName(PlexUtils.mmDeserialize("<!italic><light_purple>Redstone"));
+        redstoneItemMeta.displayName(PlexUtils.mmDeserialize("<!italic><light_purple>Toggle redstone"));
         redstoneItemMeta.lore(List.of(PlexUtils.mmDeserialize("<!italic><yellow>Redstone is " + (plugin.toggles.getBoolean("redstone") ? "<green>enabled" : "<red>disabled"))));
         redstone.setItemMeta(redstoneItemMeta);
         inventory.setItem(3, redstone);
+    }
+
+    private void resetChatItem(Inventory inventory)
+    {
+        ItemStack chat = new ItemStack(Material.OAK_SIGN);
+        ItemMeta chatItemMeta = chat.getItemMeta();
+        chatItemMeta.displayName(PlexUtils.mmDeserialize("<!italic><light_purple>Toggle chat"));
+        chatItemMeta.lore(List.of(PlexUtils.mmDeserialize("<!italic><yellow>Public chat is currently " + (plugin.toggles.getBoolean("moderated") ? "<red>restricted to administrators" : "<green>unrestricted"))));
+        chat.setItemMeta(chatItemMeta);
+        inventory.setItem(4, chat);
     }
 
     @Override
@@ -92,6 +104,13 @@ public class ToggleMenu extends AbstractMenu
             plugin.toggles.set("redstone", !plugin.toggles.getBoolean("redstone"));
             resetRedstoneItem(inventory);
             player.sendMessage(PlexUtils.mmDeserialize("<gray>Toggled redstone."));
+        }
+        if (clicked.getType() == Material.OAK_SIGN)
+        {
+            plugin.toggles.set("moderated", !plugin.toggles.getBoolean("moderated"));
+            PlexUtils.broadcast(PlexUtils.messageComponent(plugin.toggles.getBoolean("moderated") ? "modmodeon" : "modmodeoff", player.getName()));
+            resetChatItem(inventory);
+            player.sendMessage(PlexUtils.mmDeserialize("<gray>Toggled moderated mode."));
         }
         return true;
     }
