@@ -62,7 +62,7 @@ public class ToggleMenu extends AbstractMenu
     {
         ItemStack redstone = new ItemStack(Material.REDSTONE);
         ItemMeta redstoneItemMeta = redstone.getItemMeta();
-        redstoneItemMeta.displayName(PlexUtils.mmDeserialize("<!italic><light_purple>Toggle redstone"));
+        redstoneItemMeta.displayName(PlexUtils.mmDeserialize("<!italic><light_purple>Redstone"));
         redstoneItemMeta.lore(List.of(PlexUtils.mmDeserialize("<!italic><yellow>Redstone is " + (plugin.toggles.getBoolean("redstone") ? "<green>enabled" : "<red>disabled"))));
         redstone.setItemMeta(redstoneItemMeta);
         inventory.setItem(3, redstone);
