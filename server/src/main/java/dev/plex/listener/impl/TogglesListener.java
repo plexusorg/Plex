@@ -20,7 +20,7 @@ import java.util.List;
 
 public class TogglesListener extends PlexListener
 {
-    List<String> commands = plugin.commands.getStringList("block_on_modmode");
+    List<String> commands = plugin.commands.getStringList("block_on_mute");
     @EventHandler
     public void onExplosionPrime(ExplosionPrimeEvent event)
     {
@@ -72,9 +72,9 @@ public class TogglesListener extends PlexListener
     public void onChat(AsyncChatEvent event)
     {
         Player player = event.getPlayer();
-        if (plugin.toggles.getBoolean("moderated") && !Plex.get().getPermissions().has(player, "plex.togglechat.bypass"))
+        if (!plugin.toggles.getBoolean("chat") && !Plex.get().getPermissions().has(player, "plex.mute.bypass"))
         {
-            event.getPlayer().sendMessage(PlexUtils.messageComponent("chatIsDisabled"));
+            event.getPlayer().sendMessage(PlexUtils.messageComponent("chatIsOff"));
             event.setCancelled(true);
         }
     }
@@ -83,13 +83,13 @@ public class TogglesListener extends PlexListener
     public void onCommand(PlayerCommandPreprocessEvent event)
     {
         Player player = event.getPlayer();
-        if (plugin.toggles.getBoolean("moderated") && !Plex.get().getPermissions().has(player, "plex.togglechat.bypass"))
+        if (!plugin.toggles.getBoolean("chat") && !Plex.get().getPermissions().has(player, "plex.mute.bypass"))
         {
             String message = event.getMessage();
             message = message.replaceAll("\\s.*", "").replaceFirst("/", "");
             if (commands.contains(message.toLowerCase()))
             {
-                event.getPlayer().sendMessage(PlexUtils.messageComponent("chatIsDisabled"));
+                event.getPlayer().sendMessage(PlexUtils.messageComponent("chatIsOff"));
                 event.setCancelled(true);
                 return;
             }
@@ -101,7 +101,7 @@ public class TogglesListener extends PlexListener
                     return;
                 }
                 if (cmd.getAliases().contains(message.toLowerCase())) {
-                    event.getPlayer().sendMessage(PlexUtils.messageComponent("chatIsDisabled"));
+                    event.getPlayer().sendMessage(PlexUtils.messageComponent("chatIsOff"));
                     event.setCancelled(true);
                     return;
                 }
