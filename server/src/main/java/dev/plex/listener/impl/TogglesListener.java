@@ -1,16 +1,28 @@
 package dev.plex.listener.impl;
 
+import dev.plex.Plex;
 import dev.plex.listener.PlexListener;
+import dev.plex.util.PlexLog;
+import dev.plex.util.PlexUtils;
+import io.papermc.paper.event.player.AsyncChatEvent;
+import org.bukkit.Bukkit;
+import org.bukkit.command.Command;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockFromToEvent;
 import org.bukkit.event.block.BlockRedstoneEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.ExplosionPrimeEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+
+import java.util.List;
 
 public class TogglesListener extends PlexListener
 {
+    List<String> commands = plugin.commands.getStringList("block_on_modmode");
     @EventHandler
     public void onExplosionPrime(ExplosionPrimeEvent event)
     {
@@ -56,6 +68,48 @@ public class TogglesListener extends PlexListener
         {
             event.setCancelled(true);
         }
+    }
+
+    @EventHandler
+    public void onChat(AsyncChatEvent event)
+    {
+        Player player = event.getPlayer();
+        if (plugin.toggles.getBoolean("moderated") && !Plex.get().getPermissions().has(player, "plex.togglechat.bypass"))
+        {
+            event.getPlayer().sendMessage(PlexUtils.messageComponent("chatisdisabled"));
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onCommand(PlayerCommandPreprocessEvent event)
+    {
+        Player player = event.getPlayer();
+        if (plugin.toggles.getBoolean("moderated") && !Plex.get().getPermissions().has(player, "plex.togglechat.bypass"))
+        {
+            String message = event.getMessage();
+            message = message.replaceAll("\\s.*", "").replaceFirst("/", "");
+            if (commands.contains(message.toLowerCase()))
+            {
+                event.getPlayer().sendMessage(PlexUtils.messageComponent("chatisdisabled"));
+                event.setCancelled(true);
+                return;
+            }
+
+            for (String command : commands)
+            {
+                Command cmd = Bukkit.getCommandMap().getCommand(command);
+                if (cmd == null) {
+                    return;
+                }
+                if (cmd.getAliases().contains(message.toLowerCase())) {
+                    event.getPlayer().sendMessage(PlexUtils.messageComponent("chatisdisabled"));
+                    event.setCancelled(true);
+                    return;
+                }
+            }
+        }
+
     }
 
     /* I have no idea if this is the best way to do this
