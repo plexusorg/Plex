@@ -55,7 +55,7 @@ public class ToggleCMD extends PlexCommand
                 }
                 case "chat" ->
                 {
-                    PlexUtils.broadcast(messageComponent(plugin.toggles.getBoolean("chat") ? "chatOff" : "chatOn", sender.getName()));
+                    PlexUtils.broadcast(PlexUtils.messageComponent("chatToggled", sender.getName(), plugin.toggles.getBoolean("chat") ? "off" : "on"));
                     return toggle("chat");
                 }
                 default ->
