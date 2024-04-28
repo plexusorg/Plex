@@ -61,3 +61,8 @@ block_on_mute:
   - msg
   - reply
   - mail
+
+# These commands will be blocked when chat has been toggled off, doesn't include commands that don't show a public message.
+block_on_modmode:
+  - me
+  - say
