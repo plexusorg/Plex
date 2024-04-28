@@ -5,6 +5,7 @@ import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.hook.VaultHook;
+import dev.plex.meta.PlayerMeta;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
@@ -24,6 +25,7 @@ public class ListCMD extends PlexCommand
     protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
     {
         List<Player> players = Lists.newArrayList(Bukkit.getOnlinePlayers());
+        players.removeIf(PlayerMeta::isVanished);
         Component list = Component.empty();
         Component header = Component.text("There " + (players.size() == 1 ? "is" : "are") + " currently").color(NamedTextColor.GRAY)
                 .append(Component.space())

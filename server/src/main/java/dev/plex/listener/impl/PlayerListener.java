@@ -19,7 +19,7 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
-public class PlayerListener<T> extends PlexListener
+public class PlayerListener extends PlexListener
 {
     // setting up a player's data
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -62,7 +62,7 @@ public class PlayerListener<T> extends PlexListener
         }
 
         String loginMessage = PlayerMeta.getLoginMessage(plexPlayer);
-        if (!loginMessage.isEmpty())
+        if (!loginMessage.isEmpty() && !PlayerMeta.isVanished(player))
         {
             PlexUtils.broadcast(PlexUtils.stringToComponent(loginMessage));
         }

@@ -34,6 +34,7 @@ subprojects {
             url = uri("https://jitpack.io")
             content {
                 includeGroup("com.github.MilkBowl")
+                includeGroup("com.github.LeonMangler")
             }
         }
 
