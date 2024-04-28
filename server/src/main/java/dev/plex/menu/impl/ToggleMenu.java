@@ -107,7 +107,7 @@ public class ToggleMenu extends AbstractMenu
         if (clicked.getType() == Material.OAK_SIGN)
         {
             plugin.toggles.set("chat", !plugin.toggles.getBoolean("chat"));
-            PlexUtils.broadcast(PlexUtils.messageComponent(plugin.toggles.getBoolean("chat") ? "chatOn" : "chatOff", player.getName()));
+            PlexUtils.broadcast(PlexUtils.messageComponent("chatToggled", player.getName(), plugin.toggles.getBoolean("chat") ? "on" : "off"));
             resetChatItem(inventory);
             player.sendMessage(PlexUtils.mmDeserialize("<gray>Toggled chat."));
         }
