@@ -71,11 +71,9 @@ public class PlayerListener extends PlexListener
 
         plugin.getSqlNotes().getNotes(plexPlayer.getUuid()).whenComplete((notes, ex) ->
         {
-            String plural = notes.size() == 1 ? "note." : "notes.";
             if (!notes.isEmpty())
             {
-                PlexUtils.broadcastToAdmins(Component.text(plexPlayer.getName() + " has " + notes.size() + " " + plural).color(NamedTextColor.GOLD), "plex.notes.notify");
-                PlexUtils.broadcastToAdmins(Component.text("Click to view their " + plural).clickEvent(ClickEvent.runCommand("/notes " + plexPlayer.getName() + " list")).color(NamedTextColor.GOLD), "plex.notes.notify");
+                PlexUtils.broadcastToAdmins(PlexUtils.messageComponent(notes.size() == 1 ? "playerNoteAlert" : "playerNoteAlertPlural", plexPlayer.getName(), notes.size()), "plex.notes.notify");
             }
         });
     }
