@@ -41,7 +41,7 @@ public class BcastLoginMessageCMD extends PlexCommand
         if (!loginMessage.isEmpty())
         {
             PlexUtils.broadcast(PlexUtils.stringToComponent(loginMessage));
-            PlexUtils.broadcast(mmString("<yellow>" + plexPlayer.getName() + " joined the game"));
+            PlexUtils.broadcast(messageComponent("loginMessage", plexPlayer.getName()));
         }
         else
         {
