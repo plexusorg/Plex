@@ -1,6 +1,7 @@
 package dev.plex.listener.impl;
 
 import dev.plex.listener.PlexListener;
+import dev.plex.util.PlexUtils;
 import dev.plex.services.impl.TimingService;
 import net.kyori.adventure.text.Component;
 import org.bukkit.event.EventHandler;
@@ -19,7 +20,7 @@ public class AntiNukerListener extends PlexListener
         if (getCount(event.getPlayer().getUniqueId()) > 200L)
         {
             TimingService.strikes.merge(event.getPlayer().getUniqueId(), 1L, Long::sum);
-            event.getPlayer().kick(Component.text("Please turn off your nuker!"));
+            event.getPlayer().kick(PlexUtils.messageComponent("nukerKickMessage"));
             event.setCancelled(true);
         }
     }
@@ -31,7 +32,7 @@ public class AntiNukerListener extends PlexListener
         if (getCount(event.getPlayer().getUniqueId()) > 200L)
         {
             TimingService.strikes.merge(event.getPlayer().getUniqueId(), 1L, Long::sum);
-            event.getPlayer().kick(Component.text("Please turn off your nuker!"));
+            event.getPlayer().kick(PlexUtils.messageComponent("nukerKickMessage"));
             event.setCancelled(true);
         }
     }
