@@ -1,6 +1,7 @@
 package dev.plex.listener.impl;
 
 import dev.plex.listener.PlexListener;
+import dev.plex.util.PlexUtils;
 import dev.plex.services.impl.TimingService;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.Component;
@@ -19,7 +20,7 @@ public class AntiSpamListener extends PlexListener
         TimingService.spamCooldown.merge(event.getPlayer().getUniqueId(), 1L, Long::sum);
         if (getCount(event.getPlayer().getUniqueId()) > 8L)
         {
-            event.getPlayer().sendMessage(Component.text("Please refrain from spamming messages.").color(NamedTextColor.GRAY));
+            event.getPlayer().sendMessage(PlexUtils.messageComponent("antiSpamMessage"));
             event.setCancelled(true);
         }
     }
@@ -30,7 +31,7 @@ public class AntiSpamListener extends PlexListener
         TimingService.spamCooldown.merge(event.getPlayer().getUniqueId(), 1L, Long::sum);
         if (getCount(event.getPlayer().getUniqueId()) > 8L)
         {
-            event.getPlayer().sendMessage(Component.text("Please refrain from spamming commands.").color(NamedTextColor.GRAY));
+            event.getPlayer().sendMessage(PlexUtils.messageComponent("antiSpamMessage"));
             event.setCancelled(true);
         }
     }
