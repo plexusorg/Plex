@@ -122,7 +122,7 @@ public class BanCMD extends PlexCommand
                 else if (plugin.getCoreProtectHook() != null && plugin.getCoreProtectHook().hasCoreProtect())
                 {
                     PlexLog.debug("Testing coreprotect");
-                    Bukkit.getGlobalRegionScheduler().run(plugin, scheduledTask ->
+                    Bukkit.getAsyncScheduler().runNow(plugin, scheduledTask ->
                     {
                         plugin.getCoreProtectHook().coreProtectAPI().performRollback(86400, Collections.singletonList(plexPlayer.getName()), null, null, null, null, 0, null);
                     });
