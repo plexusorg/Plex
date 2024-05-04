@@ -250,3 +250,13 @@ smittenQuietly: "<gray>Smitten {0} quietly."
 smitten: "<red>You've been smitten. Reason: <yellow>{0}"
 nukerKickMessage: "Please turn off your nuker!"
 antiSpamMessage: "<gray>Please refrain from spamming messages."
+# 0 - The player
+banExpiredBroadcast: "Plex - Automatically unbanning {0}"
+# 0 - The player
+redisResetSuccessful: "<yellow>Successfuly reset {0}'s Redis punishments!"
+redisResetPlayerNotFound: "Couldn't find player in Redis punishments."
+reappliedGamerules: "<aqua>All game rules have been re-applied!"
+commandNotFound: "<red>That command could not be found!"
+# 0 - The command
+# 1 - A list of aliases found
+commandAliases: "<aqua>Aliases for {0} are: {1}"
