@@ -41,9 +41,9 @@ public class DebugCMD extends PlexCommand
                 if (plugin.getRedisConnection().getJedis().exists(player.getUniqueId().toString()))
                 {
                     plugin.getRedisConnection().getJedis().del(player.getUniqueId().toString());
-                    return componentFromString("Successfully reset " + player.getName() + "'s Redis punishments!").color(NamedTextColor.YELLOW);
+                    return messageComponent("redisResetSuccessful", player.getName());
                 }
-                return componentFromString("Couldn't find player in Redis punishments.");
+                return messageComponent("redisResetPlayerNotFound");
             }
         }
         if (args[0].equalsIgnoreCase("gamerules"))
@@ -62,7 +62,7 @@ public class DebugCMD extends PlexCommand
                     PlexLog.log("Set specific gamerules for world: " + world.toLowerCase(Locale.ROOT));
                 }
             }
-            return mmString("<aqua>Re-applied game all the game rules!");
+            return messageComponent("reappliedGamerules");
         }
         if (args[0].equalsIgnoreCase("aliases"))
         {
@@ -72,9 +72,9 @@ public class DebugCMD extends PlexCommand
                 Command command = plugin.getServer().getCommandMap().getCommand(commandName);
                 if (command == null)
                 {
-                    return mmString("<red>That command could not be found!");
+                    return messageComponent("commandNotFound");
                 }
-                return mmString("<aqua>Aliases for " + commandName + " are: " + Arrays.toString(command.getAliases().toArray(new String[0])));
+                return messageComponent("commandAliases", commandName, Arrays.toString(command.getAliases().toArray(new String[0])));
             }
         }
         if (args[0].equalsIgnoreCase("pagination"))
