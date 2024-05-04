@@ -243,7 +243,7 @@ smiteTitleMessage: "<yellow>Be sure to follow the rules!"
 # 0 - The player
 # 1 - The reason for the smite. Will default to noReasonProvided if no reason is specified.
 # 2 - The admin / staff member
-smiteBroadcast: "<red>{0} has been smitten!<newline><red> - Reason: <yellow>{1}<newline><red> - Smitten by: <yellow>{2}"
+smiteBroadcast: "<red>{0} has been a naughty, naughty boy.<newline><red> - Reason: <yellow>{1}<newline><red> - Smitten by: <yellow>{2}"
 # 0 - The player
 smittenQuietly: "<gray>Smitten {0} quietly."
 # 0 - The reason for being smitten
