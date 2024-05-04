@@ -3,6 +3,7 @@ package dev.plex.services.impl;
 import dev.plex.Plex;
 import dev.plex.services.AbstractService;
 import dev.plex.util.TimeUtils;
+import dev.plex.util.PlexUtils;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -27,7 +28,7 @@ public class BanService extends AbstractService
                 if (ZonedDateTime.now(ZoneId.of(TimeUtils.TIMEZONE)).isAfter(punishment.getEndDate()))
                 {
                     Plex.get().getPunishmentManager().unban(punishment);
-                    Bukkit.broadcast(Component.text("Plex - Unbanned " + Bukkit.getOfflinePlayer(punishment.getPunished()).getName()));
+                    Bukkit.broadcast(PlexUtils.messageComponent("banExpiredBroadcast", Bukkit.getOfflinePlayer(punishment.getPunished()).getName()));
                 }
             });
         });
