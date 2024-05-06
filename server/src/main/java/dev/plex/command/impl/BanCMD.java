@@ -135,9 +135,9 @@ public class BanCMD extends PlexCommand
         {
             return PlexUtils.getPlayerNameList();
         }
-        if (args.length != 1 && silentCheckPermission(sender, this.getPermission()))
+        if (args.length > 1 && silentCheckPermission(sender, this.getPermission()))
         {
-            return Collections.singletonList("-nrb");
+            return Collections.singletonList("-rb");
         }
         return Collections.emptyList();
     }
