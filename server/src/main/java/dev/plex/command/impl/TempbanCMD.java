@@ -25,7 +25,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collections;
 import java.util.List;
 
-@CommandParameters(name = "tempban", usage = "/<command> <player> <time> [reason]", description = "Temporarily ban a player")
+@CommandParameters(name = "tempban", usage = "/<command> <player> <time> [reason] [-rb]", description = "Temporarily ban a player")
 @CommandPermissions(permission = "plex.tempban", source = RequiredCommandSource.ANY)
 
 public class TempbanCMD extends PlexCommand
@@ -53,13 +53,13 @@ public class TempbanCMD extends PlexCommand
         }
         Punishment punishment = new Punishment(target.getUuid(), getUUID(sender));
         punishment.setType(PunishmentType.TEMPBAN);
-        boolean rollBack = true;
+        boolean rollBack = false;
         if (args.length > 2)
         {
             reason = StringUtils.join(args, " ", 2, args.length);
             String newReason = StringUtils.normalizeSpace(reason.replace("-nrb", ""));
             punishment.setReason(newReason.trim().isEmpty() ? messageString("noReasonProvided") : newReason);
-            rollBack = !reason.startsWith("-nrb") && !reason.endsWith("-nrb");
+            rollBack = reason.startsWith("-rb") || reason.endsWith("-rb");
         }
         else
         {
