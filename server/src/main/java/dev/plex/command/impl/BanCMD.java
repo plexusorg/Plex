@@ -13,23 +13,18 @@ import dev.plex.util.BungeeUtil;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.TimeUtils;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import net.kyori.adventure.text.Component;
-import network.darkhelmet.prism.api.PrismParameters;
-import network.darkhelmet.prism.api.Result;
-import network.darkhelmet.prism.api.actions.PrismProcessType;
 import org.apache.commons.lang3.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Collections;
+import java.util.List;
 
 @CommandParameters(name = "ban", usage = "/<command> <player> [reason] [-nrb]", aliases = "offlineban,gtfo", description = "Bans a player, offline or online")
 @CommandPermissions(permission = "plex.ban", source = RequiredCommandSource.ANY)
@@ -63,13 +58,13 @@ public class BanCMD extends PlexCommand
             String reason;
             Punishment punishment = new Punishment(plexPlayer.getUuid(), getUUID(sender));
             punishment.setType(PunishmentType.BAN);
-            boolean rollBack = true;
+            boolean rollBack = false;
             if (args.length > 1)
             {
                 reason = StringUtils.join(args, " ", 1, args.length);
                 String newReason = StringUtils.normalizeSpace(reason.replace("-nrb", ""));
                 punishment.setReason(newReason.trim().isEmpty() ? "No reason provided." : newReason);
-                rollBack = !reason.startsWith("-nrb") && !reason.endsWith("-nrb");
+                rollBack = reason.startsWith("-rb") || reason.endsWith("-rb");
             }
             else
             {
@@ -94,7 +89,7 @@ public class BanCMD extends PlexCommand
 
             if (rollBack)
             {
-                if (plugin.getPrismHook() != null && plugin.getPrismHook().hasPrism())
+                /*if (plugin.getPrismHook() != null && plugin.getPrismHook().hasPrism())
                 {
                     PrismParameters parameters = plugin.getPrismHook().prismApi().createParameters();
                     parameters.addActionType("block-place");
@@ -119,9 +114,9 @@ public class BanCMD extends PlexCommand
                         }
                     });
                 }
-                else if (plugin.getCoreProtectHook() != null && plugin.getCoreProtectHook().hasCoreProtect())
+                else */
+                if (plugin.getCoreProtectHook() != null && plugin.getCoreProtectHook().hasCoreProtect())
                 {
-                    PlexLog.debug("Testing coreprotect");
                     Bukkit.getAsyncScheduler().runNow(plugin, scheduledTask ->
                     {
                         plugin.getCoreProtectHook().coreProtectAPI().performRollback(86400, Collections.singletonList(plexPlayer.getName()), null, null, null, null, 0, null);

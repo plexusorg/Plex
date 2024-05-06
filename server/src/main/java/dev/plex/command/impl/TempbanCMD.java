@@ -53,13 +53,13 @@ public class TempbanCMD extends PlexCommand
         }
         Punishment punishment = new Punishment(target.getUuid(), getUUID(sender));
         punishment.setType(PunishmentType.TEMPBAN);
-        boolean rollBack = true;
+        boolean rollBack = false;
         if (args.length > 2)
         {
             reason = StringUtils.join(args, " ", 2, args.length);
             String newReason = StringUtils.normalizeSpace(reason.replace("-nrb", ""));
             punishment.setReason(newReason.trim().isEmpty() ? "No reason provided." : newReason);
-            rollBack = !reason.startsWith("-nrb") && !reason.endsWith("-nrb");
+            rollBack = reason.startsWith("-rb") || reason.endsWith("-rb");
         }
         else
         {
