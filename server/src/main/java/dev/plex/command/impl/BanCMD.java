@@ -26,7 +26,7 @@ import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.List;
 
-@CommandParameters(name = "ban", usage = "/<command> <player> [reason] [-nrb]", aliases = "offlineban,gtfo", description = "Bans a player, offline or online")
+@CommandParameters(name = "ban", usage = "/<command> <player> [reason] [-rb]", aliases = "offlineban,gtfo", description = "Bans a player, offline or online")
 @CommandPermissions(permission = "plex.ban", source = RequiredCommandSource.ANY)
 
 public class BanCMD extends PlexCommand

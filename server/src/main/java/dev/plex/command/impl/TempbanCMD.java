@@ -25,7 +25,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collections;
 import java.util.List;
 
-@CommandParameters(name = "tempban", usage = "/<command> <player> <time> [reason]", description = "Temporarily ban a player")
+@CommandParameters(name = "tempban", usage = "/<command> <player> <time> [reason] [-rb]", description = "Temporarily ban a player")
 @CommandPermissions(permission = "plex.tempban", source = RequiredCommandSource.ANY)
 
 public class TempbanCMD extends PlexCommand
