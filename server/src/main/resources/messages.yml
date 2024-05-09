@@ -27,6 +27,8 @@ indefBanMessageReason: "<red>Your {0} is indefinitely banned! You may appeal at 
 playerNotFound: "<red>Player not found!"
 specifyPlayer: "<red>You must specify a player!"
 worldNotFound: "<red>World not found!"
+# This will always be used for punishments where the sanctioning administrator has not provided a reason. Will ignore MiniMessage tags.
+noReasonProvided: "No reason provided."
 # 0 - The world you have been teleported to
 playerWorldTeleport: "<aqua>You have been teleported to {0}."
 # 0 - The person who is freezing
@@ -210,3 +212,51 @@ playersMaterialCleared: "<gray>{0} has been removed from the following players: 
 nobodyHasThatMaterial: "<gray>No one online has that in their inventory."
 # 0 - The attempted material name
 materialNotFound: "<red>{0} is not a valid item/block name."
+# 0 - The players name
+loginMessage: "<yellow>{0} joined the game"
+# 0 - The string that wasn't a valid integer
+notANumber: "<red>{0} is not a valid number!"
+# 0 - Players currently online
+# 1 - Max players
+listHeader: "<gray>There is currently <yellow>{0}<gray> player online out of <yellow>{1}<gray> players."
+# 0 - Players currently online
+# 1 - Max players
+listHeaderPlural: "<gray>There are currently <yellow>{0}<gray> players online out of <yellow>{1}<gray> players."
+# 0 - Player who is having their notes fetched
+notesHeader: "Player notes for: <green>{0}"
+# 0 - Note ID
+# 1 - Author of the note
+# 2 - Timestamp
+notePrefix: "<gold><!italic>{0} - Written by: {1} on {2}"
+# 0 - The content of the note
+noteLine: "<newline><yellow># {0}"
+# 0 - The player
+# 1 - The number of notes logged for said player
+playerNoteAlert: "<gold>{0} has {1} note. <click:run_command:/notes {0} list><underlined>Click here to view their note."
+# 0 - The player
+# 1 - The number of notes logged for said player
+playerNoteAlertPlural: "<gold>{0} has {1} notes. <click:run_command:/notes {0} list><underlined>Click here to view their notes."
+smiteTitleHeader: "<red>You've been smitten."
+# 0 - The reason for the smite. Will default to noReasonProvided if no reason is specified.
+# 1 - The admin / staff member
+smiteTitleMessage: "<yellow>Be sure to follow the rules!"
+# 0 - The player
+# 1 - The reason for the smite. Will default to noReasonProvided if no reason is specified.
+# 2 - The admin / staff member
+smiteBroadcast: "<red>{0} has been a naughty, naughty boy.<newline><red> - Reason: <yellow>{1}<newline><red> - Smitten by: <yellow>{2}"
+# 0 - The player
+smittenQuietly: "<gray>Smitten {0} quietly."
+# 0 - The reason for being smitten
+smitten: "<red>You've been smitten. Reason: <yellow>{0}"
+nukerKickMessage: "Please turn off your nuker!"
+antiSpamMessage: "<gray>Please refrain from spamming messages."
+# 0 - The player
+banExpiredBroadcast: "Plex - Automatically unbanning {0}"
+# 0 - The player
+redisResetSuccessful: "<yellow>Successfuly reset {0}'s Redis punishments!"
+redisResetPlayerNotFound: "Couldn't find player in Redis punishments."
+reappliedGamerules: "<aqua>All game rules have been re-applied!"
+commandNotFound: "<red>That command could not be found!"
+# 0 - The command
+# 1 - A list of aliases found
+commandAliases: "<aqua>Aliases for {0} are: {1}"

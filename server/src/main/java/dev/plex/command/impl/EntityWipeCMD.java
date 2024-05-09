@@ -134,7 +134,7 @@ public class EntityWipeCMD extends PlexCommand
         }
         catch (NumberFormatException ex)
         {
-            sender.sendMessage(mmString("<red>" + string + "<red> is not a valid number!"));
+            sender.sendMessage(messageComponent("notANumber", string));
         }
         return null;
     }

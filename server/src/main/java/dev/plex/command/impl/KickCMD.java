@@ -38,7 +38,7 @@ public class KickCMD extends PlexCommand
         }
 
         PlexPlayer plexPlayer = DataUtils.getPlayer(args[0]);
-        String reason = "No reason provided";
+        String reason = messageString("noReasonProvided");
 
         if (plexPlayer == null)
         {

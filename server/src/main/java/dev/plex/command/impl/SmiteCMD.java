@@ -78,21 +78,16 @@ public class SmiteCMD extends PlexCommand
         final Player player = getNonNullPlayer(args[0]);
         final PlexPlayer plexPlayer = getPlexPlayer(player);
 
-        Title title = Title.title(Component.text("You've been smitten.").color(NamedTextColor.RED), Component.text("Be sure to follow the rules!").color(NamedTextColor.YELLOW));
+        Title title = Title.title(messageComponent("smiteTitleHeader"), messageComponent("smiteTitleMessage", reason, sender.getName()));
         player.showTitle(title);
 
         if (!silent)
         {
-            PlexUtils.broadcast(mmString("<red>" + player.getName() + " has been a naughty, naughty boy."));
-            if (reason != null)
-            {
-                PlexUtils.broadcast(mmString("  <red>Reason: " + "<yellow>" + reason));
-            }
-            PlexUtils.broadcast(mmString("  <red>Smitten by: " + "<yellow>" + sender.getName()));
+            PlexUtils.broadcast(messageComponent("smiteBroadcast", player.getName(), reason != null ? reason : messageString("noReasonProvided"), sender.getName()));
         }
         else
         {
-            send(sender, "Smitten " + player.getName() + " quietly.");
+            send(sender, messageComponent("smittenQuietly", player.getName()));
         }
 
         // Set gamemode to survival
@@ -129,8 +124,8 @@ public class SmiteCMD extends PlexCommand
         if (reason != null)
         {
             punishment.setReason(reason);
-            send(player, mmString("<red>You've been smitten. Reason: <yellow>" + reason));
         }
+        send(player, messageComponent("smitten", reason != null ? reason : messageString("noReasonProvided")));
         return null;
     }
 

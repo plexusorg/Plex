@@ -58,12 +58,12 @@ public class TempbanCMD extends PlexCommand
         {
             reason = StringUtils.join(args, " ", 2, args.length);
             String newReason = StringUtils.normalizeSpace(reason.replace("-nrb", ""));
-            punishment.setReason(newReason.trim().isEmpty() ? "No reason provided." : newReason);
+            punishment.setReason(newReason.trim().isEmpty() ? messageString("noReasonProvided") : newReason);
             rollBack = reason.startsWith("-rb") || reason.endsWith("-rb");
         }
         else
         {
-            punishment.setReason("No reason provided.");
+            punishment.setReason(messageString("noReasonProvided"));
         }
         punishment.setPunishedUsername(target.getName());
         punishment.setEndDate(TimeUtils.createDate(args[1]));

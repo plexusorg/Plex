@@ -2,6 +2,7 @@ package dev.plex.command.impl;
 
 import com.google.common.collect.Lists;
 import dev.plex.command.PlexCommand;
+import dev.plex.util.PlexUtils;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.hook.VaultHook;
@@ -27,17 +28,7 @@ public class ListCMD extends PlexCommand
         List<Player> players = Lists.newArrayList(Bukkit.getOnlinePlayers());
         players.removeIf(PlayerMeta::isVanished);
         Component list = Component.empty();
-        Component header = Component.text("There " + (players.size() == 1 ? "is" : "are") + " currently").color(NamedTextColor.GRAY)
-                .append(Component.space())
-                .append(Component.text(players.size()).color(NamedTextColor.YELLOW))
-                .append(Component.space())
-                .append(Component.text(players.size() == 1 ? "player" : "players").color(NamedTextColor.GRAY))
-                .append(Component.space())
-                .append(Component.text("online out of").color(NamedTextColor.GRAY))
-                .append(Component.space())
-                .append(Component.text(Bukkit.getMaxPlayers()).color(NamedTextColor.YELLOW))
-                .append(Component.space())
-                .append(Component.text(Bukkit.getMaxPlayers() == 1 ? "player." : "players.").color(NamedTextColor.GRAY));
+        Component header = PlexUtils.messageComponent(players.size() == 1 ? "listHeader" : "listHeaderPlural", players.size(), Bukkit.getMaxPlayers());
         send(sender, header);
         if (players.isEmpty())
         {

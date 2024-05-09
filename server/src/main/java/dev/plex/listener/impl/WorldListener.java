@@ -112,7 +112,8 @@ public class WorldListener extends PlexListener
             boolean isFaweCommand = command instanceof PluginIdentifiableCommand && ((PluginIdentifiableCommand) command).getPlugin().equals(Bukkit.getPluginManager().getPlugin("FastAsyncWorldEdit"));
             if (isWeCommand || isFaweCommand || EDIT_COMMANDS.contains(message.toLowerCase()))
             {
-                event.getPlayer().sendMessage(Component.text("You do not have permission to use that command in this world.").color(NamedTextColor.RED));
+                String noEdit = plugin.config.getString("worlds." + event.getPlayer().getWorld().getName().toLowerCase() + ".modification.message");
+                event.getPlayer().sendMessage(MiniMessage.miniMessage().deserialize(noEdit));
                 event.setCancelled(true);
             }
         }
