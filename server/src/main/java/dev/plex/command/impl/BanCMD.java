@@ -62,7 +62,7 @@ public class BanCMD extends PlexCommand
             if (args.length > 1)
             {
                 reason = StringUtils.join(args, " ", 1, args.length);
-                String newReason = StringUtils.normalizeSpace(reason.replace("-nrb", ""));
+                String newReason = StringUtils.normalizeSpace(reason.replace("-rb", ""));
                 punishment.setReason(newReason.trim().isEmpty() ? messageString("noReasonProvided") : newReason);
                 rollBack = reason.startsWith("-rb") || reason.endsWith("-rb");
             }
