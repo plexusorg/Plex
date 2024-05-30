@@ -299,13 +299,6 @@ public class PlexUtils implements PlexBase
         return Bukkit.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList());
     }
 
-    public static boolean isEntityLimitReached(Chunk chunk, int limit)
-    {
-        return Arrays.stream(chunk.getEntities())
-                .filter(entity -> entity instanceof LivingEntity && !(entity instanceof Player))
-                .count() >= limit;
-    }
-
     public static void broadcast(String s)
     {
         Bukkit.broadcast(MINI_MESSAGE.deserialize(s));

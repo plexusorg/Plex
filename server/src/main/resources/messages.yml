@@ -175,16 +175,16 @@ notAValidMobButValidEntity: "<red>That is a valid entity, but is not a valid mob
 # 1 - Number of mobs removed
 removedMobs: "<red>{0} - Removed {1} mobs"
 autoWipeDisabled: "<gray>Item wiping is currently disabled in the config!"
-# 0 - Enabled or disabled
+# 0 - The boolean for whether the limit is enabled or disabled
 mobLimitToggle: "<gray>The mob limit has been {0}"
 # 0 - The amount that the mob limit has been set to
 mobLimitSet: "<gray>The mob limit has been set to: <em><white>{0}"
-invalidMobLimit: "<red>Please provide a valid integer for the mob limit"
 # 0 - The boolean for whether the limit is enabled or disabled
 # 1 - The current amount of mobs in the world
 # 2 - The current set mob limit
-# 3 - Coordinates related to the current chunk
-mobLimitStatus: "<gray>({0}<gray>) <em><white>{1} <reset><gray>/ <em><white>{2} <reset><gray>per chunk {3}"
+# 3 - Chunk x value
+# 4 - Chunk z value
+mobLimitStatus: "<gray>({0}<gray>) <em><white>{1} <reset><gray>/ <em><white>{2} <reset><gray>per chunk (<em><white>Chunk<gray>: <reset>{3}, {4}<gray>)"
 # 0 - The max set limit in config
 mobLimitCeiling: "<gray>The limit you have entered is too high. Defaulting to the ceiling value from config"
 commandBlocked: "<gray>That command is blocked."

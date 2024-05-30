@@ -35,9 +35,7 @@ public class MobLimitCMD extends PlexCommand
                     .count();
 
             String status = plugin.config.getBoolean("entity_limit.mob_limit_enabled") ? "<green>Enabled" : "<red>Disabled";
-            String chunkCoords = String.format("<gray>(<em><white>Chunk<gray>: <reset>%d, %d<gray>)", chunk.getX(), chunk.getZ());
-
-            return PlexUtils.messageComponent("mobLimitStatus", status, currentMobCount, currentLimit, chunkCoords);
+            return PlexUtils.messageComponent("mobLimitStatus", status, currentMobCount, currentLimit, chunk.getX(), chunk.getZ());
         }
 
         switch (args[0].toLowerCase())
@@ -71,7 +69,7 @@ public class MobLimitCMD extends PlexCommand
                 }
                 catch (NumberFormatException e)
                 {
-                    return PlexUtils.messageComponent("invalidMobLimit");
+                    return PlexUtils.messageComponent("unableToParseNumber", args[1]);
                 }
             default:
                 return usage();
@@ -89,7 +87,7 @@ public class MobLimitCMD extends PlexCommand
             }
             if (args.length == 2 && args[0].equals("setmax"))
             {
-                return Collections.singletonList("<limit>");
+                return Collections.emptyList();
             }
             return Collections.emptyList();
         }

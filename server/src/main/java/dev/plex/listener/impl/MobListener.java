@@ -12,6 +12,7 @@ import org.bukkit.entity.Ageable;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -77,7 +78,7 @@ public class MobListener extends PlexListener
             Location location = event.getLocation();
             Chunk chunk = location.getChunk();
 
-            if (PlexUtils.isEntityLimitReached(chunk, plugin.config.getInt("entity_limit.max_mobs_per_chunk")))
+            if (isEntityLimitReached(chunk, plugin.config.getInt("entity_limit.max_mobs_per_chunk")))
             {
                 event.setCancelled(true);
             }
@@ -146,5 +147,12 @@ public class MobListener extends PlexListener
                 }
             }
         }
+    }
+
+    public static boolean isEntityLimitReached(Chunk chunk, int limit)
+    {
+        return Arrays.stream(chunk.getEntities())
+                .filter(entity -> entity instanceof LivingEntity && !(entity instanceof Player))
+                .count() >= limit;
     }
 }
