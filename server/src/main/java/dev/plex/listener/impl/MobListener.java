@@ -3,6 +3,7 @@ package dev.plex.listener.impl;
 import dev.plex.listener.PlexListener;
 import dev.plex.util.BlockUtils;
 import dev.plex.util.PlexUtils;
+import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -69,6 +70,17 @@ public class MobListener extends PlexListener
             Location location = event.getLocation();
             Collection<Player> coll = location.getNearbyEntitiesByType(Player.class, 10);
             PlexUtils.disabledEffectMultiple(coll.toArray(new Player[coll.size()]), location); // dont let intellij auto correct toArray to an empty array (for efficiency)
+        }
+
+        if (plugin.config.getBoolean("entity_limit.mob_limit_enabled"))
+        {
+            Location location = event.getLocation();
+            Chunk chunk = location.getChunk();
+
+            if (PlexUtils.isEntityLimitReached(chunk, plugin.config.getInt("entity_limit.max_mobs_per_chunk")))
+            {
+                event.setCancelled(true);
+            }
         }
     }
 

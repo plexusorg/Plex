@@ -14,11 +14,10 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Particle;
+import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.PluginCommandYamlParser;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
@@ -295,6 +294,13 @@ public class PlexUtils implements PlexBase
     public static List<String> getPlayerNameList()
     {
         return Bukkit.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList());
+    }
+
+    public static boolean isEntityLimitReached(Chunk chunk, int limit)
+    {
+        return Arrays.stream(chunk.getEntities())
+                .filter(entity -> entity instanceof LivingEntity && !(entity instanceof Player))
+                .count() >= limit;
     }
 
     public static void broadcast(String s)

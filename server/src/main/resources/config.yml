@@ -156,6 +156,15 @@ blocked_entities:
   - "ENDER_DRAGON"
   - "MINECART_TNT"
 
+# Limit entities per chunk
+entity_limit:
+  # Is the mob limit enabled?
+  mob_limit_enabled: true
+  # The maximum number of mobs allowed in a chunk
+  max_mobs_per_chunk: 50
+  # The available ceiling for the maximum number of mobs
+  mob_limit_ceiling: 500
+
 # See https://docs.plex.us.org/docs/customization/config#worlds for documentation
 # These gamerules apply to all worlds on the server
 global_gamerules:
