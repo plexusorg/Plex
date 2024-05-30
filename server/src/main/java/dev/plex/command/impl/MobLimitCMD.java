@@ -87,7 +87,7 @@ public class MobLimitCMD extends PlexCommand
             {
                 return Arrays.asList("on", "off", "setmax");
             }
-            if (args.length == 2)
+            if (args.length == 2 && args[0].equals("setmax"))
             {
                 return Collections.singletonList("<limit>");
             }
