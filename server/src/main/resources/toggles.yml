@@ -11,3 +11,6 @@ drops: true
 
 # Should redstone be enabled?
 redstone: true
+
+# Is chat enabled?
+chat: true

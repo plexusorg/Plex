@@ -5,10 +5,10 @@ import dev.plex.cache.DataUtils;
 import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
-import dev.plex.command.exception.CommandFailException;
 import dev.plex.command.exception.PlayerNotFoundException;
+import dev.plex.command.source.RequiredCommandSource;
+import dev.plex.meta.PlayerMeta;
 import dev.plex.player.PlexPlayer;
-import dev.plex.punishment.PunishmentType;
 import dev.plex.util.PlexUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.command.CommandSender;
@@ -18,33 +18,36 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-@CommandPermissions(permission = "plex.unfreeze")
-@CommandParameters(name = "unfreeze", description = "Unfreeze a player", usage = "/<command> <player>")
-public class UnfreezeCMD extends PlexCommand
+@CommandPermissions(permission = "plex.broadcastloginmessage", source = RequiredCommandSource.ANY)
+@CommandParameters(name = "bcastloginmessage", usage = "/<command> <player>", description = "Broadcast your login message (for vanish support)", aliases = "bcastlm")
+public class BcastLoginMessageCMD extends PlexCommand
 {
     @Override
     protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
     {
-        if (args.length != 1)
+        if (args.length == 0)
         {
             return usage();
         }
-        PlexPlayer punishedPlayer = DataUtils.getPlayer(args[0]);
-        if (punishedPlayer == null)
+
+        PlexPlayer plexPlayer = DataUtils.getPlayer(args[0]);
+
+        if (plexPlayer == null)
         {
             throw new PlayerNotFoundException();
         }
 
-        if (!punishedPlayer.isFrozen())
+        String loginMessage = PlayerMeta.getLoginMessage(plexPlayer);
+        if (!loginMessage.isEmpty())
         {
-            throw new CommandFailException(PlexUtils.messageString("playerNotFrozen"));
+            PlexUtils.broadcast(PlexUtils.stringToComponent(loginMessage));
+            PlexUtils.broadcast(messageComponent("loginMessage", plexPlayer.getName()));
         }
-        punishedPlayer.setFrozen(false);
-        punishedPlayer.getPunishments().stream().filter(punishment -> punishment.getType() == PunishmentType.FREEZE && punishment.isActive()).forEach(punishment -> {
-            punishment.setActive(false);
-            plugin.getSqlPunishment().updatePunishment(punishment.getType(), false, punishment.getPunished());
-        });
-        PlexUtils.broadcast(messageComponent("unfrozePlayer", sender.getName(), punishedPlayer.getName()));
+        else
+        {
+            return mmString("<red>This player does not have a login message.");
+        }
+
         return null;
     }
 

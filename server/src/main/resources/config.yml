@@ -14,6 +14,10 @@ server:
 banning:
   ban_url: "https://forum.plex.us.org"
 
+punishments:
+  mute-timer: 300
+  freeze-timer: 300
+
 chat:
   # Should the server use Plex's chat system? It is recommended to keep this on if you are using ranks.
   # If you are using permissions, you should turn this off and use Vault to handle prefixes with a different chat plugin

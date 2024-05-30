@@ -124,11 +124,11 @@ public class NotesCMD extends PlexCommand
 
     private void readNotes(@NotNull CommandSender sender, PlexPlayer plexPlayer, List<Note> notes)
     {
-        AtomicReference<Component> noteList = new AtomicReference<>(Component.text("Player notes for: " + plexPlayer.getName()).color(NamedTextColor.GREEN));
+        AtomicReference<Component> noteList = new AtomicReference<>(messageComponent("notesHeader", plexPlayer.getName()));
         for (Note note : notes)
         {
-            Component noteLine = mmString("<gold><!italic>" + note.getId() + " - Written by: " + DataUtils.getPlayer(note.getWrittenBy()).getName() + " on " + TimeUtils.useTimezone(note.getTimestamp()));
-            noteLine = noteLine.append(mmString("<newline><yellow># " + note.getNote()));
+            Component noteLine = messageComponent("notePrefix", note.getId(), DataUtils.getPlayer(note.getWrittenBy()).getName(), TimeUtils.useTimezone(note.getTimestamp()));
+            noteLine = noteLine.append(messageComponent("noteLine", note.getNote()));
             noteList.set(noteList.get().append(Component.newline()));
             noteList.set(noteList.get().append(noteLine));
         }

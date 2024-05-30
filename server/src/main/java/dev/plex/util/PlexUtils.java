@@ -118,6 +118,15 @@ public class PlexUtils implements PlexBase
         return true;
     }
 
+    public static boolean hasVanishPlugin()
+    {
+        if (Bukkit.getPluginManager().isPluginEnabled("SuperVanish") || Bukkit.getPluginManager().isPluginEnabled("PremiumVanish"))
+        {
+            return true;
+        }
+        return false;
+    }
+
     public static boolean isPluginCMD(String cmd, String pluginName)
     {
         Plugin plugin = Bukkit.getServer().getPluginManager().getPlugin(pluginName);
@@ -157,7 +166,7 @@ public class PlexUtils implements PlexBase
 
         return LEGACY_FORMATTING_PATTERN.matcher(input).find() ?
                 LegacyComponentSerializer.legacyAmpersand().deserialize(input.replaceAll("([§&]+)(k+)", "") // Ugly hack, but it tries to prevent &k and any attempts to bypass it.
-                        ).decoration(TextDecoration.OBFUSCATED, TextDecoration.State.FALSE) :
+                ).decoration(TextDecoration.OBFUSCATED, TextDecoration.State.FALSE) :
                 SafeMiniMessage.mmDeserializeWithoutEvents(input);
     }
 

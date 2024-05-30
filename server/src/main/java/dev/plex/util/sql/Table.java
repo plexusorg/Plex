@@ -5,6 +5,7 @@ import com.google.common.collect.Maps;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
 
@@ -19,5 +20,5 @@ public class Table
 {
     private final String name;
     private final Map<String, SQLUtil.Mapper> columns = Maps.newHashMap();
-    private final List<Table> mappedTables = Lists.newArrayList();
+    private final Map<Field, Table> mappedTables = Maps.newHashMap();
 }

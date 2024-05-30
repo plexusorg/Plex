@@ -10,9 +10,28 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+import org.bukkit.metadata.MetadataValue;
 
 public class PlayerMeta
 {
+    public static boolean isVanished(Player player)
+    {
+        for (MetadataValue meta : player.getMetadata("vanished"))
+        {
+            if (meta.asBoolean())
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean isVanished(PlexPlayer player)
+    {
+        return isVanished(player.getPlayer());
+    }
+
     public static Component getPrefix(PlexPlayer plexPlayer)
     {
         if (plexPlayer.getPrefix() != null && !plexPlayer.getPrefix().isEmpty())

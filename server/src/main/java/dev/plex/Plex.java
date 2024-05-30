@@ -109,7 +109,6 @@ public class Plex extends JavaPlugin
         commands.load(false);
 
         sqlConnection = new SQLConnection();
-//        mongoConnection = new MongoConnection();
         redisConnection = new RedisConnection();
 
         playerCache = new PlayerCache();
@@ -151,6 +150,13 @@ public class Plex extends JavaPlugin
         else
         {
             PlexLog.debug("Not hooking into Prism");
+        }
+
+        if (PlexUtils.hasVanishPlugin())
+        {
+            PlexLog.log("Hooked into SuperVanish / PremiumVanish!");
+        } else {
+            PlexLog.debug("Not hooking into SuperVanish / PremiumVanish");
         }
 
         updateChecker = new UpdateChecker();

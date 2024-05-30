@@ -147,7 +147,6 @@ public class PunishmentManager implements PlexBase
 
     public Punishment getBanByIP(String ip)
     {
-        final Gson gson = new GsonBuilder().registerTypeAdapter(ZonedDateTime.class, new ZonedDateTimeAdapter()).setPrettyPrinting().create();
         return plugin.getSqlPunishment().getPunishments(ip).stream().filter(punishment -> punishment.getType() == PunishmentType.TEMPBAN || punishment.getType() == PunishmentType.BAN).filter(Punishment::isActive).filter(punishment -> punishment.getIp().equals(ip)).findFirst().orElse(null);
     }
 
@@ -180,6 +179,11 @@ public class PunishmentManager implements PlexBase
         return Plex.get().getSqlPunishment().removeBan(uuid);
     }
 
+    public void updateOutdatedPunishments(PlexPlayer player)
+    {
+
+    }
+
     private void doPunishment(PlexPlayer player, Punishment punishment)
     {
         if (punishment.getType() == PunishmentType.FREEZE)
@@ -193,13 +197,18 @@ public class PunishmentManager implements PlexBase
                 @Override
                 public void run()
                 {
-                    if (!player.isFrozen())
+                    PlexPlayer afterPlayer = DataUtils.getPlayer(player.getUuid());
+                    if (!afterPlayer.isFrozen())
                     {
                         this.cancel();
                         return;
                     }
-                    player.setFrozen(false);
-                    Bukkit.broadcast(PlexUtils.messageComponent("unfrozePlayer", "Plex", Bukkit.getOfflinePlayer(player.getUuid()).getName()));
+                    afterPlayer.setFrozen(false);
+                    punishment.setActive(false);
+                    plugin.getSqlPunishment().updatePunishment(punishment.getType(), false, punishment.getPunished());
+
+                    DataUtils.update(afterPlayer);
+                    Bukkit.broadcast(PlexUtils.messageComponent("unfrozePlayer", "Plex", Bukkit.getOfflinePlayer(afterPlayer.getUuid()).getName()));
                 }
             }.runTaskLater(Plex.get(), 20 * seconds);
         }
@@ -214,13 +223,17 @@ public class PunishmentManager implements PlexBase
                 @Override
                 public void run()
                 {
-                    if (!player.isMuted())
+                    PlexPlayer afterPlayer = DataUtils.getPlayer(player.getUuid());
+                    if (!afterPlayer.isMuted())
                     {
                         this.cancel();
                         return;
                     }
-                    player.setMuted(false);
-                    Bukkit.broadcast(PlexUtils.messageComponent("unmutedPlayer", "Plex", Bukkit.getOfflinePlayer(player.getUuid()).getName()));
+                    afterPlayer.setMuted(false);
+                    punishment.setActive(false);
+                    plugin.getSqlPunishment().updatePunishment(punishment.getType(), false, punishment.getPunished());
+
+                    Bukkit.broadcast(PlexUtils.messageComponent("unmutedPlayer", "Plex", Bukkit.getOfflinePlayer(afterPlayer.getUuid()).getName()));
                 }
             }.runTaskLater(Plex.get(), 20 * seconds);
         }

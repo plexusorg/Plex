@@ -33,6 +33,8 @@ dependencies {
     implementation("org.bstats:bstats-base:3.0.2")
     implementation("org.bstats:bstats-bukkit:3.0.2")
 
+    implementation("com.github.LeonMangler:SuperVanish:6.2.18-3")
+
     annotationProcessor("org.projectlombok:lombok:1.18.30")
 }
 
@@ -73,9 +75,17 @@ paper {
             required = false
             load = PaperPluginDescription.RelativeLoadOrder.BEFORE
         }
+        register("PremiumVanish") {
+            required = false
+            load = PaperPluginDescription.RelativeLoadOrder.BEFORE
+        }
         register("SlimeWorldManager") {
             required = false
             load = PaperPluginDescription.RelativeLoadOrder.AFTER
+        }
+        register("SuperVanish") {
+            required = false
+            load = PaperPluginDescription.RelativeLoadOrder.BEFORE
         }
         register("Vault") {
             required = false
