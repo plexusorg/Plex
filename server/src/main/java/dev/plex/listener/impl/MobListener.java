@@ -3,6 +3,7 @@ package dev.plex.listener.impl;
 import dev.plex.listener.PlexListener;
 import dev.plex.util.BlockUtils;
 import dev.plex.util.PlexUtils;
+import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -11,6 +12,7 @@ import org.bukkit.entity.Ageable;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -69,6 +71,17 @@ public class MobListener extends PlexListener
             Location location = event.getLocation();
             Collection<Player> coll = location.getNearbyEntitiesByType(Player.class, 10);
             PlexUtils.disabledEffectMultiple(coll.toArray(new Player[coll.size()]), location); // dont let intellij auto correct toArray to an empty array (for efficiency)
+        }
+
+        if (plugin.config.getBoolean("entity_limit.mob_limit_enabled"))
+        {
+            Location location = event.getLocation();
+            Chunk chunk = location.getChunk();
+
+            if (isEntityLimitReached(chunk, plugin.config.getInt("entity_limit.max_mobs_per_chunk")))
+            {
+                event.setCancelled(true);
+            }
         }
     }
 
@@ -134,5 +147,12 @@ public class MobListener extends PlexListener
                 }
             }
         }
+    }
+
+    public static boolean isEntityLimitReached(Chunk chunk, int limit)
+    {
+        return Arrays.stream(chunk.getEntities())
+                .filter(entity -> entity instanceof LivingEntity && !(entity instanceof Player))
+                .count() >= limit;
     }
 }
