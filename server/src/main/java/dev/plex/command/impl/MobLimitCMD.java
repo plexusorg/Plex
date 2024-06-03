@@ -18,7 +18,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-@CommandParameters(name = "moblimit", usage = "/<command> [on/off/setmax <limit>]", aliases = "entitylimit", description = "Manages the mob limit per chunk.")
+@CommandParameters(name = "moblimit", usage = "/<command> [on | off | setmax <limit>]", aliases = "entitylimit", description = "Manages the mob limit per chunk.")
 @CommandPermissions(permission = "plex.moblimit", source = RequiredCommandSource.ANY)
 public class MobLimitCMD extends PlexCommand
 {
