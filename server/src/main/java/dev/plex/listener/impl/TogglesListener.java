@@ -119,8 +119,10 @@ public class TogglesListener extends PlexListener
     @EventHandler
     public void onPlayerAttack(PrePlayerAttackEntityEvent event)
     {
-        if (!plugin.toggles.getBoolean("pvp")) {
-            if (event.getAttacked() instanceof Player) {
+        if (!plugin.toggles.getBoolean("pvp"))
+        {
+            if (event.getAttacked() instanceof Player)
+            {
                 event.setCancelled(true);
 
                 event.getPlayer().sendMessage(PlexUtils.messageComponent("pvpDisabled"));
