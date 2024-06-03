@@ -7,6 +7,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -24,6 +25,7 @@ public class ToggleMenu extends AbstractMenu
         resetFluidspreadItem(this.inventory());
         resetDropsItem(this.inventory());
         resetRedstoneItem(this.inventory());
+        resetPVPItem(this.inventory());
         resetChatItem(this.inventory());
     }
 
@@ -67,6 +69,17 @@ public class ToggleMenu extends AbstractMenu
         inventory.setItem(3, redstone);
     }
 
+    private void resetPVPItem(Inventory inventory)
+    {
+        ItemStack pvp = new ItemStack(Material.IRON_SWORD);
+        ItemMeta pvpItemMeta = pvp.getItemMeta();
+        pvpItemMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+        pvpItemMeta.displayName(PlexUtils.mmDeserialize("<!italic><light_purple>PVP"));
+        pvpItemMeta.lore(List.of(PlexUtils.mmDeserialize("<!italic><yellow>PVP is " + (plugin.toggles.getBoolean("pvp") ? "<green>enabled" : "<red>disabled"))));
+        pvp.setItemMeta(pvpItemMeta);
+        inventory.setItem(4, pvp);
+    }
+
     private void resetChatItem(Inventory inventory)
     {
         ItemStack chat = new ItemStack(Material.OAK_SIGN);
@@ -74,7 +87,7 @@ public class ToggleMenu extends AbstractMenu
         chatItemMeta.displayName(PlexUtils.mmDeserialize("<!italic><light_purple>Toggle chat"));
         chatItemMeta.lore(List.of(PlexUtils.mmDeserialize("<!italic><yellow>Chat is currently " + (plugin.toggles.getBoolean("chat") ? "<green>on" : "<red>off"))));
         chat.setItemMeta(chatItemMeta);
-        inventory.setItem(4, chat);
+        inventory.setItem(5, chat);
     }
 
     @Override
@@ -103,6 +116,12 @@ public class ToggleMenu extends AbstractMenu
             plugin.toggles.set("redstone", !plugin.toggles.getBoolean("redstone"));
             resetRedstoneItem(inventory);
             player.sendMessage(PlexUtils.mmDeserialize("<gray>Toggled redstone."));
+        }
+        if (clicked.getType() == Material.IRON_SWORD)
+        {
+            plugin.toggles.set("pvp", !plugin.toggles.getBoolean("pvp"));
+            resetPVPItem(inventory);
+            player.sendMessage(PlexUtils.mmDeserialize("<gray>Toggled PVP"));
         }
         if (clicked.getType() == Material.OAK_SIGN)
         {

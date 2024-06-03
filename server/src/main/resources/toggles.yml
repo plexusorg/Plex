@@ -14,3 +14,6 @@ redstone: true
 
 # Is chat enabled?
 chat: true
+
+# Is PVP enabled?
+pvp: true
