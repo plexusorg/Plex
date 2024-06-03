@@ -18,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collections;
 import java.util.List;
 
-@CommandParameters(name = "list", description = "Show a list of all online players", usage = "/<command> [-d]", aliases = "lsit,who,playerlist,online")
+@CommandParameters(name = "list", description = "Show a list of all online players", usage = "/<command> [-d | -v]", aliases = "lsit,who,playerlist,online")
 @CommandPermissions(permission = "plex.list")
 public class ListCMD extends PlexCommand
 {
@@ -26,7 +26,15 @@ public class ListCMD extends PlexCommand
     protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
     {
         List<Player> players = Lists.newArrayList(Bukkit.getOnlinePlayers());
-        players.removeIf(PlayerMeta::isVanished);
+        if (args.length > 0 && args[0].equalsIgnoreCase("-v"))
+        {
+            checkPermission(sender, "plex.list.vanished");
+            players.removeIf(player -> !PlayerMeta.isVanished(player));
+        }
+        else
+        {
+            players.removeIf(PlayerMeta::isVanished);
+        }
         Component list = Component.empty();
         Component header = PlexUtils.messageComponent(players.size() == 1 ? "listHeader" : "listHeaderPlural", players.size(), Bukkit.getMaxPlayers());
         send(sender, header);
@@ -62,7 +70,7 @@ public class ListCMD extends PlexCommand
     {
         if (args.length == 1 && silentCheckPermission(sender, this.getPermission()))
         {
-            return Collections.singletonList("-d");
+            return List.of("-d", "-v");
         }
         return Collections.emptyList();
     }
