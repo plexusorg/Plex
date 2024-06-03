@@ -16,7 +16,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.ZonedDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
 
@@ -68,7 +67,8 @@ public class TempmuteCMD extends PlexCommand
             return messageComponent("maxTimeExceeded");
         }
 
-        String reason = String.join(" ", Arrays.copyOfRange(args, 2, args.length));
+        final String reason = args.length >= 3 ? String.join(" ", Arrays.copyOfRange(args, 2, args.length))
+                : messageString("noReasonProvided");
 
         Punishment punishment = new Punishment(punishedPlayer.getUuid(), getUUID(sender));
         punishment.setCustomTime(true);
@@ -76,7 +76,7 @@ public class TempmuteCMD extends PlexCommand
         punishment.setType(PunishmentType.MUTE);
         punishment.setPunishedUsername(player.getName());
         punishment.setIp(player.getAddress().getAddress().getHostAddress().trim());
-        punishment.setReason(reason.trim().isEmpty() ? messageString("noReasonProvided") : reason);
+        punishment.setReason(reason);
         punishment.setActive(true);
 
         plugin.getPunishmentManager().punish(punishedPlayer, punishment);
