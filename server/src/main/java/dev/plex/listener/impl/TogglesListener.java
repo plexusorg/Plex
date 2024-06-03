@@ -4,6 +4,7 @@ import dev.plex.Plex;
 import dev.plex.listener.PlexListener;
 import dev.plex.util.PlexUtils;
 import io.papermc.paper.event.player.AsyncChatEvent;
+import io.papermc.paper.event.player.PrePlayerAttackEntityEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
@@ -116,15 +117,14 @@ public class TogglesListener extends PlexListener
     }
 
     @EventHandler
-    public void onPlayerDamage(EntityDamageByEntityEvent event)
+    public void onPlayerAttack(PrePlayerAttackEntityEvent event)
     {
-        if (!plugin.toggles.getBoolean("pvp") &&
-                event.getDamager() instanceof Player &&
-                event.getEntity() instanceof Player)
-        {
-            event.setCancelled(true);
+        if (!plugin.toggles.getBoolean("pvp")) {
+            if (event.getAttacked() instanceof Player) {
+                event.setCancelled(true);
 
-            event.getDamager().sendMessage(PlexUtils.messageComponent("pvpDisabled"));
+                event.getPlayer().sendMessage(PlexUtils.messageComponent("pvpDisabled"));
+            }
         }
     }
 
