@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -79,4 +80,41 @@ public class TimeUtils
         }
         return DATE_FORMAT.withZone(ZoneId.of(TIMEZONE)).format(date);
     }
+
+    public static String formatRelativeTime(ZonedDateTime date)
+    {
+        long seconds = ChronoUnit.SECONDS.between(ZonedDateTime.now(), date);
+
+        if (seconds <= 0)
+        {
+            return "now";
+        }
+
+        long minute = seconds / 60;
+        long hour = minute / 60;
+        long day = hour / 24;
+        long week = day / 7;
+
+        if (week > 0)
+        {
+            return week + " week" + (week > 1 ? "s" : "");
+        }
+        else if (day > 0)
+        {
+            return day + " day" + (day > 1 ? "s" : "");
+        }
+        else if (hour > 0)
+        {
+            return hour + " hour" + (hour > 1 ? "s" : "");
+        }
+        else if (minute > 0)
+        {
+            return minute + " minute" + (minute > 1 ? "s" : "");
+        }
+        else
+        {
+            return seconds + " second" + (seconds > 1 ? "s" : "");
+        }
+    }
+
 }
