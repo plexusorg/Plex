@@ -4,23 +4,26 @@ import dev.plex.Plex;
 import dev.plex.listener.PlexListener;
 import dev.plex.util.PlexUtils;
 import io.papermc.paper.event.player.AsyncChatEvent;
+import io.papermc.paper.event.player.PrePlayerAttackEntityEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.ThrownPotion;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockFromToEvent;
 import org.bukkit.event.block.BlockRedstoneEvent;
-import org.bukkit.event.entity.EntityExplodeEvent;
-import org.bukkit.event.entity.ExplosionPrimeEvent;
+import org.bukkit.event.entity.*;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+import org.bukkit.projectiles.ProjectileSource;
 
 import java.util.List;
 
 public class TogglesListener extends PlexListener
 {
     List<String> commands = plugin.commands.getStringList("block_on_mute");
+
     @EventHandler
     public void onExplosionPrime(ExplosionPrimeEvent event)
     {
@@ -32,7 +35,8 @@ public class TogglesListener extends PlexListener
     }
 
     @EventHandler
-    public void onBlockExplode(BlockExplodeEvent event) {
+    public void onBlockExplode(BlockExplodeEvent event)
+    {
         if (!plugin.toggles.getBoolean("explosions"))
         {
             event.getBlock().breakNaturally();
@@ -97,10 +101,12 @@ public class TogglesListener extends PlexListener
             for (String command : commands)
             {
                 Command cmd = Bukkit.getCommandMap().getCommand(command);
-                if (cmd == null) {
+                if (cmd == null)
+                {
                     return;
                 }
-                if (cmd.getAliases().contains(message.toLowerCase())) {
+                if (cmd.getAliases().contains(message.toLowerCase()))
+                {
                     event.getPlayer().sendMessage(PlexUtils.messageComponent("chatIsOff"));
                     event.setCancelled(true);
                     return;
@@ -108,6 +114,56 @@ public class TogglesListener extends PlexListener
             }
         }
 
+    }
+
+    @EventHandler
+    public void onPlayerAttack(PrePlayerAttackEntityEvent event)
+    {
+        if (!plugin.toggles.getBoolean("pvp"))
+        {
+            if (event.getAttacked() instanceof Player)
+            {
+                event.setCancelled(true);
+
+                event.getPlayer().sendMessage(PlexUtils.messageComponent("pvpDisabled"));
+            }
+        }
+    }
+
+    @EventHandler
+    public void onPotionSplash(PotionSplashEvent event)
+    {
+        if (!plugin.toggles.getBoolean("pvp"))
+        {
+            ProjectileSource shooter = event.getEntity().getShooter();
+            if (shooter instanceof Player)
+            {
+                ThrownPotion potion = event.getPotion();
+                if (potion.getEffects().stream().anyMatch(effect -> effect.getType().getName().startsWith("HARM") ||
+                        effect.getType().getName().startsWith("POISON")) &&
+                        event.getAffectedEntities().stream().anyMatch(entity -> entity instanceof Player))
+                {
+
+                    event.setCancelled(true);
+                    ((Player) shooter).sendMessage(PlexUtils.messageComponent("pvpDisabled"));
+                }
+            }
+        }
+    }
+
+    @EventHandler
+    public void onProjectileHit(ProjectileHitEvent event)
+    {
+        if (!plugin.toggles.getBoolean("pvp"))
+        {
+            ProjectileSource shooter = event.getEntity().getShooter();
+            if (shooter instanceof Player && event.getHitEntity() instanceof Player)
+            {
+                event.setCancelled(true);
+
+                ((Player) shooter).sendMessage(PlexUtils.messageComponent("pvpDisabled"));
+            }
+        }
     }
 
     /* I have no idea if this is the best way to do this
