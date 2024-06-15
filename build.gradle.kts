@@ -1,13 +1,13 @@
 plugins {
     id("java")
     id("maven-publish")
-    id("org.jetbrains.gradle.plugin.idea-ext") version "1.1.7"
+    id("org.jetbrains.gradle.plugin.idea-ext") version "1.1.8"
     id("net.kyori.blossom") version "2.1.0"
-    id("com.github.johnrengelman.shadow") version "8.1.1"
+    id("io.github.goooler.shadow") version "8.1.7"
 }
 
 group = "dev.plex"
-version = "1.4-SNAPSHOT"
+version = "1.4"
 description = "Plex"
 
 subprojects {
@@ -15,7 +15,7 @@ subprojects {
     apply(plugin = "maven-publish")
     apply(plugin = "org.jetbrains.gradle.plugin.idea-ext")
     apply(plugin = "net.kyori.blossom")
-    apply(plugin = "com.github.johnrengelman.shadow")
+    apply(plugin = "io.github.goooler.shadow")
 
     repositories {
         maven {

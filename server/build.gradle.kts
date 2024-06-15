@@ -14,20 +14,20 @@ repositories {
 }
 
 dependencies {
-    library("org.projectlombok:lombok:1.18.30")
-    library("org.json:json:20231013")
-    library("commons-io:commons-io:2.15.1")
-    library("redis.clients:jedis:5.1.0")
-    library("org.mariadb.jdbc:mariadb-java-client:3.3.1")
+    library("org.projectlombok:lombok:1.18.32")
+    library("org.json:json:20240303")
+    library("commons-io:commons-io:2.16.1")
+    library("redis.clients:jedis:5.1.3")
+    library("org.mariadb.jdbc:mariadb-java-client:3.4.0")
     library("com.zaxxer:HikariCP:5.1.0")
-    library("org.apache.maven.resolver:maven-resolver-transport-http:1.9.18")
+    library("org.apache.maven.resolver:maven-resolver-transport-http:1.9.20")
     library("org.jetbrains:annotations:24.1.0")
 
-    compileOnly("dev.folia:folia-api:1.20.2-R0.1-SNAPSHOT")
+    compileOnly("dev.folia:folia-api:1.20.4-R0.1-SNAPSHOT")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7.1") {
         exclude("org.bukkit", "bukkit")
     }
-    compileOnly("net.coreprotect:coreprotect:22.2")
+    compileOnly("net.coreprotect:coreprotect:22.4")
     compileOnly("network.darkhelmet.prism:Prism-Api:1.0.0")
 
     implementation("org.bstats:bstats-base:3.0.2")
@@ -35,7 +35,7 @@ dependencies {
 
     implementation("com.github.LeonMangler:SuperVanish:6.2.18-3")
 
-    annotationProcessor("org.projectlombok:lombok:1.18.30")
+    annotationProcessor("org.projectlombok:lombok:1.18.32")
 }
 
 group = rootProject.group
