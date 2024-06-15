@@ -233,7 +233,7 @@ nobodyHasThatMaterial: "<gray>No one online has that in their inventory."
 # 0 - The attempted material name
 materialNotFound: "<red>{0} is not a valid item/block name."
 # 0 - The players name
-loginMessage: "<yellow>{0} joined the game"
+loginMessage: "<yellow><translate:multiplayer.player.joined:{0}>"
 # 0 - The string that wasn't a valid integer
 notANumber: "<red>{0} is not a valid number!"
 # 0 - Players currently online
