@@ -22,8 +22,7 @@ dependencies {
     library("com.zaxxer:HikariCP:5.1.0")
     library("org.apache.maven.resolver:maven-resolver-transport-http:1.9.20")
     library("org.jetbrains:annotations:24.1.0")
-
-    compileOnly("dev.folia:folia-api:1.20.4-R0.1-SNAPSHOT")
+    compileOnly("dev.folia:folia-api:1.20.6-R0.1-SNAPSHOT")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7.1") {
         exclude("org.bukkit", "bukkit")
     }
@@ -50,7 +49,7 @@ paper {
     loader = "dev.plex.PlexLibraryManager"
     website = "https://plex.us.org"
     authors = listOf("Telesphoreo", "taahanis", "supernt")
-    apiVersion = "1.19"
+    apiVersion = "1.20.5"
     foliaSupported = true
     generateLibrariesJson = true
     // Load BukkitTelnet and LibsDisguises before Plex so the modules register properly

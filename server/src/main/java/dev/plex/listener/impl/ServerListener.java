@@ -34,6 +34,7 @@ public class ServerListener extends PlexListener
         {
             event.motd(PlexUtils.mmDeserialize(baseMotd.trim()));
         }
+        /* - Broken on 1.20.6
         if (plugin.config.contains("server.sample"))
         {
             List<String> samples = plugin.config.getStringList("server.sample");
@@ -42,6 +43,6 @@ public class ServerListener extends PlexListener
                 event.getPlayerSample().clear();
                 event.getPlayerSample().addAll(samples.stream().map(string -> string.replace("&", "§")).map(Bukkit::createProfile).toList());
             }
-        }
+        }*/
     }
 }
