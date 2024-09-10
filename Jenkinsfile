@@ -3,10 +3,12 @@ pipeline {
     tools {
         jdk 'JDK 21.0.3'
     }
-    stage("build") {
-        steps {
-             withGradle {
-                sh "./gradlew build javadoc --no-daemon"
+    stages {
+        stage("build") {
+            steps {
+                withGradle {
+                    sh "./gradlew build javadoc --no-daemon"
+                }
             }
         }
     }
