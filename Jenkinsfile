@@ -1,6 +1,8 @@
 pipeline {
     agent any
-    stages {
+        tools {
+          jdk 'JDK 21.0.3'
+        }
         stage("build") {
             steps {
                 withGradle {
