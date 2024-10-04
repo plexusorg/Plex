@@ -1,7 +1,7 @@
 plugins {
     id("java")
     id("maven-publish")
-    id("org.jetbrains.gradle.plugin.idea-ext") version "1.1.8"
+    id("org.jetbrains.gradle.plugin.idea-ext") version "1.1.9"
     id("net.kyori.blossom") version "2.1.0"
     id("io.github.goooler.shadow") version "8.1.8"
 }

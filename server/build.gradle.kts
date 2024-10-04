@@ -16,12 +16,12 @@ repositories {
 dependencies {
     library("org.projectlombok:lombok:1.18.34")
     library("org.json:json:20240303")
-    library("commons-io:commons-io:2.16.1")
-    library("redis.clients:jedis:5.1.5")
+    library("commons-io:commons-io:2.17.0")
+    library("redis.clients:jedis:5.2.0")
     library("org.mariadb.jdbc:mariadb-java-client:3.4.1")
-    library("com.zaxxer:HikariCP:5.1.0")
+    library("com.zaxxer:HikariCP:6.0.0")
     library("org.apache.maven.resolver:maven-resolver-transport-http:1.9.22")
-    library("org.jetbrains:annotations:24.1.0")
+    library("org.jetbrains:annotations:25.0.0")
     compileOnly("dev.folia:folia-api:1.20.6-R0.1-SNAPSHOT")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7.1") {
         exclude("org.bukkit", "bukkit")
@@ -29,8 +29,8 @@ dependencies {
     compileOnly("net.coreprotect:coreprotect:22.4")
     compileOnly("network.darkhelmet.prism:Prism-Api:1.0.0")
 
-    implementation("org.bstats:bstats-base:3.0.3")
-    implementation("org.bstats:bstats-bukkit:3.0.3")
+    implementation("org.bstats:bstats-base:3.1.0")
+    implementation("org.bstats:bstats-bukkit:3.1.0")
 
     implementation("com.github.LeonMangler:SuperVanish:6.2.18-3")
 
