@@ -10,13 +10,12 @@ import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.meta.PlayerMeta;
 import dev.plex.player.PlexPlayer;
 import dev.plex.util.PlexUtils;
+import java.util.List;
 import net.kyori.adventure.text.Component;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.List;
 
 @CommandPermissions(permission = "plex.broadcastloginmessage", source = RequiredCommandSource.ANY)
 @CommandParameters(name = "bcastloginmessage", usage = "/<command> <player>", description = "Broadcast your login message (for vanish support)", aliases = "bcastlm")

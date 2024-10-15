@@ -4,10 +4,6 @@ import com.google.common.collect.Lists;
 import dev.plex.Plex;
 import dev.plex.module.exception.ModuleLoadException;
 import dev.plex.util.PlexLog;
-import lombok.Getter;
-import org.apache.logging.log4j.LogManager;
-import org.bukkit.configuration.file.YamlConfiguration;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -18,6 +14,9 @@ import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
+import lombok.Getter;
+import org.apache.logging.log4j.LogManager;
+import org.bukkit.configuration.file.YamlConfiguration;
 
 @Getter
 public class ModuleManager

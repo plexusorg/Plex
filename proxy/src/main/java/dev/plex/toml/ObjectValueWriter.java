@@ -1,10 +1,14 @@
 package dev.plex.toml;
 
 import com.google.gson.annotations.SerializedName;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 
 class ObjectValueWriter implements ValueWriter
 {

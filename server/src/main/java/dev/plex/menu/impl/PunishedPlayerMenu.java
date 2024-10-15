@@ -7,10 +7,9 @@ import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.Punishment;
 import dev.plex.util.TimeUtils;
 import dev.plex.util.item.ItemBuilder;
+import java.util.List;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
-
-import java.util.List;
 
 public class PunishedPlayerMenu extends PageableMenu<Punishment>
 {

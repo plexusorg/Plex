@@ -2,10 +2,9 @@ package dev.plex.settings;
 
 import com.google.common.collect.Lists;
 import com.google.gson.annotations.SerializedName;
+import java.util.List;
 import lombok.Data;
 import lombok.Getter;
-
-import java.util.List;
 
 @Getter
 public class ServerSettings

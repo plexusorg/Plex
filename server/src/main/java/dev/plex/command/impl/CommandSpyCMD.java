@@ -6,14 +6,13 @@ import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.player.PlexPlayer;
+import java.util.Collections;
+import java.util.List;
 import net.kyori.adventure.text.Component;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Collections;
-import java.util.List;
 
 @CommandPermissions(permission = "plex.commandspy", source = RequiredCommandSource.IN_GAME)
 @CommandParameters(name = "commandspy", aliases = "cmdspy", description = "Spy on other player's commands")

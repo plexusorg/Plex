@@ -4,18 +4,25 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import dev.plex.punishment.PunishmentType;
-import dev.plex.storage.annotation.*;
+import dev.plex.storage.annotation.MapObjectList;
+import dev.plex.storage.annotation.NoLimit;
+import dev.plex.storage.annotation.PrimaryKey;
+import dev.plex.storage.annotation.SQLTable;
+import dev.plex.storage.annotation.VarcharLimit;
 import dev.plex.util.PlexLog;
 import dev.plex.util.ReflectionsUtil;
-import lombok.experimental.Accessors;
-import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.NotNull;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
+import lombok.experimental.Accessors;
+import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * @author Taah

@@ -1,6 +1,7 @@
 package dev.plex.util.item;
 
 import dev.plex.util.minimessage.SafeMiniMessage;
+import java.util.Arrays;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -12,8 +13,6 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
-
-import java.util.Arrays;
 
 public class ItemBuilder
 {

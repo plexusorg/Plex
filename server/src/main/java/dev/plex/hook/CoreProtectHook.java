@@ -1,21 +1,10 @@
 package dev.plex.hook;
 
 import dev.plex.Plex;
-import dev.plex.player.PlexPlayer;
 import dev.plex.util.PlexLog;
-import dev.plex.util.PlexUtils;
-import dev.plex.util.minimessage.SafeMiniMessage;
 import net.coreprotect.CoreProtect;
 import net.coreprotect.CoreProtectAPI;
-import net.kyori.adventure.text.Component;
-import net.milkbowl.vault.chat.Chat;
-import net.milkbowl.vault.permission.Permission;
-import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.RegisteredServiceProvider;
-
-import java.util.UUID;
 
 public class CoreProtectHook
 {

@@ -1,10 +1,9 @@
 package dev.plex.world;
 
 import dev.plex.Plex;
+import java.util.LinkedHashMap;
 import org.bukkit.Material;
 import org.bukkit.generator.BlockPopulator;
-
-import java.util.LinkedHashMap;
 
 public class ConfigurationChunkGenerator extends BlockMapChunkGenerator
 {

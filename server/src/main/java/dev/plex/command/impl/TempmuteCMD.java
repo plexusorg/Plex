@@ -8,16 +8,15 @@ import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.Punishment;
 import dev.plex.punishment.PunishmentType;
 import dev.plex.util.PlexUtils;
-import dev.plex.util.TimeUtils; // Import your TimeUtils
+import dev.plex.util.TimeUtils;
+import java.time.ZonedDateTime;
+import java.util.Arrays;
+import java.util.List;
 import net.kyori.adventure.text.Component;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.time.ZonedDateTime;
-import java.util.Arrays;
-import java.util.List;
 
 @CommandParameters(name = "tempmute", description = "Temporarily mute a player on the server",
         usage = "/<command> <player> <time> [reason]", aliases = "tmute")

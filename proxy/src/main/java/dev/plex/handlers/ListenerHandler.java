@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import dev.plex.listener.PlexListener;
 import dev.plex.util.PlexLog;
 import dev.plex.util.ReflectionsUtil;
-
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Set;

@@ -1,7 +1,6 @@
 package dev.plex.toml;
 
 import java.util.concurrent.atomic.AtomicInteger;
-
 import static dev.plex.toml.ArrayValueReader.ARRAY_VALUE_READER;
 import static dev.plex.toml.BooleanValueReaderWriter.BOOLEAN_VALUE_READER_WRITER;
 import static dev.plex.toml.DateValueReaderWriter.DATE_VALUE_READER_WRITER;

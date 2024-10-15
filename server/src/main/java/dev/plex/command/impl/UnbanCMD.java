@@ -10,13 +10,12 @@ import dev.plex.command.exception.PlayerNotFoundException;
 import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.player.PlexPlayer;
 import dev.plex.util.PlexUtils;
+import java.util.List;
 import net.kyori.adventure.text.Component;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.List;
 
 @CommandParameters(name = "unban", usage = "/<command> <player>", description = "Unbans a player, offline or online")
 @CommandPermissions(permission = "plex.ban", source = RequiredCommandSource.ANY)

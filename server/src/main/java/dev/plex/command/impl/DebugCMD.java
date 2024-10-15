@@ -8,8 +8,10 @@ import dev.plex.menu.impl.MaterialMenu;
 import dev.plex.util.GameRuleUtil;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.command.Command;
@@ -17,10 +19,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
 
 @CommandParameters(name = "pdebug", description = "Plex's debug command", usage = "/<command> <aliases <command> | redis-reset <player> | gamerules>")
 @CommandPermissions(permission = "plex.debug")

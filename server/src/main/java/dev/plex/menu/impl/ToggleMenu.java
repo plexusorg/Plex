@@ -3,6 +3,7 @@ package dev.plex.menu.impl;
 import dev.plex.Plex;
 import dev.plex.menu.AbstractMenu;
 import dev.plex.util.PlexUtils;
+import java.util.List;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -10,8 +11,6 @@ import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-
-import java.util.List;
 
 public class ToggleMenu extends AbstractMenu
 {
@@ -93,6 +92,10 @@ public class ToggleMenu extends AbstractMenu
     @Override
     public boolean onClick(InventoryView view, Inventory inventory, Player player, ItemStack clicked)
     {
+        if (!player.hasPermission("plex.toggle"))
+        {
+            return false;
+        }
         if (clicked.getType() == Material.TNT)
         {
             plugin.toggles.set("explosions", !plugin.toggles.getBoolean("explosions"));

@@ -6,6 +6,8 @@ import dev.plex.util.PlexUtils;
 import dev.plex.util.function.ConditionalQuadConsumer;
 import dev.plex.util.item.ItemBuilder;
 import dev.plex.util.minimessage.SafeMiniMessage;
+import java.util.List;
+import java.util.Map;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,14 +20,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
-
-import java.util.List;
-import java.util.Map;
-
-/**
- * @author Taah
- * @since 8:04 AM [02-09-2023]
- */
 
 @Getter
 @Setter

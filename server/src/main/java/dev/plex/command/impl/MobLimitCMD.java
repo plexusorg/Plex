@@ -5,6 +5,9 @@ import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.util.PlexUtils;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
@@ -13,10 +16,6 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 @CommandParameters(name = "moblimit", usage = "/<command> [on | off | setmax <limit>]", aliases = "entitylimit", description = "Manages the mob limit per chunk.")
 @CommandPermissions(permission = "plex.moblimit", source = RequiredCommandSource.ANY)

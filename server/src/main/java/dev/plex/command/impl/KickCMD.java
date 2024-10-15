@@ -13,6 +13,9 @@ import dev.plex.punishment.PunishmentType;
 import dev.plex.util.BungeeUtil;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.TimeUtils;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.List;
 import net.kyori.adventure.text.Component;
 import org.apache.commons.lang3.StringUtils;
 import org.bukkit.Bukkit;
@@ -20,10 +23,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.List;
 
 @CommandParameters(name = "kick", description = "Kicks a player", usage = "/<command> <player>")
 @CommandPermissions(permission = "plex.kick", source = RequiredCommandSource.ANY)

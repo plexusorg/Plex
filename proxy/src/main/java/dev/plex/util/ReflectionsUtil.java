@@ -3,7 +3,6 @@ package dev.plex.util;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.reflect.ClassPath;
 import dev.plex.Plex;
-
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;

@@ -6,6 +6,7 @@ import dev.plex.menu.pagination.PageableMenu;
 import dev.plex.player.PlexPlayer;
 import dev.plex.util.PlexLog;
 import dev.plex.util.item.ItemBuilder;
+import java.util.List;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
@@ -15,12 +16,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 
-import java.util.List;
-
-/**
- * @author Taah
- * @since 9:27 AM [02-09-2023]
- */
 public class PunishmentMenu extends PageableMenu<Player>
 {
     public PunishmentMenu()

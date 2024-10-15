@@ -11,18 +11,16 @@ import dev.plex.storage.annotation.PrimaryKey;
 import dev.plex.storage.annotation.SQLTable;
 import dev.plex.storage.annotation.VarcharLimit;
 import dev.plex.util.adapter.ZonedDateTimeAdapter;
+import java.time.ZonedDateTime;
+import java.util.List;
+import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.permissions.PermissionAttachment;
 import org.jetbrains.annotations.NotNull;
-
-import java.time.ZonedDateTime;
-import java.util.List;
-import java.util.UUID;
 
 @Getter
 @Setter

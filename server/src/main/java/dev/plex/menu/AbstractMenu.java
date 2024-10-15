@@ -2,6 +2,7 @@ package dev.plex.menu;
 
 import com.google.common.collect.Maps;
 import dev.plex.util.minimessage.SafeMiniMessage;
+import java.util.Map;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import net.kyori.adventure.text.Component;
@@ -10,13 +11,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
-
-import java.util.Map;
-
-/**
- * @author Taah
- * @since 6:49 AM [02-09-2023]
- */
 
 @Getter
 @Accessors(fluent = true)

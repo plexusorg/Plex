@@ -2,11 +2,13 @@ package dev.plex.command.impl;
 
 import com.google.common.collect.Lists;
 import dev.plex.command.PlexCommand;
-import dev.plex.util.PlexUtils;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.hook.VaultHook;
 import dev.plex.meta.PlayerMeta;
+import dev.plex.util.PlexUtils;
+import java.util.Collections;
+import java.util.List;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
@@ -14,9 +16,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Collections;
-import java.util.List;
 
 @CommandParameters(name = "list", description = "Show a list of all online players", usage = "/<command> [-d | -v]", aliases = "lsit,who,playerlist,online")
 @CommandPermissions(permission = "plex.list")

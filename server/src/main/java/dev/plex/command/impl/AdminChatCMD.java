@@ -10,6 +10,9 @@ import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.minimessage.SafeMiniMessage;
 import dev.plex.util.redis.MessageUtil;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
 import net.kyori.adventure.text.Component;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -17,10 +20,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
 
 @CommandPermissions(permission = "plex.adminchat", source = RequiredCommandSource.ANY)
 @CommandParameters(name = "adminchat", description = "Talk privately with other admins", usage = "/<command> <message>", aliases = "o,ac,sc,staffchat")
