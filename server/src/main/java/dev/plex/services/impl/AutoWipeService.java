@@ -2,7 +2,6 @@ package dev.plex.services.impl;
 
 import dev.plex.Plex;
 import dev.plex.services.AbstractService;
-import dev.plex.util.PlexLog;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import java.util.List;
 import org.bukkit.Bukkit;

@@ -7,13 +7,12 @@ import dev.plex.storage.annotation.SQLTable;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.TimeUtils;
 import dev.plex.util.adapter.ZonedDateTimeAdapter;
+import java.time.ZonedDateTime;
+import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
-
-import java.time.ZonedDateTime;
-import java.util.UUID;
 
 @Getter
 @Setter

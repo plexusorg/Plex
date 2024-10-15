@@ -2,14 +2,12 @@ package dev.plex.services.impl;
 
 import dev.plex.Plex;
 import dev.plex.services.AbstractService;
-import dev.plex.util.TimeUtils;
 import dev.plex.util.PlexUtils;
+import dev.plex.util.TimeUtils;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
-import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
-
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import org.bukkit.Bukkit;
 
 public class BanService extends AbstractService
 {

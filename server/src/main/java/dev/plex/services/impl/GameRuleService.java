@@ -4,10 +4,9 @@ import dev.plex.services.AbstractService;
 import dev.plex.util.GameRuleUtil;
 import dev.plex.util.PlexLog;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
+import java.util.Locale;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
-
-import java.util.Locale;
 
 public class GameRuleService extends AbstractService
 {

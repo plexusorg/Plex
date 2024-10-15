@@ -4,10 +4,9 @@ import com.google.gson.GsonBuilder;
 import dev.plex.storage.annotation.NoLimit;
 import dev.plex.storage.annotation.SQLTable;
 import dev.plex.util.adapter.ZonedDateTimeAdapter;
-import lombok.Data;
-
 import java.time.ZonedDateTime;
 import java.util.UUID;
+import lombok.Data;
 
 @Data
 @SQLTable("notes")

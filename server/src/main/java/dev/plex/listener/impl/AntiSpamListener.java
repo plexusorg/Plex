@@ -1,16 +1,13 @@
 package dev.plex.listener.impl;
 
 import dev.plex.listener.PlexListener;
-import dev.plex.util.PlexUtils;
 import dev.plex.services.impl.TimingService;
+import dev.plex.util.PlexUtils;
 import io.papermc.paper.event.player.AsyncChatEvent;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
+import java.util.UUID;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
-
-import java.util.UUID;
 
 public class AntiSpamListener extends PlexListener
 {

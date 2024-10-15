@@ -4,12 +4,10 @@ import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
 import dev.plex.listener.PlexListener;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.RandomUtil;
+import java.util.concurrent.atomic.AtomicReference;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
-
-import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class ServerListener extends PlexListener
 {
