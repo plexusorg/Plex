@@ -3,7 +3,7 @@ plugins {
     id("maven-publish")
     id("org.jetbrains.gradle.plugin.idea-ext") version "1.1.9"
     id("net.kyori.blossom") version "2.1.0"
-    id("io.github.goooler.shadow") version "8.1.8"
+    id("com.gradleup.shadow") version "8.3.3"
 }
 
 group = "dev.plex"
@@ -15,7 +15,7 @@ subprojects {
     apply(plugin = "maven-publish")
     apply(plugin = "org.jetbrains.gradle.plugin.idea-ext")
     apply(plugin = "net.kyori.blossom")
-    apply(plugin = "io.github.goooler.shadow")
+    apply(plugin = "com.gradleup.shadow")
 
     repositories {
         maven {
