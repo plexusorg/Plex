@@ -22,7 +22,7 @@ dependencies {
     library("com.zaxxer:HikariCP:6.0.0")
     library("org.apache.maven.resolver:maven-resolver-transport-http:1.9.22")
     library("org.jetbrains:annotations:26.0.1")
-    compileOnly("dev.folia:folia-api:1.20.6-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:1.21.3-R0.1-SNAPSHOT")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7.1") {
         exclude("org.bukkit", "bukkit")
     }
