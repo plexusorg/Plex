@@ -25,8 +25,8 @@ chat:
   # The maximum amount of characters a player can have for their tag
   # This does not include color tags such as <red> or <rainbow>
   max-tag-length: 64
-  # Color tag for name color
-  name-color: '<white>'
+  # The chat format can be customized here if the Plex chat system is enabled
+  format: "{prefix} <white>{name} <gray>» <reset>{message}"
 
 # You can define colors for each group which will appear in the tab list
 colors:
