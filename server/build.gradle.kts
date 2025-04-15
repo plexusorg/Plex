@@ -5,7 +5,7 @@ import java.util.*
 
 plugins {
     id("net.kyori.indra.git") version "3.1.3"
-    id("net.minecrell.plugin-yml.paper") version "0.6.0"
+    id("de.eldoria.plugin-yml.paper") version "0.7.1"
 }
 
 repositories {
@@ -14,15 +14,15 @@ repositories {
 }
 
 dependencies {
-    library("org.projectlombok:lombok:1.18.34")
-    library("org.json:json:20240303")
-    library("commons-io:commons-io:2.17.0")
-    library("redis.clients:jedis:5.2.0")
-    library("org.mariadb.jdbc:mariadb-java-client:3.4.1")
-    library("com.zaxxer:HikariCP:6.0.0")
+    library("org.projectlombok:lombok:1.18.38")
+    library("org.json:json:20250107")
+    library("commons-io:commons-io:2.19.0")
+    library("redis.clients:jedis:6.0.0-beta2")
+    library("org.mariadb.jdbc:mariadb-java-client:3.5.3")
+    library("com.zaxxer:HikariCP:6.3.0")
     library("org.apache.maven.resolver:maven-resolver-transport-http:1.9.22")
-    library("org.jetbrains:annotations:26.0.1")
-    compileOnly("io.papermc.paper:paper-api:1.21.3-R0.1-SNAPSHOT")
+    library("org.jetbrains:annotations:26.0.2")
+    compileOnly("io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7.1") {
         exclude("org.bukkit", "bukkit")
     }
@@ -34,7 +34,7 @@ dependencies {
 
     implementation("com.github.LeonMangler:SuperVanish:6.2.18-3")
 
-    annotationProcessor("org.projectlombok:lombok:1.18.34")
+    annotationProcessor("org.projectlombok:lombok:1.18.38")
 }
 
 group = rootProject.group

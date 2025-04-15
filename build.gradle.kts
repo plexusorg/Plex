@@ -1,9 +1,9 @@
 plugins {
     id("java")
     id("maven-publish")
-    id("org.jetbrains.gradle.plugin.idea-ext") version "1.1.9"
+    id("org.jetbrains.gradle.plugin.idea-ext") version "1.1.10"
     id("net.kyori.blossom") version "2.1.0"
-    id("com.gradleup.shadow") version "8.3.3"
+    id("com.gradleup.shadow") version "9.0.0-beta12"
 }
 
 group = "dev.plex"
@@ -78,7 +78,7 @@ tasks.clean {
     })
 }
 
-tasks.create<Copy>("copyJars") {
+tasks.register<Copy>("copyJars", fun Copy.() {
     dependsOn(tasks.jar)
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     from(subprojects.map {
@@ -88,4 +88,4 @@ tasks.create<Copy>("copyJars") {
         it.project.tasks.jar
     })
     into(file("build/libs"))
-}
+})
