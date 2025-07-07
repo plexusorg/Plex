@@ -3,7 +3,7 @@ plugins {
     id("maven-publish")
     id("org.jetbrains.gradle.plugin.idea-ext") version "1.1.10"
     id("net.kyori.blossom") version "2.1.0"
-    id("com.gradleup.shadow") version "9.0.0-beta12"
+    id("com.gradleup.shadow") version "9.0.0-rc1"
 }
 
 group = "dev.plex"
@@ -24,10 +24,6 @@ subprojects {
 
         maven {
             url = uri("https://repository.apache.org/content/repositories/snapshots/")
-        }
-
-        maven {
-            url = uri("https://repo.maven.apache.org/maven2/")
         }
 
         maven {

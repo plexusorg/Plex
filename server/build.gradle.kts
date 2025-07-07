@@ -17,22 +17,22 @@ dependencies {
     library("org.projectlombok:lombok:1.18.38")
     library("org.json:json:20250107")
     library("commons-io:commons-io:2.19.0")
-    library("redis.clients:jedis:6.0.0-beta2")
-    library("org.mariadb.jdbc:mariadb-java-client:3.5.3")
+    library("redis.clients:jedis:6.0.0")
+    library("org.mariadb.jdbc:mariadb-java-client:3.5.4")
     library("com.zaxxer:HikariCP:6.3.0")
-    library("org.apache.maven.resolver:maven-resolver-transport-http:1.9.22")
+    library("org.apache.maven.resolver:maven-resolver-transport-http:1.9.24")
     library("org.jetbrains:annotations:26.0.2")
-    compileOnly("io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:1.21.7-R0.1-SNAPSHOT")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7.1") {
         exclude("org.bukkit", "bukkit")
     }
     compileOnly("net.coreprotect:coreprotect:22.4")
     compileOnly("network.darkhelmet.prism:Prism-Api:1.0.0")
+    compileOnly("com.github.LeonMangler:SuperVanish:6.2.19")
 
     implementation("org.bstats:bstats-base:3.1.0")
     implementation("org.bstats:bstats-bukkit:3.1.0")
 
-    implementation("com.github.LeonMangler:SuperVanish:6.2.18-3")
 
     annotationProcessor("org.projectlombok:lombok:1.18.38")
 }

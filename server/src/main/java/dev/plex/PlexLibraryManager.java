@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import io.papermc.paper.plugin.loader.PluginClasspathBuilder;
 import io.papermc.paper.plugin.loader.PluginLoader;
 import io.papermc.paper.plugin.loader.library.impl.MavenLibraryResolver;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -11,6 +12,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
+
 import org.eclipse.aether.artifact.DefaultArtifact;
 import org.eclipse.aether.graph.Dependency;
 import org.eclipse.aether.repository.RemoteRepository;
@@ -39,7 +41,12 @@ public class PlexLibraryManager implements PluginLoader
     {
         try (var in = getClass().getResourceAsStream("/paper-libraries.json"))
         {
-            return new Gson().fromJson(new InputStreamReader(in, StandardCharsets.UTF_8), PluginLibraries.class);
+            PluginLibraries libraries = new Gson().fromJson(new InputStreamReader(in, StandardCharsets.UTF_8), PluginLibraries.class);
+
+            // Patch the MavenRepo to use the default mirror
+            libraries.repositories.put("MavenRepo", MavenLibraryResolver.MAVEN_CENTRAL_DEFAULT_MIRROR);
+
+            return libraries;
         }
         catch (IOException e)
         {
@@ -51,14 +58,12 @@ public class PlexLibraryManager implements PluginLoader
     {
         public Stream<Dependency> asDependencies()
         {
-            return dependencies.stream()
-                    .map(d -> new Dependency(new DefaultArtifact(d), null));
+            return dependencies.stream().map(d -> new Dependency(new DefaultArtifact(d), null));
         }
 
         public Stream<RemoteRepository> asRepositories()
         {
-            return repositories.entrySet().stream()
-                    .map(e -> new RemoteRepository.Builder(e.getKey(), "default", e.getValue()).build());
+            return repositories.entrySet().stream().map(e -> new RemoteRepository.Builder(e.getKey(), "default", e.getValue()).build());
         }
     }
 }
