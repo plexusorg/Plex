@@ -1,9 +1,12 @@
 package dev.plex.listener.impl;
 
 import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
+import com.destroystokyo.paper.event.server.PaperServerListPingEvent.ListedPlayerInfo;
 import dev.plex.listener.PlexListener;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.RandomUtil;
+import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -32,15 +35,16 @@ public class ServerListener extends PlexListener
         {
             event.motd(PlexUtils.mmDeserialize(baseMotd.trim()));
         }
-        /* - Broken on 1.20.6
+
         if (plugin.config.contains("server.sample"))
         {
             List<String> samples = plugin.config.getStringList("server.sample");
             if (!samples.isEmpty())
             {
-                event.getPlayerSample().clear();
-                event.getPlayerSample().addAll(samples.stream().map(string -> string.replace("&", "§")).map(Bukkit::createProfile).toList());
+                event.getListedPlayers().clear();
+                event.getListedPlayers().addAll(samples.stream().map(string -> string.replace("&", "§"))
+                    .map(str -> new ListedPlayerInfo(str, UUID.randomUUID())).toList());
             }
-        }*/
+        }
     }
 }

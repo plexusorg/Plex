@@ -1,5 +1,4 @@
 import net.minecrell.pluginyml.paper.PaperPluginDescription
-import java.io.ByteArrayOutputStream
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -14,15 +13,15 @@ repositories {
 }
 
 dependencies {
-    library("org.projectlombok:lombok:1.18.38")
-    library("org.json:json:20250107")
-    library("commons-io:commons-io:2.19.0")
-    library("redis.clients:jedis:6.0.0")
-    library("org.mariadb.jdbc:mariadb-java-client:3.5.4")
-    library("com.zaxxer:HikariCP:6.3.0")
+    library("org.projectlombok:lombok:1.18.42")
+    library("org.json:json:20250517")
+    library("commons-io:commons-io:2.20.0")
+    library("redis.clients:jedis:7.0.0")
+    library("org.mariadb.jdbc:mariadb-java-client:3.5.6")
+    library("com.zaxxer:HikariCP:6.3.3")
     library("org.apache.maven.resolver:maven-resolver-transport-http:1.9.24")
     library("org.jetbrains:annotations:26.0.2")
-    compileOnly("io.papermc.paper:paper-api:1.21.7-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:1.21.10-R0.1-SNAPSHOT")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7.1") {
         exclude("org.bukkit", "bukkit")
     }
@@ -34,7 +33,7 @@ dependencies {
     implementation("org.bstats:bstats-bukkit:3.1.0")
 
 
-    annotationProcessor("org.projectlombok:lombok:1.18.38")
+    annotationProcessor("org.projectlombok:lombok:1.18.42")
 }
 
 group = rootProject.group
@@ -94,17 +93,14 @@ paper {
 }
 
 fun getBuildNumber(): String {
-    val stdout = ByteArrayOutputStream()
-    try {
-        exec {
+    return try {
+        providers.exec {
             commandLine("git", "rev-list", "HEAD", "--count")
-            standardOutput = stdout
-            isIgnoreExitValue = true
-        }
+        }.standardOutput.asText.get().trim()
     } catch (e: GradleException) {
         logger.error("Couldn't determine build number because Git is not installed. " + e.message)
+        "unknown"
     }
-    return if (stdout.size() > 0) stdout.toString().trim() else "unknown"
 }
 
 tasks {

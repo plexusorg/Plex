@@ -119,11 +119,7 @@ public class PlexUtils implements PlexBase
 
     public static boolean hasVanishPlugin()
     {
-        if (Bukkit.getPluginManager().isPluginEnabled("SuperVanish") || Bukkit.getPluginManager().isPluginEnabled("PremiumVanish"))
-        {
-            return true;
-        }
-        return false;
+        return Bukkit.getPluginManager().isPluginEnabled("SuperVanish") || Bukkit.getPluginManager().isPluginEnabled("PremiumVanish");
     }
 
     public static boolean isPluginCMD(String cmd, String pluginName)
