@@ -42,10 +42,6 @@ public class PlexLibraryManager implements PluginLoader
         try (var in = getClass().getResourceAsStream("/paper-libraries.json"))
         {
             PluginLibraries libraries = new Gson().fromJson(new InputStreamReader(in, StandardCharsets.UTF_8), PluginLibraries.class);
-
-            // Patch the MavenRepo to use the default mirror
-            libraries.repositories.put("MavenRepo", MavenLibraryResolver.MAVEN_CENTRAL_DEFAULT_MIRROR);
-
             return libraries;
         }
         catch (IOException e)

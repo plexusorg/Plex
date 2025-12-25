@@ -1,13 +1,13 @@
 plugins {
     id("java")
     id("maven-publish")
-    id("org.jetbrains.gradle.plugin.idea-ext") version "1.1.10"
-    id("net.kyori.blossom") version "2.1.0"
-    id("com.gradleup.shadow") version "9.2.2"
+    id("org.jetbrains.gradle.plugin.idea-ext") version "1.3"
+    id("net.kyori.blossom") version "2.2.0"
+    id("com.gradleup.shadow") version "9.3.0"
 }
 
 group = "dev.plex"
-version = "1.6"
+version = "1.7-SNAPSHOT"
 description = "Plex"
 
 subprojects {

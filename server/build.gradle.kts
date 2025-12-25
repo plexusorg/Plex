@@ -3,8 +3,8 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 plugins {
-    id("net.kyori.indra.git") version "3.1.3"
-    id("de.eldoria.plugin-yml.paper") version "0.7.1"
+    id("net.kyori.indra.git") version "4.0.0"
+    id("de.eldoria.plugin-yml.paper") version "0.8.0"
 }
 
 repositories {
@@ -14,25 +14,22 @@ repositories {
 
 dependencies {
     library("org.projectlombok:lombok:1.18.42")
-    library("org.json:json:20250517")
-    library("commons-io:commons-io:2.20.0")
-    library("redis.clients:jedis:7.0.0")
-    library("org.mariadb.jdbc:mariadb-java-client:3.5.6")
-    library("com.zaxxer:HikariCP:6.3.3")
-    library("org.apache.maven.resolver:maven-resolver-transport-http:1.9.24")
+    library("org.json:json:20251224")
+    library("commons-io:commons-io:2.21.0")
+    library("redis.clients:jedis:7.2.0")
+    library("org.mariadb.jdbc:mariadb-java-client:3.5.7")
+    library("com.zaxxer:HikariCP:7.0.2")
+    library("org.apache.maven.resolver:maven-resolver-transport-http:1.9.25")
     library("org.jetbrains:annotations:26.0.2")
-    compileOnly("io.papermc.paper:paper-api:1.21.10-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7.1") {
         exclude("org.bukkit", "bukkit")
     }
-    compileOnly("net.coreprotect:coreprotect:22.4")
+    compileOnly("net.coreprotect:coreprotect:23.1")
     compileOnly("network.darkhelmet.prism:Prism-Api:1.0.0")
     compileOnly("com.github.LeonMangler:SuperVanish:6.2.19")
-
     implementation("org.bstats:bstats-base:3.1.0")
     implementation("org.bstats:bstats-bukkit:3.1.0")
-
-
     annotationProcessor("org.projectlombok:lombok:1.18.42")
 }
 
@@ -108,6 +105,10 @@ tasks {
         dependsOn(shadowJar)
     }
 
+    generatePaperPluginDescription {
+        useGoogleMavenCentralProxy()
+    }
+
     jar {
         enabled = false
     }
@@ -119,7 +120,7 @@ tasks {
                     property("author", if (System.getenv("JENKINS_URL") != null) "jenkins" else System.getProperty("user.name"))
                     property("buildNumber", if (System.getenv("BUILD_NUMBER") != null) System.getenv("BUILD_NUMBER") else getBuildNumber())
                     property("date", SimpleDateFormat("MM/dd/yyyy '<light_purple>at<gold>' hh:mm:ss a z").format(Date()))
-                    property("gitCommit", indraGit.commit()?.name?.take(7))
+                    property("gitCommit", indraGit.commit().get().name.take(7))
                 }
             }
         }
