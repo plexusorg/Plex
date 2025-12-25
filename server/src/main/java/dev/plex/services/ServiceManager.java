@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import dev.plex.Plex;
 import dev.plex.services.impl.AutoWipeService;
 import dev.plex.services.impl.BanService;
-import dev.plex.services.impl.CommandBlockerService;
 import dev.plex.services.impl.GameRuleService;
 import dev.plex.services.impl.TimingService;
 import dev.plex.services.impl.UpdateCheckerService;
@@ -20,7 +19,6 @@ public class ServiceManager
     {
         registerService(new AutoWipeService());
         registerService(new BanService());
-        registerService(new CommandBlockerService());
         registerService(new GameRuleService());
         registerService(new TimingService());
         registerService(new UpdateCheckerService());
