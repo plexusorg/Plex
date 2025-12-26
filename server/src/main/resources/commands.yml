@@ -1,7 +1,0 @@
-# These commands will be blocked when a player is muted or when chat is toggled off.
-block_on_mute:
-  - me
-  - say
-  - msg
-  - reply
-  - mail

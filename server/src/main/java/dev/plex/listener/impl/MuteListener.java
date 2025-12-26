@@ -13,7 +13,7 @@ import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 
 public class MuteListener extends PlexListener
 {
-    List<String> commands = plugin.commands.getStringList("block_on_mute");
+    List<String> commands = plugin.config.getStringList("block_on_mute");
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onChat(AsyncChatEvent event)

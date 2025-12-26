@@ -43,7 +43,6 @@ public class Plex extends JavaPlugin
     public Config config;
     public Config messages;
     public Config indefBans;
-    public Config commands;
     public Config toggles;
     public File modulesFolder;
     private StorageType storageType = StorageType.SQLITE;
@@ -80,7 +79,6 @@ public class Plex extends JavaPlugin
         config = new Config(this, "config.yml");
         messages = new Config(this, "messages.yml");
         indefBans = new Config(this, "indefbans.yml");
-        commands = new Config(this, "commands.yml");
         toggles = new Config(this, "toggles.yml");
         build.load(this);
 
@@ -106,7 +104,6 @@ public class Plex extends JavaPlugin
 
         // Don't add default entries to these files
         indefBans.load(false);
-        commands.load(false);
 
         sqlConnection = new SQLConnection();
         redisConnection = new RedisConnection();
@@ -201,13 +198,8 @@ public class Plex extends JavaPlugin
         PlexLog.log("Started " + serviceManager.serviceCount() + " services.");
 
         reloadPlayers();
-        PlexLog.debug("Registered Bukkit -> BungeeCord Plugin Messaging Channel");
-        PlexLog.debug("Velocity Support? " + BungeeUtil.isVelocity());
-        PlexLog.debug("BungeeCord Support? " + BungeeUtil.isBungeeCord());
-        if (BungeeUtil.isBungeeCord() && BungeeUtil.isVelocity())
-        {
-            PlexLog.warn("It seems you have both velocity and bungeecord configuration options enabled! When running Velocity, you do NOT need to enable bungeecord.");
-        }
+        PlexLog.debug("Registered Bukkit -> Proxy Plugin Messaging Channel");
+        PlexLog.debug("Proxy enabled? " + Bukkit.getServerConfig().isProxyEnabled());
         this.getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
 
         moduleManager.enableModules();

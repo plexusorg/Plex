@@ -10,20 +10,9 @@ import org.bukkit.entity.Player;
 
 public class BungeeUtil
 {
-    public static final boolean PROXIED_SERVER = isBungeeCord() || isVelocity();
-    public static boolean isBungeeCord()
-    {
-        return Bukkit.spigot().getSpigotConfig().getBoolean("settings.bungeecord");
-    }
-
-    public static boolean isVelocity()
-    {
-        return Bukkit.spigot().getPaperConfig().getBoolean("settings.velocity-support.enabled") && !Bukkit.spigot().getPaperConfig().getString("settings.velocity-support.secret", "").isEmpty();
-    }
-
     public static void kickPlayer(Player player, Component message)
     {
-        if (PROXIED_SERVER)
+        if (Bukkit.getServerConfig().isProxyEnabled())
         {
             ByteArrayDataOutput out = ByteStreams.newDataOutput();
             out.writeUTF("KickPlayer");

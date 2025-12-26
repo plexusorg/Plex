@@ -24,7 +24,7 @@ import org.bukkit.projectiles.ProjectileSource;
 
 public class TogglesListener extends PlexListener
 {
-    List<String> commands = plugin.commands.getStringList("block_on_mute");
+    List<String> commands = plugin.config.getStringList("block_on_mute");
 
     @EventHandler
     public void onExplosionPrime(ExplosionPrimeEvent event)

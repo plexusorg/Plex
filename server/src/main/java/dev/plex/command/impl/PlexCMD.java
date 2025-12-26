@@ -51,8 +51,6 @@ public class PlexCMD extends PlexCommand
             plugin.indefBans.load(false);
             plugin.getPunishmentManager().mergeIndefiniteBans();
             send(sender, "Reloaded indefinite bans");
-            plugin.commands.load();
-            send(sender, "Reloaded blocked commands file");
             if (!plugin.getServer().getPluginManager().isPluginEnabled("Vault"))
             {
                 throw new RuntimeException("Vault is required to run on the server if you use permissions!");

@@ -172,6 +172,14 @@ blocked_entities:
   - "ENDER_DRAGON"
   - "MINECART_TNT"
 
+# These commands will be blocked when a player is muted or when chat is toggled off.
+block_on_mute:
+  - me
+  - say
+  - msg
+  - reply
+  - mail
+
 # Limit entities per chunk
 entity_limit:
   # Is the mob limit enabled?
