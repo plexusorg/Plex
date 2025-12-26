@@ -45,7 +45,7 @@ paper {
     loader = "dev.plex.PlexLibraryManager"
     website = "https://plex.us.org"
     authors = listOf("Telesphoreo", "taahanis", "supernt")
-    apiVersion = "1.21"
+    apiVersion = "1.21.11"
     foliaSupported = true
     generateLibrariesJson = true
     // Load BukkitTelnet and LibsDisguises before Plex so the modules register properly
