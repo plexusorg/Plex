@@ -7,15 +7,13 @@ import java.util.Locale;
 import io.papermc.paper.registry.RegistryAccess;
 import io.papermc.paper.registry.RegistryKey;
 import net.kyori.adventure.key.Key;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.bukkit.GameRule;
-import org.bukkit.GameRules;
 import org.bukkit.Registry;
 import org.bukkit.World;
 
 public class GameRuleUtil
 {
-    public static <T> void commitGlobalGameRules(World world)
+    public static void commitGlobalGameRules(World world)
     {
         for (String s : Plex.get().config.getStringList("global_gamerules"))
         {
@@ -23,7 +21,7 @@ public class GameRuleUtil
         }
     }
 
-    public static <T> void commitSpecificGameRules(World world)
+    public static void commitSpecificGameRules(World world)
     {
         for (String s : Plex.get().config.getStringList("worlds." + world.getName().toLowerCase(Locale.ROOT) + ".gameRules"))
         {
