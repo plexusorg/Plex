@@ -7,13 +7,16 @@ import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.Punishment;
 import dev.plex.util.TimeUtils;
 import dev.plex.util.item.ItemBuilder;
+
 import java.util.List;
+
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 public class PunishedPlayerMenu extends PageableMenu<Punishment>
 {
     private final PlexPlayer punishedPlayer;
+
     public PunishedPlayerMenu(PlexPlayer player)
     {
         super("<red><bold>Punishments - " + player.getName(), AbstractMenu.Rows.SIX);

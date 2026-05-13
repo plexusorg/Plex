@@ -8,7 +8,9 @@ import dev.plex.command.exception.CommandFailException;
 import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.event.GameModeUpdateEvent;
 import dev.plex.util.PlexUtils;
+
 import java.util.List;
+
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -34,7 +36,7 @@ public class SurvivalCMD extends PlexCommand
             return null;
         }
 
-        if (checkPermission(sender,"plex.gamemode.survival.others"))
+        if (checkPermission(sender, "plex.gamemode.survival.others"))
         {
             if (args[0].equals("-a"))
             {
@@ -57,7 +59,7 @@ public class SurvivalCMD extends PlexCommand
     @Override
     public @NotNull List<String> smartTabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
     {
-        if (silentCheckPermission(sender,"plex.gamemode.survival.others"))
+        if (silentCheckPermission(sender, "plex.gamemode.survival.others"))
         {
             return PlexUtils.getPlayerNameList();
         }

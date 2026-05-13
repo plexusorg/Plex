@@ -6,8 +6,10 @@ import dev.plex.util.PlexUtils;
 import dev.plex.util.function.ConditionalQuadConsumer;
 import dev.plex.util.item.ItemBuilder;
 import dev.plex.util.minimessage.SafeMiniMessage;
+
 import java.util.List;
 import java.util.Map;
+
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;

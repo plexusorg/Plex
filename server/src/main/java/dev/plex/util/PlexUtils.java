@@ -7,6 +7,7 @@ import dev.plex.PlexBase;
 import dev.plex.listener.impl.ChatListener;
 import dev.plex.storage.StorageType;
 import dev.plex.util.minimessage.SafeMiniMessage;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.Month;
@@ -18,6 +19,7 @@ import java.util.Stack;
 import java.util.UUID;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -133,7 +135,7 @@ public class PlexUtils implements PlexBase
         List<Command> cmds = PluginCommandYamlParser.parse(plugin);
         for (Command pluginCmd : cmds)
         {
-            List<String> cmdAliases = pluginCmd.getAliases().size() > 0 ? pluginCmd.getAliases().stream().map(String::toLowerCase).toList() : null;
+            List<String> cmdAliases = !pluginCmd.getAliases().isEmpty() ? pluginCmd.getAliases().stream().map(String::toLowerCase).toList() : null;
             if (pluginCmd.getName().equalsIgnoreCase(cmd) || (cmdAliases != null && cmdAliases.contains(cmd.toLowerCase())))
             {
                 return true;

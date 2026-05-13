@@ -1,8 +1,10 @@
 package dev.plex.listener.impl;
 
 import dev.plex.listener.PlexListener;
+
 import java.util.Arrays;
 import java.util.List;
+
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -48,7 +50,10 @@ public class WorldListener extends PlexListener
     @EventHandler(priority = EventPriority.LOWEST)
     public void onInteractWorld(PlayerInteractEvent event)
     {
-        if (event.getInteractionPoint() != null && event.getInteractionPoint().getBlock().getBlockData() instanceof Openable) return;
+        if (event.getInteractionPoint() != null && event.getInteractionPoint().getBlock().getBlockData() instanceof Openable)
+        {
+            return;
+        }
         if (!canModifyWorld(event.getPlayer(), true))
         {
             event.setCancelled(true);
@@ -76,7 +81,10 @@ public class WorldListener extends PlexListener
     @EventHandler(priority = EventPriority.LOWEST)
     public void onInteractWorld(EntityDamageByEntityEvent event)
     {
-        if (!(event.getDamager() instanceof Player player)) return;
+        if (!(event.getDamager() instanceof Player player))
+        {
+            return;
+        }
         if (!canModifyWorld(player, true))
         {
             event.setCancelled(true);

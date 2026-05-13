@@ -13,10 +13,12 @@ import dev.plex.util.BungeeUtil;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.TimeUtils;
+
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.List;
+
 import net.kyori.adventure.text.Component;
 import org.apache.commons.lang3.StringUtils;
 import org.bukkit.Bukkit;
@@ -74,7 +76,7 @@ public class BanCMD extends PlexCommand
             punishment.setEndDate(date.plusDays(1));
             punishment.setCustomTime(false);
             punishment.setActive(true);
-            punishment.setIp(player != null ? player.getAddress().getAddress().getHostAddress().trim() : plexPlayer.getIps().get(plexPlayer.getIps().size() - 1));
+            punishment.setIp(player != null ? player.getAddress().getAddress().getHostAddress().trim() : plexPlayer.getIps().getLast());
             plugin.getPunishmentManager().punish(plexPlayer, punishment);
             PlexUtils.broadcast(messageComponent("banningPlayer", sender.getName(), plexPlayer.getName()));
             Bukkit.getGlobalRegionScheduler().execute(plugin, () ->

@@ -7,7 +7,9 @@ import dev.plex.hook.VaultHook;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.minimessage.SafeMiniMessage;
+
 import java.util.UUID;
+
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -15,6 +17,7 @@ import org.bukkit.entity.Player;
 import org.json.JSONException;
 import org.json.JSONObject;
 import redis.clients.jedis.JedisPubSub;
+
 import static dev.plex.util.PlexUtils.messageComponent;
 
 public class MessageUtil

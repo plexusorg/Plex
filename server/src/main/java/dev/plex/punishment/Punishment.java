@@ -7,8 +7,10 @@ import dev.plex.storage.annotation.SQLTable;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.TimeUtils;
 import dev.plex.util.adapter.ZonedDateTimeAdapter;
+
 import java.time.ZonedDateTime;
 import java.util.UUID;
+
 import lombok.Getter;
 import lombok.Setter;
 import net.kyori.adventure.text.Component;
@@ -31,12 +33,6 @@ public class Punishment
     private boolean customTime;
     private boolean active; // Field is only for bans
     private ZonedDateTime endDate;
-
-    public Punishment()
-    {
-        this.punished = null;
-        this.punisher = null;
-    }
 
     public Punishment(UUID punished, UUID punisher)
     {

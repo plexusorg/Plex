@@ -7,8 +7,10 @@ import dev.plex.services.impl.BanService;
 import dev.plex.services.impl.GameRuleService;
 import dev.plex.services.impl.TimingService;
 import dev.plex.services.impl.UpdateCheckerService;
+
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+
 import org.bukkit.Bukkit;
 
 public class ServiceManager

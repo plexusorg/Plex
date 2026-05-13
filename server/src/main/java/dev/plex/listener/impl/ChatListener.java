@@ -19,14 +19,14 @@ import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextReplacementConfig;
 import net.kyori.adventure.text.event.ClickEvent;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.jetbrains.annotations.NotNull;
 
 @Toggleable("chat.enabled")
-public class ChatListener extends PlexListener {
+public class ChatListener extends PlexListener
+{
     public static final TextReplacementConfig URL_REPLACEMENT_CONFIG = TextReplacementConfig
             .builder()
             .match("(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]")
@@ -41,9 +41,11 @@ public class ChatListener extends PlexListener {
     private static final Component format = SafeMiniMessage.mmDeserialize(plugin.config.getString("chat.format"));
 
     @EventHandler(priority = EventPriority.LOWEST)
-    public void onChat(AsyncChatEvent event) {
+    public void onChat(AsyncChatEvent event)
+    {
         PlexPlayer plexPlayer = plugin.getPlayerCache().getPlexPlayerMap().get(event.getPlayer().getUniqueId());
-        if (plexPlayer.isStaffChat()) {
+        if (plexPlayer.isStaffChat())
+        {
             String prefix = PlexUtils.mmSerialize(VaultHook.getPrefix(event.getPlayer())); // Don't use PlexPlayer#getPrefix because that returns their custom set prefix and not their group's
             MessageUtil.sendStaffChat(event.getPlayer(), event.message(), PlexUtils.adminChat(event.getPlayer().getName(), prefix, SafeMiniMessage.mmSerialize(event.message())).toArray(UUID[]::new));
             plugin.getServer().getConsoleSender().sendMessage(PlexUtils.messageComponent("adminChatFormat", event.getPlayer().getName(), prefix, SafeMiniMessage.mmSerialize(event.message().replaceText(URL_REPLACEMENT_CONFIG))));
@@ -52,10 +54,13 @@ public class ChatListener extends PlexListener {
         }
         Component prefix = PlayerMeta.getPrefix(plexPlayer);
 
-        if (prefix != null && !prefix.equals(Component.empty()) && !prefix.equals(Component.space())) {
+        if (prefix != null && !prefix.equals(Component.empty()) && !prefix.equals(Component.space()))
+        {
             renderer.hasPrefix = true;
             renderer.prefix = prefix;
-        } else {
+        }
+        else
+        {
             renderer.hasPrefix = false;
             renderer.prefix = null;
         }
@@ -65,21 +70,25 @@ public class ChatListener extends PlexListener {
         event.renderer(renderer);
     }
 
-    public static class PlexChatRenderer implements ChatRenderer {
+    public static class PlexChatRenderer implements ChatRenderer
+    {
         public boolean hasPrefix;
         public Component prefix;
         public Supplier<Component> before = null;
 
         @Override
-        public @NotNull Component render(@NotNull Player source, @NotNull Component sourceDisplayName, @NotNull Component message, @NotNull Audience viewer) {
+        public @NotNull Component render(@NotNull Player source, @NotNull Component sourceDisplayName, @NotNull Component message, @NotNull Audience viewer)
+        {
             Component component = format;
 
-            if (before != null) {
+            if (before != null)
+            {
                 component = component.append(before.get());
             }
 
             // Substitute the prefix from the config
-            if (hasPrefix) {
+            if (hasPrefix)
+            {
                 component = component.replaceText(TextReplacementConfig.builder().matchLiteral("{prefix}").replacement(prefix).build());
             }
 
@@ -97,7 +106,8 @@ public class ChatListener extends PlexListener {
         }
     }
 
-    private static void defaultChatProcessing(AsyncChatEvent event, PlexPlayer plexPlayer) {
+    private static void defaultChatProcessing(AsyncChatEvent event, PlexPlayer plexPlayer)
+    {
         String text = PlexUtils.getTextFromComponent(event.message());
         event.message(PlexUtils.stringToComponent(text));
     }

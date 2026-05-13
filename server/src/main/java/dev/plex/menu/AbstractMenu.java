@@ -2,7 +2,9 @@ package dev.plex.menu;
 
 import com.google.common.collect.Maps;
 import dev.plex.util.minimessage.SafeMiniMessage;
+
 import java.util.Map;
+
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import net.kyori.adventure.text.Component;

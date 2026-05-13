@@ -8,6 +8,7 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import dev.plex.Plex;
+
 import java.lang.reflect.Type;
 import java.time.Instant;
 import java.time.ZoneId;

@@ -18,6 +18,7 @@ import org.eclipse.aether.graph.Dependency;
 import org.eclipse.aether.repository.RemoteRepository;
 import org.jetbrains.annotations.NotNull;
 
+@SuppressWarnings("UnstableApiUsage")
 public class PlexLibraryManager implements PluginLoader
 {
     @Override
@@ -41,8 +42,7 @@ public class PlexLibraryManager implements PluginLoader
     {
         try (var in = getClass().getResourceAsStream("/paper-libraries.json"))
         {
-            PluginLibraries libraries = new Gson().fromJson(new InputStreamReader(in, StandardCharsets.UTF_8), PluginLibraries.class);
-            return libraries;
+            return new Gson().fromJson(new InputStreamReader(in, StandardCharsets.UTF_8), PluginLibraries.class);
         }
         catch (IOException e)
         {

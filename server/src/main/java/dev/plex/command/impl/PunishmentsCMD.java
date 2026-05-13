@@ -11,7 +11,9 @@ import dev.plex.menu.impl.PunishedPlayerMenu;
 import dev.plex.menu.impl.PunishmentMenu;
 import dev.plex.player.PlexPlayer;
 import dev.plex.util.PlexUtils;
+
 import java.util.List;
+
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;

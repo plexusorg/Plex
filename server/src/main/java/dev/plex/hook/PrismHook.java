@@ -13,7 +13,7 @@ public class PrismHook
         Plugin plugin = plex.getServer().getPluginManager().getPlugin("Prism");
 
         // Check that Prism is loaded
-        if (!plugin.isEnabled())
+        if (plugin != null && !plugin.isEnabled())
         {
             return;
         }
@@ -22,7 +22,8 @@ public class PrismHook
         this.prismApi = (PrismApi) plugin;
     }
 
-    public boolean hasPrism() {
+    public boolean hasPrism()
+    {
         return prismApi != null;
     }
 

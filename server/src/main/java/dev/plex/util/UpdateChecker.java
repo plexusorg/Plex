@@ -1,20 +1,21 @@
 package dev.plex.util;
 
-import com.google.common.base.Charsets;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import dev.plex.PlexBase;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.URL;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
-import javax.annotation.Nonnull;
+
+import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.apache.commons.io.FileUtils;
@@ -44,11 +45,11 @@ public class UpdateChecker implements PlexBase
     private int distance = -4;
 
     // Adapted from Paper
-    private int fetchDistanceFromGitHub(@Nonnull String repo, @Nonnull String branch, @Nonnull String hash)
+    private int fetchDistanceFromGitHub(@NonNull String repo, @NonNull String branch, @NonNull String hash)
     {
         try
         {
-            HttpURLConnection connection = (HttpURLConnection) new URL("https://api.github.com/repos/" + repo + "/compare/" + branch + "..." + hash).openConnection();
+            HttpURLConnection connection = (HttpURLConnection) URI.create("https://api.github.com/repos/" + repo + "/compare/" + branch + "..." + hash).toURL().openConnection();
             connection.connect();
             if (connection.getResponseCode() == HttpURLConnection.HTTP_NOT_FOUND)
             {
@@ -58,16 +59,16 @@ public class UpdateChecker implements PlexBase
             {
                 return -3; // Rate limited likely
             }
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), Charsets.UTF_8)))
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8)))
             {
                 JsonObject obj = new Gson().fromJson(reader, JsonObject.class);
                 String status = obj.get("status").getAsString();
                 return switch (status)
-                        {
-                            case "identical" -> 0;
-                            case "behind" -> obj.get("behind_by").getAsInt();
-                            default -> -1;
-                        };
+                {
+                    case "identical" -> 0;
+                    case "behind" -> obj.get("behind_by").getAsInt();
+                    default -> -1;
+                };
             }
             catch (JsonSyntaxException | NumberFormatException e)
             {
@@ -186,7 +187,7 @@ public class UpdateChecker implements PlexBase
                     try
                     {
                         FileUtils.copyURLToFile(
-                                new URL(url + "/lastSuccessfulBuild/artifact/build/libs/" + jarFile),
+                                URI.create(url + "/lastSuccessfulBuild/artifact/build/libs/" + jarFile).toURL(),
                                 copyTo
                         );
                         sender.sendMessage(PlexUtils.mmDeserialize("<green>New JAR file downloaded successfully."));

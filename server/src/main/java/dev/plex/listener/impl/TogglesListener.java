@@ -5,7 +5,9 @@ import dev.plex.listener.PlexListener;
 import dev.plex.util.PlexUtils;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import io.papermc.paper.event.player.PrePlayerAttackEntityEvent;
+
 import java.util.List;
+
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
@@ -141,8 +143,8 @@ public class TogglesListener extends PlexListener
             if (shooter instanceof Player)
             {
                 ThrownPotion potion = event.getPotion();
-                if (potion.getEffects().stream().anyMatch(effect -> effect.getType().getName().startsWith("HARM") ||
-                        effect.getType().getName().startsWith("POISON")) &&
+                if (potion.getEffects().stream().anyMatch(effect -> effect.getType().getKey().getKey().startsWith("HARM") ||
+                        effect.getType().getKey().getKey().startsWith("POISON")) &&
                         event.getAffectedEntities().stream().anyMatch(entity -> entity instanceof Player))
                 {
 

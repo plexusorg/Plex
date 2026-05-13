@@ -6,7 +6,9 @@ import dev.plex.menu.pagination.PageableMenu;
 import dev.plex.player.PlexPlayer;
 import dev.plex.util.PlexLog;
 import dev.plex.util.item.ItemBuilder;
+
 import java.util.List;
+
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
@@ -24,7 +26,10 @@ public class PunishmentMenu extends PageableMenu<Player>
         PlexLog.debug("list: {0}", list().size());
         onClick((inventoryView, itemStacks, player, itemStack) ->
         {
-            if (itemStack.getType() != Material.PLAYER_HEAD) return true;
+            if (itemStack.getType() != Material.PLAYER_HEAD)
+            {
+                return true;
+            }
             final SkullMeta meta = (SkullMeta) itemStack.getItemMeta();
             if (meta.getOwningPlayer() == null)
             {

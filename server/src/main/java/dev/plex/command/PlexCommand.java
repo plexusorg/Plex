@@ -14,9 +14,11 @@ import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.player.PlexPlayer;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -80,16 +82,10 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
 
         if (register)
         {
-            if (getMap().getKnownCommands().containsKey(this.getName().toLowerCase()))
-            {
-                getMap().getKnownCommands().remove(this.getName().toLowerCase());
-            }
+            getMap().getKnownCommands().remove(this.getName().toLowerCase());
             this.getAliases().forEach(s ->
             {
-                if (getMap().getKnownCommands().containsKey(s.toLowerCase()))
-                {
-                    getMap().getKnownCommands().remove(s.toLowerCase());
-                }
+                getMap().getKnownCommands().remove(s.toLowerCase());
             });
             getMap().register("plex", this);
         }

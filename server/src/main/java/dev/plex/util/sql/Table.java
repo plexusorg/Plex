@@ -1,8 +1,10 @@
 package dev.plex.util.sql;
 
 import com.google.common.collect.Maps;
+
 import java.lang.reflect.Field;
 import java.util.Map;
+
 import lombok.Data;
 import lombok.experimental.Accessors;
 

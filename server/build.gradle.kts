@@ -4,7 +4,7 @@ import java.util.*
 
 plugins {
     id("net.kyori.indra.git") version "4.0.0"
-    id("de.eldoria.plugin-yml.paper") version "0.8.0"
+    id("de.eldoria.plugin-yml.paper") version "0.9.0"
 }
 
 repositories {
@@ -13,24 +13,24 @@ repositories {
 }
 
 dependencies {
-    library("org.projectlombok:lombok:1.18.42")
+    library("org.projectlombok:lombok:1.18.46")
     library("org.json:json:20251224")
-    library("commons-io:commons-io:2.21.0")
-    library("redis.clients:jedis:7.2.0")
-    library("org.mariadb.jdbc:mariadb-java-client:3.5.7")
+    library("commons-io:commons-io:2.22.0")
+    library("redis.clients:jedis:7.5.0")
+    library("org.mariadb.jdbc:mariadb-java-client:3.5.8")
     library("com.zaxxer:HikariCP:7.0.2")
-    library("org.apache.maven.resolver:maven-resolver-transport-http:1.9.25")
-    library("org.jetbrains:annotations:26.0.2")
-    compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
+    library("org.apache.maven.resolver:maven-resolver-transport-http:1.9.27")
+    library("org.jetbrains:annotations:26.1.0")
+    compileOnly("io.papermc.paper:paper-api:26.1.2.build.+")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7.1") {
         exclude("org.bukkit", "bukkit")
     }
-    compileOnly("net.coreprotect:coreprotect:23.1")
+    compileOnly("net.coreprotect:coreprotect:23.2")
     compileOnly("network.darkhelmet.prism:Prism-Api:1.0.0")
     compileOnly("com.github.LeonMangler:SuperVanish:6.2.19")
-    implementation("org.bstats:bstats-base:3.1.0")
-    implementation("org.bstats:bstats-bukkit:3.1.0")
-    annotationProcessor("org.projectlombok:lombok:1.18.42")
+    implementation("org.bstats:bstats-base:3.2.1")
+    implementation("org.bstats:bstats-bukkit:3.2.1")
+    annotationProcessor("org.projectlombok:lombok:1.18.46")
 }
 
 group = rootProject.group
@@ -45,7 +45,7 @@ paper {
     loader = "dev.plex.PlexLibraryManager"
     website = "https://plex.us.org"
     authors = listOf("Telesphoreo", "taahanis", "supernt")
-    apiVersion = "1.21.11"
+    apiVersion = "26.1.2"
     foliaSupported = true
     generateLibrariesJson = true
     // Load BukkitTelnet and LibsDisguises before Plex so the modules register properly

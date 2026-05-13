@@ -3,7 +3,9 @@ package dev.plex.menu.impl;
 import dev.plex.Plex;
 import dev.plex.menu.AbstractMenu;
 import dev.plex.util.PlexUtils;
+
 import java.util.List;
+
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;

@@ -4,7 +4,9 @@ import dev.plex.player.PlexPlayer;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.minimessage.SafeMiniMessage;
+
 import java.util.UUID;
+
 import net.kyori.adventure.text.Component;
 import net.milkbowl.vault.chat.Chat;
 import net.milkbowl.vault.permission.Permission;
@@ -74,11 +76,13 @@ public class VaultHook
             return PlexUtils.mmDeserialize("<dark_gray>[<dark_purple>Developer<dark_gray>]");
         }
         String group = VaultHook.getPermission().getPrimaryGroup(null, player);
-        if (group == null || group.isEmpty()) {
+        if (group == null || group.isEmpty())
+        {
             return Component.empty();
         }
         String vaultPrefix = VaultHook.getChat().getGroupPrefix((String) null, group);
-        if (vaultPrefix == null || vaultPrefix.isEmpty()) {
+        if (vaultPrefix == null || vaultPrefix.isEmpty())
+        {
             return Component.empty();
         }
         PlexLog.debug("prefix: {0}", SafeMiniMessage.mmSerializeWithoutEvents(PlexUtils.stringToComponent(vaultPrefix)).replace("<", "\\<"));

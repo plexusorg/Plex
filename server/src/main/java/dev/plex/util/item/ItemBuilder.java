@@ -1,7 +1,9 @@
 package dev.plex.util.item;
 
 import dev.plex.util.minimessage.SafeMiniMessage;
+
 import java.util.Arrays;
+
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;

@@ -1,8 +1,10 @@
 package dev.plex.world;
 
 import dev.plex.Plex;
+
 import java.io.File;
 import java.util.Objects;
+
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -10,6 +12,7 @@ import org.bukkit.WorldCreator;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
+import org.bukkit.block.sign.Side;
 import org.bukkit.generator.ChunkGenerator;
 
 public class CustomWorld extends WorldCreator
@@ -46,9 +49,9 @@ public class CustomWorld extends WorldCreator
                     BlockState state = block.getState();
                     if (state instanceof Sign sign)
                     {
-                        sign.line(1, Component.text(
+                        sign.getSide(Side.FRONT).line(1, Component.text(
                                 Objects.requireNonNull(plugin.config.getString("worlds." + name + ".name"))));
-                        sign.line(2, Component.text("- 0, 0 -"));
+                        sign.getSide(Side.FRONT).line(2, Component.text("- 0, 0 -"));
                         sign.update();
                     }
                 }

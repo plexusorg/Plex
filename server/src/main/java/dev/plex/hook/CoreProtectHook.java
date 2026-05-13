@@ -41,7 +41,8 @@ public class CoreProtectHook
         this.coreProtectAPI.testAPI();
     }
 
-    public boolean hasCoreProtect() {
+    public boolean hasCoreProtect()
+    {
         return hasApi;
     }
 

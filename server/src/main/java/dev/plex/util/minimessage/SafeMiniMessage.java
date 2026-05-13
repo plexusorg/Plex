@@ -1,7 +1,9 @@
 package dev.plex.util.minimessage;
 
 import com.google.common.collect.ImmutableList;
+
 import java.util.List;
+
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.Context;
 import net.kyori.adventure.text.minimessage.MiniMessage;

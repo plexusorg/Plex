@@ -8,12 +8,14 @@ import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.extra.Note;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.TimeUtils;
+
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
+
 import net.kyori.adventure.text.Component;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -47,7 +49,7 @@ public class NotesCMD extends PlexCommand
             {
                 plugin.getSqlNotes().getNotes(plexPlayer.getUuid()).whenComplete((notes, ex) ->
                 {
-                    if (notes.size() == 0)
+                    if (notes.isEmpty())
                     {
                         send(sender, messageComponent("noNotes"));
                         return;

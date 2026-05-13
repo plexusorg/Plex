@@ -7,8 +7,10 @@ import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.hook.VaultHook;
 import dev.plex.meta.PlayerMeta;
 import dev.plex.util.PlexUtils;
+
 import java.util.Collections;
 import java.util.List;
+
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;

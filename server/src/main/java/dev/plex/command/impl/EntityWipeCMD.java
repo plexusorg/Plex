@@ -6,12 +6,14 @@ import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -33,7 +35,7 @@ public class EntityWipeCMD extends PlexCommand
 
         List<String> entityWhitelist = new LinkedList<>(Arrays.asList(args));
 
-        boolean radiusSpecified = !entityWhitelist.isEmpty() && isNumeric(entityWhitelist.get(entityWhitelist.size() - 1)); // try and detect if the last argument of the command is a number
+        boolean radiusSpecified = !entityWhitelist.isEmpty() && isNumeric(entityWhitelist.getLast()); // try and detect if the last argument of the command is a number
         boolean useBlacklist = args.length == 0 || (args.length == 1 && radiusSpecified); // if there are no arguments or the one argument is a number
         int radius = 0;
 
@@ -42,9 +44,9 @@ public class EntityWipeCMD extends PlexCommand
 
         if (radiusSpecified)
         {
-            radius = parseInt(sender, args[entityWhitelist.size() - 1]); // get the args length as the size of the list
+            radius = parseInt(sender, entityWhitelist.getLast()); // get the args length as the size of the list
             radius *= radius;
-            entityWhitelist.remove(entityWhitelist.size() - 1); // remove the radius from the list
+            entityWhitelist.removeLast(); // remove the radius from the list
         }
 
         PlexLog.debug("radius: " + radius);

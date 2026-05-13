@@ -24,7 +24,9 @@ import dev.plex.util.PlexUtils;
 import dev.plex.util.UpdateChecker;
 import dev.plex.util.redis.MessageUtil;
 import dev.plex.world.CustomWorld;
+
 import java.io.File;
+
 import lombok.Getter;
 import lombok.Setter;
 import net.milkbowl.vault.chat.Chat;
@@ -152,7 +154,9 @@ public class Plex extends JavaPlugin
         if (PlexUtils.hasVanishPlugin())
         {
             PlexLog.log("Hooked into SuperVanish / PremiumVanish!");
-        } else {
+        }
+        else
+        {
             PlexLog.debug("Not hooking into SuperVanish / PremiumVanish");
         }
 
@@ -246,14 +250,20 @@ public class Plex extends JavaPlugin
     private Permission setupPermissions()
     {
         RegisteredServiceProvider<Permission> rsp = Bukkit.getServicesManager().getRegistration(Permission.class);
-        permissions = rsp.getProvider();
+        if (rsp != null)
+        {
+            permissions = rsp.getProvider();
+        }
         return permissions;
     }
 
     private Chat setupChat()
     {
         RegisteredServiceProvider<Chat> rsp = Bukkit.getServicesManager().getRegistration(Chat.class);
-        chat = rsp.getProvider();
+        if (rsp != null)
+        {
+            chat = rsp.getProvider();
+        }
         return chat;
     }
 }

@@ -1,8 +1,10 @@
 package dev.plex.util;
 
 import dev.plex.Plex;
+
 import java.io.InputStream;
 import java.util.Properties;
+
 import lombok.Getter;
 
 public class BuildInfo

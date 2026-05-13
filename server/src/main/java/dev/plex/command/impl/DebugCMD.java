@@ -8,9 +8,11 @@ import dev.plex.menu.impl.MaterialMenu;
 import dev.plex.util.GameRuleUtil;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.World;

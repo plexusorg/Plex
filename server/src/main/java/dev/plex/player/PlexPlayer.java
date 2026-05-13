@@ -11,9 +11,11 @@ import dev.plex.storage.annotation.PrimaryKey;
 import dev.plex.storage.annotation.SQLTable;
 import dev.plex.storage.annotation.VarcharLimit;
 import dev.plex.util.adapter.ZonedDateTimeAdapter;
+
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
+
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -79,7 +81,7 @@ public class PlexPlayer
         {
             this.loadPunishments();
             this.checkMutesAndFreeze();
-//            this.permissions.addAll(Plex.get().getSqlPermissions().getPermissions(this.uuid));
+            //            this.permissions.addAll(Plex.get().getSqlPermissions().getPermissions(this.uuid));
         }
     }
 
@@ -93,7 +95,8 @@ public class PlexPlayer
         return PlainTextComponentSerializer.plainText().serialize(getPlayer().displayName());
     }
 
-    public void checkMutesAndFreeze() {
+    public void checkMutesAndFreeze()
+    {
         final ZonedDateTime now = ZonedDateTime.now();
         this.muted = this.punishments.stream().filter(punishment -> punishment.getType() == PunishmentType.MUTE).anyMatch(punishment -> punishment.isActive() && now.isBefore(punishment.getEndDate()));
         this.frozen = this.punishments.stream().filter(punishment -> punishment.getType() == PunishmentType.FREEZE).anyMatch(punishment -> punishment.isActive() && now.isBefore(punishment.getEndDate()));

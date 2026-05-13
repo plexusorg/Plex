@@ -1,9 +1,11 @@
 package dev.plex.config;
 
 import dev.plex.module.PlexModule;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 

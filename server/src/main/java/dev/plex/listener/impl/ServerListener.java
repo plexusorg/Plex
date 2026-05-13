@@ -5,9 +5,11 @@ import com.destroystokyo.paper.event.server.PaperServerListPingEvent.ListedPlaye
 import dev.plex.listener.PlexListener;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.RandomUtil;
+
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
+
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
@@ -20,7 +22,17 @@ public class ServerListener extends PlexListener
         String baseMotd = plugin.config.getString("server.motd");
         baseMotd = baseMotd.replace("\\n", "\n");
         baseMotd = baseMotd.replace("%servername%", plugin.config.getString("server.name"));
-        baseMotd = baseMotd.replace("%mcversion%", Bukkit.getBukkitVersion().split("-")[0]);
+
+        String version = Bukkit.getBukkitVersion();
+        if (version.contains("build"))
+        {
+            baseMotd = baseMotd.replace("%mcversion%", version.split(".build")[0]);
+        }
+        else
+        {
+            baseMotd = baseMotd.replace("%mcversion%", version.split("-")[0]);
+        }
+
         if (plugin.config.getBoolean("server.colorize_motd"))
         {
             AtomicReference<Component> motd = new AtomicReference<>(Component.empty());
@@ -43,7 +55,7 @@ public class ServerListener extends PlexListener
             {
                 event.getListedPlayers().clear();
                 event.getListedPlayers().addAll(samples.stream().map(string -> string.replace("&", "§"))
-                    .map(str -> new ListedPlayerInfo(str, UUID.randomUUID())).toList());
+                        .map(str -> new ListedPlayerInfo(str, UUID.randomUUID())).toList());
             }
         }
     }

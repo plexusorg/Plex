@@ -6,6 +6,7 @@ import dev.plex.punishment.Punishment;
 import dev.plex.punishment.PunishmentType;
 import dev.plex.util.PlexLog;
 import dev.plex.util.TimeUtils;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -84,6 +85,7 @@ public class SQLPunishment
         }
         return punishments;
     }
+
     public List<Punishment> getPunishments(String ip)
     {
         List<Punishment> punishments = Lists.newArrayList();

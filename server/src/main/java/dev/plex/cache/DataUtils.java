@@ -2,6 +2,7 @@ package dev.plex.cache;
 
 import dev.plex.Plex;
 import dev.plex.player.PlexPlayer;
+
 import java.util.Optional;
 import java.util.UUID;
 
@@ -56,12 +57,7 @@ public class DataUtils
     public static PlexPlayer getPlayer(String username, boolean loadExtraData)
     {
         Optional<PlexPlayer> plexPlayer = Plex.get().getPlayerCache().getPlexPlayerMap().values().stream().filter(player -> player.getName().equalsIgnoreCase(username)).findFirst();
-        if (plexPlayer.isPresent())
-        {
-            return plexPlayer.get();
-        }
-
-        return Plex.get().getSqlPlayerData().getByName(username, loadExtraData);
+        return plexPlayer.orElseGet(() -> Plex.get().getSqlPlayerData().getByName(username, loadExtraData));
     }
 
     /**

@@ -5,9 +5,11 @@ import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.util.PlexUtils;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
@@ -26,7 +28,7 @@ public class MobLimitCMD extends PlexCommand
     {
         if (args.length == 0)
         {
-            Chunk chunk = playerSender != null ? playerSender.getLocation().getChunk() : Bukkit.getWorlds().get(0).getChunkAt(0, 0);
+            Chunk chunk = playerSender != null ? playerSender.getLocation().getChunk() : Bukkit.getWorlds().getFirst().getChunkAt(0, 0);
 
             int currentLimit = plugin.config.getInt("entity_limit.max_mobs_per_chunk");
             int currentMobCount = (int) Arrays.stream(chunk.getEntities())
@@ -50,10 +52,16 @@ public class MobLimitCMD extends PlexCommand
             case "setmax":
                 try
                 {
-                    if (args.length != 2) return usage();
+                    if (args.length != 2)
+                    {
+                        return usage();
+                    }
 
                     int newLimit = Integer.parseInt(args[1]);
-                    if (newLimit < 0) throw new NumberFormatException();
+                    if (newLimit < 0)
+                    {
+                        throw new NumberFormatException();
+                    }
 
                     int limitCeiling = plugin.config.getInt("entity_limit.mob_limit_ceiling");
                     if (newLimit > limitCeiling)

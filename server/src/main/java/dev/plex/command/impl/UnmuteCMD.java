@@ -10,7 +10,9 @@ import dev.plex.command.exception.PlayerNotFoundException;
 import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.PunishmentType;
 import dev.plex.util.PlexUtils;
+
 import java.util.List;
+
 import net.kyori.adventure.text.Component;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -39,7 +41,8 @@ public class UnmuteCMD extends PlexCommand
             throw new CommandFailException(PlexUtils.messageString("playerNotMuted"));
         }
         punishedPlayer.setMuted(false);
-        punishedPlayer.getPunishments().stream().filter(punishment -> punishment.getType() == PunishmentType.MUTE && punishment.isActive()).forEach(punishment -> {
+        punishedPlayer.getPunishments().stream().filter(punishment -> punishment.getType() == PunishmentType.MUTE && punishment.isActive()).forEach(punishment ->
+        {
             punishment.setActive(false);
             plugin.getSqlPunishment().updatePunishment(punishment.getType(), false, punishment.getPunished());
         });

@@ -9,10 +9,12 @@ import dev.plex.punishment.Punishment;
 import dev.plex.punishment.PunishmentType;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.TimeUtils;
+
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.List;
+
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
 import org.apache.commons.lang3.ArrayUtils;
@@ -39,17 +41,13 @@ public class SmiteCMD extends PlexCommand
 
         String reason = null;
         boolean silent = false;
-        boolean clearinv = false;
+        boolean clearInv = false;
 
         if (args.length >= 2)
         {
             if (args[args.length - 1].equalsIgnoreCase("-q"))
             {
-                if (args[args.length - 1].equalsIgnoreCase("-q"))
-                {
-                    silent = true;
-                }
-
+                silent = true;
                 if (args.length >= 3)
                 {
                     reason = StringUtils.join(ArrayUtils.subarray(args, 1, args.length - 1), " ");
@@ -57,11 +55,7 @@ public class SmiteCMD extends PlexCommand
             }
             else if (args[args.length - 1].equalsIgnoreCase("-ci"))
             {
-                if (args[args.length - 1].equalsIgnoreCase("-ci"))
-                {
-                    clearinv = true;
-                }
-
+                clearInv = true;
                 if (args.length >= 3)
                 {
                     reason = StringUtils.join(ArrayUtils.subarray(args, 1, args.length - 1), " ");
@@ -92,7 +86,7 @@ public class SmiteCMD extends PlexCommand
         player.setGameMode(GameMode.SURVIVAL);
 
         // Clear inventory
-        if (clearinv)
+        if (clearInv)
         {
             player.getInventory().clear();
         }

@@ -7,9 +7,11 @@ import dev.plex.command.exception.CommandFailException;
 import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.event.GameModeUpdateEvent;
 import dev.plex.util.PlexUtils;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;

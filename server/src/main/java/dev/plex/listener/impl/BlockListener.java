@@ -2,13 +2,16 @@ package dev.plex.listener.impl;
 
 import dev.plex.listener.PlexListener;
 import dev.plex.util.PlexUtils;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
+import org.bukkit.block.sign.Side;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -59,15 +62,26 @@ public class BlockListener extends PlexListener
         {
             Sign sign = (Sign) block.getState();
             boolean anythingChanged = false;
-            for (int i = 0; i < sign.lines().size(); i++)
+            for (int i = 0; i < sign.getSide(Side.FRONT).lines().size(); i++)
             {
-                Component line = sign.line(i);
+                Component line = sign.getSide(Side.FRONT).line(i);
                 if (line.clickEvent() != null)
                 {
                     anythingChanged = true;
-                    sign.line(i, line.clickEvent(null));
+                    sign.getSide(Side.FRONT).line(i, line.clickEvent(null));
                 }
             }
+
+            for (int i = 0; i < sign.getSide(Side.BACK).lines().size(); i++)
+            {
+                Component line = sign.getSide(Side.BACK).line(i);
+                if (line.clickEvent() != null)
+                {
+                    anythingChanged = true;
+                    sign.getSide(Side.BACK).line(i, line.clickEvent(null));
+                }
+            }
+
             if (anythingChanged)
             {
                 sign.update(true);
@@ -79,7 +93,7 @@ public class BlockListener extends PlexListener
     @EventHandler(priority = EventPriority.LOW)
     public void onBlockBreak(BlockBreakEvent event)
     {
-        if (blockedPlayers.size() == 0)
+        if (blockedPlayers.isEmpty())
         {
             return;
         }

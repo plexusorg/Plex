@@ -4,9 +4,11 @@ import com.google.common.collect.ImmutableList;
 import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
 import net.kyori.adventure.text.TextComponent;
@@ -44,7 +46,8 @@ public class WhoHasCMD extends PlexCommand
         }
 
         List<TextComponent> players = Bukkit.getOnlinePlayers().stream().filter(player ->
-                player.getInventory().contains(material)).map(player -> {
+                player.getInventory().contains(material)).map(player ->
+        {
             if (clearInventory)
             {
                 player.getInventory().remove(material);
