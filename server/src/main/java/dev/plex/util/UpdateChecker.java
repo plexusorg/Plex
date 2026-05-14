@@ -19,15 +19,9 @@ import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.apache.commons.io.FileUtils;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 public class UpdateChecker implements PlexBase
 {
@@ -154,49 +148,54 @@ public class UpdateChecker implements PlexBase
 
     public void updateJar(CommandSender sender, String name, boolean module)
     {
-        CloseableHttpClient client = HttpClients.createDefault();
         AtomicReference<String> url = new AtomicReference<>(DOWNLOAD_PAGE + name);
         if (!module)
         {
             url.set(url.get() + "/job/" + BRANCH);
         }
         PlexLog.debug(url.toString());
-        HttpGet get = new HttpGet(url + "/lastSuccessfulBuild/api/json");
         try
         {
-            HttpResponse response = client.execute(get);
-            int statusCode = response.getStatusLine().getStatusCode();
+            HttpURLConnection connection = (HttpURLConnection) URI.create(url + "/lastSuccessfulBuild/api/json").toURL().openConnection();
+            int statusCode = connection.getResponseCode();
 
             if (statusCode == HttpURLConnection.HTTP_OK)
             {
-                JSONObject object = new JSONObject(EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8));
-                JSONObject artifact = object.getJSONArray("artifacts").getJSONObject(0);
-                String jarFile = artifact.getString("fileName");
-                sender.sendMessage(PlexUtils.mmDeserialize("<green>Downloading latest JAR file: " + jarFile));
-                File copyTo;
-                if (!module)
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8)))
                 {
-                    copyTo = new File(Bukkit.getUpdateFolderFile(), jarFile);
-                }
-                else
-                {
-                    copyTo = new File(plugin.getModulesFolder().getPath(), jarFile);
-                }
-                CompletableFuture.runAsync(() ->
-                {
-                    try
+                    JsonObject object = new Gson().fromJson(reader, JsonObject.class);
+                    JsonObject artifact = object.getAsJsonArray("artifacts").asList().getFirst().getAsJsonObject();
+                    String jarFile = artifact.get("fileName").getAsString();
+                    sender.sendMessage(PlexUtils.mmDeserialize("<green>Downloading latest JAR file: " + jarFile));
+                    File copyTo;
+                    if (!module)
                     {
-                        FileUtils.copyURLToFile(
-                                URI.create(url + "/lastSuccessfulBuild/artifact/build/libs/" + jarFile).toURL(),
-                                copyTo
-                        );
-                        sender.sendMessage(PlexUtils.mmDeserialize("<green>New JAR file downloaded successfully."));
+                        copyTo = new File(Bukkit.getUpdateFolderFile(), jarFile);
                     }
-                    catch (IOException e)
+                    else
                     {
-                        e.printStackTrace();
+                        copyTo = new File(plugin.getModulesFolder().getPath(), jarFile);
                     }
-                });
+                    CompletableFuture.runAsync(() ->
+                    {
+                        try
+                        {
+                            FileUtils.copyURLToFile(
+                                    URI.create(url + "/lastSuccessfulBuild/artifact/build/libs/" + jarFile).toURL(),
+                                    copyTo
+                            );
+                            sender.sendMessage(PlexUtils.mmDeserialize("<green>New JAR file downloaded successfully."));
+                        }
+                        catch (IOException e)
+                        {
+                            e.printStackTrace();
+                        }
+                    });
+                }
+                catch (JsonSyntaxException | NumberFormatException e)
+                {
+                    e.printStackTrace();
+                }
             }
             else if (statusCode == HttpURLConnection.HTTP_NOT_FOUND)
             {

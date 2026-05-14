@@ -14,12 +14,10 @@ repositories {
 
 dependencies {
     library("org.projectlombok:lombok:1.18.46")
-    library("org.json:json:20251224")
     library("commons-io:commons-io:2.22.0")
     library("redis.clients:jedis:7.5.0")
     library("org.mariadb.jdbc:mariadb-java-client:3.5.8")
     library("com.zaxxer:HikariCP:7.0.2")
-    library("org.apache.maven.resolver:maven-resolver-transport-http:1.9.27")
     library("org.jetbrains:annotations:26.1.0")
     compileOnly("io.papermc.paper:paper-api:26.1.2.build.+")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7.1") {
