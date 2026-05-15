@@ -14,8 +14,10 @@ import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.TimeUtils;
 
+import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -26,6 +28,10 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.prism_mc.prism.api.activities.Activity;
+import org.prism_mc.prism.api.activities.ActivityQuery;
+import org.prism_mc.prism.paper.api.PrismPaperApi;
+import org.prism_mc.prism.paper.api.activities.PaperActivityQuery;
 
 @CommandParameters(name = "ban", usage = "/<command> <player> [reason] [-rb]", aliases = "offlineban,gtfo", description = "Bans a player, offline or online")
 @CommandPermissions(permission = "plex.ban", source = RequiredCommandSource.ANY)
@@ -90,33 +96,30 @@ public class BanCMD extends PlexCommand
 
             if (rollBack)
             {
-                /*if (plugin.getPrismHook() != null && plugin.getPrismHook().hasPrism())
+                if (plugin.getPrismHook() != null && plugin.getPrismHook().hasPrism())
                 {
-                    PrismParameters parameters = plugin.getPrismHook().prismApi().createParameters();
-                    parameters.addActionType("block-place");
-                    parameters.addActionType("block-break");
-                    parameters.addActionType("block-burn");
-                    parameters.addActionType("entity-spawn");
-                    parameters.addActionType("entity-kill");
-                    parameters.addActionType("entity-explode");
-                    parameters.addPlayerName(plexPlayer.getName());
-                    parameters.setBeforeTime(Instant.now().toEpochMilli());
-                    parameters.setProcessType(PrismProcessType.ROLLBACK);
-                    final Future<Result> result = plugin.getPrismHook().prismApi().performLookup(parameters, sender);
-                    Bukkit.getAsyncScheduler().runNow(plugin, scheduledTask ->
+                    PrismPaperApi prism = plugin.getPrismHook().getPrism();
+                    Bukkit.getAsyncScheduler().runNow(plugin, task ->
                     {
                         try
                         {
-                            final Result done = result.get();
+                            ActivityQuery query = PaperActivityQuery.builder()
+                                    .actionTypeKeys(Arrays.asList("block-place", "block-break", "block-burn", "entity-spawn", "entity-kill", "entity-explode"))
+                                    .causePlayerName(plexPlayer.getName())
+                                    .before(Instant.now().getEpochSecond())
+                                    .rollback()
+                                    .build();
+
+                            List<Activity> activities = prism.storageAdapter().queryActivities(query);
+                            PlexLog.debug("{0} activities have been rollback", activities.size());
                         }
-                        catch (InterruptedException | ExecutionException e)
+                        catch (Exception ex)
                         {
-                            throw new RuntimeException(e);
+                            PlexLog.error("Unable to query activities: {0}", ex);
                         }
                     });
                 }
-                else */
-                if (plugin.getCoreProtectHook() != null && plugin.getCoreProtectHook().hasCoreProtect())
+                else if (plugin.getCoreProtectHook() != null && plugin.getCoreProtectHook().hasCoreProtect())
                 {
                     Bukkit.getAsyncScheduler().runNow(plugin, scheduledTask ->
                     {
