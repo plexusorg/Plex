@@ -28,7 +28,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.prism_mc.prism.api.activities.Activity;
 import org.prism_mc.prism.api.activities.ActivityQuery;
 import org.prism_mc.prism.paper.api.PrismPaperApi;
 import org.prism_mc.prism.paper.api.activities.PaperActivityQuery;
@@ -99,24 +98,28 @@ public class BanCMD extends PlexCommand
                 if (plugin.getPrismHook() != null && plugin.getPrismHook().hasPrism())
                 {
                     PrismPaperApi prism = plugin.getPrismHook().getPrism();
-                    Bukkit.getAsyncScheduler().runNow(plugin, task ->
-                    {
-                        try
-                        {
-                            ActivityQuery query = PaperActivityQuery.builder()
-                                    .actionTypeKeys(Arrays.asList("block-place", "block-break", "block-burn", "entity-spawn", "entity-kill", "entity-explode"))
-                                    .causePlayerName(plexPlayer.getName())
-                                    .before(Instant.now().getEpochSecond())
-                                    .rollback()
-                                    .build();
+                    ActivityQuery query = PaperActivityQuery.builder()
+                            .actionTypeKeys(Arrays.asList("block-place", "block-break", "block-burn", "entity-spawn", "entity-kill", "entity-explode"))
+                            .causePlayerName(plexPlayer.getName())
+                            .before(Instant.now().getEpochSecond())
+                            .rollback()
+                            .build();
+                    prism.rollback(sender, query).whenCompleteAsync((result, error) -> {
+                        if (error != null) {
+                            send(sender, messageComponent("prismRollbackError", error.getMessage()));
+                            PlexLog.error("Unable to rollback: {0}", error);
+                            return;
+                        }
 
-                            List<Activity> activities = prism.storageAdapter().queryActivities(query);
-                            PlexLog.debug("{0} activities have been rollback", activities.size());
+                        int count = result.applied();
+                        if (count == 0) {
+                            send(sender, messageComponent("prismNoResult", count));
+                            PlexLog.debug("No activities are available to rollback");
+                            return;
                         }
-                        catch (Exception ex)
-                        {
-                            PlexLog.error("Unable to query activities: {0}", ex);
-                        }
+
+                        send(sender, messageComponent("prismRollbackMessage", count));
+                        PlexLog.debug("Rolled back {0} activities", count);
                     });
                 }
                 else if (plugin.getCoreProtectHook() != null && plugin.getCoreProtectHook().hasCoreProtect())
