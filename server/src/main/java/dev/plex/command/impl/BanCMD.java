@@ -102,6 +102,7 @@ public class BanCMD extends PlexCommand
                             .actionTypeKeys(Arrays.asList("block-place", "block-break", "block-burn", "entity-spawn", "entity-kill", "entity-explode"))
                             .causePlayerName(plexPlayer.getName())
                             .before(Instant.now().getEpochSecond())
+                            .after(Instant.now().getEpochSecond() - 86400)
                             .rollback()
                             .build();
                     prism.rollback(sender, query).whenCompleteAsync((result, error) -> {
