@@ -1,12 +1,14 @@
 package dev.plex.hook;
 
 import dev.plex.Plex;
-import network.darkhelmet.prism.api.PrismApi;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.RegisteredServiceProvider;
+import org.prism_mc.prism.paper.api.PrismPaperApi;
 
 public class PrismHook
 {
-    private PrismApi prismApi;
+    private RegisteredServiceProvider<PrismPaperApi> provider;
 
     public PrismHook(Plex plex)
     {
@@ -18,18 +20,17 @@ public class PrismHook
             return;
         }
 
-        // Check that the API is enabled
-        this.prismApi = (PrismApi) plugin;
+        provider = Bukkit.getServicesManager().getRegistration(PrismPaperApi.class);
     }
 
     public boolean hasPrism()
     {
-        return prismApi != null;
+        return provider != null;
     }
 
-    public PrismApi prismApi()
+    public PrismPaperApi getPrism()
     {
-        return prismApi;
+        return provider.getProvider();
     }
 }
 

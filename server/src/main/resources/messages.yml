@@ -280,3 +280,8 @@ commandNotFound: "<red>That command could not be found!"
 # 0 - The command
 # 1 - A list of aliases found
 commandAliases: "<aqua>Aliases for {0} are: {1}"
+# 0 - Number of activities found to rollback
+prismRollbackMessage: "<gray>Rolled back {0} activities"
+# 0 - Error message returned from Prism
+prismRollbackError: "<red>Rollback failed: {0}"
+prismNoResult: "<gray>No activities have been rolled back"
