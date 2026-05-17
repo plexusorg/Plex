@@ -9,13 +9,16 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.jar.JarFile;
 import java.util.stream.Stream;
 
 import org.eclipse.aether.artifact.DefaultArtifact;
 import org.eclipse.aether.graph.Dependency;
 import org.eclipse.aether.repository.RemoteRepository;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("UnstableApiUsage")
@@ -28,13 +31,7 @@ public class PlexLibraryManager implements PluginLoader
         PluginLibraries pluginLibraries = load();
         pluginLibraries.asDependencies().forEach(resolver::addDependency);
         pluginLibraries.asRepositories().forEach(resolver::addRepository);
-        // The plugin is null, a hacky way to check whether to load Jetty or not
-        if (new File("plugins/Plex/modules/Module-HTTPD.jar").isFile())
-        {
-            resolver.addDependency(new Dependency(new DefaultArtifact("org.eclipse.jetty:jetty-server:12.1.9"), null));
-            resolver.addDependency(new Dependency(new DefaultArtifact("org.eclipse.jetty.ee10:jetty-ee10-servlet:12.1.9"), null));
-            resolver.addDependency(new Dependency(new DefaultArtifact("org.eclipse.jetty:jetty-proxy:12.1.9"), null));
-        }
+        loadModuleDependencies().forEach(resolver::addDependency);
         classpathBuilder.addLibrary(resolver);
     }
 
@@ -47,6 +44,45 @@ public class PlexLibraryManager implements PluginLoader
         catch (IOException e)
         {
             throw new RuntimeException(e);
+        }
+    }
+
+    private Stream<Dependency> loadModuleDependencies()
+    {
+        File modulesFolder = new File("plugins/Plex/modules");
+        File[] moduleFiles = modulesFolder.listFiles((directory, name) -> name.endsWith(".jar"));
+
+        if (moduleFiles == null)
+        {
+            return Stream.empty();
+        }
+
+        return Arrays.stream(moduleFiles)
+                .flatMap(this::readModuleLibraries)
+                .filter(library -> !library.isBlank())
+                .distinct()
+                .map(library -> new Dependency(new DefaultArtifact(library), null));
+    }
+
+    private Stream<String> readModuleLibraries(File moduleFile)
+    {
+        try (JarFile jarFile = new JarFile(moduleFile))
+        {
+            var moduleYml = jarFile.getJarEntry("module.yml");
+
+            if (moduleYml == null)
+            {
+                return Stream.empty();
+            }
+
+            try (var in = new InputStreamReader(jarFile.getInputStream(moduleYml), StandardCharsets.UTF_8))
+            {
+                return YamlConfiguration.loadConfiguration(in).getStringList("libraries").stream();
+            }
+        }
+        catch (IOException e)
+        {
+            throw new RuntimeException("Failed to read module libraries from " + moduleFile.getName(), e);
         }
     }
 
