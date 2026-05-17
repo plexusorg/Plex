@@ -1,9 +1,9 @@
 plugins {
     id("java")
     id("maven-publish")
-    id("org.jetbrains.gradle.plugin.idea-ext") version "1.3"
-    id("net.kyori.blossom") version "2.2.0"
-    id("com.gradleup.shadow") version "9.3.0"
+    id("org.jetbrains.gradle.plugin.idea-ext") version "1.3" apply false
+    id("net.kyori.blossom") version "2.2.0" apply false
+    id("com.gradleup.shadow") version "9.3.0" apply false
 }
 
 group = "dev.plex"
@@ -11,12 +11,6 @@ version = "1.7-SNAPSHOT"
 description = "Plex"
 
 subprojects {
-    apply(plugin = "java")
-    apply(plugin = "maven-publish")
-    apply(plugin = "org.jetbrains.gradle.plugin.idea-ext")
-    apply(plugin = "net.kyori.blossom")
-    apply(plugin = "com.gradleup.shadow")
-
     repositories {
         maven {
             url = uri("https://repo.papermc.io/repository/maven-public/")
@@ -37,31 +31,29 @@ subprojects {
         mavenCentral()
     }
 
-    java {
-        toolchain.languageVersion.set(JavaLanguageVersion.of(25))
-    }
-
-    tasks {
-        compileJava {
+    plugins.withId("java") {
+        extensions.configure<JavaPluginExtension> {
+            toolchain.languageVersion.set(JavaLanguageVersion.of(25))
+        }
+        tasks.withType<JavaCompile>().configureEach {
             options.encoding = Charsets.UTF_8.name()
         }
-        javadoc {
+        tasks.withType<Javadoc>().configureEach {
             options.encoding = Charsets.UTF_8.name()
         }
-        processResources {
+        tasks.withType<ProcessResources>().configureEach {
             filteringCharset = Charsets.UTF_8.name()
         }
     }
 
-    publishing {
-        repositories {
-            maven {
-                val releasesRepoUrl = uri("https://nexus.telesphoreo.me/repository/plex-releases/")
-                val snapshotsRepoUrl = uri("https://nexus.telesphoreo.me/repository/plex-snapshots/")
-                url = if (rootProject.version.toString().endsWith("SNAPSHOT")) snapshotsRepoUrl else releasesRepoUrl
-                credentials {
-                    username = System.getenv("plexUser")
-                    password = System.getenv("plexPassword")
+    plugins.withId("maven-publish") {
+        extensions.configure<PublishingExtension> {
+            repositories {
+                maven {
+                    val releasesRepoUrl = uri("https://nexus.telesphoreo.me/repository/plex-releases/")
+                    val snapshotsRepoUrl = uri("https://nexus.telesphoreo.me/repository/plex-snapshots/")
+                    url = if (rootProject.version.toString().endsWith("SNAPSHOT")) snapshotsRepoUrl else releasesRepoUrl
+                    credentials(PasswordCredentials::class)
                 }
             }
         }
@@ -77,11 +69,9 @@ tasks.clean {
 tasks.register<Copy>("copyJars", fun Copy.() {
     dependsOn(tasks.jar)
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    from(subprojects.map {
-        it.project.tasks.shadowJar
-    })
-    from(subprojects.map {
-        it.project.tasks.jar
-    })
+    subprojects.forEach { sub ->
+        from(sub.tasks.matching { it.name == "shadowJar" })
+        from(sub.tasks.matching { it.name == "jar" })
+    }
     into(file("build/libs"))
 })

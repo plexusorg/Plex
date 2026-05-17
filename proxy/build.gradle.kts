@@ -1,3 +1,11 @@
+plugins {
+    java
+    `maven-publish`
+    id("org.jetbrains.gradle.plugin.idea-ext")
+    id("net.kyori.blossom")
+    id("com.gradleup.shadow")
+}
+
 group = rootProject.group
 version = rootProject.version
 description = "Plex-Velocity"

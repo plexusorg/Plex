@@ -3,6 +3,11 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 plugins {
+    java
+    `maven-publish`
+    id("org.jetbrains.gradle.plugin.idea-ext")
+    id("net.kyori.blossom")
+    id("com.gradleup.shadow")
     id("net.kyori.indra.git") version "4.0.0"
     id("de.eldoria.plugin-yml.paper") version "0.9.0"
 }
