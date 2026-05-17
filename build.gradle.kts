@@ -50,6 +50,7 @@ subprojects {
         extensions.configure<PublishingExtension> {
             repositories {
                 maven {
+                    name = "plex"
                     val releasesRepoUrl = uri("https://nexus.telesphoreo.me/repository/plex-releases/")
                     val snapshotsRepoUrl = uri("https://nexus.telesphoreo.me/repository/plex-snapshots/")
                     url = if (rootProject.version.toString().endsWith("SNAPSHOT")) snapshotsRepoUrl else releasesRepoUrl
