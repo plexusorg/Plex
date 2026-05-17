@@ -31,9 +31,9 @@ public class PlexLibraryManager implements PluginLoader
         // The plugin is null, a hacky way to check whether to load Jetty or not
         if (new File("plugins/Plex/modules/Module-HTTPD.jar").isFile())
         {
-            resolver.addDependency(new Dependency(new DefaultArtifact("org.eclipse.jetty:jetty-server:12.0.14"), null));
-            resolver.addDependency(new Dependency(new DefaultArtifact("org.eclipse.jetty.ee10:jetty-ee10-servlet:12.0.14"), null));
-            resolver.addDependency(new Dependency(new DefaultArtifact("org.eclipse.jetty:jetty-proxy:12.0.14"), null));
+            resolver.addDependency(new Dependency(new DefaultArtifact("org.eclipse.jetty:jetty-server:12.1.9"), null));
+            resolver.addDependency(new Dependency(new DefaultArtifact("org.eclipse.jetty.ee10:jetty-ee10-servlet:12.1.9"), null));
+            resolver.addDependency(new Dependency(new DefaultArtifact("org.eclipse.jetty:jetty-proxy:12.1.9"), null));
         }
         classpathBuilder.addLibrary(resolver);
     }
