@@ -105,15 +105,18 @@ public class BanCMD extends PlexCommand
                             .after(Instant.now().getEpochSecond() - 86400)
                             .rollback()
                             .build();
-                    prism.rollback(sender, query).whenCompleteAsync((result, error) -> {
-                        if (error != null) {
+                    prism.rollback(sender, query).whenCompleteAsync((result, error) ->
+                    {
+                        if (error != null)
+                        {
                             send(sender, messageComponent("prismRollbackError", error.getMessage()));
                             PlexLog.error("Unable to rollback: {0}", error);
                             return;
                         }
 
                         int count = result.applied();
-                        if (count == 0) {
+                        if (count == 0)
+                        {
                             send(sender, messageComponent("prismNoResult", count));
                             PlexLog.debug("No activities are available to rollback");
                             return;
