@@ -82,6 +82,7 @@ public class SQLConnection implements PlexBase
             con.prepareStatement("CREATE TABLE IF NOT EXISTS `punishments` (" +
                     "`punished` VARCHAR(46) NOT NULL, " +
                     "`punisher` VARCHAR(46), " +
+                    "`punisherName` VARCHAR(64), " +
                     "`punishedUsername` VARCHAR(16), " +
                     "`ip` VARCHAR(2000), " +
                     "`type` VARCHAR(30), " +

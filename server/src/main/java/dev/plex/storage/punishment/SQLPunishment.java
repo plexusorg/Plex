@@ -24,7 +24,7 @@ public class SQLPunishment
     private static final String SELECT_BY_IP = "SELECT * FROM `punishments` WHERE ip=?";
     private static final String SELECT_BY = "SELECT * FROM `punishments` WHERE punisher=?";
 
-    private static final String INSERT = "INSERT INTO `punishments` (`punished`, `punisher`, `punishedUsername`, `ip`, `type`, `reason`, `customTime`, `active`, `endDate`) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    private static final String INSERT = "INSERT INTO `punishments` (`punished`, `punisher`, `punisherName`, `punishedUsername`, `ip`, `type`, `reason`, `customTime`, `active`, `endDate`) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     private static final String UPDATE_PUNISHMENT = "UPDATE `punishments` SET active=? WHERE punished=? AND type=?";
 
     public CompletableFuture<List<Punishment>> getPunishments()
@@ -43,6 +43,7 @@ public class SQLPunishment
                     punishment.setType(PunishmentType.valueOf(set.getString("type")));
                     punishment.setCustomTime(set.getBoolean("customTime"));
                     punishment.setPunishedUsername(set.getString("punishedUsername"));
+                    punishment.setPunisherName(set.getString("punisherName"));
                     punishment.setEndDate(ZonedDateTime.ofInstant(Instant.ofEpochMilli(set.getLong("endDate")), ZoneId.of(TimeUtils.TIMEZONE)));
                     punishment.setReason(set.getString("reason"));
                     punishment.setIp(set.getString("ip"));
@@ -125,13 +126,14 @@ public class SQLPunishment
                 PreparedStatement statement = con.prepareStatement(INSERT);
                 statement.setString(1, punishment.getPunished().toString());
                 statement.setString(2, punishment.getPunisher() == null ? null : punishment.getPunisher().toString());
-                statement.setString(3, punishment.getPunishedUsername());
-                statement.setString(4, punishment.getIp());
-                statement.setString(5, punishment.getType().name());
-                statement.setString(6, punishment.getReason());
-                statement.setBoolean(7, punishment.isCustomTime());
-                statement.setBoolean(8, punishment.isActive());
-                statement.setLong(9, punishment.getEndDate().toInstant().toEpochMilli());
+                statement.setString(3, punishment.getPunisherName());
+                statement.setString(4, punishment.getPunishedUsername());
+                statement.setString(5, punishment.getIp());
+                statement.setString(6, punishment.getType().name());
+                statement.setString(7, punishment.getReason());
+                statement.setBoolean(8, punishment.isCustomTime());
+                statement.setBoolean(9, punishment.isActive());
+                statement.setLong(10, punishment.getEndDate().toInstant().toEpochMilli());
                 PlexLog.debug("Executing punishment");
                 statement.execute();
             }

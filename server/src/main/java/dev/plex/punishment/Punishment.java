@@ -26,6 +26,10 @@ public class Punishment
     @NotNull
     private final UUID punished;
     private final UUID punisher;
+    // Optional display attribution for punishers without a Minecraft UUID
+    // (e.g. web staff signed in via XenForo). When non-null, render this in
+    // place of the UUID-based name lookup.
+    private String punisherName;
     private String ip;
     private String punishedUsername;
     private PunishmentType type;
@@ -42,12 +46,27 @@ public class Punishment
 
     public static Component generateBanMessage(Punishment punishment)
     {
-        return PlexUtils.messageComponent("banMessage", banUrl, punishment.getReason(), TimeUtils.useTimezone(punishment.getEndDate()), punishment.getPunisher() == null ? "CONSOLE" : Plex.get().getSqlPlayerData().getNameByUUID(punishment.getPunisher()));
+        return PlexUtils.messageComponent("banMessage", banUrl, punishment.getReason(), TimeUtils.useTimezone(punishment.getEndDate()), punisherDisplayName(punishment));
     }
 
     public static Component generateKickMessage(Punishment punishment)
     {
-        return PlexUtils.messageComponent("kickMessage", punishment.getReason(), punishment.getPunisher() == null ? "CONSOLE" : Plex.get().getSqlPlayerData().getNameByUUID(punishment.getPunisher()));
+        return PlexUtils.messageComponent("kickMessage", punishment.getReason(), punisherDisplayName(punishment));
+    }
+
+    /**
+     * Resolves the human-readable punisher attribution for display.
+     * Prefers the explicit {@link #punisherName} (used for off-server
+     * sources such as XenForo staff acting via the web HTTPD), falling
+     * back to a UUID lookup, and finally "CONSOLE" when the punisher is
+     * truly unknown.
+     */
+    public static String punisherDisplayName(Punishment punishment)
+    {
+        String explicit = punishment.getPunisherName();
+        if (explicit != null && !explicit.isEmpty()) return explicit;
+        if (punishment.getPunisher() == null) return "CONSOLE";
+        return Plex.get().getSqlPlayerData().getNameByUUID(punishment.getPunisher());
     }
 
     public static Component generateIndefBanMessageWithReason(String type, String reason)
