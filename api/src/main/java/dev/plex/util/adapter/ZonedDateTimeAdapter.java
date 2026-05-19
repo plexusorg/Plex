@@ -7,8 +7,6 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
-import dev.plex.util.TimeUtils;
-
 import java.lang.reflect.Type;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -16,7 +14,7 @@ import java.time.ZonedDateTime;
 
 public class ZonedDateTimeAdapter implements JsonSerializer<ZonedDateTime>, JsonDeserializer<ZonedDateTime>
 {
-    private static final String TIMEZONE = TimeUtils.TIMEZONE;
+    private static final ZoneId UTC = ZoneId.of("Etc/UTC");
 
     @Override
     public JsonElement serialize(ZonedDateTime src, Type typeOfSrc, JsonSerializationContext context)
@@ -28,6 +26,6 @@ public class ZonedDateTimeAdapter implements JsonSerializer<ZonedDateTime>, Json
     public ZonedDateTime deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException
     {
         Instant instant = Instant.ofEpochMilli(json.getAsJsonPrimitive().getAsLong());
-        return ZonedDateTime.ofInstant(instant, ZoneId.of(TIMEZONE));
+        return ZonedDateTime.ofInstant(instant, UTC);
     }
 }
