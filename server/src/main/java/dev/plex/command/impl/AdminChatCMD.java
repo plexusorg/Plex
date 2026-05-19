@@ -1,5 +1,6 @@
 package dev.plex.command.impl;
 
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
@@ -11,10 +12,9 @@ import dev.plex.util.PlexUtils;
 import dev.plex.util.minimessage.SafeMiniMessage;
 import dev.plex.util.redis.MessageUtil;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.UUID;
 
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
 import org.apache.commons.lang3.StringUtils;
 import org.bukkit.command.CommandSender;
@@ -26,6 +26,14 @@ import org.jetbrains.annotations.Nullable;
 @CommandParameters(name = "adminchat", description = "Talk privately with other admins", usage = "/<command> <message>", aliases = "o,ac,sc,staffchat")
 public class AdminChatCMD extends ServerCommand
 {
+    @Override
+    protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
+    {
+        command.executes(context -> executeCommand(context));
+        command.then(greedyString("message")
+                .executes(context -> executeCommand(context, argsWithGreedy(string(context, "message")))));
+    }
+
     @Override
     protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
     {
@@ -58,9 +66,4 @@ public class AdminChatCMD extends ServerCommand
         return null;
     }
 
-    @Override
-    public @NotNull List<String> smartTabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
-    {
-        return Collections.emptyList();
-    }
 }

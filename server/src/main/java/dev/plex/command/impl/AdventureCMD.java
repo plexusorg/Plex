@@ -1,6 +1,6 @@
 package dev.plex.command.impl;
 
-import com.google.common.collect.ImmutableList;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
@@ -9,8 +9,8 @@ import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.event.GameModeUpdateEvent;
 import dev.plex.util.PlexUtils;
 
-import java.util.List;
 
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -23,6 +23,16 @@ import org.jetbrains.annotations.Nullable;
 @CommandParameters(name = "adventure", aliases = "gma,egma,eadventure,adventuremode,eadventuremode", description = "Set your own or another player's gamemode to adventure mode")
 public class AdventureCMD extends ServerCommand
 {
+    @Override
+    protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
+    {
+        command.executes(context -> executeCommand(context));
+        command.then(word("target")
+                .requires(source -> silentCheckPermission(source.getSender(), "plex.gamemode.adventure.others"))
+                .suggests(suggestPlayersAndAll("plex.gamemode.adventure.others"))
+                .executes(context -> executeCommand(context, string(context, "target"))));
+    }
+
     @Override
     protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
     {
@@ -53,13 +63,4 @@ public class AdventureCMD extends ServerCommand
         return null;
     }
 
-    @Override
-    public @NotNull List<String> smartTabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
-    {
-        if (silentCheckPermission(sender, "plex.gamemode.adventure.others"))
-        {
-            return PlexUtils.getPlayerNameList();
-        }
-        return ImmutableList.of();
-    }
 }

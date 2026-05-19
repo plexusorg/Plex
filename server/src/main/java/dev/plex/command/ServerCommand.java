@@ -1,9 +1,16 @@
 package dev.plex.command;
 
 import com.google.common.collect.Lists;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.builder.RequiredArgumentBuilder;
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.suggestion.SuggestionProvider;
+import com.mojang.brigadier.suggestion.Suggestions;
+import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+import com.mojang.brigadier.tree.LiteralCommandNode;
 import dev.plex.Plex;
-import dev.plex.command.annotation.CommandParameters;
-import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.exception.CommandFailException;
 import dev.plex.command.exception.ConsoleMustDefinePlayerException;
 import dev.plex.command.exception.ConsoleOnlyException;
@@ -13,52 +20,34 @@ import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.player.PlexPlayer;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
-
-import java.util.Arrays;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
+import io.papermc.paper.command.brigadier.Commands;
+import java.util.Collection;
+import java.util.Locale;
 import java.util.List;
 import java.util.UUID;
-
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandMap;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
-import org.bukkit.command.PluginIdentifiableCommand;
 import org.bukkit.entity.Player;
-import org.bukkit.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Superclass for all server commands.
+ * Brigadier-backed superclass for Plex's built-in server commands.
  */
-public abstract class ServerCommand extends Command implements PluginIdentifiableCommand
+public abstract class ServerCommand implements PlexCommand
 {
     private static Runtime runtime;
 
-    /**
-     * Returns the instance of the plugin
-     */
     protected final Plex plugin;
-
-    /**
-     * The parameters for the command
-     */
-    private final CommandParameters params;
-
-    /**
-     * The permissions for the command
-     */
-    private final CommandPermissions perms;
-
-    /**
-     * Required command source fetched from the permissions
-     */
     private final RequiredCommandSource commandSource;
 
     public static void setRuntime(Runtime runtime)
@@ -66,102 +55,233 @@ public abstract class ServerCommand extends Command implements PluginIdentifiabl
         ServerCommand.runtime = runtime;
     }
 
-    /**
-     * Creates an instance of the command
-     */
-    public ServerCommand(boolean register)
+    protected ServerCommand()
     {
-        super("");
         this.plugin = requireRuntime().plugin();
-        this.params = getClass().getAnnotation(CommandParameters.class);
-        this.perms = getClass().getAnnotation(CommandPermissions.class);
-
-        setName(this.params.name());
-        setLabel(this.params.name());
-        setDescription(params.description());
-        setPermission(this.perms.permission());
-        setUsage(params.usage().replace("<command>", this.params.name()));
-        if (params.aliases().split(",").length > 0)
-        {
-            setAliases(Arrays.asList(params.aliases().split(",")));
-        }
-        this.commandSource = perms.source();
-
-        if (register)
-        {
-            requireRuntime().register(this);
-        }
+        this.commandSource = permissions().source();
     }
 
-    public ServerCommand()
-    {
-        this(true);
-    }
-
-    /**
-     * Executes the command
-     *
-     * @param sender       The sender of the command
-     * @param playerSender The player who executed the command (null if CommandSource is console or if CommandSource is any but console executed)
-     * @param args         A Kyori Component to send to the sender (can be null)
-     */
     protected abstract Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, @NotNull String[] args);
 
-    /**
-     * @hidden
-     */
     @Override
-    public boolean execute(@NotNull CommandSender sender, @NotNull String label, String[] args)
+    public final LiteralCommandNode<CommandSourceStack> buildCommand()
     {
-        if (!matches(label))
+        LiteralArgumentBuilder<CommandSourceStack> command = Commands.literal(getName())
+                .requires(this::canUse);
+        buildCommand(command);
+        return command.build();
+    }
+
+    protected abstract void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command);
+
+    protected LiteralArgumentBuilder<CommandSourceStack> literal(String literal)
+    {
+        return Commands.literal(literal);
+    }
+
+    protected RequiredArgumentBuilder<CommandSourceStack, String> word(String name)
+    {
+        return Commands.argument(name, StringArgumentType.word());
+    }
+
+    protected RequiredArgumentBuilder<CommandSourceStack, String> playerArgument(String name)
+    {
+        return word(name).suggests(suggestPlayers());
+    }
+
+    protected RequiredArgumentBuilder<CommandSourceStack, String> greedyString(String name)
+    {
+        return Commands.argument(name, StringArgumentType.greedyString());
+    }
+
+    protected RequiredArgumentBuilder<CommandSourceStack, Integer> nonNegativeInteger(String name)
+    {
+        return Commands.argument(name, IntegerArgumentType.integer(0));
+    }
+
+    protected int executeCommand(CommandContext<CommandSourceStack> context, String... args)
+    {
+        return dispatchCommand(context, args);
+    }
+
+    protected String string(CommandContext<CommandSourceStack> context, String name)
+    {
+        return StringArgumentType.getString(context, name);
+    }
+
+    protected int integer(CommandContext<CommandSourceStack> context, String name)
+    {
+        return IntegerArgumentType.getInteger(context, name);
+    }
+
+    protected String[] argsWithGreedy(String greedy)
+    {
+        return splitExecutionArgs(greedy);
+    }
+
+    protected String[] argsWithGreedy(String first, String greedy)
+    {
+        String[] greedyArgs = argsWithGreedy(greedy);
+        String[] args = new String[greedyArgs.length + 1];
+        args[0] = first;
+        System.arraycopy(greedyArgs, 0, args, 1, greedyArgs.length);
+        return args;
+    }
+
+    protected String[] argsWithGreedy(String first, String second, String greedy)
+    {
+        String[] greedyArgs = argsWithGreedy(greedy);
+        String[] args = new String[greedyArgs.length + 2];
+        args[0] = first;
+        args[1] = second;
+        System.arraycopy(greedyArgs, 0, args, 2, greedyArgs.length);
+        return args;
+    }
+
+    protected SuggestionProvider<CommandSourceStack> suggest(Supplier<Collection<String>> suggestions)
+    {
+        return (context, builder) -> suggestMatching(builder, suggestions.get());
+    }
+
+    protected SuggestionProvider<CommandSourceStack> suggest(Collection<String> suggestions)
+    {
+        return (context, builder) -> suggestMatching(builder, suggestions);
+    }
+
+    protected SuggestionProvider<CommandSourceStack> suggestGreedyWords(Supplier<Collection<String>> suggestions)
+    {
+        return (context, builder) -> suggestLastGreedyToken(builder, suggestions.get());
+    }
+
+    protected SuggestionProvider<CommandSourceStack> suggestGreedyWords(Collection<String> suggestions)
+    {
+        return (context, builder) -> suggestLastGreedyToken(builder, suggestions);
+    }
+
+    protected CompletableFuture<Suggestions> suggestMatching(SuggestionsBuilder builder, Collection<String> suggestions)
+    {
+        String remaining = builder.getRemaining().toLowerCase(Locale.ROOT);
+        for (String suggestion : suggestions)
+        {
+            if (suggestion.toLowerCase(Locale.ROOT).startsWith(remaining))
+            {
+                builder.suggest(suggestion);
+            }
+        }
+        return builder.buildFuture();
+    }
+
+    protected CompletableFuture<Suggestions> suggestLastGreedyToken(SuggestionsBuilder builder, Collection<String> suggestions)
+    {
+        String remaining = builder.getRemaining();
+        int tokenStart = remaining.lastIndexOf(' ') + 1;
+        SuggestionsBuilder tokenBuilder = tokenStart == 0 ? builder : builder.createOffset(builder.getStart() + tokenStart);
+        return suggestMatching(tokenBuilder, suggestions);
+    }
+
+    protected CompletableFuture<Suggestions> suggestOptionalFlags(SuggestionsBuilder builder, Collection<String> flags)
+    {
+        String remaining = builder.getRemaining();
+        if (remaining.isBlank())
+        {
+            return builder.buildFuture();
+        }
+
+        List<String> availableFlags = Lists.newArrayList(flags);
+        for (String token : remaining.split("\\s+"))
+        {
+            if (token.isBlank())
+            {
+                continue;
+            }
+            if (flags.stream().anyMatch(flag -> flag.equalsIgnoreCase(token)))
+            {
+                availableFlags.removeIf(flag -> flag.equalsIgnoreCase(token));
+            }
+        }
+
+        String currentToken = remaining.substring(remaining.lastIndexOf(' ') + 1);
+        if (!currentToken.startsWith("-"))
+        {
+            return builder.buildFuture();
+        }
+        return suggestLastGreedyToken(builder, availableFlags);
+    }
+
+    protected SuggestionProvider<CommandSourceStack> suggestPlayers()
+    {
+        return suggest(PlexUtils::getPlayerNameList);
+    }
+
+    protected SuggestionProvider<CommandSourceStack> suggestPlayersAndAll()
+    {
+        return suggest(() ->
+        {
+            List<String> suggestions = Lists.newArrayList(PlexUtils.getPlayerNameList());
+            suggestions.add("-a");
+            return suggestions;
+        });
+    }
+
+    protected SuggestionProvider<CommandSourceStack> suggestPlayersAndAll(String permission)
+    {
+        return (context, builder) ->
+        {
+            if (!silentCheckPermission(context.getSource().getSender(), permission))
+            {
+                return builder.buildFuture();
+            }
+            List<String> suggestions = Lists.newArrayList(PlexUtils.getPlayerNameList());
+            suggestions.add("-a");
+            return suggestMatching(builder, suggestions);
+        };
+    }
+
+    private boolean canUse(CommandSourceStack source)
+    {
+        CommandSender sender = source.getSender();
+        if (commandSource == RequiredCommandSource.CONSOLE && sender instanceof Player)
         {
             return false;
         }
 
-        if (commandSource == RequiredCommandSource.CONSOLE && sender instanceof Player)
+        if (commandSource == RequiredCommandSource.IN_GAME && sender instanceof ConsoleCommandSender)
         {
-            sender.sendMessage(messageComponent("noPermissionInGame"));
-            return true;
+            return false;
         }
 
-        if (commandSource == RequiredCommandSource.IN_GAME)
+        String permission = getPermission();
+        if (permission.isEmpty())
         {
-            if (sender instanceof ConsoleCommandSender)
-            {
-                send(sender, messageComponent("noPermissionConsole"));
-                return true;
-            }
+            return !(sender instanceof Player player) || hasCachedPlexPlayer(player);
         }
 
         if (sender instanceof Player player)
         {
-            PlexPlayer plexPlayer = plugin.getPlayerCache().getPlexPlayerMap().get(player.getUniqueId());
-
-            if (plexPlayer == null)
-            {
-                return false;
-            }
-
-            if (!perms.permission().isEmpty() && !player.hasPermission(perms.permission()))
-            {
-                send(sender, messageComponent("noPermissionNode", perms.permission()));
-                return true;
-            }
+            return hasCachedPlexPlayer(player) && player.hasPermission(permission);
         }
 
-        if (sender instanceof ConsoleCommandSender && !sender.getName().equalsIgnoreCase("console")) //telnet
+        if (sender instanceof ConsoleCommandSender && !sender.getName().equalsIgnoreCase("console"))
         {
             PlexPlayer plexPlayer = plugin.getPlayerService().getPlayer(sender.getName());
-
-            if (!perms.permission().isEmpty() && !plugin.getPermissions().playerHas(null, Bukkit.getPlayer(plexPlayer.getName()), perms.permission()))
-            {
-                send(sender, messageComponent("noPermissionNode", perms.permission()));
-                return true;
-            }
+            Player player = plexPlayer == null ? null : Bukkit.getPlayer(plexPlayer.getName());
+            return player != null && plugin.getPermissions().playerHas(null, player, permission);
         }
+
+        return true;
+    }
+
+    private int dispatchCommand(CommandContext<CommandSourceStack> context, String[] args)
+    {
+        CommandSender sender = context.getSource().getSender();
+        if (!validateSourceAndPermission(sender))
+        {
+            return com.mojang.brigadier.Command.SINGLE_SUCCESS;
+        }
+
         try
         {
-            Component component = this.execute(sender, isConsole(sender) ? null : (Player) sender, args);
+            Component component = this.execute(sender, isConsole(sender) ? null : (Player)sender, args);
             if (component != null)
             {
                 send(sender, component);
@@ -172,125 +292,107 @@ public abstract class ServerCommand extends Command implements PluginIdentifiabl
         {
             send(sender, exceptionComponent(ex));
         }
+        return com.mojang.brigadier.Command.SINGLE_SUCCESS;
+    }
+
+    private boolean validateSourceAndPermission(CommandSender sender)
+    {
+        if (commandSource == RequiredCommandSource.CONSOLE && sender instanceof Player)
+        {
+            send(sender, messageComponent("noPermissionInGame"));
+            return false;
+        }
+
+        if (commandSource == RequiredCommandSource.IN_GAME && sender instanceof ConsoleCommandSender)
+        {
+            send(sender, messageComponent("noPermissionConsole"));
+            return false;
+        }
+
+        String permission = getPermission();
+        if (permission.isEmpty())
+        {
+            return true;
+        }
+
+        if (sender instanceof Player player)
+        {
+            if (!hasCachedPlexPlayer(player))
+            {
+                return false;
+            }
+            if (!player.hasPermission(permission))
+            {
+                send(sender, messageComponent("noPermissionNode", permission));
+                return false;
+            }
+            return true;
+        }
+
+        if (sender instanceof ConsoleCommandSender && !sender.getName().equalsIgnoreCase("console"))
+        {
+            PlexPlayer plexPlayer = plugin.getPlayerService().getPlayer(sender.getName());
+            Player player = plexPlayer == null ? null : Bukkit.getPlayer(plexPlayer.getName());
+            if (player == null || !plugin.getPermissions().playerHas(null, player, permission))
+            {
+                send(sender, messageComponent("noPermissionNode", permission));
+                return false;
+            }
+        }
+
         return true;
     }
 
-    @NotNull
-    public abstract List<String> smartTabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException;
-
-    @NotNull
-    @Override
-    public List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
+    private boolean hasCachedPlexPlayer(Player player)
     {
-        List<String> list = smartTabComplete(sender, alias, args);
-        return StringUtil.copyPartialMatches(args[args.length - 1], list, Lists.newArrayList());
+        return plugin.getPlayerCache().getPlexPlayerMap().containsKey(player.getUniqueId());
     }
 
-    /**
-     * Checks if the String given is a matching command
-     *
-     * @param label The String to check
-     * @return true if the string is a command name or alias
-     */
-    private boolean matches(String label)
+    private String[] splitExecutionArgs(String rawArgs)
     {
-        if (params.aliases().split(",").length > 0)
+        if (rawArgs.isBlank())
         {
-            for (String alias : params.aliases().split(","))
-            {
-                if (alias.equalsIgnoreCase(label) || getName().equalsIgnoreCase(label))
-                {
-                    return true;
-                }
-            }
+            return new String[0];
         }
-        else if (params.aliases().split(",").length < 1)
-        {
-            return getName().equalsIgnoreCase(label);
-        }
-        return false;
+        return rawArgs.trim().split("\\s+");
     }
 
-    /**
-     * Gets a PlexPlayer from Player object
-     *
-     * @param player The player object
-     * @return PlexPlayer Object
-     * @see PlexPlayer
-     */
     protected PlexPlayer getPlexPlayer(@NotNull Player player)
     {
         return plugin.getPlayerService().getPlayer(player.getUniqueId());
     }
 
-    /**
-     * Sends a message to an Audience
-     *
-     * @param audience The Audience to send the message to
-     * @param s        The message to send
-     */
     protected void send(Audience audience, String s)
     {
         audience.sendMessage(componentFromString(s));
     }
 
-    /**
-     * Sends a message to an Audience
-     *
-     * @param audience  The Audience to send the message to
-     * @param component The Component to send
-     */
     protected void send(Audience audience, Component component)
     {
         audience.sendMessage(component);
     }
 
-    /**
-     * Checks whether a sender has enough permissions or is high enough a rank
-     *
-     * @param sender     A CommandSender
-     * @param permission The permission to check
-     * @return true if the sender has enough permissions
-     */
     protected boolean checkPermission(CommandSender sender, String permission)
     {
         if (!isConsole(sender))
         {
-            return checkPermission((Player) sender, permission);
+            return checkPermission((Player)sender, permission);
         }
         return true;
     }
 
-    /**
-     * Checks whether a sender has enough permissions or is high enough a rank
-     *
-     * @param sender     A CommandSender
-     * @param permission The permission to check
-     * @return true if the sender has enough permissions
-     */
     protected boolean silentCheckPermission(CommandSender sender, String permission)
     {
         PlexLog.debug("Checking {0} with {1}", sender.getName(), permission);
         if (!isConsole(sender))
         {
-            return silentCheckPermission((Player) sender, permission);
+            return silentCheckPermission((Player)sender, permission);
         }
         return true;
     }
 
-    /**
-     * Checks whether a player has enough permissions or is high enough a rank
-     *
-     * @param player     The player object
-     * @param permission The permission to check
-     * @return true if the sender has enough permissions
-     */
     protected boolean checkPermission(Player player, String permission)
     {
-        if (player instanceof ConsoleCommandSender)
-        {
-            return true;
-        }
         if (!permission.isEmpty() && !player.hasPermission(permission))
         {
             throw new CommandFailException(PlexUtils.messageString("noPermissionNode", permission));
@@ -300,16 +402,9 @@ public abstract class ServerCommand extends Command implements PluginIdentifiabl
 
     protected boolean silentCheckPermission(Player player, String permission)
     {
-        return !permission.isEmpty() && player.hasPermission(permission);
+        return permission.isEmpty() || player.hasPermission(permission);
     }
 
-    /**
-     * Gets the UUID of the sender
-     *
-     * @param sender A command sender
-     * @return A unique ID or null if the sender is console
-     * @see UUID
-     */
     protected UUID getUUID(CommandSender sender)
     {
         if (!(sender instanceof Player player))
@@ -319,82 +414,36 @@ public abstract class ServerCommand extends Command implements PluginIdentifiabl
         return player.getUniqueId();
     }
 
-    /**
-     * The plugin
-     *
-     * @return The instance of the plugin
-     * @see Plex
-     */
-    @Override
     public @NotNull Plex getPlugin()
     {
         return plugin;
     }
 
-    /**
-     * Checks whether a sender is console
-     *
-     * @param sender A command sender
-     * @return true if the sender is console
-     */
     protected boolean isConsole(CommandSender sender)
     {
         return !(sender instanceof Player);
     }
 
-    /**
-     * Converts a message entry from the "messages.yml" to a Component
-     *
-     * @param s       The message entry
-     * @param objects Any objects to replace in order
-     * @return A Kyori Component
-     */
     protected Component messageComponent(String s, Object... objects)
     {
         return PlexUtils.messageComponent(s, objects);
     }
 
-    /**
-     * Converts a message entry from the "messages.yml" to a Component
-     *
-     * @param s       The message entry
-     * @param objects Any objects to replace in order
-     * @return A Kyori Component
-     */
     protected Component messageComponent(String s, Component... objects)
     {
         return PlexUtils.messageComponent(s, objects);
     }
 
-    /**
-     * Converts a message entry from the "messages.yml" to a String
-     *
-     * @param s       The message entry
-     * @param objects Any objects to replace in order
-     * @return A String
-     */
     protected String messageString(String s, Object... objects)
     {
         return PlexUtils.messageString(s, objects);
     }
 
-    /**
-     * Converts usage to a Component
-     *
-     * @return A Kyori Component stating the usage
-     */
     protected Component usage()
     {
         return messageComponent("correctUsagePrefix").append(componentFromString(this.getUsage()).color(NamedTextColor.GRAY));
     }
 
-    /**
-     * Converts usage to a Component
-     * <p>
-     * s The usage to convert
-     *
-     * @return A Kyori Component stating the usage
-     */
     protected Component usage(String s)
     {
         return messageComponent("correctUsagePrefix").append(componentFromString(s).color(NamedTextColor.GRAY));
@@ -418,7 +467,8 @@ public abstract class ServerCommand extends Command implements PluginIdentifiabl
         {
             return messageComponent("consoleMustDefinePlayer");
         }
-        return PlexUtils.mmDeserialize(ex.getMessage());
+        String message = ex.getMessage();
+        return message == null ? componentFromString(ex.getClass().getSimpleName()) : PlexUtils.mmDeserialize(message);
     }
 
     protected Player getNonNullPlayer(String name)
@@ -430,7 +480,6 @@ public abstract class ServerCommand extends Command implements PluginIdentifiabl
         }
         catch (IllegalArgumentException ignored)
         {
-
         }
 
         Player player = Bukkit.getPlayer(name);
@@ -472,12 +521,6 @@ public abstract class ServerCommand extends Command implements PluginIdentifiabl
         return world;
     }
 
-    /**
-     * Converts a String to a legacy Kyori Component
-     *
-     * @param s The String to convert
-     * @return A Kyori component
-     */
     protected Component componentFromString(String s)
     {
         return LegacyComponentSerializer.legacyAmpersand().deserialize(s).colorIfAbsent(NamedTextColor.GRAY);
@@ -488,47 +531,16 @@ public abstract class ServerCommand extends Command implements PluginIdentifiabl
         return LegacyComponentSerializer.legacyAmpersand().deserialize(s);
     }
 
-    /**
-     * Converts a String to a MiniMessage Component
-     *
-     * @param s The String to convert
-     * @return A Kyori Component
-     */
     protected Component mmString(String s)
     {
         return PlexUtils.mmDeserialize(s);
-    }
-
-    public CommandMap getMap()
-    {
-        return plugin.getServer().getCommandMap();
     }
 
     private static Runtime requireRuntime()
     {
         if (runtime == null)
         {
-            Plex plex = Plex.get();
-            if (plex == null)
-            {
-                throw new IllegalStateException("ServerCommand runtime has not been installed by Plex");
-            }
-            return new Runtime()
-            {
-                @Override
-                public Plex plugin()
-                {
-                    return plex;
-                }
-
-                @Override
-                public void register(Command command)
-                {
-                    plex.getServer().getCommandMap().getKnownCommands().remove(command.getName().toLowerCase());
-                    command.getAliases().forEach(alias -> plex.getServer().getCommandMap().getKnownCommands().remove(alias.toLowerCase()));
-                    plex.getServer().getCommandMap().register("plex", command);
-                }
-            };
+            throw new IllegalStateException("ServerCommand runtime has not been installed by Plex");
         }
         return runtime;
     }
@@ -536,7 +548,5 @@ public abstract class ServerCommand extends Command implements PluginIdentifiabl
     public interface Runtime
     {
         Plex plugin();
-
-        void register(Command command);
     }
 }

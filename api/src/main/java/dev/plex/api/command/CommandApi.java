@@ -1,10 +1,10 @@
 package dev.plex.api.command;
 
-import org.bukkit.command.Command;
+import dev.plex.command.PlexCommand;
 
 public interface CommandApi
 {
-    void register(Command command);
+    void register(PlexCommand command);
 
-    void unregister(Command command);
+    void unregister(PlexCommand command);
 }

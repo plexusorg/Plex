@@ -1,14 +1,14 @@
 package dev.plex.command.impl;
 
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.util.PlexUtils;
 
-import java.util.Collections;
-import java.util.List;
 
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
 import org.apache.commons.lang3.StringUtils;
 import org.bukkit.command.CommandSender;
@@ -21,6 +21,14 @@ import org.jetbrains.annotations.Nullable;
 public class SayCMD extends ServerCommand
 {
     @Override
+    protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
+    {
+        command.executes(context -> executeCommand(context));
+        command.then(greedyString("message")
+                .executes(context -> executeCommand(context, argsWithGreedy(string(context, "message")))));
+    }
+
+    @Override
     protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
     {
         if (args.length == 0)
@@ -32,9 +40,4 @@ public class SayCMD extends ServerCommand
         return null;
     }
 
-    @Override
-    public @NotNull List<String> smartTabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
-    {
-        return Collections.emptyList();
-    }
 }

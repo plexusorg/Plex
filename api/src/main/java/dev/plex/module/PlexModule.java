@@ -1,6 +1,7 @@
 package dev.plex.module;
 
 import dev.plex.api.PlexApi;
+import dev.plex.command.PlexCommand;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,7 +14,6 @@ import java.util.List;
 import java.util.Locale;
 
 import org.apache.logging.log4j.Logger;
-import org.bukkit.command.Command;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.jetbrains.annotations.NotNull;
@@ -27,7 +27,7 @@ import org.jetbrains.annotations.Nullable;
  */
 public abstract class PlexModule
 {
-    private final List<Command> commands = new ArrayList<>();
+    private final List<PlexCommand> commands = new ArrayList<>();
     private final List<Listener> listeners = new ArrayList<>();
 
     private PlexApi api;
@@ -72,7 +72,7 @@ public abstract class PlexModule
         HandlerList.unregisterAll(listener);
     }
 
-    public void registerCommand(Command command)
+    public void registerCommand(PlexCommand command)
     {
         commands.add(command);
         if (api != null)
@@ -81,7 +81,7 @@ public abstract class PlexModule
         }
     }
 
-    public void unregisterCommand(Command command)
+    public void unregisterCommand(PlexCommand command)
     {
         commands.remove(command);
         if (api != null)
@@ -91,7 +91,7 @@ public abstract class PlexModule
     }
 
     @Nullable
-    public Command getCommand(String name)
+    public PlexCommand getCommand(String name)
     {
         return commands.stream()
                 .filter(command -> command.getName().equalsIgnoreCase(name) || command.getAliases().stream().map(String::toLowerCase).toList().contains(name.toLowerCase(Locale.ROOT)))
@@ -142,7 +142,7 @@ public abstract class PlexModule
         }
     }
 
-    public List<Command> getCommands()
+    public List<PlexCommand> getCommands()
     {
         return commands;
     }

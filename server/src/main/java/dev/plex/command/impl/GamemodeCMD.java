@@ -1,5 +1,6 @@
 package dev.plex.command.impl;
 
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
@@ -8,10 +9,7 @@ import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.event.GameModeUpdateEvent;
 import dev.plex.util.PlexUtils;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -24,7 +22,32 @@ import org.jetbrains.annotations.Nullable;
 @CommandPermissions(permission = "plex.gamemode", source = RequiredCommandSource.ANY)
 public class GamemodeCMD extends ServerCommand
 {
-    private GameMode gamemode;
+    @Override
+    protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
+    {
+        addMode(command, "survival", "s", "0");
+        addMode(command, "creative", "c", "1");
+        addMode(command, "adventure", "a", "2");
+        addMode(command, "default", "d", "5");
+        addMode(command, "spectator", "sp", "3", "6");
+    }
+
+    private void addMode(LiteralArgumentBuilder<CommandSourceStack> command, String mode, String... aliases)
+    {
+        command.then(modeNode(mode));
+        for (String alias : aliases)
+        {
+            command.then(modeNode(alias));
+        }
+    }
+
+    private LiteralArgumentBuilder<CommandSourceStack> modeNode(String mode)
+    {
+        return literal(mode)
+                .executes(context -> executeCommand(context, mode))
+                .then(playerArgument("player")
+                        .executes(context -> executeCommand(context, mode, string(context, "player"))));
+    }
 
     @Override
     protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
@@ -37,47 +60,43 @@ public class GamemodeCMD extends ServerCommand
         {
             case "survival", "s", "0" ->
             {
-                gamemode = GameMode.SURVIVAL;
-                update(sender, playerSender, GameMode.SURVIVAL);
+                update(sender, playerSender, args, GameMode.SURVIVAL);
                 return null;
             }
             case "creative", "c", "1" ->
             {
-                gamemode = GameMode.CREATIVE;
-                update(sender, playerSender, GameMode.CREATIVE);
+                update(sender, playerSender, args, GameMode.CREATIVE);
                 return null;
             }
             case "adventure", "a", "2" ->
             {
-                gamemode = GameMode.ADVENTURE;
-                update(sender, playerSender, GameMode.ADVENTURE);
+                update(sender, playerSender, args, GameMode.ADVENTURE);
                 return null;
             }
             case "default", "d", "5" ->
             {
-                gamemode = plugin.getServer().getDefaultGameMode();
-                update(sender, playerSender, plugin.getServer().getDefaultGameMode());
+                update(sender, playerSender, args, plugin.getServer().getDefaultGameMode());
                 return null;
             }
             case "spectator", "sp", "3", "6" ->
             {
-                gamemode = GameMode.SPECTATOR;
                 checkPermission(sender, "plex.gamemode.spectator");
-                update(sender, playerSender, GameMode.SPECTATOR);
+                update(sender, playerSender, args, GameMode.SPECTATOR);
                 return null;
             }
         }
+        return usage();
+    }
+
+    private void update(CommandSender sender, Player playerSender, String[] args, GameMode gameMode)
+    {
         if (args.length > 1)
         {
             checkPermission(sender, "plex.gamemode.others");
             Player player = getNonNullPlayer(args[1]);
-            Bukkit.getServer().getPluginManager().callEvent(new GameModeUpdateEvent(sender, player, gamemode));
+            Bukkit.getServer().getPluginManager().callEvent(new GameModeUpdateEvent(sender, player, gameMode));
+            return;
         }
-        return null;
-    }
-
-    private void update(CommandSender sender, Player playerSender, GameMode gameMode)
-    {
         if (isConsole(sender))
         {
             throw new CommandFailException(PlexUtils.messageString("consoleMustDefinePlayer"));
@@ -88,20 +107,4 @@ public class GamemodeCMD extends ServerCommand
         }
     }
 
-    @Override
-    public @NotNull List<String> smartTabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
-    {
-        if (args.length == 1)
-        {
-            return Arrays.asList("creative", "survival", "adventure", "spectator", "default");
-        }
-        if (args.length == 2)
-        {
-            if (silentCheckPermission(sender, "plex.gamemode.others"))
-            {
-                return PlexUtils.getPlayerNameList();
-            }
-        }
-        return Collections.emptyList();
-    }
 }

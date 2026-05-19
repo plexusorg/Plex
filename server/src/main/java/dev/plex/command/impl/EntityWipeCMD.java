@@ -1,5 +1,6 @@
 package dev.plex.command.impl;
 
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
@@ -9,11 +10,11 @@ import dev.plex.util.PlexUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -28,6 +29,29 @@ import org.jetbrains.annotations.Nullable;
 @CommandParameters(name = "entitywipe", description = "Remove various server entities that may cause lag, such as dropped items, minecarts, and boats.", usage = "/<command> [entity] [radius]", aliases = "ew,rd")
 public class EntityWipeCMD extends ServerCommand
 {
+    @Override
+    protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
+    {
+        command.executes(context -> executeCommand(context));
+        command.then(greedyString("entities")
+                .suggests(suggestGreedyWords(() ->
+                {
+                    List<String> entities = new ArrayList<>();
+                    for (World world : Bukkit.getWorlds())
+                    {
+                        for (Entity entity : world.getEntities())
+                        {
+                            if (entity.getType() != EntityType.PLAYER)
+                            {
+                                entities.add(entity.getType().name());
+                            }
+                        }
+                    }
+                    return entities;
+                }))
+                .executes(context -> executeCommand(context, argsWithGreedy(string(context, "entities")))));
+    }
+
     @Override
     protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, @NotNull String[] args)
     {
@@ -112,27 +136,7 @@ public class EntityWipeCMD extends ServerCommand
         return null;
     }
 
-    public @NotNull List<String> smartTabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
-    {
-        if (silentCheckPermission(sender, this.getPermission()))
-        {
-            List<String> entities = new ArrayList<>();
-            for (World world : Bukkit.getWorlds())
-            {
-                for (Entity entity : world.getEntities())
-                {
-                    if (entity.getType() != EntityType.PLAYER)
-                    {
-                        entities.add(entity.getType().name());
-                    }
-                }
-            }
-            return entities.stream().toList();
-        }
-        return Collections.emptyList();
-    }
-
-    private Integer parseInt(CommandSender sender, String string)
+        private Integer parseInt(CommandSender sender, String string)
     {
         try
         {

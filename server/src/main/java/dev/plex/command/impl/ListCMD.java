@@ -1,6 +1,7 @@
 package dev.plex.command.impl;
 
 import com.google.common.collect.Lists;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
@@ -8,9 +9,9 @@ import dev.plex.hook.VaultHook;
 import dev.plex.meta.PlayerMeta;
 import dev.plex.util.PlexUtils;
 
-import java.util.Collections;
 import java.util.List;
 
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
@@ -23,6 +24,17 @@ import org.jetbrains.annotations.Nullable;
 @CommandPermissions(permission = "plex.list")
 public class ListCMD extends ServerCommand
 {
+    @Override
+    protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
+    {
+        command.executes(context -> executeCommand(context));
+        command.then(literal("-d")
+                .executes(context -> executeCommand(context, "-d")));
+        command.then(literal("-v")
+                .requires(source -> silentCheckPermission(source.getSender(), "plex.list.vanished"))
+                .executes(context -> executeCommand(context, "-v")));
+    }
+
     @Override
     protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
     {
@@ -67,12 +79,4 @@ public class ListCMD extends ServerCommand
         return list;
     }
 
-    public @NotNull List<String> smartTabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
-    {
-        if (args.length == 1 && silentCheckPermission(sender, this.getPermission()))
-        {
-            return List.of("-d", "-v");
-        }
-        return Collections.emptyList();
     }
-}

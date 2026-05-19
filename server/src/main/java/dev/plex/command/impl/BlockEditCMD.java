@@ -1,16 +1,15 @@
 package dev.plex.command.impl;
 
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.listener.impl.BlockListener;
 import dev.plex.util.PlexUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -23,6 +22,20 @@ import org.jetbrains.annotations.Nullable;
 public class BlockEditCMD extends ServerCommand
 {
     private final BlockListener bl = new BlockListener();
+
+    @Override
+    protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
+    {
+        command.executes(context -> executeCommand(context));
+        command.then(literal("list")
+                .executes(context -> executeCommand(context, "list")));
+        command.then(literal("purge")
+                .executes(context -> executeCommand(context, "purge")));
+        command.then(literal("all")
+                .executes(context -> executeCommand(context, "all")));
+        command.then(playerArgument("player")
+                .executes(context -> executeCommand(context, string(context, "player"))));
+    }
 
     @Override
     protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, @NotNull String[] args)
@@ -101,19 +114,4 @@ public class BlockEditCMD extends ServerCommand
         return null;
     }
 
-    @Override
-    public @NotNull List<String> smartTabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
-    {
-        if (silentCheckPermission(sender, this.getPermission()))
-        {
-            List<String> options = new ArrayList<>();
-            if (args.length == 1)
-            {
-                options.addAll(Arrays.asList("list", "purge", "all"));
-                options.addAll(PlexUtils.getPlayerNameList());
-                return options;
-            }
-        }
-        return Collections.emptyList();
-    }
 }

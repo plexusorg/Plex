@@ -103,6 +103,12 @@ public class TogglesListener extends ServerListenerBase
 
             for (String command : commands)
             {
+                if (plugin.getCommandHandler() != null && plugin.getCommandHandler().isAliasFor(command, message))
+                {
+                    event.getPlayer().sendMessage(PlexUtils.messageComponent("chatIsOff"));
+                    event.setCancelled(true);
+                    return;
+                }
                 Command cmd = Bukkit.getCommandMap().getCommand(command);
                 if (cmd == null)
                 {

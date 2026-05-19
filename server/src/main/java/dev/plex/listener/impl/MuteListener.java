@@ -48,6 +48,13 @@ public class MuteListener extends ServerListenerBase
 
             for (String command : commands)
             {
+                if (plugin.getCommandHandler() != null && plugin.getCommandHandler().isAliasFor(command, message))
+                {
+                    PlexLog.debug("Matches Brigadier alias");
+                    event.getPlayer().sendMessage(PlexUtils.messageComponent("muted"));
+                    event.setCancelled(true);
+                    return;
+                }
                 Command cmd = Bukkit.getCommandMap().getCommand(command);
                 if (cmd == null)
                 {

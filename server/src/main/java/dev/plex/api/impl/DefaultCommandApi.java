@@ -2,7 +2,8 @@ package dev.plex.api.impl;
 
 import dev.plex.Plex;
 import dev.plex.api.command.CommandApi;
-import org.bukkit.command.Command;
+import dev.plex.command.PlexCommand;
+import dev.plex.util.PlexLog;
 
 final class DefaultCommandApi implements CommandApi
 {
@@ -11,18 +12,23 @@ final class DefaultCommandApi implements CommandApi
     DefaultCommandApi(Plex plugin) { this.plugin = plugin; }
 
     @Override
-    public void register(Command command)
+    public void register(PlexCommand command)
     {
-        plugin.getServer().getCommandMap().getKnownCommands().remove(command.getName().toLowerCase());
-        command.getAliases().forEach(alias -> plugin.getServer().getCommandMap().getKnownCommands().remove(alias.toLowerCase()));
-        plugin.getServer().getCommandMap().register("plex", command);
+        if (plugin.getCommandHandler() == null)
+        {
+            plugin.getPendingCommands().add(command);
+            PlexLog.warn("Command {0} was registered before the command handler initialized; queueing it for Brigadier registration.", command.getName());
+            return;
+        }
+        plugin.getCommandHandler().registerCommand(command);
     }
 
     @Override
-    public void unregister(Command command)
+    public void unregister(PlexCommand command)
     {
-        plugin.getServer().getCommandMap().getKnownCommands().remove(command.getName().toLowerCase());
-        command.getAliases().forEach(alias -> plugin.getServer().getCommandMap().getKnownCommands().remove(alias.toLowerCase()));
-        command.unregister(plugin.getServer().getCommandMap());
+        if (plugin.getCommandHandler() != null)
+        {
+            plugin.getCommandHandler().unregisterCommand(command);
+        }
     }
 }

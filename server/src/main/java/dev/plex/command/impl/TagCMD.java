@@ -1,6 +1,7 @@
 package dev.plex.command.impl;
 
 
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
@@ -8,10 +9,8 @@ import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.player.PlexPlayer;
 import dev.plex.util.PlexUtils;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
@@ -26,6 +25,20 @@ import org.jetbrains.annotations.Nullable;
 @CommandParameters(name = "tag", aliases = "prefix", description = "Set or clear your prefix", usage = "/<command> <set <prefix> | clear <player>>")
 public class TagCMD extends ServerCommand
 {
+    @Override
+    protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
+    {
+        command.executes(context -> executeCommand(context));
+        command.then(literal("set")
+                .executes(context -> executeCommand(context, "set"))
+                .then(greedyString("prefix")
+                        .executes(context -> executeCommand(context, argsWithGreedy("set", string(context, "prefix"))))));
+        command.then(literal("clear")
+                .executes(context -> executeCommand(context, "clear"))
+                .then(playerArgument("player")
+                        .executes(context -> executeCommand(context, "clear", string(context, "player")))));
+    }
+
     @Override
     protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
     {
@@ -92,25 +105,6 @@ public class TagCMD extends ServerCommand
         return usage();
     }
 
-    @Override
-    public @NotNull List<String> smartTabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
-    {
-        if (args.length == 1)
-        {
-            return Arrays.asList("set", "clear");
-        }
-        if (args.length == 2)
-        {
-            if (args[0].equalsIgnoreCase("clear"))
-            {
-                if (silentCheckPermission(sender, "plex.tag.clear.others"))
-                {
-                    return PlexUtils.getPlayerNameList();
-                }
-            }
-        }
-        return Collections.emptyList();
-    }
 }
 
 

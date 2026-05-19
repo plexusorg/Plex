@@ -1,14 +1,14 @@
 package dev.plex.command.impl;
 
-import com.google.common.collect.ImmutableList;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.punishment.Punishment;
 
-import java.util.List;
 import java.util.stream.Collectors;
 
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
 import org.apache.commons.lang3.StringUtils;
 import org.bukkit.command.CommandSender;
@@ -20,6 +20,16 @@ import org.jetbrains.annotations.Nullable;
 @CommandPermissions(permission = "plex.banlist")
 public class BanListCommand extends ServerCommand
 {
+    @Override
+    protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
+    {
+        command.executes(context -> executeCommand(context));
+        command.then(literal("purge")
+                .executes(context -> executeCommand(context, "purge")));
+        command.then(literal("clear")
+                .executes(context -> executeCommand(context, "clear")));
+    }
+
     @Override
     protected Component execute(@NotNull CommandSender sender, @Nullable Player player, @NotNull String[] args)
     {
@@ -53,9 +63,4 @@ public class BanListCommand extends ServerCommand
         return null;
     }
 
-    @Override
-    public @NotNull List<String> smartTabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
-    {
-        return args.length == 1 && silentCheckPermission(sender, "plex.banlist.clear") ? List.of("purge", "clear") : ImmutableList.of();
-    }
 }

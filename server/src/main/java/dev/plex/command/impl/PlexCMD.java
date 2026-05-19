@@ -1,5 +1,6 @@
 package dev.plex.command.impl;
 
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
@@ -12,11 +13,10 @@ import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.TimeUtils;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
 import org.apache.commons.lang3.StringUtils;
 import org.bukkit.Bukkit;
@@ -31,6 +31,24 @@ import org.jetbrains.annotations.Nullable;
 public class PlexCMD extends ServerCommand
 {
     // Don't modify this command
+    @Override
+    protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
+    {
+        command.executes(context -> executeCommand(context));
+        command.then(literal("reload")
+                .executes(context -> executeCommand(context, "reload")));
+        command.then(literal("redis")
+                .executes(context -> executeCommand(context, "redis")));
+        command.then(literal("update")
+                .executes(context -> executeCommand(context, "update")));
+        command.then(literal("modules")
+                .executes(context -> executeCommand(context, "modules"))
+                .then(literal("reload")
+                        .executes(context -> executeCommand(context, "modules", "reload")))
+                .then(literal("update")
+                        .executes(context -> executeCommand(context, "modules", "update"))));
+    }
+
     @Override
     protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
     {
@@ -125,20 +143,6 @@ public class PlexCMD extends ServerCommand
             return usage();
         }
         return null;
-    }
-
-    @Override
-    public @NotNull List<String> smartTabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
-    {
-        if (args.length == 1)
-        {
-            return Arrays.asList("reload", "redis", "modules", "update");
-        }
-        else if (args[0].equalsIgnoreCase("modules"))
-        {
-            return Arrays.asList("reload", "update");
-        }
-        return Collections.emptyList();
     }
 
     // Owners and developers only have access

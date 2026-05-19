@@ -1,14 +1,14 @@
 package dev.plex.command.impl;
 
-import com.google.common.collect.ImmutableList;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
 import net.kyori.adventure.text.TextComponent;
@@ -23,6 +23,17 @@ import org.jetbrains.annotations.Nullable;
 @CommandParameters(name = "whohas", description = "Returns a list of players with a specific item in their inventory.", usage = "/<command> <material>", aliases = "wh")
 public class WhoHasCMD extends ServerCommand
 {
+    @Override
+    protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
+    {
+        command.executes(context -> executeCommand(context));
+        command.then(word("material")
+                .suggests(suggest(() -> Arrays.stream(Material.values()).map(Enum::name).toList()))
+                .executes(context -> executeCommand(context, string(context, "material")))
+                .then(literal("clear")
+                        .executes(context -> executeCommand(context, string(context, "material"), "clear"))));
+    }
+
     @Override
     protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, @NotNull String[] args)
     {
@@ -65,17 +76,4 @@ public class WhoHasCMD extends ServerCommand
                                 Component.join(JoinConfiguration.commas(true), players)));
     }
 
-    @Override
-    public @NotNull List<String> smartTabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
-    {
-        if (args.length == 1 && silentCheckPermission(sender, this.getPermission()))
-        {
-            return Arrays.stream(Material.values()).map(Enum::name).toList();
-        }
-        else if (args.length == 2 && silentCheckPermission(sender, "plex.whohas.clear"))
-        {
-            return Collections.singletonList("clear");
-        }
-        return ImmutableList.of();
-    }
 }

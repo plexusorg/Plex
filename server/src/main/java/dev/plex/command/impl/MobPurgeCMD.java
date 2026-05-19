@@ -1,5 +1,6 @@
 package dev.plex.command.impl;
 
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
@@ -9,9 +10,9 @@ import dev.plex.util.PlexUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
 import org.apache.commons.lang3.text.WordUtils;
 import org.bukkit.Bukkit;
@@ -29,6 +30,15 @@ import org.jetbrains.annotations.Nullable;
 public class MobPurgeCMD extends ServerCommand
 {
     private final List<EntityType> MOB_TYPES = new ArrayList<>();
+
+    @Override
+    protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
+    {
+        command.executes(context -> executeCommand(context));
+        command.then(word("mob")
+                .suggests(suggest(this::getAllMobs))
+                .executes(context -> executeCommand(context, string(context, "mob"))));
+    }
 
     @Override
     protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, @NotNull String[] args)
@@ -112,12 +122,4 @@ public class MobPurgeCMD extends ServerCommand
         return mobs;
     }
 
-    public @NotNull List<String> smartTabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
-    {
-        if (args.length == 1 && silentCheckPermission(sender, this.getPermission()))
-        {
-            return getAllMobs();
-        }
-        return Collections.emptyList();
     }
-}

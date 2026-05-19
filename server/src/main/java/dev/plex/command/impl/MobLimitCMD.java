@@ -1,5 +1,6 @@
 package dev.plex.command.impl;
 
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
@@ -7,9 +8,8 @@ import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.util.PlexUtils;
 
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
@@ -23,6 +23,19 @@ import org.jetbrains.annotations.Nullable;
 @CommandPermissions(permission = "plex.moblimit", source = RequiredCommandSource.ANY)
 public class MobLimitCMD extends ServerCommand
 {
+    @Override
+    protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
+    {
+        command.executes(context -> executeCommand(context));
+        command.then(literal("on")
+                .executes(context -> executeCommand(context, "on")));
+        command.then(literal("off")
+                .executes(context -> executeCommand(context, "off")));
+        command.then(literal("setmax")
+                .then(nonNegativeInteger("limit")
+                        .executes(context -> executeCommand(context, "setmax", String.valueOf(integer(context, "limit"))))));
+    }
+
     @Override
     protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
     {
@@ -83,21 +96,4 @@ public class MobLimitCMD extends ServerCommand
         }
     }
 
-    @Override
-    public @NotNull List<String> smartTabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
-    {
-        if (silentCheckPermission(sender, this.getPermission()))
-        {
-            if (args.length == 1)
-            {
-                return Arrays.asList("on", "off", "setmax");
-            }
-            if (args.length == 2 && args[0].equals("setmax"))
-            {
-                return Collections.emptyList();
-            }
-            return Collections.emptyList();
-        }
-        return Collections.emptyList();
-    }
 }

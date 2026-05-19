@@ -1,18 +1,18 @@
 package dev.plex.command.impl;
 
-import com.google.common.collect.ImmutableList;
+import dev.plex.command.PlexCommand;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.menu.impl.MaterialMenu;
 import dev.plex.util.GameRuleUtil;
 import dev.plex.util.PlexLog;
-import dev.plex.util.PlexUtils;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Locale;
 
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -26,6 +26,22 @@ import org.jetbrains.annotations.Nullable;
 @CommandPermissions(permission = "plex.debug")
 public class DebugCMD extends ServerCommand
 {
+    @Override
+    protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
+    {
+        command.executes(context -> executeCommand(context));
+        command.then(literal("redis-reset")
+                .then(playerArgument("player")
+                        .executes(context -> executeCommand(context, "redis-reset", string(context, "player")))));
+        command.then(literal("gamerules")
+                .executes(context -> executeCommand(context, "gamerules")));
+        command.then(literal("aliases")
+                .then(word("command")
+                        .executes(context -> executeCommand(context, "aliases", string(context, "command")))));
+        command.then(literal("pagination")
+                .executes(context -> executeCommand(context, "pagination")));
+    }
+
     @Override
     protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
     {
@@ -69,6 +85,11 @@ public class DebugCMD extends ServerCommand
             if (args.length == 2)
             {
                 String commandName = args[1];
+                PlexCommand plexCommand = plugin.getCommandHandler().getCommand(commandName);
+                if (plexCommand != null)
+                {
+                    return messageComponent("commandAliases", commandName, Arrays.toString(plexCommand.getAliases().toArray(new String[0])));
+                }
                 Command command = plugin.getServer().getCommandMap().getCommand(commandName);
                 if (command == null)
                 {
@@ -89,9 +110,4 @@ public class DebugCMD extends ServerCommand
         return usage();
     }
 
-    @Override
-    public @NotNull List<String> smartTabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
-    {
-        return args.length == 1 && silentCheckPermission(sender, this.getPermission()) ? PlexUtils.getPlayerNameList() : ImmutableList.of();
-    }
 }

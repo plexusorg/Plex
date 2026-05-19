@@ -1,7 +1,7 @@
 package dev.plex.command.impl;
 
 
-import com.google.common.collect.ImmutableList;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
@@ -13,6 +13,7 @@ import dev.plex.util.PlexUtils;
 
 import java.util.List;
 
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.apache.commons.lang3.StringUtils;
@@ -26,6 +27,38 @@ import org.jetbrains.annotations.Nullable;
 public class SetLoginMessageCMD extends ServerCommand
 {
     private final boolean nameRequired = plugin.getConfig().getBoolean("loginmessages.name");
+
+    @Override
+    protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
+    {
+        command.executes(context -> executeCommand(context));
+        command.then(greedyString("message")
+                .suggests((context, builder) ->
+                {
+                    if (!silentCheckPermission(context.getSource().getSender(), "plex.setloginmessage.others"))
+                    {
+                        return builder.buildFuture();
+                    }
+
+                    String remaining = builder.getRemaining();
+                    if (remaining.isBlank())
+                    {
+                        return builder.buildFuture();
+                    }
+
+                    String[] tokens = remaining.split("\\s+", -1);
+                    if (tokens.length == 1 && tokens[0].startsWith("-"))
+                    {
+                        return suggestMatching(builder, List.of("-o"));
+                    }
+                    if (tokens.length == 2 && tokens[0].equalsIgnoreCase("-o"))
+                    {
+                        return suggestLastGreedyToken(builder, PlexUtils.getPlayerNameList());
+                    }
+                    return builder.buildFuture();
+                })
+                .executes(context -> executeCommand(context, argsWithGreedy(string(context, "message")))));
+    }
 
     @Override
     protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
@@ -83,16 +116,4 @@ public class SetLoginMessageCMD extends ServerCommand
         }
     }
 
-    @Override
-    public @NotNull List<String> smartTabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
-    {
-        if (args.length == 1)
-        {
-            if (silentCheckPermission(sender, "plex.setloginmessage"))
-            {
-                return List.of("-o");
-            }
-        }
-        return args.length == 2 && args[0].equalsIgnoreCase("-o") && silentCheckPermission(sender, "plex.setloginmessage") ? PlexUtils.getPlayerNameList() : ImmutableList.of();
-    }
 }

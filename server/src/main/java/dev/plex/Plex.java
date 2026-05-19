@@ -35,6 +35,8 @@ import dev.plex.util.redis.MessageUtil;
 import dev.plex.world.CustomWorld;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -69,6 +71,8 @@ public class Plex extends JavaPlugin
     private NoteRepository noteRepository;
 
     private ModuleManager moduleManager;
+    private CommandHandler commandHandler;
+    private final List<PlexCommand> pendingCommands = new ArrayList<>();
     private ServiceManager serviceManager;
     private PunishmentManager punishmentManager;
     private UpdateChecker updateChecker;
@@ -120,62 +124,6 @@ public class Plex extends JavaPlugin
             public Plex plugin()
             {
                 return Plex.this;
-            }
-
-            @Override
-            public void register(org.bukkit.command.Command command)
-            {
-                api.commands().register(command);
-            }
-        });
-        PlexCommand.setRuntime(new PlexCommand.Runtime()
-        {
-            @Override
-            public void register(org.bukkit.command.Command command)
-            {
-                api.commands().register(command);
-            }
-
-            @Override
-            public net.kyori.adventure.text.Component messageComponent(String entry, Object... objects)
-            {
-                return api.messages().messageComponent(entry, objects);
-            }
-
-            @Override
-            public net.kyori.adventure.text.Component messageComponent(String entry, net.kyori.adventure.text.Component... objects)
-            {
-                return api.messages().messageComponent(entry, objects);
-            }
-
-            @Override
-            public String messageString(String entry, Object... objects)
-            {
-                return api.messages().messageString(entry, objects);
-            }
-
-            @Override
-            public net.kyori.adventure.text.Component miniMessage(String input)
-            {
-                return api.messages().miniMessage(input);
-            }
-
-            @Override
-            public void broadcast(String miniMessage)
-            {
-                api.messages().broadcast(miniMessage);
-            }
-
-            @Override
-            public void broadcast(net.kyori.adventure.text.Component component)
-            {
-                api.messages().broadcast(component);
-            }
-
-            @Override
-            public java.util.List<String> onlinePlayerNames()
-            {
-                return api.players().onlineNames();
             }
         });
         ModuleConfig.setFactory((module, from, to) -> api.moduleConfigs().create(module, from, to));
@@ -273,7 +221,7 @@ public class Plex extends JavaPlugin
         playerService = new PlayerService(playerCache, playerRepository);
 
         new ListenerHandler(this);
-        new CommandHandler(this);
+        commandHandler = new CommandHandler(this);
 
         punishmentManager = new PunishmentManager(this);
         punishmentManager.mergeIndefiniteBans();

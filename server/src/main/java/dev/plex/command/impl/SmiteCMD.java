@@ -1,5 +1,6 @@
 package dev.plex.command.impl;
 
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
@@ -12,12 +13,12 @@ import dev.plex.util.TimeUtils;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -32,6 +33,17 @@ import org.jetbrains.annotations.Nullable;
 public class SmiteCMD extends ServerCommand
 {
     @Override
+    protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
+    {
+        command.executes(context -> executeCommand(context));
+        command.then(playerArgument("player")
+                .executes(context -> executeCommand(context, string(context, "player")))
+                .then(greedyString("reason")
+                        .suggests((context, builder) -> suggestOptionalFlags(builder, List.of("-ci", "-q")))
+                        .executes(context -> executeCommand(context, argsWithGreedy(string(context, "player"), string(context, "reason"))))));
+    }
+
+    @Override
     protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
     {
         if (args.length < 1)
@@ -45,25 +57,25 @@ public class SmiteCMD extends ServerCommand
 
         if (args.length >= 2)
         {
-            if (args[args.length - 1].equalsIgnoreCase("-q"))
+            List<String> reasonParts = new ArrayList<>();
+            for (int i = 1; i < args.length; i++)
             {
-                silent = true;
-                if (args.length >= 3)
+                if (args[i].equalsIgnoreCase("-q"))
                 {
-                    reason = StringUtils.join(ArrayUtils.subarray(args, 1, args.length - 1), " ");
+                    silent = true;
+                    continue;
                 }
-            }
-            else if (args[args.length - 1].equalsIgnoreCase("-ci"))
-            {
-                clearInv = true;
-                if (args.length >= 3)
+                if (args[i].equalsIgnoreCase("-ci"))
                 {
-                    reason = StringUtils.join(ArrayUtils.subarray(args, 1, args.length - 1), " ");
+                    clearInv = true;
+                    continue;
                 }
+                reasonParts.add(args[i]);
             }
-            else
+
+            if (!reasonParts.isEmpty())
             {
-                reason = StringUtils.join(ArrayUtils.subarray(args, 1, args.length), " ");
+                reason = StringUtils.join(reasonParts, " ");
             }
         }
 
@@ -121,13 +133,4 @@ public class SmiteCMD extends ServerCommand
         return null;
     }
 
-    @Override
-    public @NotNull List<String> smartTabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
-    {
-        if (silentCheckPermission(sender, this.getPermission()) && args.length == 1)
-        {
-            return PlexUtils.getPlayerNameList();
-        }
-        return Collections.emptyList();
-    }
 }

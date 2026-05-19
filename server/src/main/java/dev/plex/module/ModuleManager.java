@@ -154,17 +154,6 @@ public class ModuleManager
             module.getCommands().stream().toList().forEach(plexCommand ->
             {
                 module.unregisterCommand(plexCommand);
-                plugin.getServer().getCommandMap().getKnownCommands().remove(plexCommand.getName());
-                plexCommand.unregister(plugin.getServer().getCommandMap());
-                try
-                {
-                    plugin.getServer().getCommandMap().getCommand(plexCommand.getName()).unregister(plugin.getServer().getCommandMap());
-                }
-                catch (Exception ignored)
-                {
-
-                }
-                plexCommand.getAliases().forEach(alias -> plugin.getServer().getCommandMap().getKnownCommands().remove(alias));
             });
             module.getListeners().stream().toList().forEach(module::unregisterListener);
             module.disable();

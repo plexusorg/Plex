@@ -1,21 +1,20 @@
 package dev.plex.command.impl;
 
 
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.extra.Note;
-import dev.plex.util.PlexUtils;
 import dev.plex.util.TimeUtils;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -28,6 +27,23 @@ import org.jetbrains.annotations.Nullable;
 @CommandPermissions(permission = "plex.notes")
 public class NotesCMD extends ServerCommand
 {
+    @Override
+    protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
+    {
+        command.executes(context -> executeCommand(context));
+        command.then(playerArgument("player")
+                .then(literal("list")
+                        .executes(context -> executeCommand(context, string(context, "player"), "list")))
+                .then(literal("clear")
+                        .executes(context -> executeCommand(context, string(context, "player"), "clear")))
+                .then(literal("add")
+                        .then(greedyString("note")
+                                .executes(context -> executeCommand(context, argsWithGreedy(string(context, "player"), "add", string(context, "note"))))))
+                .then(literal("remove")
+                        .then(nonNegativeInteger("id")
+                                .executes(context -> executeCommand(context, string(context, "player"), "remove", String.valueOf(integer(context, "id")))))));
+    }
+
     @Override
     protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
     {
@@ -135,21 +151,4 @@ public class NotesCMD extends ServerCommand
         send(sender, noteList.get());
     }
 
-    @Override
-    public @NotNull List<String> smartTabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
-    {
-        if (silentCheckPermission(sender, this.getPermission()))
-        {
-            if (args.length == 1)
-            {
-                return PlexUtils.getPlayerNameList();
-            }
-            if (args.length == 2)
-            {
-                return Arrays.asList("list", "add", "remove", "clear");
-            }
-            return Collections.emptyList();
-        }
-        return Collections.emptyList();
-    }
 }
