@@ -14,6 +14,9 @@ group = rootProject.group
 version = rootProject.version
 description = "Plex-API"
 
+tasks.getByName<Jar>("jar") {
+    archiveBaseName.set("Plex-API")
+}
 
 publishing {
     publications {

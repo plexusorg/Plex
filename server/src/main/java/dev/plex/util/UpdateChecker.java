@@ -172,7 +172,7 @@ public class UpdateChecker
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8)))
                 {
                     JsonObject object = new Gson().fromJson(reader, JsonObject.class);
-                    JsonObject artifact = object.getAsJsonArray("artifacts").asList().getFirst().getAsJsonObject();
+                    JsonObject artifact = object.getAsJsonArray("artifacts").get(module ? 0 : 1).getAsJsonObject();
                     String jarFile = artifact.get("fileName").getAsString();
                     sendMessage(sender, PlexUtils.mmDeserialize("<green>Downloading latest JAR file: " + jarFile));
                     File copyTo;
