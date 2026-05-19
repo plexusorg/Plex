@@ -1,6 +1,6 @@
 package dev.plex.command.impl;
 
-import dev.plex.cache.DataUtils;
+
 import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
@@ -45,7 +45,7 @@ public class TagCMD extends PlexCommand
                 return messageComponent("noPermissionConsole");
             }
             assert playerSender != null;
-            PlexPlayer player = DataUtils.getPlayer(playerSender.getUniqueId());
+            PlexPlayer player = plugin.getPlayerService().getPlayer(playerSender.getUniqueId());
             if (args.length < 2)
             {
                 return usage("/tag set <prefix>");
@@ -59,7 +59,7 @@ public class TagCMD extends PlexCommand
             }
 
             player.setPrefix(MiniMessage.miniMessage().serialize(convertedComponent));
-            DataUtils.update(player);
+            plugin.getPlayerService().update(player);
             return messageComponent("prefixSetTo", MiniMessage.miniMessage().serialize(convertedComponent));
         }
 
@@ -77,16 +77,16 @@ public class TagCMD extends PlexCommand
                     return null;
                 }
 
-                PlexPlayer player = DataUtils.getPlayer(playerSender.getUniqueId());
+                PlexPlayer player = plugin.getPlayerService().getPlayer(playerSender.getUniqueId());
                 player.setPrefix(null);
-                DataUtils.update(player);
+                plugin.getPlayerService().update(player);
                 return messageComponent("prefixCleared");
             }
             checkPermission(sender, "plex.tag.clear.others");
             Player target = getNonNullPlayer(args[1]);
-            PlexPlayer plexTarget = DataUtils.getPlayer(target.getUniqueId());
+            PlexPlayer plexTarget = plugin.getPlayerService().getPlayer(target.getUniqueId());
             plexTarget.setPrefix(null);
-            DataUtils.update(plexTarget);
+            plugin.getPlayerService().update(plexTarget);
             return messageComponent("otherPrefixCleared", target.getName());
         }
         return usage();

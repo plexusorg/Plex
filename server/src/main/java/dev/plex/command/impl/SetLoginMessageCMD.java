@@ -1,7 +1,7 @@
 package dev.plex.command.impl;
 
+
 import com.google.common.collect.ImmutableList;
-import dev.plex.cache.DataUtils;
 import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
@@ -48,7 +48,7 @@ public class SetLoginMessageCMD extends PlexCommand
                 {
                     return messageComponent("specifyLoginMessage");
                 }
-                PlexPlayer plexPlayer = DataUtils.getPlayer(args[1]);
+                PlexPlayer plexPlayer = plugin.getPlayerService().getPlayer(args[1]);
                 if (plexPlayer == null)
                 {
                     return messageComponent("playerNotFound");

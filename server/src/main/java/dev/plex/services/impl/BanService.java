@@ -13,21 +13,21 @@ import org.bukkit.Bukkit;
 
 public class BanService extends AbstractService
 {
-    public BanService()
+    public BanService(Plex plugin)
     {
-        super(true, true);
+        super(plugin, true, true);
     }
 
     @Override
     public void run(ScheduledTask task)
     {
-        Plex.get().getPunishmentManager().getActiveBans().whenComplete((punishments, throwable) ->
+        plugin.getPunishmentManager().getActiveBans().whenComplete((punishments, throwable) ->
         {
             punishments.forEach(punishment ->
             {
                 if (ZonedDateTime.now(ZoneId.of(TimeUtils.TIMEZONE)).isAfter(punishment.getEndDate()))
                 {
-                    Plex.get().getPunishmentManager().unban(punishment);
+                    plugin.getPunishmentManager().unban(punishment);
                     Bukkit.broadcast(PlexUtils.messageComponent("banExpiredBroadcast", Bukkit.getOfflinePlayer(punishment.getPunished()).getName()));
                 }
             });

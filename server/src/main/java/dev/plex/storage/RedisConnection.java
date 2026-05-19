@@ -1,14 +1,21 @@
 package dev.plex.storage;
 
-import dev.plex.PlexBase;
+import dev.plex.Plex;
 import dev.plex.util.PlexLog;
 import redis.clients.jedis.Jedis;
 
 import java.util.function.Consumer;
+import java.util.function.Function;
 
-public class RedisConnection implements PlexBase
+public class RedisConnection
 {
+    private final Plex plugin;
     private Jedis jedis;
+
+    public RedisConnection(Plex plugin)
+    {
+        this.plugin = plugin;
+    }
 
     public Jedis getJedis()
     {
@@ -30,15 +37,25 @@ public class RedisConnection implements PlexBase
         return jedis;
     }
 
+    public void execute(Consumer<Jedis> jedisConsumer)
+    {
+        try (Jedis jedis = getJedis())
+        {
+            jedisConsumer.accept(jedis);
+        }
+    }
+
+    public <T> T query(Function<Jedis, T> jedisFunction)
+    {
+        try (Jedis jedis = getJedis())
+        {
+            return jedisFunction.apply(jedis);
+        }
+    }
+
     public void runAsync(Consumer<Jedis> jedisConsumer)
     {
-        new Thread(() ->
-        {
-            try (Jedis jedis = getJedis())
-            {
-                jedisConsumer.accept(jedis);
-            }
-        }).start();
+        StorageExecutor.io().execute(() -> execute(jedisConsumer));
     }
 
     public final boolean isEnabled()

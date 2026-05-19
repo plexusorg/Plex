@@ -10,7 +10,7 @@ import org.bukkit.entity.Player;
 
 public class BungeeUtil
 {
-    public static void kickPlayer(Player player, Component message)
+    public static void kickPlayer(Plex plugin, Player player, Component message)
     {
         if (Bukkit.getServerConfig().isProxyEnabled())
         {
@@ -18,7 +18,7 @@ public class BungeeUtil
             out.writeUTF("KickPlayer");
             out.writeUTF(player.getName());
             out.writeUTF(LegacyComponentSerializer.legacySection().serialize(message));
-            player.sendPluginMessage(Plex.get(), "BungeeCord", out.toByteArray());
+            player.sendPluginMessage(plugin, "BungeeCord", out.toByteArray());
         }
         else
         {

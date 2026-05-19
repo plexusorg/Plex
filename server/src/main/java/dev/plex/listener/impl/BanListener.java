@@ -1,7 +1,5 @@
 package dev.plex.listener.impl;
 
-import dev.plex.Plex;
-import dev.plex.cache.DataUtils;
 import dev.plex.listener.PlexListener;
 import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.Punishment;
@@ -20,7 +18,7 @@ public class BanListener extends PlexListener
         if (uuidBan != null)
         {
             event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED,
-                    !uuidBan.getReason().isEmpty() ? Punishment.generateIndefBanMessageWithReason("UUID", uuidBan.getReason()) : Punishment.generateIndefBanMessage("UUID"));
+                    !uuidBan.getReason().isEmpty() ? Punishment.generateIndefBanMessageWithReason("UUID", plugin.config.getString("banning.ban_url"), uuidBan.getReason()) : Punishment.generateIndefBanMessage("UUID", plugin.config.getString("banning.ban_url")));
             return;
         }
 
@@ -28,7 +26,7 @@ public class BanListener extends PlexListener
         if (ipBan != null)
         {
             event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED,
-                    !ipBan.getReason().isEmpty() ? Punishment.generateIndefBanMessageWithReason("IP", ipBan.getReason()) : Punishment.generateIndefBanMessage("IP"));
+                    !ipBan.getReason().isEmpty() ? Punishment.generateIndefBanMessageWithReason("IP", plugin.config.getString("banning.ban_url"), ipBan.getReason()) : Punishment.generateIndefBanMessage("IP", plugin.config.getString("banning.ban_url")));
             return;
         }
 
@@ -37,32 +35,32 @@ public class BanListener extends PlexListener
         if (userBan != null)
         {
             event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED,
-                    !userBan.getReason().isEmpty() ? Punishment.generateIndefBanMessageWithReason("username", userBan.getReason()) : Punishment.generateIndefBanMessage("username"));
+                    !userBan.getReason().isEmpty() ? Punishment.generateIndefBanMessageWithReason("username", plugin.config.getString("banning.ban_url"), userBan.getReason()) : Punishment.generateIndefBanMessage("username", plugin.config.getString("banning.ban_url")));
             return;
         }
 
         if (plugin.getPunishmentManager().isBanned(event.getUniqueId()))
         {
-            if (Plex.get().getPermissions() != null && Plex.get().getPermissions().playerHas(null, Bukkit.getOfflinePlayer(event.getUniqueId()), "plex.ban.bypass"))
+            if (plugin.getPermissions() != null && plugin.getPermissions().playerHas(null, Bukkit.getOfflinePlayer(event.getUniqueId()), "plex.ban.bypass"))
             {
                 return;
             }
-            PlexPlayer player = DataUtils.getPlayer(event.getUniqueId());
+            PlexPlayer player = plugin.getPlayerService().getPlayer(event.getUniqueId());
             player.getPunishments().stream().filter(punishment -> (punishment.getType() == PunishmentType.BAN || punishment.getType() == PunishmentType.TEMPBAN) && punishment.isActive()).findFirst().ifPresent(punishment ->
                     event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED,
-                            Punishment.generateBanMessage(punishment)));
+                            Punishment.generateBanMessage(punishment, plugin.config.getString("banning.ban_url"), plugin.getPlayerService())));
             return;
         }
         Punishment ipBannedPunishment = plugin.getPunishmentManager().getBanByIP(event.getAddress().getHostAddress());
         if (ipBannedPunishment != null)
         {
             // Don't check if the other account that's banned has bypass abilities, check if current has only
-            if (Plex.get().getPermissions() != null && Plex.get().getPermissions().playerHas(null, Bukkit.getOfflinePlayer(event.getUniqueId()), "plex.ban.bypass"))
+            if (plugin.getPermissions() != null && plugin.getPermissions().playerHas(null, Bukkit.getOfflinePlayer(event.getUniqueId()), "plex.ban.bypass"))
             {
                 return;
             }
             event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED,
-                    Punishment.generateBanMessage(ipBannedPunishment));
+                    Punishment.generateBanMessage(ipBannedPunishment, plugin.config.getString("banning.ban_url"), plugin.getPlayerService()));
         }
     }
 }

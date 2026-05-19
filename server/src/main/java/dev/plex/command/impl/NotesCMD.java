@@ -1,6 +1,6 @@
 package dev.plex.command.impl;
 
-import dev.plex.cache.DataUtils;
+
 import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
@@ -36,7 +36,7 @@ public class NotesCMD extends PlexCommand
             return usage();
         }
 
-        PlexPlayer plexPlayer = DataUtils.getPlayer(args[0]);
+        PlexPlayer plexPlayer = plugin.getPlayerService().getPlayer(args[0]);
 
         if (plexPlayer == null)
         {
@@ -47,7 +47,7 @@ public class NotesCMD extends PlexCommand
         {
             case "list":
             {
-                plugin.getSqlNotes().getNotes(plexPlayer.getUuid()).whenComplete((notes, ex) ->
+                plugin.getNoteRepository().getNotes(plexPlayer.getUuid()).whenComplete((notes, ex) ->
                 {
                     if (notes.isEmpty())
                     {
@@ -69,7 +69,7 @@ public class NotesCMD extends PlexCommand
                 {
                     Note note = new Note(plexPlayer.getUuid(), content, playerSender.getUniqueId(), ZonedDateTime.now(ZoneId.of(TimeUtils.TIMEZONE)));
                     plexPlayer.getNotes().add(note);
-                    plugin.getSqlNotes().addNote(note);
+                    plugin.getNoteRepository().addNote(note);
                     return messageComponent("noteAdded");
                 }
             }
@@ -88,14 +88,14 @@ public class NotesCMD extends PlexCommand
                 {
                     return messageComponent("unableToParseNumber", args[2]);
                 }
-                plugin.getSqlNotes().getNotes(plexPlayer.getUuid()).whenComplete((notes, ex) ->
+                plugin.getNoteRepository().getNotes(plexPlayer.getUuid()).whenComplete((notes, ex) ->
                 {
                     boolean deleted = false;
                     for (Note note : notes)
                     {
                         if (note.getId() == id)
                         {
-                            plugin.getSqlNotes().deleteNote(id, plexPlayer.getUuid()).whenComplete((notes1, ex1) ->
+                            plugin.getNoteRepository().deleteNote(id, plexPlayer.getUuid()).whenComplete((notes1, ex1) ->
                                     send(sender, messageComponent("removedNote", id)));
                             deleted = true;
                         }
@@ -112,7 +112,7 @@ public class NotesCMD extends PlexCommand
             {
                 int count = plexPlayer.getNotes().size();
                 plexPlayer.getNotes().clear();
-                DataUtils.update(plexPlayer);
+                plugin.getPlayerService().update(plexPlayer);
                 return messageComponent("clearedNotes", count);
             }
             default:
@@ -127,7 +127,7 @@ public class NotesCMD extends PlexCommand
         AtomicReference<Component> noteList = new AtomicReference<>(messageComponent("notesHeader", plexPlayer.getName()));
         for (Note note : notes)
         {
-            Component noteLine = messageComponent("notePrefix", note.getId(), DataUtils.getPlayer(note.getWrittenBy()).getName(), TimeUtils.useTimezone(note.getTimestamp()));
+            Component noteLine = messageComponent("notePrefix", note.getId(), plugin.getPlayerService().getPlayer(note.getWrittenBy()).getName(), TimeUtils.useTimezone(note.getTimestamp()));
             noteLine = noteLine.append(messageComponent("noteLine", note.getNote()));
             noteList.set(noteList.get().append(Component.newline()));
             noteList.set(noteList.get().append(noteLine));

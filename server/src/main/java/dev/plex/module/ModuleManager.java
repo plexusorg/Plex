@@ -23,17 +23,19 @@ import org.bukkit.configuration.file.YamlConfiguration;
 @Getter
 public class ModuleManager
 {
+    private final Plex plugin;
     private final List<PlexModule> modules = Lists.newArrayList();
 
-    public ModuleManager()
+    public ModuleManager(Plex plugin)
     {
+        this.plugin = plugin;
     }
 
     public void loadAllModules()
     {
         this.modules.clear();
-        PlexLog.debug(String.valueOf(Plex.get().getModulesFolder().listFiles().length));
-        Arrays.stream(Plex.get().getModulesFolder().listFiles()).forEach(file ->
+        PlexLog.debug(String.valueOf(plugin.getModulesFolder().listFiles().length));
+        Arrays.stream(plugin.getModulesFolder().listFiles()).forEach(file ->
         {
             if (file.getName().endsWith(".jar"))
             {
@@ -68,10 +70,10 @@ public class ModuleManager
                     Class<? extends PlexModule> module = (Class<? extends PlexModule>) Class.forName(main, true, loader);
 
                     PlexModule plexModule = module.getConstructor().newInstance();
-                    plexModule.setPlex(Plex.get());
+                    plexModule.setPlex(plugin);
                     plexModule.setPlexModuleFile(plexModuleFile);
 
-                    plexModule.setDataFolder(new File(Plex.get().getModulesFolder() + File.separator + plexModuleFile.getName()));
+                    plexModule.setDataFolder(new File(plugin.getModulesFolder() + File.separator + plexModuleFile.getName()));
                     if (!plexModule.getDataFolder().exists())
                     {
                         plexModule.getDataFolder().mkdir();
@@ -116,17 +118,17 @@ public class ModuleManager
             module.getCommands().stream().toList().forEach(plexCommand ->
             {
                 module.unregisterCommand(plexCommand);
-                Plex.get().getServer().getCommandMap().getKnownCommands().remove(plexCommand.getName());
-                plexCommand.unregister(Plex.get().getServer().getCommandMap());
+                plugin.getServer().getCommandMap().getKnownCommands().remove(plexCommand.getName());
+                plexCommand.unregister(plugin.getServer().getCommandMap());
                 try
                 {
-                    Plex.get().getServer().getCommandMap().getCommand(plexCommand.getName()).unregister(Plex.get().getServer().getCommandMap());
+                    plugin.getServer().getCommandMap().getCommand(plexCommand.getName()).unregister(plugin.getServer().getCommandMap());
                 }
                 catch (Exception ignored)
                 {
 
                 }
-                plexCommand.getAliases().forEach(alias -> Plex.get().getServer().getCommandMap().getKnownCommands().remove(alias));
+                plexCommand.getAliases().forEach(alias -> plugin.getServer().getCommandMap().getKnownCommands().remove(alias));
             });
             module.getListeners().stream().toList().forEach(module::unregisterListener);
             module.disable();

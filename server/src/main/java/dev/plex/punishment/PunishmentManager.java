@@ -4,9 +4,8 @@ import com.google.common.collect.Lists;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import dev.plex.Plex;
-import dev.plex.PlexBase;
-import dev.plex.cache.DataUtils;
 import dev.plex.player.PlexPlayer;
+import dev.plex.storage.StorageExecutor;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.TimeUtils;
@@ -29,29 +28,35 @@ import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.Nullable;
 
-public class PunishmentManager implements PlexBase
+public class PunishmentManager
 {
+    private final Plex plugin;
+
+    public PunishmentManager(Plex plugin)
+    {
+        this.plugin = plugin;
+    }
     @Getter
     private final List<IndefiniteBan> indefiniteBans = Lists.newArrayList();
 
     public void mergeIndefiniteBans()
     {
         this.indefiniteBans.clear();
-        Plex.get().indefBans.getKeys(false).forEach(key ->
+        plugin.indefBans.getKeys(false).forEach(key ->
         {
-            IndefiniteBan ban = new IndefiniteBan(Plex.get().getIndefBans().getString("reason", ""));
-            ban.ips.addAll(Plex.get().getIndefBans().getStringList(key + ".ips"));
-            ban.usernames.addAll(Plex.get().getIndefBans().getStringList(key + ".users"));
-            ban.uuids.addAll(Plex.get().getIndefBans().getStringList(key + ".uuids").stream().map(UUID::fromString).toList());
+            IndefiniteBan ban = new IndefiniteBan(plugin.getIndefBans().getString("reason", ""));
+            ban.ips.addAll(plugin.getIndefBans().getStringList(key + ".ips"));
+            ban.usernames.addAll(plugin.getIndefBans().getStringList(key + ".users"));
+            ban.uuids.addAll(plugin.getIndefBans().getStringList(key + ".uuids").stream().map(UUID::fromString).toList());
             this.indefiniteBans.add(ban);
         });
 
         PlexLog.log("Loaded {0} UUID(s), {1} IP(s), and {2} username(s) as indefinitely banned", this.indefiniteBans.stream().map(IndefiniteBan::getUuids).mapToLong(Collection::size).sum(), this.indefiniteBans.stream().map(IndefiniteBan::getIps).mapToLong(Collection::size).sum(), this.indefiniteBans.stream().map(IndefiniteBan::getUsernames).mapToLong(Collection::size).sum());
 
-        if (Plex.get().getRedisConnection().isEnabled())
+        if (plugin.getRedisConnection().isEnabled())
         {
             PlexLog.log("Asynchronously uploading all indefinite bans to Redis");
-            Plex.get().getRedisConnection().runAsync(jedis ->
+            plugin.getRedisConnection().runAsync(jedis ->
             {
                 jedis.set("indefbans", new Gson().toJson(indefiniteBans));
             });
@@ -61,12 +66,10 @@ public class PunishmentManager implements PlexBase
     @Nullable
     public IndefiniteBan getIndefiniteBanByUUID(UUID uuid)
     {
-        if (Plex.get().getRedisConnection().isEnabled())
+        if (plugin.getRedisConnection().isEnabled())
         {
             PlexLog.debug("Checking if UUID is banned in Redis");
-            List<IndefiniteBan> bans = new Gson().fromJson(Plex.get().getRedisConnection().getJedis().get("indefbans"), new TypeToken<List<IndefiniteBan>>()
-            {
-            }.getType());
+            List<IndefiniteBan> bans = redisIndefiniteBans();
             return bans.stream().filter(indefiniteBan -> indefiniteBan.getUuids().contains(uuid)).findFirst().orElse(null);
         }
         return this.indefiniteBans.stream().filter(indefiniteBan -> indefiniteBan.getUuids().contains(uuid)).findFirst().orElse(null);
@@ -74,12 +77,10 @@ public class PunishmentManager implements PlexBase
 
     public IndefiniteBan getIndefiniteBanByIP(String ip)
     {
-        if (Plex.get().getRedisConnection().isEnabled())
+        if (plugin.getRedisConnection().isEnabled())
         {
             PlexLog.debug("Checking if IP is banned in Redis");
-            List<IndefiniteBan> bans = new Gson().fromJson(Plex.get().getRedisConnection().getJedis().get("indefbans"), new TypeToken<List<IndefiniteBan>>()
-            {
-            }.getType());
+            List<IndefiniteBan> bans = redisIndefiniteBans();
             return bans.stream().filter(indefiniteBan -> indefiniteBan.getIps().contains(ip)).findFirst().orElse(null);
         }
         return this.indefiniteBans.stream().filter(indefiniteBan -> indefiniteBan.getIps().contains(ip)).findFirst().orElse(null);
@@ -87,12 +88,10 @@ public class PunishmentManager implements PlexBase
 
     public IndefiniteBan getIndefiniteBanByUsername(String username)
     {
-        if (Plex.get().getRedisConnection().isEnabled())
+        if (plugin.getRedisConnection().isEnabled())
         {
             PlexLog.debug("Checking if username is banned in Redis");
-            List<IndefiniteBan> bans = new Gson().fromJson(Plex.get().getRedisConnection().getJedis().get("indefbans"), new TypeToken<List<IndefiniteBan>>()
-            {
-            }.getType());
+            List<IndefiniteBan> bans = redisIndefiniteBans();
             return bans.stream().filter(indefiniteBan -> indefiniteBan.getUsernames().contains(username)).findFirst().orElse(null);
         }
         return this.indefiniteBans.stream().filter(indefiniteBan -> indefiniteBan.getUsernames().contains(username)).findFirst().orElse(null);
@@ -101,7 +100,16 @@ public class PunishmentManager implements PlexBase
     public void issuePunishment(PlexPlayer plexPlayer, Punishment punishment)
     {
         plexPlayer.getPunishments().add(punishment);
-        Plex.get().getSqlPunishment().insertPunishment(punishment);
+        plugin.getPunishmentRepository().insertPunishment(punishment);
+    }
+
+    private List<IndefiniteBan> redisIndefiniteBans()
+    {
+        String json = plugin.getRedisConnection().query(jedis -> jedis.get("indefbans"));
+        List<IndefiniteBan> bans = new Gson().fromJson(json, new TypeToken<List<IndefiniteBan>>()
+        {
+        }.getType());
+        return bans == null ? Lists.newArrayList() : bans;
     }
 
     private boolean isNotEmpty(File file)
@@ -121,29 +129,27 @@ public class PunishmentManager implements PlexBase
     {
         return CompletableFuture.supplyAsync(() ->
         {
-            if (!DataUtils.hasPlayedBefore(uuid))
+            if (!plugin.getPlayerService().hasPlayedBefore(uuid))
             {
                 return false;
             }
 
-            PlexPlayer player = DataUtils.getPlayer(uuid);
-            player.loadPunishments();
-            return player.getPunishments().stream().anyMatch(punishment -> (punishment.getType() == PunishmentType.BAN || punishment.getType() == PunishmentType.TEMPBAN) && punishment.isActive());
-        });
+            return plugin.getPunishmentRepository().getPunishments(uuid).stream().anyMatch(punishment -> (punishment.getType() == PunishmentType.BAN || punishment.getType() == PunishmentType.TEMPBAN) && punishment.isActive());
+        }, StorageExecutor.io());
     }
 
     public boolean isBanned(UUID uuid)
     {
-        if (!DataUtils.hasPlayedBefore(uuid))
+        if (!plugin.getPlayerService().hasPlayedBefore(uuid))
         {
             return false;
         }
-        return DataUtils.getPlayer(uuid).getPunishments().stream().anyMatch(punishment -> (punishment.getType() == PunishmentType.BAN || punishment.getType() == PunishmentType.TEMPBAN) && punishment.isActive());
+        return plugin.getPlayerService().getPlayer(uuid).getPunishments().stream().anyMatch(punishment -> (punishment.getType() == PunishmentType.BAN || punishment.getType() == PunishmentType.TEMPBAN) && punishment.isActive());
     }
 
     public Punishment getBanByIP(String ip)
     {
-        return plugin.getSqlPunishment().getPunishments(ip).stream().filter(punishment -> punishment.getType() == PunishmentType.TEMPBAN || punishment.getType() == PunishmentType.BAN).filter(Punishment::isActive).filter(punishment -> punishment.getIp().equals(ip)).findFirst().orElse(null);
+        return plugin.getPunishmentRepository().getPunishments(ip).stream().filter(punishment -> punishment.getType() == PunishmentType.TEMPBAN || punishment.getType() == PunishmentType.BAN).filter(Punishment::isActive).filter(punishment -> punishment.getIp().equals(ip)).findFirst().orElse(null);
     }
 
     public boolean isBanned(PlexPlayer player)
@@ -155,7 +161,7 @@ public class PunishmentManager implements PlexBase
     {
         //PlexLog.debug("Checking active bans mysql");
         CompletableFuture<List<Punishment>> future = new CompletableFuture<>();
-        Plex.get().getSqlPunishment().getPunishments().whenComplete((punishments, throwable) ->
+        plugin.getPunishmentRepository().getPunishments().whenComplete((punishments, throwable) ->
         {
             //PlexLog.debug("Received Punishments");
             List<Punishment> punishmentList = punishments.stream().filter(Punishment::isActive).filter(punishment -> punishment.getType() == PunishmentType.BAN || punishment.getType() == PunishmentType.TEMPBAN).toList();
@@ -172,7 +178,7 @@ public class PunishmentManager implements PlexBase
 
     public CompletableFuture<Void> unban(UUID uuid)
     {
-        return Plex.get().getSqlPunishment().removeBan(uuid);
+        return plugin.getPunishmentRepository().removeBan(uuid);
     }
 
     public void updateOutdatedPunishments(PlexPlayer player)
@@ -193,7 +199,7 @@ public class PunishmentManager implements PlexBase
                 @Override
                 public void run()
                 {
-                    PlexPlayer afterPlayer = DataUtils.getPlayer(player.getUuid());
+                    PlexPlayer afterPlayer = plugin.getPlayerService().getPlayer(player.getUuid());
                     if (!afterPlayer.isFrozen())
                     {
                         this.cancel();
@@ -201,12 +207,12 @@ public class PunishmentManager implements PlexBase
                     }
                     afterPlayer.setFrozen(false);
                     punishment.setActive(false);
-                    plugin.getSqlPunishment().updatePunishment(punishment.getType(), false, punishment.getPunished());
+                    plugin.getPunishmentRepository().updatePunishment(punishment.getType(), false, punishment.getPunished());
 
-                    DataUtils.update(afterPlayer);
+                    plugin.getPlayerService().update(afterPlayer);
                     Bukkit.broadcast(PlexUtils.messageComponent("unfrozePlayer", "Plex", Bukkit.getOfflinePlayer(afterPlayer.getUuid()).getName()));
                 }
-            }.runTaskLater(Plex.get(), 20 * seconds);
+            }.runTaskLater(plugin, 20 * seconds);
         }
         else if (punishment.getType() == PunishmentType.MUTE)
         {
@@ -219,7 +225,7 @@ public class PunishmentManager implements PlexBase
                 @Override
                 public void run()
                 {
-                    PlexPlayer afterPlayer = DataUtils.getPlayer(player.getUuid());
+                    PlexPlayer afterPlayer = plugin.getPlayerService().getPlayer(player.getUuid());
                     if (!afterPlayer.isMuted())
                     {
                         this.cancel();
@@ -227,11 +233,11 @@ public class PunishmentManager implements PlexBase
                     }
                     afterPlayer.setMuted(false);
                     punishment.setActive(false);
-                    plugin.getSqlPunishment().updatePunishment(punishment.getType(), false, punishment.getPunished());
+                    plugin.getPunishmentRepository().updatePunishment(punishment.getType(), false, punishment.getPunished());
 
                     Bukkit.broadcast(PlexUtils.messageComponent("unmutedPlayer", "Plex", Bukkit.getOfflinePlayer(afterPlayer.getUuid()).getName()));
                 }
-            }.runTaskLater(Plex.get(), 20 * seconds);
+            }.runTaskLater(plugin, 20 * seconds);
         }
     }
 

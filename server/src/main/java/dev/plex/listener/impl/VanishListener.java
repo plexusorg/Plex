@@ -1,7 +1,7 @@
 package dev.plex.listener.impl;
 
+
 import de.myzelyam.api.vanish.PlayerShowEvent;
-import dev.plex.cache.DataUtils;
 import dev.plex.listener.PlexListener;
 import dev.plex.meta.PlayerMeta;
 import dev.plex.player.PlexPlayer;
@@ -22,7 +22,7 @@ public class VanishListener extends PlexListener
         {
             return;
         }
-        PlexPlayer plexPlayer = DataUtils.getPlayer(event.getPlayer().getUniqueId());
+        PlexPlayer plexPlayer = plugin.getPlayerService().getPlayer(event.getPlayer().getUniqueId());
         String loginMessage = PlayerMeta.getLoginMessage(plexPlayer);
         if (!loginMessage.isEmpty())
         {

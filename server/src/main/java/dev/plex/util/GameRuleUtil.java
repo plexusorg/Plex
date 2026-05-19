@@ -13,17 +13,17 @@ import org.bukkit.World;
 
 public class GameRuleUtil
 {
-    public static void commitGlobalGameRules(World world)
+    public static void commitGlobalGameRules(Plex plugin, World world)
     {
-        for (String s : Plex.get().config.getStringList("global_gamerules"))
+        for (String s : plugin.config.getStringList("global_gamerules"))
         {
             readGameRules(world, s);
         }
     }
 
-    public static void commitSpecificGameRules(World world)
+    public static void commitSpecificGameRules(Plex plugin, World world)
     {
-        for (String s : Plex.get().config.getStringList("worlds." + world.getName().toLowerCase(Locale.ROOT) + ".gameRules"))
+        for (String s : plugin.config.getStringList("worlds." + world.getName().toLowerCase(Locale.ROOT) + ".gameRules"))
         {
             readGameRules(world, s);
         }

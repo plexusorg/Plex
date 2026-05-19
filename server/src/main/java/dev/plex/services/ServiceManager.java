@@ -15,15 +15,17 @@ import org.bukkit.Bukkit;
 
 public class ServiceManager
 {
+    private final Plex plugin;
     private final List<AbstractService> services = Lists.newArrayList();
 
-    public ServiceManager()
+    public ServiceManager(Plex plugin)
     {
-        registerService(new AutoWipeService());
-        registerService(new BanService());
-        registerService(new GameRuleService());
-        registerService(new TimingService());
-        registerService(new UpdateCheckerService());
+        this.plugin = plugin;
+        registerService(new AutoWipeService(plugin));
+        registerService(new BanService(plugin));
+        registerService(new GameRuleService(plugin));
+        registerService(new TimingService(plugin));
+        registerService(new UpdateCheckerService(plugin));
     }
 
     public void startServices()
@@ -48,20 +50,20 @@ public class ServiceManager
             int time = service.repeatInSeconds();
             if (time == 0)
             {
-                Bukkit.getGlobalRegionScheduler().run(Plex.get(), service::run);
+                Bukkit.getGlobalRegionScheduler().run(plugin, service::run);
             }
             else
             {
-                Bukkit.getAsyncScheduler().runDelayed(Plex.get(), service::run, time, TimeUnit.SECONDS);
+                Bukkit.getAsyncScheduler().runDelayed(plugin, service::run, time, TimeUnit.SECONDS);
             }
         }
         else if (service.isRepeating() && service.isAsynchronous())
         {
-            Bukkit.getAsyncScheduler().runAtFixedRate(Plex.get(), service::run, 1, service.repeatInSeconds(), TimeUnit.SECONDS);
+            Bukkit.getAsyncScheduler().runAtFixedRate(plugin, service::run, 1, service.repeatInSeconds(), TimeUnit.SECONDS);
         }
         else if (service.isRepeating() && !service.isAsynchronous())
         {
-            Bukkit.getGlobalRegionScheduler().runAtFixedRate(Plex.get(), service::run, 1, 20L * service.repeatInSeconds());
+            Bukkit.getGlobalRegionScheduler().runAtFixedRate(plugin, service::run, 1, 20L * service.repeatInSeconds());
         }
         if (!services.contains(service))
         {
@@ -72,8 +74,8 @@ public class ServiceManager
 
     public void endService(AbstractService service, boolean remove)
     {
-        Bukkit.getGlobalRegionScheduler().cancelTasks(Plex.get());
-        Bukkit.getAsyncScheduler().cancelTasks(Plex.get());
+        Bukkit.getGlobalRegionScheduler().cancelTasks(plugin);
+        Bukkit.getAsyncScheduler().cancelTasks(plugin);
         service.onEnd();
         if (remove)
         {

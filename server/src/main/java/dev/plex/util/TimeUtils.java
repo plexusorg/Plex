@@ -1,7 +1,5 @@
 package dev.plex.util;
 
-import dev.plex.Plex;
-
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -28,7 +26,7 @@ public class TimeUtils
         add("mo");
         add("y");
     }};
-    public static String TIMEZONE = Plex.get().config.getString("server.timezone");
+    public static String TIMEZONE = "Etc/UTC";
 
     private static int parseInteger(String s) throws NumberFormatException
     {

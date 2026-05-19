@@ -1,7 +1,6 @@
 package dev.plex.command.impl;
 
 import com.google.common.collect.Lists;
-import dev.plex.Plex;
 import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
@@ -36,7 +35,7 @@ public class WorldCMD extends PlexCommand
 
         World world = getNonNullWorld(args[0]);
         boolean playerWorld = args[0].matches("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}");
-        if (playerWorld && Plex.get().getModuleManager().getModules().stream().anyMatch(plexModule -> plexModule.getPlexModuleFile().getName().equalsIgnoreCase("Module-TFMExtras")))
+        if (playerWorld && plugin.getModuleManager().getModules().stream().anyMatch(plexModule -> plexModule.getPlexModuleFile().getName().equalsIgnoreCase("Module-TFMExtras")))
         {
             checkPermission(playerSender, "plex.world.playerworlds");
         }

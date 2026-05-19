@@ -1,7 +1,7 @@
 package dev.plex.command.impl;
 
+
 import com.google.common.collect.ImmutableList;
-import dev.plex.cache.DataUtils;
 import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
@@ -34,7 +34,7 @@ public class UnbanCMD extends PlexCommand
 
         if (args.length == 1)
         {
-            PlexPlayer target = DataUtils.getPlayer(args[0]);
+            PlexPlayer target = plugin.getPlayerService().getPlayer(args[0]);
 
             if (target == null)
             {

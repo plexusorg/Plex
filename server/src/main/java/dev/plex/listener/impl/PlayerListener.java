@@ -1,6 +1,6 @@
 package dev.plex.listener.impl;
 
-import dev.plex.cache.DataUtils;
+
 import dev.plex.listener.PlexListener;
 import dev.plex.meta.PlayerMeta;
 import dev.plex.player.PlexPlayer;
@@ -27,17 +27,17 @@ public class PlayerListener extends PlexListener
         Player player = event.getPlayer();
         PlexPlayer plexPlayer;
 
-        if (!DataUtils.hasPlayedBefore(player.getUniqueId()))
+        if (!plugin.getPlayerService().hasPlayedBefore(player.getUniqueId()))
         {
             PlexLog.log("A player with this name has not joined the server before, creating new entry.");
             plexPlayer = new PlexPlayer(player.getUniqueId()); // it doesn't! okay so now create the object
             plexPlayer.setName(player.getName()); // set the name of the player
             plexPlayer.setIps(List.of(player.getAddress().getAddress().getHostAddress().trim())); // set the arraylist of ips
-            DataUtils.insert(plexPlayer); // insert data in some wack db
+            plugin.getPlayerService().insert(plexPlayer); // insert data in some wack db
         }
         else
         {
-            plexPlayer = DataUtils.getPlayer(player.getUniqueId());
+            plexPlayer = plugin.getPlayerService().getPlayer(player.getUniqueId());
             List<String> ips = plexPlayer.getIps();
             String currentIP = player.getAddress().getAddress().getHostAddress().trim();
             if (!ips.contains(currentIP))
@@ -45,13 +45,13 @@ public class PlayerListener extends PlexListener
                 PlexLog.debug("New IP address detected for player: " + player.getName() + ". Adding " + currentIP + " to the database.");
                 ips.add(currentIP);
                 plexPlayer.setIps(ips);
-                DataUtils.update(plexPlayer);
+                plugin.getPlayerService().update(plexPlayer);
             }
             if (!plexPlayer.getName().equals(player.getName()))
             {
                 PlexLog.log(plexPlayer.getName() + " has a new name. Changing it to " + player.getName());
                 plexPlayer.setName(player.getName());
-                DataUtils.update(plexPlayer);
+                plugin.getPlayerService().update(plexPlayer);
             }
         }
         plugin.getPlayerCache().getPlexPlayerMap().put(player.getUniqueId(), plexPlayer);
@@ -66,9 +66,7 @@ public class PlayerListener extends PlexListener
             PlexUtils.broadcast(PlexUtils.stringToComponent(loginMessage));
         }
 
-        plexPlayer.loadNotes();
-
-        plugin.getSqlNotes().getNotes(plexPlayer.getUuid()).whenComplete((notes, ex) ->
+        plugin.getNoteRepository().getNotes(plexPlayer.getUuid()).whenComplete((notes, ex) ->
         {
             if (!notes.isEmpty())
             {
@@ -82,14 +80,14 @@ public class PlayerListener extends PlexListener
     public void onPlayerSave(PlayerQuitEvent event)
     {
         PlexPlayer plexPlayer = plugin.getPlayerCache().getPlexPlayerMap().get(event.getPlayer().getUniqueId()); //get the player because it's literally impossible for them to not have an object
-        DataUtils.update(plexPlayer);
+        plugin.getPlayerService().update(plexPlayer);
         plugin.getPlayerCache().getPlexPlayerMap().remove(event.getPlayer().getUniqueId()); //remove them from cache
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerInventoryClose(InventoryCloseEvent event)
     {
-        PlexPlayer player = DataUtils.getPlayer(event.getPlayer().getUniqueId());
+        PlexPlayer player = plugin.getPlayerService().getPlayer(event.getPlayer().getUniqueId());
         if (player.isLockedUp())
         {
             Bukkit.getGlobalRegionScheduler().runDelayed(plugin, (scheduledTask) -> event.getPlayer().openInventory(event.getInventory()), 1L);
@@ -99,7 +97,7 @@ public class PlayerListener extends PlexListener
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onInventoryClick(InventoryClickEvent event)
     {
-        PlexPlayer player = DataUtils.getPlayer(event.getWhoClicked().getUniqueId());
+        PlexPlayer player = plugin.getPlayerService().getPlayer(event.getWhoClicked().getUniqueId());
         if (player.isLockedUp())
         {
             event.setCancelled(true);

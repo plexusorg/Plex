@@ -1,6 +1,5 @@
 package dev.plex;
 
-import dev.plex.cache.DataUtils;
 import dev.plex.cache.PlayerCache;
 import dev.plex.config.Config;
 import dev.plex.handlers.CommandHandler;
@@ -8,15 +7,20 @@ import dev.plex.handlers.ListenerHandler;
 import dev.plex.hook.CoreProtectHook;
 import dev.plex.hook.PrismHook;
 import dev.plex.module.ModuleManager;
+import dev.plex.player.PlayerService;
 import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.PunishmentManager;
 import dev.plex.services.ServiceManager;
 import dev.plex.storage.RedisConnection;
 import dev.plex.storage.SQLConnection;
+import dev.plex.storage.StorageExecutor;
 import dev.plex.storage.StorageType;
 import dev.plex.storage.player.SQLPlayerData;
 import dev.plex.storage.punishment.SQLNotes;
 import dev.plex.storage.punishment.SQLPunishment;
+import dev.plex.storage.repository.NoteRepository;
+import dev.plex.storage.repository.PlayerRepository;
+import dev.plex.storage.repository.PunishmentRepository;
 import dev.plex.util.BuildInfo;
 import dev.plex.util.BungeeUtil;
 import dev.plex.util.PlexLog;
@@ -52,10 +56,11 @@ public class Plex extends JavaPlugin
     private RedisConnection redisConnection;
 
     private PlayerCache playerCache;
-    private SQLPlayerData sqlPlayerData;
+    private PlayerRepository playerRepository;
+    private PlayerService playerService;
 
-    private SQLPunishment sqlPunishment;
-    private SQLNotes sqlNotes;
+    private PunishmentRepository punishmentRepository;
+    private NoteRepository noteRepository;
 
     private ModuleManager moduleManager;
     private ServiceManager serviceManager;
@@ -90,7 +95,7 @@ public class Plex extends JavaPlugin
             modulesFolder.mkdir();
         }
 
-        moduleManager = new ModuleManager();
+        moduleManager = new ModuleManager(this);
         moduleManager.loadAllModules();
         moduleManager.loadModules();
 
@@ -101,21 +106,23 @@ public class Plex extends JavaPlugin
     public void onEnable()
     {
         config.load();
+        PlexLog.setDebugEnabled(config.getBoolean("debug"));
         messages.load();
+        PlexUtils.configure(config, messages);
         toggles.load();
 
         // Don't add default entries to these files
         indefBans.load(false);
 
-        sqlConnection = new SQLConnection();
-        redisConnection = new RedisConnection();
+        sqlConnection = new SQLConnection(this);
+        redisConnection = new RedisConnection(this);
 
         playerCache = new PlayerCache();
 
         PlexLog.log("Attempting to connect to DB: {0}", plugin.config.getString("data.db.name"));
         try
         {
-            PlexUtils.testConnections();
+            PlexUtils.testConnections(this);
             PlexLog.log("Connected to " + storageType.name().toUpperCase());
         }
         catch (Exception e)
@@ -160,7 +167,7 @@ public class Plex extends JavaPlugin
             PlexLog.debug("Not hooking into SuperVanish / PremiumVanish");
         }
 
-        updateChecker = new UpdateChecker();
+        updateChecker = new UpdateChecker(this);
         PlexLog.log("Update checking enabled");
 
         // https://bstats.org/plugin/bukkit/Plex/14143
@@ -171,7 +178,7 @@ public class Plex extends JavaPlugin
         {
             redisConnection.getJedis();
             PlexLog.log("Connected to Redis!");
-            MessageUtil.subscribe();
+            MessageUtil.subscribe(this);
 
         }
         else
@@ -179,14 +186,15 @@ public class Plex extends JavaPlugin
             PlexLog.log("Redis is disabled in the configuration file, not connecting.");
         }
 
-        sqlPlayerData = new SQLPlayerData();
-        sqlPunishment = new SQLPunishment();
-        sqlNotes = new SQLNotes();
+        punishmentRepository = new SQLPunishment(sqlConnection.getConnectionSource());
+        playerRepository = new SQLPlayerData(sqlConnection.getConnectionSource(), punishmentRepository);
+        noteRepository = new SQLNotes(sqlConnection.getConnectionSource());
+        playerService = new PlayerService(playerCache, playerRepository);
 
-        new ListenerHandler();
-        new CommandHandler();
+        new ListenerHandler(this);
+        new CommandHandler(this);
 
-        punishmentManager = new PunishmentManager();
+        punishmentManager = new PunishmentManager(this);
         punishmentManager.mergeIndefiniteBans();
         PlexLog.log("Punishment System initialized");
 
@@ -196,7 +204,7 @@ public class Plex extends JavaPlugin
             generateWorlds();
         }
 
-        serviceManager = new ServiceManager();
+        serviceManager = new ServiceManager(this);
         PlexLog.log("Service Manager initialized");
         serviceManager.startServices();
         PlexLog.log("Started " + serviceManager.serviceCount() + " services.");
@@ -215,12 +223,11 @@ public class Plex extends JavaPlugin
         Bukkit.getOnlinePlayers().forEach(player ->
         {
             PlexPlayer plexPlayer = playerCache.getPlexPlayerMap().get(player.getUniqueId()); //get the player because it's literally impossible for them to not have an object
-            sqlPlayerData.update(plexPlayer);
+            playerRepository.update(plexPlayer);
         });
-        if (redisConnection != null && redisConnection.isEnabled() && redisConnection.getJedis().isConnected())
+        if (redisConnection != null && redisConnection.isEnabled())
         {
             PlexLog.log("Disabling Redis/Jedis. No memory leaks in this Anarchy server!");
-            redisConnection.getJedis().close();
         }
 
         this.getServer().getMessenger().unregisterOutgoingPluginChannel(this);
@@ -231,6 +238,7 @@ public class Plex extends JavaPlugin
         {
             sqlConnection.close();
         }
+        StorageExecutor.shutdown();
     }
 
     private void generateWorlds()
@@ -238,7 +246,7 @@ public class Plex extends JavaPlugin
         PlexLog.log("Generating any worlds if needed...");
         for (String key : config.getConfigurationSection("worlds").getKeys(false))
         {
-            CustomWorld.generateConfigFlatWorld(key);
+            CustomWorld.generateConfigFlatWorld(this, key);
         }
         PlexLog.log("Finished with world generation!");
     }
@@ -247,7 +255,7 @@ public class Plex extends JavaPlugin
     {
         Bukkit.getOnlinePlayers().forEach(player ->
         {
-            PlexPlayer plexPlayer = DataUtils.getPlayer(player.getUniqueId());
+            PlexPlayer plexPlayer = playerService.getPlayer(player.getUniqueId());
             playerCache.getPlexPlayerMap().put(player.getUniqueId(), plexPlayer); //put them into the cache
         });
     }

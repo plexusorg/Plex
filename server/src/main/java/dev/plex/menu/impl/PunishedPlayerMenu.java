@@ -1,8 +1,8 @@
 package dev.plex.menu.impl;
 
-import dev.plex.Plex;
 import dev.plex.menu.AbstractMenu;
 import dev.plex.menu.pagination.PageableMenu;
+import dev.plex.player.PlayerService;
 import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.Punishment;
 import dev.plex.util.TimeUtils;
@@ -16,11 +16,13 @@ import org.bukkit.inventory.ItemStack;
 public class PunishedPlayerMenu extends PageableMenu<Punishment>
 {
     private final PlexPlayer punishedPlayer;
+    private final PlayerService playerService;
 
-    public PunishedPlayerMenu(PlexPlayer player)
+    public PunishedPlayerMenu(PlexPlayer player, PlayerService playerService)
     {
         super("<red><bold>Punishments - " + player.getName(), AbstractMenu.Rows.SIX);
         this.punishedPlayer = player;
+        this.playerService = playerService;
         onClick((inventoryView, itemStacks, player1, itemStack) -> true);
         this.init();
     }
@@ -28,7 +30,7 @@ public class PunishedPlayerMenu extends PageableMenu<Punishment>
     @Override
     protected ItemStack toItem(Punishment object)
     {
-        return new ItemBuilder(Material.PAPER).displayName("<!italic><red>" + object.getType().name()).lore("<!italic><red>By: <gold>" + (object.getPunisher() == null ? "CONSOLE" : Plex.get().getSqlPlayerData().getNameByUUID(object.getPunisher())), "<!italic><red>Issued: <gold>" + TimeUtils.useTimezone(object.getIssueDate()), "<!italic><red>Expire(d/s): <gold>" + TimeUtils.useTimezone(object.getEndDate()), "<!italic><red>Reason: <gold>" + object.getReason()).build();
+        return new ItemBuilder(Material.PAPER).displayName("<!italic><red>" + object.getType().name()).lore("<!italic><red>By: <gold>" + (object.getPunisher() == null ? "CONSOLE" : playerService.getNameByUUID(object.getPunisher())), "<!italic><red>Issued: <gold>" + TimeUtils.useTimezone(object.getIssueDate()), "<!italic><red>Expire(d/s): <gold>" + TimeUtils.useTimezone(object.getEndDate()), "<!italic><red>Reason: <gold>" + object.getReason()).build();
     }
 
     @Override

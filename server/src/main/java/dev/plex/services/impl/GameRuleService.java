@@ -1,5 +1,6 @@
 package dev.plex.services.impl;
 
+import dev.plex.Plex;
 import dev.plex.services.AbstractService;
 import dev.plex.util.GameRuleUtil;
 import dev.plex.util.PlexLog;
@@ -12,9 +13,9 @@ import org.bukkit.World;
 
 public class GameRuleService extends AbstractService
 {
-    public GameRuleService()
+    public GameRuleService(Plex plugin)
     {
-        super(false, true);
+        super(plugin, false, true);
     }
 
     @Override
@@ -22,7 +23,7 @@ public class GameRuleService extends AbstractService
     {
         for (World world : Bukkit.getWorlds())
         {
-            GameRuleUtil.commitGlobalGameRules(world);
+            GameRuleUtil.commitGlobalGameRules(plugin, world);
             PlexLog.log("Set global gamerules for world: " + world.getName());
         }
         for (String world : plugin.config.getConfigurationSection("worlds").getKeys(false))
@@ -30,7 +31,7 @@ public class GameRuleService extends AbstractService
             World bukkitWorld = Bukkit.getWorld(world);
             if (bukkitWorld != null)
             {
-                GameRuleUtil.commitSpecificGameRules(bukkitWorld);
+                GameRuleUtil.commitSpecificGameRules(plugin, bukkitWorld);
                 PlexLog.log("Set specific gamerules for world: " + world.toLowerCase(Locale.ROOT));
             }
         }

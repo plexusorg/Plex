@@ -70,7 +70,7 @@ public class ToggleCMD extends PlexCommand
                 }
             }
         }
-        new ToggleMenu().open(playerSender);
+        new ToggleMenu(plugin).open(playerSender);
         return null;
     }
 

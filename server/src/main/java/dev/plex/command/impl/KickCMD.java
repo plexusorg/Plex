@@ -1,7 +1,7 @@
 package dev.plex.command.impl;
 
+
 import com.google.common.collect.ImmutableList;
-import dev.plex.cache.DataUtils;
 import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
@@ -38,7 +38,7 @@ public class KickCMD extends PlexCommand
             return usage();
         }
 
-        PlexPlayer plexPlayer = DataUtils.getPlayer(args[0]);
+        PlexPlayer plexPlayer = plugin.getPlayerService().getPlayer(args[0]);
         String reason = messageString("noReasonProvided");
 
         if (plexPlayer == null)
@@ -66,7 +66,7 @@ public class KickCMD extends PlexCommand
         punishment.setIp(player.getAddress().getAddress().getHostAddress().trim());
         plugin.getPunishmentManager().punish(plexPlayer, punishment);
         PlexUtils.broadcast(messageComponent("kickedPlayer", sender.getName(), plexPlayer.getName()));
-        BungeeUtil.kickPlayer(player, Punishment.generateKickMessage(punishment));
+        BungeeUtil.kickPlayer(plugin, player, Punishment.generateKickMessage(punishment, plugin.getPlayerService()));
         return null;
     }
 

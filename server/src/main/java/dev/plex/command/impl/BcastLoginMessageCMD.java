@@ -1,7 +1,7 @@
 package dev.plex.command.impl;
 
+
 import com.google.common.collect.ImmutableList;
-import dev.plex.cache.DataUtils;
 import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
@@ -31,7 +31,7 @@ public class BcastLoginMessageCMD extends PlexCommand
             return usage();
         }
 
-        PlexPlayer plexPlayer = DataUtils.getPlayer(args[0]);
+        PlexPlayer plexPlayer = plugin.getPlayerService().getPlayer(args[0]);
 
         if (plexPlayer == null)
         {

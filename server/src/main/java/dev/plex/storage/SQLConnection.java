@@ -1,5 +1,6 @@
 package dev.plex.storage;
 
+import dev.plex.Plex;
 import dev.plex.storage.database.Database;
 
 /**
@@ -9,6 +10,11 @@ import dev.plex.storage.database.Database;
  */
 public class SQLConnection extends Database
 {
+    public SQLConnection(Plex plugin)
+    {
+        super(plugin);
+    }
+
     public java.sql.Connection getCon() throws java.sql.SQLException
     {
         return getConnection();

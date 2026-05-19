@@ -1,6 +1,6 @@
 package dev.plex.command.impl;
 
-import dev.plex.cache.DataUtils;
+
 import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
@@ -45,7 +45,7 @@ public class BanCMD extends PlexCommand
             return usage();
         }
 
-        final PlexPlayer plexPlayer = DataUtils.getPlayer(args[0]);
+        final PlexPlayer plexPlayer = plugin.getPlayerService().getPlayer(args[0]);
 
         if (plexPlayer == null)
         {
@@ -88,7 +88,7 @@ public class BanCMD extends PlexCommand
             {
                 if (player != null)
                 {
-                    BungeeUtil.kickPlayer(player, Punishment.generateBanMessage(punishment));
+                    BungeeUtil.kickPlayer(plugin, player, Punishment.generateBanMessage(punishment, plugin.config.getString("banning.ban_url"), plugin.getPlayerService()));
                 }
             });
             PlexLog.debug("(From /ban command) PunishedPlayer UUID: " + plexPlayer.getUuid());

@@ -2,7 +2,6 @@ package dev.plex.player;
 
 import com.google.common.collect.Lists;
 import com.google.gson.GsonBuilder;
-import dev.plex.Plex;
 import dev.plex.punishment.Punishment;
 import dev.plex.punishment.PunishmentType;
 import dev.plex.punishment.extra.Note;
@@ -70,9 +69,7 @@ public class PlexPlayer
 
         if (loadPunishments)
         {
-            this.loadPunishments();
             this.checkMutesAndFreeze();
-            //            this.permissions.addAll(Plex.get().getSqlPermissions().getPermissions(this.uuid));
         }
     }
 
@@ -91,16 +88,6 @@ public class PlexPlayer
         final ZonedDateTime now = ZonedDateTime.now();
         this.muted = this.punishments.stream().filter(punishment -> punishment.getType() == PunishmentType.MUTE).anyMatch(punishment -> punishment.isActive() && now.isBefore(punishment.getEndDate()));
         this.frozen = this.punishments.stream().filter(punishment -> punishment.getType() == PunishmentType.FREEZE).anyMatch(punishment -> punishment.isActive() && now.isBefore(punishment.getEndDate()));
-    }
-
-    public void loadPunishments()
-    {
-        this.setPunishments(Plex.get().getSqlPunishment().getPunishments(this.getUuid()));
-    }
-
-    public void loadNotes()
-    {
-        Plex.get().getSqlNotes().getNotes(this.getUuid());
     }
 
     public String toJSON()

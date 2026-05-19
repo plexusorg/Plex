@@ -38,9 +38,9 @@ public class DebugCMD extends PlexCommand
             if (args.length == 2)
             {
                 Player player = getNonNullPlayer(args[1]);
-                if (plugin.getRedisConnection().getJedis().exists(player.getUniqueId().toString()))
+                if (plugin.getRedisConnection().query(jedis -> jedis.exists(player.getUniqueId().toString())))
                 {
-                    plugin.getRedisConnection().getJedis().del(player.getUniqueId().toString());
+                    plugin.getRedisConnection().execute(jedis -> jedis.del(player.getUniqueId().toString()));
                     return messageComponent("redisResetSuccessful", player.getName());
                 }
                 return messageComponent("redisResetPlayerNotFound");
@@ -50,7 +50,7 @@ public class DebugCMD extends PlexCommand
         {
             for (World world : Bukkit.getWorlds())
             {
-                GameRuleUtil.commitGlobalGameRules(world);
+                GameRuleUtil.commitGlobalGameRules(plugin, world);
                 PlexLog.log("Set global gamerules for world: " + world.getName());
             }
             for (String world : plugin.config.getConfigurationSection("worlds").getKeys(false))
@@ -58,7 +58,7 @@ public class DebugCMD extends PlexCommand
                 World bukkitWorld = Bukkit.getWorld(world);
                 if (bukkitWorld != null)
                 {
-                    GameRuleUtil.commitSpecificGameRules(bukkitWorld);
+                    GameRuleUtil.commitSpecificGameRules(plugin, bukkitWorld);
                     PlexLog.log("Set specific gamerules for world: " + world.toLowerCase(Locale.ROOT));
                 }
             }

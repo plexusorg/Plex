@@ -3,11 +3,13 @@ package dev.plex.storage.punishment;
 import com.google.common.collect.Lists;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
+import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.stmt.UpdateBuilder;
-import dev.plex.Plex;
 import dev.plex.punishment.Punishment;
 import dev.plex.punishment.PunishmentType;
+import dev.plex.storage.StorageExecutor;
 import dev.plex.storage.database.entity.PunishmentEntity;
+import dev.plex.storage.repository.PunishmentRepository;
 import dev.plex.util.PlexLog;
 import dev.plex.util.TimeUtils;
 
@@ -19,15 +21,15 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
-public class SQLPunishment
+public class SQLPunishment implements PunishmentRepository
 {
     private final Dao<PunishmentEntity, Long> punishments;
 
-    public SQLPunishment()
+    public SQLPunishment(ConnectionSource connectionSource)
     {
         try
         {
-            this.punishments = DaoManager.createDao(Plex.get().getSqlConnection().getConnectionSource(), PunishmentEntity.class);
+            this.punishments = DaoManager.createDao(connectionSource, PunishmentEntity.class);
         }
         catch (SQLException e)
         {
@@ -48,7 +50,7 @@ public class SQLPunishment
                 e.printStackTrace();
                 return Lists.newArrayList();
             }
-        });
+        }, StorageExecutor.io());
     }
 
     public List<Punishment> getPunishments(UUID uuid)
@@ -90,7 +92,7 @@ public class SQLPunishment
             {
                 e.printStackTrace();
             }
-        });
+        }, StorageExecutor.io());
     }
 
     public void syncRemoveBan(UUID uuid)
@@ -101,12 +103,12 @@ public class SQLPunishment
 
     public CompletableFuture<Void> updatePunishment(PunishmentType type, boolean active, UUID punished)
     {
-        return CompletableFuture.runAsync(() -> setActive(punished, type, active));
+        return CompletableFuture.runAsync(() -> setActive(punished, type, active), StorageExecutor.io());
     }
 
     public CompletableFuture<Void> removeBan(UUID uuid)
     {
-        return CompletableFuture.runAsync(() -> syncRemoveBan(uuid));
+        return CompletableFuture.runAsync(() -> syncRemoveBan(uuid), StorageExecutor.io());
     }
 
     private void setActive(UUID punished, PunishmentType type, boolean active)

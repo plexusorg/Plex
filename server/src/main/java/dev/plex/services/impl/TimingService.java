@@ -1,6 +1,7 @@
 package dev.plex.services.impl;
 
-import dev.plex.cache.DataUtils;
+
+import dev.plex.Plex;
 import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.Punishment;
 import dev.plex.punishment.PunishmentType;
@@ -22,9 +23,9 @@ public class TimingService extends AbstractService
     public static final Map<UUID, Long> nukerCooldown = new HashMap<>();
     public static final Map<UUID, Long> strikes = new HashMap<>();
 
-    public TimingService()
+    public TimingService(Plex plugin)
     {
-        super(true, true);
+        super(plugin, true, true);
     }
 
     @Override
@@ -48,7 +49,7 @@ public class TimingService extends AbstractService
     {
         Punishment punishment = new Punishment(map.getKey(), null);
         Player player = Bukkit.getPlayer(map.getKey());
-        PlexPlayer plexPlayer = DataUtils.getPlayer(map.getKey());
+        PlexPlayer plexPlayer = plugin.getPlayerService().getPlayer(map.getKey());
         punishment.setType(PunishmentType.TEMPBAN);
         punishment.setReason("You are temporarily banned for five minutes for using a Nuker.");
         if (player != null)

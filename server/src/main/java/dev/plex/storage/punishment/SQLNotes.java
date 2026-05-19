@@ -3,10 +3,12 @@ package dev.plex.storage.punishment;
 import com.google.common.collect.Lists;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
+import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.stmt.DeleteBuilder;
-import dev.plex.Plex;
 import dev.plex.punishment.extra.Note;
+import dev.plex.storage.StorageExecutor;
 import dev.plex.storage.database.entity.NoteEntity;
+import dev.plex.storage.repository.NoteRepository;
 import dev.plex.util.TimeUtils;
 
 import java.sql.SQLException;
@@ -18,15 +20,15 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
-public class SQLNotes
+public class SQLNotes implements NoteRepository
 {
     private final Dao<NoteEntity, Long> notes;
 
-    public SQLNotes()
+    public SQLNotes(ConnectionSource connectionSource)
     {
         try
         {
-            this.notes = DaoManager.createDao(Plex.get().getSqlConnection().getConnectionSource(), NoteEntity.class);
+            this.notes = DaoManager.createDao(connectionSource, NoteEntity.class);
         }
         catch (SQLException e)
         {
@@ -50,7 +52,7 @@ public class SQLNotes
                 e.printStackTrace();
                 return Lists.newArrayList();
             }
-        });
+        }, StorageExecutor.io());
     }
 
     public CompletableFuture<Void> deleteNote(int id, UUID uuid)
@@ -67,7 +69,7 @@ public class SQLNotes
             {
                 e.printStackTrace();
             }
-        });
+        }, StorageExecutor.io());
     }
 
     public CompletableFuture<Void> addNote(Note note)
@@ -89,7 +91,7 @@ public class SQLNotes
             {
                 e.printStackTrace();
             }
-        });
+        }, StorageExecutor.io());
     }
 
     private Note toNote(NoteEntity entity)

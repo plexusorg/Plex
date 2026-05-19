@@ -1,6 +1,5 @@
 package dev.plex.util;
 
-import dev.plex.Plex;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
@@ -8,6 +7,7 @@ import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 public class PlexLog
 {
     private static final ComponentLogger logger = ComponentLogger.logger("");
+    private static boolean debugEnabled;
 
     public static void log(String message, Object... strings)
     {
@@ -62,9 +62,14 @@ public class PlexLog
         logger.warn(PlexUtils.mmDeserialize("<#eb7c0e>[Plex Warning] <gold>" + message));
     }
 
+    public static void setDebugEnabled(boolean debugEnabled)
+    {
+        PlexLog.debugEnabled = debugEnabled;
+    }
+
     public static void debug(String message, Object... strings)
     {
-        if (Plex.get().config.getBoolean("debug"))
+        if (debugEnabled)
         {
             for (int i = 0; i < strings.length; i++)
             {

@@ -55,7 +55,7 @@ public class AdminChatCMD extends PlexCommand
         PlexLog.debug("admin chat prefix: {0}", prefix);
         String message = StringUtils.join(args, " ");
         plugin.getServer().getConsoleSender().sendMessage(messageComponent("adminChatFormat", sender.getName(), prefix, message));
-        MessageUtil.sendStaffChat(sender, SafeMiniMessage.mmDeserialize(message), PlexUtils.adminChat(sender.getName(), prefix, message).toArray(UUID[]::new));
+        MessageUtil.sendStaffChat(plugin, sender, SafeMiniMessage.mmDeserialize(message), PlexUtils.adminChat(sender.getName(), prefix, message).toArray(UUID[]::new));
         return null;
     }
 

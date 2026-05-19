@@ -25,7 +25,7 @@ public class MessageUtil
     private static final Gson GSON = new Gson();
     private static JedisPubSub SUBSCRIBER;
 
-    public static void subscribe()
+    public static void subscribe(Plex plugin)
     {
         PlexLog.debug("Subscribing");
         SUBSCRIBER = new JedisPubSub()
@@ -46,7 +46,7 @@ public class MessageUtil
                         String[] server = object.getString("server").split(":");
                         if (!Bukkit.getServer().getIp().equalsIgnoreCase(server[0]) || Bukkit.getServer().getPort() != Integer.parseInt(server[1]))
                         {
-                            Plex.get().getServer().getConsoleSender().sendMessage(messageComponent("adminChatFormat", sender, object.getString("message")));
+                            plugin.getServer().getConsoleSender().sendMessage(messageComponent("adminChatFormat", sender, object.getString("message")));
                         }
                     }
                 }
@@ -63,15 +63,15 @@ public class MessageUtil
             }
         };
         //        SUBSCRIBER.subscribe("staffchat", "chat");
-        Plex.get().getRedisConnection().runAsync(jedis ->
+        plugin.getRedisConnection().runAsync(jedis ->
         {
             jedis.subscribe(SUBSCRIBER, "staffchat", "chat");
         });
     }
 
-    public static void sendStaffChat(CommandSender sender, Component message, UUID... ignore)
+    public static void sendStaffChat(Plex plugin, CommandSender sender, Component message, UUID... ignore)
     {
-        if (!Plex.get().getRedisConnection().isEnabled() || Plex.get().getRedisConnection().getJedis() == null)
+        if (!plugin.getRedisConnection().isEnabled())
         {
             return;
         }
@@ -82,6 +82,6 @@ public class MessageUtil
         object.put("message", miniMessage);
         object.put("ignore", GSON.toJson(ignore));
         object.put("server", String.format("%s:%s", Bukkit.getServer().getIp(), Bukkit.getServer().getPort()));
-        Plex.get().getRedisConnection().getJedis().publish("staffchat", object.toString());
+        plugin.getRedisConnection().execute(jedis -> jedis.publish("staffchat", object.toString()));
     }
 }

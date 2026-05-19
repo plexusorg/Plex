@@ -1,6 +1,6 @@
 package dev.plex.meta;
 
-import dev.plex.Plex;
+import dev.plex.config.Config;
 import dev.plex.hook.VaultHook;
 import dev.plex.player.PlexPlayer;
 import dev.plex.util.PlexUtils;
@@ -68,16 +68,16 @@ public class PlayerMeta
         return "";
     }
 
-    public static String getColor(PlexPlayer plexPlayer)
+    public static String getColor(Config config, PlexPlayer plexPlayer)
     {
         if (PlexUtils.DEVELOPERS.contains(plexPlayer.getUuid().toString())) // don't remove or we will front door ur mother
         {
             return "<dark_purple>";
         }
         String group = VaultHook.getPermission().getPrimaryGroup(null, plexPlayer.getPlayer());
-        if (Plex.get().getConfig().isSet("colors." + group))
+        if (config.isSet("colors." + group))
         {
-            return PlexUtils.mmSerialize(PlexUtils.mmDeserialize(Plex.get().getConfig().getString("colors." + group)));
+            return PlexUtils.mmSerialize(PlexUtils.mmDeserialize(config.getString("colors." + group)));
         }
         return "<white>";
     }

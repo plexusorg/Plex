@@ -12,15 +12,15 @@ import org.bukkit.entity.Entity;
 
 public class AutoWipeService extends AbstractService
 {
-    public AutoWipeService()
+    public AutoWipeService(Plex plugin)
     {
-        super(true, false);
+        super(plugin, true, false);
     }
 
     @Override
     public void run(ScheduledTask task)
     {
-        if (Plex.get().config.getBoolean("autowipe.enabled"))
+        if (plugin.config.getBoolean("autowipe.enabled"))
         {
             List<String> entities = plugin.config.getStringList("autowipe.entities");
 
@@ -30,7 +30,7 @@ public class AutoWipeService extends AbstractService
                 {
                     if (entities.stream().anyMatch(entityName -> entityName.equalsIgnoreCase(entity.getType().name())))
                     {
-                        Bukkit.getRegionScheduler().run(Plex.get(), entity.getLocation(), this::entityRun);
+                        Bukkit.getRegionScheduler().run(plugin, entity.getLocation(), this::entityRun);
                     }
                 }
             }

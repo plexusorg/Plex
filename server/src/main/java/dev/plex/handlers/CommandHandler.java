@@ -1,7 +1,7 @@
 package dev.plex.handlers;
 
 import com.google.common.collect.Lists;
-import dev.plex.PlexBase;
+import dev.plex.Plex;
 import dev.plex.command.PlexCommand;
 import dev.plex.command.impl.DebugCMD;
 import dev.plex.util.PlexLog;
@@ -11,10 +11,13 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Set;
 
-public class CommandHandler implements PlexBase
+public class CommandHandler
 {
-    public CommandHandler()
+    private final Plex plugin;
+
+    public CommandHandler(Plex plugin)
     {
+        this.plugin = plugin;
         Set<Class<? extends PlexCommand>> commandSet = ReflectionsUtil.getClassesBySubType("dev.plex.command.impl", PlexCommand.class);
         List<PlexCommand> commands = Lists.newArrayList();
 

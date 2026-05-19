@@ -2,7 +2,7 @@ package dev.plex.punishment;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import dev.plex.Plex;
+import dev.plex.player.PlayerService;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.TimeUtils;
 import dev.plex.util.adapter.ZonedDateTimeAdapter;
@@ -21,7 +21,6 @@ import org.jetbrains.annotations.NotNull;
 public class Punishment
 {
     private static final Gson gson = new GsonBuilder().registerTypeAdapter(ZonedDateTime.class, new ZonedDateTimeAdapter()).create();
-    private static final String banUrl = Plex.get().config.getString("banning.ban_url");
     @NotNull
     private final UUID punished;
     private final UUID punisher;
@@ -45,14 +44,14 @@ public class Punishment
         this.issueDate = ZonedDateTime.now(ZoneId.of(TimeUtils.TIMEZONE));
     }
 
-    public static Component generateBanMessage(Punishment punishment)
+    public static Component generateBanMessage(Punishment punishment, String banUrl, PlayerService playerService)
     {
-        return PlexUtils.messageComponent("banMessage", banUrl, punishment.getReason(), TimeUtils.useTimezone(punishment.getEndDate()), punisherDisplayName(punishment));
+        return PlexUtils.messageComponent("banMessage", banUrl, punishment.getReason(), TimeUtils.useTimezone(punishment.getEndDate()), punisherDisplayName(punishment, playerService));
     }
 
-    public static Component generateKickMessage(Punishment punishment)
+    public static Component generateKickMessage(Punishment punishment, PlayerService playerService)
     {
-        return PlexUtils.messageComponent("kickMessage", punishment.getReason(), punisherDisplayName(punishment));
+        return PlexUtils.messageComponent("kickMessage", punishment.getReason(), punisherDisplayName(punishment, playerService));
     }
 
     /**
@@ -62,20 +61,20 @@ public class Punishment
      * back to a UUID lookup, and finally "CONSOLE" when the punisher is
      * truly unknown.
      */
-    public static String punisherDisplayName(Punishment punishment)
+    public static String punisherDisplayName(Punishment punishment, PlayerService playerService)
     {
         String explicit = punishment.getPunisherName();
         if (explicit != null && !explicit.isEmpty()) return explicit;
         if (punishment.getPunisher() == null) return "CONSOLE";
-        return Plex.get().getSqlPlayerData().getNameByUUID(punishment.getPunisher());
+        return playerService.getNameByUUID(punishment.getPunisher());
     }
 
-    public static Component generateIndefBanMessageWithReason(String type, String reason)
+    public static Component generateIndefBanMessageWithReason(String type, String banUrl, String reason)
     {
         return PlexUtils.messageComponent("indefBanMessageReason", type, banUrl, reason);
     }
 
-    public static Component generateIndefBanMessage(String type)
+    public static Component generateIndefBanMessage(String type, String banUrl)
     {
         return PlexUtils.messageComponent("indefBanMessage", type, banUrl);
     }

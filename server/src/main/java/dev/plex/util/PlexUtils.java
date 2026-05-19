@@ -3,7 +3,7 @@ package dev.plex.util;
 import com.google.common.base.CharMatcher;
 import com.google.common.collect.Lists;
 import dev.plex.Plex;
-import dev.plex.PlexBase;
+import dev.plex.config.Config;
 import dev.plex.listener.impl.ChatListener;
 import dev.plex.util.minimessage.SafeMiniMessage;
 
@@ -34,9 +34,17 @@ import org.bukkit.command.PluginCommandYamlParser;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
-public class PlexUtils implements PlexBase
+public class PlexUtils
 {
     private static final MiniMessage MINI_MESSAGE = MiniMessage.miniMessage();
+    private static Config config;
+    private static Config messages;
+
+    public static void configure(Config config, Config messages)
+    {
+        PlexUtils.config = config;
+        PlexUtils.messages = messages;
+    }
 
     public static List<String> DEVELOPERS =
             Arrays.asList("78408086-1991-4c33-a571-d8fa325465b2", // Telesphoreo
@@ -78,13 +86,13 @@ public class PlexUtils implements PlexBase
         players[0].getWorld().playSound(location, org.bukkit.Sound.BLOCK_FIRE_EXTINGUISH, 0.5f, 0.5f);
     }
 
-    public static void testConnections()
+    public static void testConnections(Plex plugin)
     {
-        if (Plex.get().getSqlConnection().getDataSource() != null)
+        if (plugin.getSqlConnection().getDataSource() != null)
         {
-            try (Connection ignored = Plex.get().getSqlConnection().getCon())
+            try (Connection ignored = plugin.getSqlConnection().getCon())
             {
-                PlexLog.log("Successfully enabled " + Plex.get().getStorageType().getDisplayName() + "!");
+                PlexLog.log("Successfully enabled " + plugin.getStorageType().getDisplayName() + "!");
             }
             catch (SQLException e)
             {
@@ -194,9 +202,9 @@ public class PlexUtils implements PlexBase
     public static Component mmDeserialize(String input)
     {
         boolean aprilFools = true; // true by default
-        if (plugin.config.contains("april_fools"))
+        if (config != null && config.contains("april_fools"))
         {
-            aprilFools = plugin.config.getBoolean("april_fools");
+            aprilFools = config.getBoolean("april_fools");
         }
         ZonedDateTime date = ZonedDateTime.now(ZoneId.systemDefault());
         if (aprilFools && date.getMonth() == Month.APRIL && date.getDayOfMonth() == 1)
@@ -235,7 +243,7 @@ public class PlexUtils implements PlexBase
 
     public static String messageString(String entry, Object... objects)
     {
-        String f = plugin.messages.getString(entry);
+        String f = messages.getString(entry);
         if (f == null)
         {
             throw new NullPointerException();

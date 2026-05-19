@@ -1,8 +1,8 @@
 package dev.plex.menu.impl;
 
-import dev.plex.cache.DataUtils;
 import dev.plex.menu.AbstractMenu;
 import dev.plex.menu.pagination.PageableMenu;
+import dev.plex.player.PlayerService;
 import dev.plex.player.PlexPlayer;
 import dev.plex.util.PlexLog;
 import dev.plex.util.item.ItemBuilder;
@@ -20,9 +20,12 @@ import org.bukkit.inventory.meta.SkullMeta;
 
 public class PunishmentMenu extends PageableMenu<Player>
 {
-    public PunishmentMenu()
+    private final PlayerService playerService;
+
+    public PunishmentMenu(PlayerService playerService)
     {
         super("<aqua><bold>Punishments", AbstractMenu.Rows.SIX);
+        this.playerService = playerService;
         PlexLog.debug("list: {0}", list().size());
         onClick((inventoryView, itemStacks, player, itemStack) ->
         {
@@ -35,14 +38,14 @@ public class PunishmentMenu extends PageableMenu<Player>
             {
                 meta.setOwningPlayer(Bukkit.getOfflinePlayer("markbyron"));
             }
-            PlexPlayer punishedPlayer = DataUtils.getPlayer(meta.getOwningPlayer().getUniqueId());
+            PlexPlayer punishedPlayer = playerService.getPlayer(meta.getOwningPlayer().getUniqueId());
             if (punishedPlayer == null)
             {
                 player.sendMessage(Component.text("This player does not exist. Try doing /punishments <player> instead.").color(NamedTextColor.RED));
                 player.closeInventory();
                 return true;
             }
-            new PunishedPlayerMenu(punishedPlayer).open(player);
+            new PunishedPlayerMenu(punishedPlayer, playerService).open(player);
             return true;
         });
 

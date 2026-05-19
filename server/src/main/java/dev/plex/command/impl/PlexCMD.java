@@ -8,6 +8,7 @@ import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.module.PlexModule;
 import dev.plex.module.PlexModuleFile;
 import dev.plex.util.BuildInfo;
+import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.TimeUtils;
 
@@ -47,8 +48,10 @@ public class PlexCMD extends PlexCommand
         {
             checkPermission(sender, "plex.reload");
             plugin.config.load();
+            PlexLog.setDebugEnabled(plugin.config.getBoolean("debug"));
             send(sender, "Reloaded config file");
             plugin.messages.load();
+            PlexUtils.configure(plugin.config, plugin.messages);
             send(sender, "Reloaded messages file");
             plugin.indefBans.load(false);
             plugin.getPunishmentManager().mergeIndefiniteBans();
@@ -72,10 +75,10 @@ public class PlexCMD extends PlexCommand
             {
                 throw new CommandFailException("&cRedis is not enabled.");
             }
-            plugin.getRedisConnection().getJedis().set("test", "123");
+            plugin.getRedisConnection().execute(jedis -> jedis.set("test", "123"));
             send(sender, "Set test to 123. Now outputting key test...");
-            send(sender, plugin.getRedisConnection().getJedis().get("test"));
-            plugin.getRedisConnection().getJedis().close();
+            String test = plugin.getRedisConnection().query(jedis -> jedis.get("test"));
+            send(sender, test);
             return null;
         }
         else if (args[0].equalsIgnoreCase("modules"))

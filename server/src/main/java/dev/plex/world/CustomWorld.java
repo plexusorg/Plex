@@ -17,8 +17,6 @@ import org.bukkit.generator.ChunkGenerator;
 
 public class CustomWorld extends WorldCreator
 {
-    private static final Plex plugin = Plex.get();
-
     private final CustomChunkGenerator chunks;
 
     public CustomWorld(String name, CustomChunkGenerator generator)
@@ -28,13 +26,13 @@ public class CustomWorld extends WorldCreator
         this.generator(this.chunks);
     }
 
-    public static World generateConfigFlatWorld(String name)
+    public static World generateConfigFlatWorld(Plex plugin, String name)
     {
         if (!plugin.config.contains("worlds." + name))
         {
             return null;
         }
-        CustomWorld customWorld = new CustomWorld(name, new ConfigurationChunkGenerator(name))
+        CustomWorld customWorld = new CustomWorld(name, new ConfigurationChunkGenerator(plugin, name))
         {
             @Override
             public World generate()

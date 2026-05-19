@@ -1,6 +1,5 @@
 package dev.plex.listener.impl;
 
-import dev.plex.Plex;
 import dev.plex.listener.PlexListener;
 import dev.plex.util.PlexUtils;
 import io.papermc.paper.event.player.AsyncChatEvent;
@@ -80,7 +79,7 @@ public class TogglesListener extends PlexListener
     public void onChat(AsyncChatEvent event)
     {
         Player player = event.getPlayer();
-        if (!plugin.toggles.getBoolean("chat") && !Plex.get().getPermissions().has(player, "plex.mute.bypass"))
+        if (!plugin.toggles.getBoolean("chat") && !plugin.getPermissions().has(player, "plex.mute.bypass"))
         {
             event.getPlayer().sendMessage(PlexUtils.messageComponent("chatIsOff"));
             event.setCancelled(true);
@@ -91,7 +90,7 @@ public class TogglesListener extends PlexListener
     public void onCommand(PlayerCommandPreprocessEvent event)
     {
         Player player = event.getPlayer();
-        if (!plugin.toggles.getBoolean("chat") && !Plex.get().getPermissions().has(player, "plex.mute.bypass"))
+        if (!plugin.toggles.getBoolean("chat") && !plugin.getPermissions().has(player, "plex.mute.bypass"))
         {
             String message = event.getMessage();
             message = message.replaceAll("\\s.*", "").replaceFirst("/", "");

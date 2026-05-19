@@ -1,6 +1,6 @@
 package dev.plex.listener.impl;
 
-import dev.plex.cache.DataUtils;
+
 import dev.plex.hook.VaultHook;
 import dev.plex.listener.PlexListener;
 import dev.plex.meta.PlayerMeta;
@@ -18,7 +18,7 @@ public class TabListener extends PlexListener
     public void onPlayerJoin(PlayerJoinEvent event)
     {
         Player player = event.getPlayer();
-        PlexPlayer plexPlayer = DataUtils.getPlayer(player.getUniqueId());
-        player.playerListName(PlexUtils.mmDeserialize(PlayerMeta.getColor(plexPlayer) + player.getName()));
+        PlexPlayer plexPlayer = plugin.getPlayerService().getPlayer(player.getUniqueId());
+        player.playerListName(PlexUtils.mmDeserialize(PlayerMeta.getColor(plugin.config, plexPlayer) + player.getName()));
     }
 }

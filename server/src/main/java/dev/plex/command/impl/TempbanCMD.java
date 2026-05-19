@@ -1,7 +1,7 @@
 package dev.plex.command.impl;
 
+
 import com.google.common.collect.ImmutableList;
-import dev.plex.cache.DataUtils;
 import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
@@ -39,7 +39,7 @@ public class TempbanCMD extends PlexCommand
             return usage();
         }
 
-        PlexPlayer target = DataUtils.getPlayer(args[0]);
+        PlexPlayer target = plugin.getPlayerService().getPlayer(args[0]);
         String reason;
 
         if (target == null)
@@ -78,7 +78,7 @@ public class TempbanCMD extends PlexCommand
         PlexUtils.broadcast(messageComponent("banningPlayer", sender.getName(), target.getName()));
         if (player != null)
         {
-            BungeeUtil.kickPlayer(player, Punishment.generateBanMessage(punishment));
+            BungeeUtil.kickPlayer(plugin, player, Punishment.generateBanMessage(punishment, plugin.config.getString("banning.ban_url"), plugin.getPlayerService()));
         }
         if (rollBack)
         {

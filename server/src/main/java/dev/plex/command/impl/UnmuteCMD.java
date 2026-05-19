@@ -1,7 +1,7 @@
 package dev.plex.command.impl;
 
+
 import com.google.common.collect.ImmutableList;
-import dev.plex.cache.DataUtils;
 import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
@@ -30,7 +30,7 @@ public class UnmuteCMD extends PlexCommand
         {
             return usage();
         }
-        PlexPlayer punishedPlayer = DataUtils.getPlayer(args[0]);
+        PlexPlayer punishedPlayer = plugin.getPlayerService().getPlayer(args[0]);
         if (punishedPlayer == null)
         {
             throw new PlayerNotFoundException();
@@ -44,7 +44,7 @@ public class UnmuteCMD extends PlexCommand
         punishedPlayer.getPunishments().stream().filter(punishment -> punishment.getType() == PunishmentType.MUTE && punishment.isActive()).forEach(punishment ->
         {
             punishment.setActive(false);
-            plugin.getSqlPunishment().updatePunishment(punishment.getType(), false, punishment.getPunished());
+            plugin.getPunishmentRepository().updatePunishment(punishment.getType(), false, punishment.getPunished());
         });
         PlexUtils.broadcast(messageComponent("unmutedPlayer", sender.getName(), punishedPlayer.getName()));
         return null;

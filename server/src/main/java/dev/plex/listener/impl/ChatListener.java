@@ -38,16 +38,15 @@ public class ChatListener extends PlexListener
     public static BiConsumer<AsyncChatEvent, PlexPlayer> PRE_RENDERER = ChatListener::defaultChatProcessing;
     private final PlexChatRenderer renderer = new PlexChatRenderer();
 
-    private static final Component format = SafeMiniMessage.mmDeserialize(plugin.config.getString("chat.format"));
-
     @EventHandler(priority = EventPriority.LOWEST)
     public void onChat(AsyncChatEvent event)
     {
         PlexPlayer plexPlayer = plugin.getPlayerCache().getPlexPlayerMap().get(event.getPlayer().getUniqueId());
+        renderer.format = SafeMiniMessage.mmDeserialize(plugin.config.getString("chat.format"));
         if (plexPlayer.isStaffChat())
         {
             String prefix = PlexUtils.mmSerialize(VaultHook.getPrefix(event.getPlayer())); // Don't use PlexPlayer#getPrefix because that returns their custom set prefix and not their group's
-            MessageUtil.sendStaffChat(event.getPlayer(), event.message(), PlexUtils.adminChat(event.getPlayer().getName(), prefix, SafeMiniMessage.mmSerialize(event.message())).toArray(UUID[]::new));
+            MessageUtil.sendStaffChat(plugin, event.getPlayer(), event.message(), PlexUtils.adminChat(event.getPlayer().getName(), prefix, SafeMiniMessage.mmSerialize(event.message())).toArray(UUID[]::new));
             plugin.getServer().getConsoleSender().sendMessage(PlexUtils.messageComponent("adminChatFormat", event.getPlayer().getName(), prefix, SafeMiniMessage.mmSerialize(event.message().replaceText(URL_REPLACEMENT_CONFIG))));
             event.setCancelled(true);
             return;
@@ -74,6 +73,7 @@ public class ChatListener extends PlexListener
     {
         public boolean hasPrefix;
         public Component prefix;
+        public Component format;
         public Supplier<Component> before = null;
 
         @Override

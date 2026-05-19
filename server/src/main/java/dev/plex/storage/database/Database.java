@@ -4,7 +4,7 @@ import com.j256.ormlite.jdbc.DataSourceConnectionSource;
 import com.j256.ormlite.support.ConnectionSource;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import dev.plex.PlexBase;
+import dev.plex.Plex;
 import dev.plex.storage.StorageType;
 import dev.plex.util.PlexLog;
 import lombok.Getter;
@@ -19,16 +19,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Getter
-public class Database implements PlexBase
+public class Database
 {
     private static final String MIGRATION_TABLE = "plex_schema_history";
 
+    protected final Plex plugin;
     private final HikariDataSource dataSource;
     private final ConnectionSource connectionSource;
     private final StorageType storageType;
 
-    public Database()
+    public Database(Plex plugin)
     {
+        this.plugin = plugin;
         this.storageType = StorageType.fromConfig(plugin.config.getString("data.db.storage", "sqlite"));
 
         HikariConfig config = new HikariConfig();

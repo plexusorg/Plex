@@ -1,5 +1,6 @@
 package dev.plex.services.impl;
 
+import dev.plex.Plex;
 import dev.plex.services.AbstractService;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.Bukkit;
@@ -8,9 +9,9 @@ public class UpdateCheckerService extends AbstractService
 {
     private boolean newVersion = false;
 
-    public UpdateCheckerService()
+    public UpdateCheckerService(Plex plugin)
     {
-        super(true, true);
+        super(plugin, true, true);
     }
 
     @Override

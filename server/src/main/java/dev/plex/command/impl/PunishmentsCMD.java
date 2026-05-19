@@ -1,7 +1,7 @@
 package dev.plex.command.impl;
 
+
 import com.google.common.collect.ImmutableList;
-import dev.plex.cache.DataUtils;
 import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
@@ -31,11 +31,11 @@ public class PunishmentsCMD extends PlexCommand
     {
         if (args.length == 0)
         {
-            new PunishmentMenu().open(playerSender);
+            new PunishmentMenu(plugin.getPlayerService()).open(playerSender);
         }
         else
         {
-            if (!DataUtils.hasPlayedBefore(args[0]))
+            if (!plugin.getPlayerService().hasPlayedBefore(args[0]))
             {
                 throw new PlayerNotFoundException();
             }
@@ -43,7 +43,7 @@ public class PunishmentsCMD extends PlexCommand
             final OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(args[0]);
             final PlexPlayer player = offlinePlayer.isOnline() ? getOnlinePlexPlayer(args[0]) : getOfflinePlexPlayer(offlinePlayer.getUniqueId());
 
-            new PunishedPlayerMenu(player).open(playerSender);
+            new PunishedPlayerMenu(player, plugin.getPlayerService()).open(playerSender);
         }
 
         return null;

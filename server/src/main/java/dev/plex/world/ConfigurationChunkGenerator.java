@@ -9,14 +9,12 @@ import org.bukkit.generator.BlockPopulator;
 
 public class ConfigurationChunkGenerator extends BlockMapChunkGenerator
 {
-    private static final Plex plugin = Plex.get();
-
-    public ConfigurationChunkGenerator(String worldName, BlockPopulator... populators)
+    public ConfigurationChunkGenerator(Plex plugin, String worldName, BlockPopulator... populators)
     {
-        super(createBlockMap(worldName), populators);
+        super(createBlockMap(plugin, worldName), populators);
     }
 
-    private static LinkedHashMap<Material, Integer> createBlockMap(String worldName)
+    private static LinkedHashMap<Material, Integer> createBlockMap(Plex plugin, String worldName)
     {
         LinkedHashMap<Material, Integer> blockMap = new LinkedHashMap<>();
         for (String key : plugin.config.getConfigurationSection("worlds." + worldName + ".parameters").getKeys(false))

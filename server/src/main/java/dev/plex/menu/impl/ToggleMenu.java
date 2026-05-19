@@ -18,10 +18,10 @@ public class ToggleMenu extends AbstractMenu
 {
     private final Plex plugin;
 
-    public ToggleMenu()
+    public ToggleMenu(Plex plugin)
     {
         super("<green><bold>Toggles", Rows.ONE);
-        this.plugin = Plex.get();
+        this.plugin = plugin;
         resetExplosionItem(this.inventory());
         resetFluidspreadItem(this.inventory());
         resetDropsItem(this.inventory());

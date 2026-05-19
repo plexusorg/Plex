@@ -7,7 +7,7 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
-import dev.plex.Plex;
+import dev.plex.util.TimeUtils;
 
 import java.lang.reflect.Type;
 import java.time.Instant;
@@ -16,7 +16,7 @@ import java.time.ZonedDateTime;
 
 public class ZonedDateTimeAdapter implements JsonSerializer<ZonedDateTime>, JsonDeserializer<ZonedDateTime>
 {
-    private static final String TIMEZONE = Plex.get().config.getString("server.timezone");
+    private static final String TIMEZONE = TimeUtils.TIMEZONE;
 
     @Override
     public JsonElement serialize(ZonedDateTime src, Type typeOfSrc, JsonSerializationContext context)

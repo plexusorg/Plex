@@ -3,7 +3,7 @@ package dev.plex.util;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
-import dev.plex.PlexBase;
+import dev.plex.Plex;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -23,7 +23,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.json.JSONException;
 
-public class UpdateChecker implements PlexBase
+public class UpdateChecker
 {
     /*
      * -4 = Never checked for updates
@@ -33,10 +33,18 @@ public class UpdateChecker implements PlexBase
      * 0 = Up to date
      * > 0 = Number of commits behind
      */
+    private final Plex plugin;
     private final String DOWNLOAD_PAGE = "https://ci.plex.us.org/job/";
-    private final String REPO = plugin.config.getString("update_repo");
-    private String BRANCH = plugin.config.getString("update_branch");
+    private final String REPO;
+    private String BRANCH;
     private int distance = -4;
+
+    public UpdateChecker(Plex plugin)
+    {
+        this.plugin = plugin;
+        this.REPO = plugin.config.getString("update_repo");
+        this.BRANCH = plugin.config.getString("update_branch");
+    }
 
     // Adapted from Paper
     private int fetchDistanceFromGitHub(@NonNull String repo, @NonNull String branch, @NonNull String hash)

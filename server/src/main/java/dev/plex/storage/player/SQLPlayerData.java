@@ -4,11 +4,13 @@ import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
+import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.stmt.DeleteBuilder;
-import dev.plex.Plex;
 import dev.plex.player.PlexPlayer;
 import dev.plex.storage.database.entity.PlayerEntity;
 import dev.plex.storage.database.entity.PlayerIpEntity;
+import dev.plex.storage.repository.PlayerRepository;
+import dev.plex.storage.repository.PunishmentRepository;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -17,18 +19,20 @@ import java.util.UUID;
 /**
  * Player persistence backed by ORMLite.
  */
-public class SQLPlayerData
+public class SQLPlayerData implements PlayerRepository
 {
     private static final Gson GSON = new Gson();
     private final Dao<PlayerEntity, String> players;
     private final Dao<PlayerIpEntity, Long> playerIps;
+    private final PunishmentRepository punishmentRepository;
 
-    public SQLPlayerData()
+    public SQLPlayerData(ConnectionSource connectionSource, PunishmentRepository punishmentRepository)
     {
+        this.punishmentRepository = punishmentRepository;
         try
         {
-            this.players = DaoManager.createDao(Plex.get().getSqlConnection().getConnectionSource(), PlayerEntity.class);
-            this.playerIps = DaoManager.createDao(Plex.get().getSqlConnection().getConnectionSource(), PlayerIpEntity.class);
+            this.players = DaoManager.createDao(connectionSource, PlayerEntity.class);
+            this.playerIps = DaoManager.createDao(connectionSource, PlayerIpEntity.class);
         }
         catch (SQLException e)
         {
@@ -64,11 +68,6 @@ public class SQLPlayerData
 
     public PlexPlayer getByUUID(UUID uuid, boolean loadExtraData)
     {
-        if (Plex.get().getPlayerCache().getPlexPlayerMap().containsKey(uuid))
-        {
-            return Plex.get().getPlayerCache().getPlexPlayerMap().get(uuid);
-        }
-
         try
         {
             return toPlayer(players.queryForId(uuid.toString()), loadExtraData);
@@ -82,11 +81,6 @@ public class SQLPlayerData
 
     public String getNameByUUID(UUID uuid)
     {
-        if (Plex.get().getPlayerCache().getPlexPlayerMap().containsKey(uuid))
-        {
-            return Plex.get().getPlayerCache().getPlexPlayerMap().get(uuid).getName();
-        }
-
         try
         {
             PlayerEntity entity = players.queryForId(uuid.toString());
@@ -106,15 +100,6 @@ public class SQLPlayerData
 
     public PlexPlayer getByName(String username, boolean loadExtraData)
     {
-        PlexPlayer player = Plex.get().getPlayerCache().getPlexPlayerMap().values().stream()
-                .filter(plexPlayer -> plexPlayer.getName().equalsIgnoreCase(username))
-                .findFirst()
-                .orElse(null);
-        if (player != null)
-        {
-            return player;
-        }
-
         try
         {
             return toPlayer(players.queryBuilder().limit(1L).where().eq("name", username).queryForFirst(), loadExtraData);
@@ -133,15 +118,6 @@ public class SQLPlayerData
 
     public PlexPlayer getByIP(String ip)
     {
-        PlexPlayer player = Plex.get().getPlayerCache().getPlexPlayerMap().values().stream()
-                .filter(plexPlayer -> plexPlayer.getIps().contains(ip))
-                .findFirst()
-                .orElse(null);
-        if (player != null)
-        {
-            return player;
-        }
-
         try
         {
             PlayerIpEntity playerIp = playerIps.queryBuilder().limit(1L).where().eq("ip", ip).queryForFirst();
@@ -192,7 +168,7 @@ public class SQLPlayerData
             return null;
         }
 
-        PlexPlayer plexPlayer = new PlexPlayer(UUID.fromString(entity.getUuid()), loadExtraData);
+        PlexPlayer plexPlayer = new PlexPlayer(UUID.fromString(entity.getUuid()), false);
         plexPlayer.setName(entity.getName());
         plexPlayer.setLoginMessage(entity.getLoginMessage());
         plexPlayer.setPrefix(entity.getPrefix());
@@ -201,6 +177,11 @@ public class SQLPlayerData
         plexPlayer.setCoins(entity.getCoins());
         plexPlayer.setVanished(entity.isVanished());
         plexPlayer.setCommandSpy(entity.isCommandSpy());
+        if (loadExtraData)
+        {
+            plexPlayer.setPunishments(punishmentRepository.getPunishments(plexPlayer.getUuid()));
+            plexPlayer.checkMutesAndFreeze();
+        }
         return plexPlayer;
     }
 

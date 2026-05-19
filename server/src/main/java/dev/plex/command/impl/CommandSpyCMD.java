@@ -1,6 +1,6 @@
 package dev.plex.command.impl;
 
-import dev.plex.cache.DataUtils;
+
 import dev.plex.command.PlexCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
@@ -27,7 +27,7 @@ public class CommandSpyCMD extends PlexCommand
         {
             PlexPlayer plexPlayer = plugin.getPlayerCache().getPlexPlayer(playerSender.getUniqueId());
             plexPlayer.setCommandSpy(!plexPlayer.isCommandSpy());
-            DataUtils.update(plexPlayer);
+            plugin.getPlayerService().update(plexPlayer);
             send(sender, messageComponent("toggleCommandSpy")
                     .append(Component.space())
                     .append(plexPlayer.isCommandSpy() ? messageComponent("enabled") : messageComponent("disabled")));

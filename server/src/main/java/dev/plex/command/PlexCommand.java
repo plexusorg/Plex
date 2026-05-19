@@ -2,7 +2,6 @@ package dev.plex.command;
 
 import com.google.common.collect.Lists;
 import dev.plex.Plex;
-import dev.plex.cache.DataUtils;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.exception.CommandFailException;
@@ -43,7 +42,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
     /**
      * Returns the instance of the plugin
      */
-    protected static Plex plugin = Plex.get();
+    protected final Plex plugin;
 
     /**
      * The parameters for the command
@@ -66,6 +65,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
     public PlexCommand(boolean register)
     {
         super("");
+        this.plugin = Plex.get();
         this.params = getClass().getAnnotation(CommandParameters.class);
         this.perms = getClass().getAnnotation(CommandPermissions.class);
 
@@ -149,7 +149,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
 
         if (sender instanceof ConsoleCommandSender && !sender.getName().equalsIgnoreCase("console")) //telnet
         {
-            PlexPlayer plexPlayer = DataUtils.getPlayer(sender.getName());
+            PlexPlayer plexPlayer = plugin.getPlayerService().getPlayer(sender.getName());
 
             if (!perms.permission().isEmpty() && !plugin.getPermissions().playerHas(null, Bukkit.getPlayer(plexPlayer.getName()), perms.permission()))
             {
@@ -218,7 +218,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
      */
     protected PlexPlayer getPlexPlayer(@NotNull Player player)
     {
-        return DataUtils.getPlayer(player.getUniqueId());
+        return plugin.getPlayerService().getPlayer(player.getUniqueId());
     }
 
     /**
@@ -431,7 +431,7 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
 
     protected PlexPlayer getOfflinePlexPlayer(UUID uuid)
     {
-        PlexPlayer plexPlayer = DataUtils.getPlayer(uuid);
+        PlexPlayer plexPlayer = plugin.getPlayerService().getPlayer(uuid);
         if (plexPlayer == null)
         {
             throw new PlayerNotFoundException();
@@ -478,6 +478,6 @@ public abstract class PlexCommand extends Command implements PluginIdentifiableC
 
     public CommandMap getMap()
     {
-        return Plex.get().getServer().getCommandMap();
+        return plugin.getServer().getCommandMap();
     }
 }
