@@ -35,23 +35,49 @@ public abstract class PlexModule
     private File dataFolder;
     private Logger logger;
 
+    /**
+     * Creates a Plex module.
+     */
+    public PlexModule()
+    {
+    }
+
+    /**
+     * Returns the Plex API facade.
+     *
+     * @return Plex API facade for supported module integrations
+     */
     public PlexApi api()
     {
         return api;
     }
 
+    /**
+     * Called when the module is loaded.
+     */
     public void load()
     {
     }
 
+    /**
+     * Called when the module is enabled.
+     */
     public void enable()
     {
     }
 
+    /**
+     * Called when the module is disabled.
+     */
     public void disable()
     {
     }
 
+    /**
+     * Registers and tracks a listener owned by this module.
+     *
+     * @param listener listener to register
+     */
     public void registerListener(Listener listener)
     {
         listeners.add(listener);
@@ -61,6 +87,11 @@ public abstract class PlexModule
         }
     }
 
+    /**
+     * Unregisters and stops tracking a listener owned by this module.
+     *
+     * @param listener listener to unregister
+     */
     public void unregisterListener(Listener listener)
     {
         listeners.remove(listener);
@@ -72,6 +103,11 @@ public abstract class PlexModule
         HandlerList.unregisterAll(listener);
     }
 
+    /**
+     * Registers and tracks a command owned by this module.
+     *
+     * @param command command to register
+     */
     public void registerCommand(PlexCommand command)
     {
         commands.add(command);
@@ -81,6 +117,11 @@ public abstract class PlexModule
         }
     }
 
+    /**
+     * Unregisters and stops tracking a command owned by this module.
+     *
+     * @param command command to unregister
+     */
     public void unregisterCommand(PlexCommand command)
     {
         commands.remove(command);
@@ -90,6 +131,12 @@ public abstract class PlexModule
         }
     }
 
+    /**
+     * Looks up a tracked command by name or alias.
+     *
+     * @param name command name or alias
+     * @return matching command, or {@code null} when no command matches
+     */
     @Nullable
     public PlexCommand getCommand(String name)
     {
@@ -99,6 +146,12 @@ public abstract class PlexModule
                 .orElse(null);
     }
 
+    /**
+     * Adds a default message if the message key is not already configured.
+     *
+     * @param message message key
+     * @param initValue default value to write
+     */
     public void addDefaultMessage(String message, Object initValue)
     {
         if (api.configuration().messages().getString(message) == null)
@@ -109,6 +162,13 @@ public abstract class PlexModule
         }
     }
 
+    /**
+     * Adds a default message and comments if the message key is not already configured.
+     *
+     * @param message message key
+     * @param initValue default value to write
+     * @param comments comments to write above the message key
+     */
     public void addDefaultMessage(String message, Object initValue, String... comments)
     {
         if (api.configuration().messages().getString(message) == null)
@@ -121,6 +181,12 @@ public abstract class PlexModule
         }
     }
 
+    /**
+     * Opens a resource from this module's class loader.
+     *
+     * @param filename resource path
+     * @return resource stream, or {@code null} when the resource cannot be opened
+     */
     @Nullable
     public InputStream getResource(@NotNull String filename)
     {
@@ -142,46 +208,91 @@ public abstract class PlexModule
         }
     }
 
+    /**
+     * Returns commands currently tracked by this module.
+     *
+     * @return commands currently tracked by this module
+     */
     public List<PlexCommand> getCommands()
     {
         return commands;
     }
 
+    /**
+     * Returns listeners currently tracked by this module.
+     *
+     * @return listeners currently tracked by this module
+     */
     public List<Listener> getListeners()
     {
         return listeners;
     }
 
+    /**
+     * Returns metadata read from this module's module.yml.
+     *
+     * @return metadata read from this module's module.yml
+     */
     public PlexModuleFile getPlexModuleFile()
     {
         return plexModuleFile;
     }
 
+    /**
+     * Returns the module data folder.
+     *
+     * @return module data folder
+     */
     public File getDataFolder()
     {
         return dataFolder;
     }
 
+    /**
+     * Returns the module logger.
+     *
+     * @return module logger
+     */
     public Logger getLogger()
     {
         return logger;
     }
 
+    /**
+     * Sets the Plex API facade for this module.
+     *
+     * @param api Plex API facade
+     */
     public void setApi(PlexApi api)
     {
         this.api = api;
     }
 
+    /**
+     * Sets metadata read from this module's module.yml.
+     *
+     * @param plexModuleFile module metadata
+     */
     public void setPlexModuleFile(PlexModuleFile plexModuleFile)
     {
         this.plexModuleFile = plexModuleFile;
     }
 
+    /**
+     * Sets the module data folder.
+     *
+     * @param dataFolder data folder
+     */
     public void setDataFolder(File dataFolder)
     {
         this.dataFolder = dataFolder;
     }
 
+    /**
+     * Sets the module logger.
+     *
+     * @param logger logger
+     */
     public void setLogger(Logger logger)
     {
         this.logger = logger;

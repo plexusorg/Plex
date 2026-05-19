@@ -6,6 +6,8 @@ package dev.plex.api;
 public interface ApiCompatibility
 {
     /**
+     * Returns the module API compatibility version.
+     *
      * @return the provided module API compatibility version
      */
     int version();

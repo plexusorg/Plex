@@ -11,6 +11,8 @@ import java.util.Optional;
 public interface ModulesApi
 {
     /**
+     * Returns metadata for all currently discovered modules.
+     *
      * @return immutable metadata for all currently discovered modules
      */
     Collection<PlexModuleFile> loadedModules();
