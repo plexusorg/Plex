@@ -21,8 +21,8 @@ final class DefaultCommandApi implements CommandApi
     @Override
     public void unregister(Command command)
     {
-        plugin.getServer().getCommandMap().getKnownCommands().remove(command.getName());
-        command.getAliases().forEach(alias -> plugin.getServer().getCommandMap().getKnownCommands().remove(alias));
+        plugin.getServer().getCommandMap().getKnownCommands().remove(command.getName().toLowerCase());
+        command.getAliases().forEach(alias -> plugin.getServer().getCommandMap().getKnownCommands().remove(alias.toLowerCase()));
         command.unregister(plugin.getServer().getCommandMap());
     }
 }

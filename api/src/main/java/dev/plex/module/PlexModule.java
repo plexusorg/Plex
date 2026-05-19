@@ -55,22 +55,39 @@ public abstract class PlexModule
     public void registerListener(Listener listener)
     {
         listeners.add(listener);
+        if (api != null)
+        {
+            api.listeners().register(listener);
+        }
     }
 
     public void unregisterListener(Listener listener)
     {
         listeners.remove(listener);
+        if (api != null)
+        {
+            api.listeners().unregister(listener);
+            return;
+        }
         HandlerList.unregisterAll(listener);
     }
 
     public void registerCommand(Command command)
     {
         commands.add(command);
+        if (api != null)
+        {
+            api.commands().register(command);
+        }
     }
 
     public void unregisterCommand(Command command)
     {
         commands.remove(command);
+        if (api != null)
+        {
+            api.commands().unregister(command);
+        }
     }
 
     @Nullable
