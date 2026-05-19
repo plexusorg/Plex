@@ -1,6 +1,5 @@
 plugins {
     java
-    `maven-publish`
     id("org.jetbrains.gradle.plugin.idea-ext")
     id("net.kyori.blossom")
     id("com.gradleup.shadow")
@@ -19,12 +18,18 @@ tasks.getByName<Jar>("jar") {
 }
 
 tasks {
+    build {
+        dependsOn(shadowJar)
+    }
+
     jar {
-        finalizedBy(rootProject.tasks["copyJars"])
+        enabled = false
     }
 
     shadowJar {
-        enabled = false
+        archiveBaseName.set("Plex-Velocity")
+        archiveClassifier.set("")
+        finalizedBy(rootProject.tasks["copyJars"])
     }
 }
 
@@ -34,14 +39,6 @@ sourceSets {
             javaSources {
                 property("version", project.version.toString())
             }
-        }
-    }
-}
-
-publishing {
-    publications {
-        create<MavenPublication>("maven") {
-            from(components["java"])
         }
     }
 }

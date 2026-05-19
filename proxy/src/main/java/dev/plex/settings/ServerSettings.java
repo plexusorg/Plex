@@ -1,27 +1,42 @@
 package dev.plex.settings;
 
-import com.google.common.collect.Lists;
-import com.google.gson.annotations.SerializedName;
+import dev.plex.api.config.PlexConfiguration;
 import java.util.List;
-import lombok.Data;
 import lombok.Getter;
 
 @Getter
 public class ServerSettings
 {
-    private final Server server = new Server();
+    private static final List<String> DEFAULT_MOTD = List.of("%randomgradient%%servername% - %mcversion%", "Another motd");
+    private static final List<String> DEFAULT_SAMPLE = List.of("example", "example");
 
-    @Data
+    private final Server server;
+
+    public ServerSettings(PlexConfiguration config)
+    {
+        this.server = new Server(config);
+    }
+
+    @Getter
     public static class Server
     {
-        private String name = "Server";
-        private List<String> motd = Lists.newArrayList("%randomgradient%%servername% - %mcversion%", "Another motd");
-        private boolean colorizeMotd = false;
-        private boolean debug = false;
-        private final List<String> sample = Lists.newArrayList("example", "example");
-        @SerializedName(value = "add-player-count")
-        private int addPlayerCount = 0;
-        @SerializedName(value = "plus-one-max-count")
-        private boolean plusOneMaxPlayer = true;
+        private final String name;
+        private final List<String> motd;
+        private final boolean colorizeMotd;
+        private final boolean debug;
+        private final List<String> sample;
+        private final int addPlayerCount;
+        private final boolean plusOneMaxPlayer;
+
+        private Server(PlexConfiguration config)
+        {
+            this.name = config.getString("server.name", "Plexus");
+            this.motd = config.getStringList("server.motd", DEFAULT_MOTD);
+            this.colorizeMotd = config.getBoolean("server.colorize_motd", false);
+            this.debug = config.getBoolean("server.debug", false);
+            this.sample = config.getStringList("server.sample", DEFAULT_SAMPLE);
+            this.addPlayerCount = config.getInt("server.add_player_count", 0);
+            this.plusOneMaxPlayer = config.getBoolean("server.plus_one_max_count", true);
+        }
     }
 }

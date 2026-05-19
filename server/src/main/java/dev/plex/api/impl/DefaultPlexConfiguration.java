@@ -21,9 +21,21 @@ final class DefaultPlexConfiguration implements PlexConfiguration
     }
 
     @Override
+    public String getString(String path, String fallback)
+    {
+        return config.getString(path, fallback);
+    }
+
+    @Override
     public boolean getBoolean(String path)
     {
         return config.getBoolean(path);
+    }
+
+    @Override
+    public boolean getBoolean(String path, boolean fallback)
+    {
+        return config.getBoolean(path, fallback);
     }
 
     @Override
@@ -33,9 +45,21 @@ final class DefaultPlexConfiguration implements PlexConfiguration
     }
 
     @Override
+    public int getInt(String path, int fallback)
+    {
+        return config.getInt(path, fallback);
+    }
+
+    @Override
     public List<String> getStringList(String path)
     {
         return config.getStringList(path);
+    }
+
+    @Override
+    public List<String> getStringList(String path, List<String> fallback)
+    {
+        return config.contains(path) ? config.getStringList(path) : fallback;
     }
 
     @Override

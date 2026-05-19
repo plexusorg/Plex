@@ -41,4 +41,13 @@ public class BuildInfo
         {
         }
     }
+
+    public static String shortenCommit(String commit)
+    {
+        if (commit == null || commit.length() <= 7)
+        {
+            return commit;
+        }
+        return commit.substring(0, 7);
+    }
 }

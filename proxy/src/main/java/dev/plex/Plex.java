@@ -8,23 +8,13 @@ import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.ProxyServer;
 import dev.plex.api.PlexApi;
 import dev.plex.api.impl.DefaultPlexApi;
-import dev.plex.config.TomlConfig;
+import dev.plex.config.YamlConfig;
 import dev.plex.handlers.ListenerHandler;
-import dev.plex.settings.ServerSettings;
 import dev.plex.util.PlexLog;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.logging.Logger;
 import lombok.Getter;
-
-/**
- * Credits for TOML library go to https://github.com/mwanji/toml4j
- * I was unable to add it back to the package without it glitching, so
- * I kept it in a separate package.
- * <p>
- * Modifications: Properly indent arrays in TOML as well as only append
- * missing object fields into the file
- */
 
 @Plugin(
         name = "Plex",
@@ -44,7 +34,8 @@ public class Plex
     private final Logger logger;
     private final File dataFolder;
 
-    private TomlConfig config;
+    private YamlConfig config;
+    private YamlConfig messages;
     private PlexApi api;
 
     @Inject
@@ -64,19 +55,21 @@ public class Plex
     @Subscribe
     public void onStart(ProxyInitializeEvent event)
     {
-        this.config = new TomlConfig("config.toml");
-        this.config.setOnCreate(toml ->
-        {
-            PlexLog.log("Created configuration 'config.toml'");
-        });
-        this.config.setOnLoad(toml ->
-        {
-            PlexLog.log("Loaded configuration 'config.toml'");
-        });
-        this.config.create(true);
-        this.config.write(new ServerSettings());
+        this.config = loadConfig("config.yml");
+        this.messages = loadConfig("messages.yml");
         this.api = new DefaultPlexApi(this, MODULE_API_COMPATIBILITY_VERSION);
         new ListenerHandler();
+    }
+
+    private YamlConfig loadConfig(String name)
+    {
+        YamlConfig yamlConfig = new YamlConfig(dataFolder, name);
+        if (yamlConfig.create())
+        {
+            PlexLog.log("Created configuration '" + name + "'");
+        }
+        PlexLog.log("Loaded configuration '" + name + "'");
+        return yamlConfig;
     }
 
     public static Plex get()

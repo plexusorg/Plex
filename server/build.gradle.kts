@@ -6,7 +6,6 @@ val paperApiVersion = "26.1.2"
 
 plugins {
     java
-    `maven-publish`
     id("org.jetbrains.gradle.plugin.idea-ext")
     id("net.kyori.blossom")
     id("com.gradleup.shadow")
@@ -132,7 +131,7 @@ tasks {
                     property("author", if (System.getenv("JENKINS_URL") != null) "jenkins" else System.getProperty("user.name"))
                     property("buildNumber", if (System.getenv("BUILD_NUMBER") != null) System.getenv("BUILD_NUMBER") else getBuildNumber())
                     property("date", SimpleDateFormat("MM/dd/yyyy '<light_purple>at<gold>' hh:mm:ss a z").format(Date()))
-                    property("gitCommit", indraGit.commit().get().name.take(7))
+                    property("gitCommit", indraGit.commit().get().name)
                     property("minecraftVersion", paperApiVersion)
                 }
             }
@@ -148,30 +147,5 @@ tasks {
 
     javadoc {
         options.memberLevel = JavadocMemberLevel.PRIVATE
-    }
-}
-
-publishing {
-    publications {
-        create<MavenPublication>("maven") {
-            pom.withXml {
-                val dependenciesNode = asNode().appendNode("dependencies")
-                configurations.getByName("library").allDependencies.configureEach {
-                    dependenciesNode.appendNode("dependency")
-                            .appendNode("groupId", group).parent()
-                            .appendNode("artifactId", name).parent()
-                            .appendNode("version", version).parent()
-                            .appendNode("scope", "provided").parent()
-                }
-                configurations.getByName("implementation").allDependencies.configureEach {
-                    dependenciesNode.appendNode("dependency")
-                            .appendNode("groupId", group).parent()
-                            .appendNode("artifactId", name).parent()
-                            .appendNode("version", version).parent()
-                            .appendNode("scope", "provided").parent()
-                }
-            }
-            artifacts.artifact(tasks.shadowJar)
-        }
     }
 }

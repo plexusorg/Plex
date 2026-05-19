@@ -4,7 +4,6 @@ import com.velocitypowered.api.event.PostOrder;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.DisconnectEvent;
 import com.velocitypowered.api.event.player.ServerConnectedEvent;
-import dev.plex.Plex;
 import dev.plex.listener.ProxyListener;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -16,14 +15,16 @@ public class ConnectionListener extends ProxyListener
     {
         if (event.getPreviousServer().isPresent())
         {
-            Plex.get().server.sendMessage(miniMessage("<dark_gray>[<#ffbf00>o<dark_gray>] <yellow>"
-                    + event.getPlayer().getUsername() + " switched from " + event.getPreviousServer().get().getServerInfo().getName()
-                    + " to " + event.getServer().getServerInfo().getName()));
+            plugin.server.sendMessage(message("server_switch",
+                    "player", event.getPlayer().getUsername(),
+                    "from", event.getPreviousServer().get().getServerInfo().getName(),
+                    "to", event.getServer().getServerInfo().getName()));
         }
         else
         {
-            Plex.get().server.sendMessage(miniMessage("<dark_gray>[<green>+<dark_gray>] <yellow>"
-                    + event.getPlayer().getUsername() + " joined server " + event.getServer().getServerInfo().getName()));
+            plugin.server.sendMessage(message("server_join",
+                    "player", event.getPlayer().getUsername(),
+                    "server", event.getServer().getServerInfo().getName()));
         }
     }
 
@@ -32,14 +33,19 @@ public class ConnectionListener extends ProxyListener
     {
         if (event.getPlayer().getCurrentServer().isPresent())
         {
-            Plex.get().server.sendMessage(miniMessage("<dark_gray>[<red>-<dark_gray>] <yellow>"
-                    + event.getPlayer().getUsername() + " left server " +
-                    event.getPlayer().getCurrentServer().get().getServerInfo().getName()));
+            plugin.server.sendMessage(message("server_leave",
+                    "player", event.getPlayer().getUsername(),
+                    "server", event.getPlayer().getCurrentServer().get().getServerInfo().getName()));
         }
     }
 
-    private Component miniMessage(String message)
+    private Component message(String key, String... replacements)
     {
+        String message = plugin.getMessages().getString(key, "");
+        for (int i = 0; i < replacements.length; i += 2)
+        {
+            message = message.replace("{" + replacements[i] + "}", replacements[i + 1]);
+        }
         return MiniMessage.miniMessage().deserialize(message);
     }
 }

@@ -7,6 +7,7 @@ import com.velocitypowered.api.proxy.server.ServerPing;
 import dev.plex.listener.ProxyListener;
 import dev.plex.settings.ServerSettings;
 import dev.plex.util.RandomUtil;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicReference;
@@ -20,15 +21,17 @@ public class ServerListener extends ProxyListener
     @Subscribe(order = PostOrder.FIRST)
     public void onPing(ProxyPingEvent event)
     {
-        String baseMotd = plugin.getConfig().as(ServerSettings.class).getServer().getMotd().get(ThreadLocalRandom.current().nextInt(plugin.getConfig().as(ServerSettings.class).getServer().getMotd().size()));
+        ServerSettings.Server config = plugin.getConfig().settings().getServer();
+        List<String> motds = config.getMotd();
+        String baseMotd = motds.get(ThreadLocalRandom.current().nextInt(motds.size()));
         baseMotd = baseMotd.replace("\\n", "\n");
-        baseMotd = baseMotd.replace("%servername%", plugin.getConfig().as(ServerSettings.class).getServer().getName());
+        baseMotd = baseMotd.replace("%servername%", config.getName());
         baseMotd = baseMotd.replace("%mcversion%", plugin.getServer().getVersion().getVersion().split(" ")[0]);
         baseMotd = baseMotd.replace("%randomgradient%", "<gradient:" + RandomUtil.getRandomColor().toString() + ":" + RandomUtil.getRandomColor().toString() + ">");
 
         ServerPing.Builder builder = event.getPing().asBuilder();
 
-        if (plugin.getConfig().as(ServerSettings.class).getServer().isColorizeMotd())
+        if (config.isColorizeMotd())
         {
             AtomicReference<Component> motd = new AtomicReference<>(Component.empty());
             for (final String word : baseMotd.split(" "))
@@ -43,9 +46,9 @@ public class ServerListener extends ProxyListener
             builder.description(MiniMessage.miniMessage().deserialize(baseMotd));
         }
 
-        builder.samplePlayers(plugin.getConfig().as(ServerSettings.class).getServer().getSample().stream().map(s -> new ServerPing.SamplePlayer(convertColorCodes(s), UUID.randomUUID())).toArray(ServerPing.SamplePlayer[]::new));
-        builder.onlinePlayers(plugin.getServer().getPlayerCount() + plugin.getConfig().as(ServerSettings.class).getServer().getAddPlayerCount());
-        if (plugin.getConfig().as(ServerSettings.class).getServer().isPlusOneMaxPlayer())
+        builder.samplePlayers(config.getSample().stream().map(s -> new ServerPing.SamplePlayer(convertColorCodes(s), UUID.randomUUID())).toArray(ServerPing.SamplePlayer[]::new));
+        builder.onlinePlayers(plugin.getServer().getPlayerCount() + config.getAddPlayerCount());
+        if (config.isPlusOneMaxPlayer())
         {
             builder.maximumPlayers(builder.getOnlinePlayers() + 1);
         }

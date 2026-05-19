@@ -16,13 +16,13 @@ final class DefaultConfigurationApi implements ConfigurationApi
     @Override
     public PlexConfiguration mainConfig()
     {
-        return new DefaultPlexConfiguration(plugin.getConfig());
+        return plugin.getConfig();
     }
 
     @Override
     public PlexConfiguration messages()
     {
-        throw new UnsupportedOperationException("Proxy does not provide messages configuration");
+        return plugin.getMessages();
     }
 
     @Override

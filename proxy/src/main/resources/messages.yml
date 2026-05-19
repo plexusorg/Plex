@@ -1,0 +1,3 @@
+server_switch: "<dark_gray>[<#ffbf00>o<dark_gray>] <yellow>{player} switched from {from} to {to}"
+server_join: "<dark_gray>[<green>+<dark_gray>] <yellow>{player} joined server {server}"
+server_leave: "<dark_gray>[<red>-<dark_gray>] <yellow>{player} left server {server}"

@@ -1,7 +1,6 @@
 package dev.plex.util;
 
 import dev.plex.Plex;
-import dev.plex.settings.ServerSettings;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -58,7 +57,7 @@ public class PlexLog
                 message = message.replace("{" + i + "}", strings[i].toString());
             }
         }
-        if (Plex.get().getConfig().as(ServerSettings.class).getServer().isDebug())
+        if (Plex.get().getConfig().settings().getServer().isDebug())
         {
             Plex.get().getServer().getConsoleCommandSource().sendMessage(MiniMessage.miniMessage().deserialize("<dark_purple>[Plex Debug] <gold>" + message));
         }
