@@ -17,6 +17,8 @@ public class BuildInfo
     public static String date;
     @Getter
     public static String number;
+    @Getter
+    public static String minecraftVersion;
 
     public void load(Plex plugin)
     {
@@ -33,6 +35,7 @@ public class BuildInfo
             commit = props.getProperty("gitCommit", "unknown");
             date = props.getProperty("date", "unknown");
             number = props.getProperty("buildNumber", "unknown");
+            minecraftVersion = props.getProperty("minecraftVersion", "unknown");
         }
         catch (Exception ignored)
         {

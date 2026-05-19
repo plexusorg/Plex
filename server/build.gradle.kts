@@ -2,6 +2,8 @@ import net.minecrell.pluginyml.paper.PaperPluginDescription
 import java.text.SimpleDateFormat
 import java.util.*
 
+val paperApiVersion = "26.1.2"
+
 plugins {
     java
     `maven-publish`
@@ -29,7 +31,7 @@ dependencies {
     library("com.zaxxer:HikariCP:7.0.2")
     library("com.j256.ormlite:ormlite-jdbc:6.1")
     library("org.jetbrains:annotations:26.1.0")
-    compileOnly("io.papermc.paper:paper-api:26.1.2.build.+")
+    compileOnly("io.papermc.paper:paper-api:${paperApiVersion}.build.+")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7.1") {
         exclude("org.bukkit", "bukkit")
     }
@@ -53,7 +55,7 @@ paper {
     loader = "dev.plex.PlexLibraryManager"
     website = "https://plex.us.org"
     authors = listOf("Telesphoreo", "taahanis", "supernt")
-    apiVersion = "26.1.2"
+    apiVersion = paperApiVersion
     foliaSupported = true
     generateLibrariesJson = true
     // Load BukkitTelnet and LibsDisguises before Plex so the modules register properly
@@ -131,6 +133,7 @@ tasks {
                     property("buildNumber", if (System.getenv("BUILD_NUMBER") != null) System.getenv("BUILD_NUMBER") else getBuildNumber())
                     property("date", SimpleDateFormat("MM/dd/yyyy '<light_purple>at<gold>' hh:mm:ss a z").format(Date()))
                     property("gitCommit", indraGit.commit().get().name.take(7))
+                    property("minecraftVersion", paperApiVersion)
                 }
             }
         }

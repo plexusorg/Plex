@@ -27,7 +27,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @CommandPermissions(source = RequiredCommandSource.ANY)
-@CommandParameters(name = "plex", usage = "/<command> [reload | redis | modules [reload]]", description = "Show information about Plex or reload it")
+@CommandParameters(name = "plex", usage = "/<command> [reload | redis | update | modules [reload | update]]", description = "Show information about Plex or reload it")
 public class PlexCMD extends ServerCommand
 {
     // Don't modify this command
@@ -132,11 +132,11 @@ public class PlexCMD extends ServerCommand
     {
         if (args.length == 1)
         {
-            return Arrays.asList("reload", "redis", "modules");
+            return Arrays.asList("reload", "redis", "modules", "update");
         }
         else if (args[0].equalsIgnoreCase("modules"))
         {
-            return List.of("reload");
+            return Arrays.asList("reload", "update");
         }
         return Collections.emptyList();
     }

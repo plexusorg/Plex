@@ -258,11 +258,10 @@ worlds:
       stone: 16
       bedrock: 1
 
-# If you are running a custom fork of Plex, you may wish to check for updates from a different repository.
-update_repo: "plexusorg/Plex"
-
-# What branch should Plex fetch updates from?
-update_branch: "master"
+# Static updater metadata. The metadata can be hosted as plain JSON on Cloudflare Pages.
+updater:
+  # Update channel to use. stable only serves non-SNAPSHOT releases; dev serves development builds.
+  channel: "stable"
 
 # Additional logging for debugging
 debug: false

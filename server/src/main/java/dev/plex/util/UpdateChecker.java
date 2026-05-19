@@ -1,88 +1,41 @@
 package dev.plex.util;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
 import dev.plex.Plex;
+import dev.plex.updater.ArtifactMetadata;
+import dev.plex.updater.UpdateChannel;
+import dev.plex.updater.UpdateMetadataClient;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
-import java.util.concurrent.atomic.AtomicReference;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.HexFormat;
 
-import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import org.apache.commons.io.FileUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.json.JSONException;
 
 public class UpdateChecker
 {
-    /*
-     * -4 = Never checked for updates
-     * -3 = Likely rate limited
-     * -2 = Unknown commit
-     * -1 = Error occurred
-     * 0 = Up to date
-     * > 0 = Number of commits behind
-     */
     private final Plex plugin;
-    private final String DOWNLOAD_PAGE = "https://ci.plex.us.org/job/";
-    private final String REPO;
-    private String BRANCH;
-    private int distance = -4;
+    private final UpdateChannel channel;
+    private final UpdateMetadataClient metadataClient;
+    private ArtifactMetadata latestPlexMetadata;
 
     public UpdateChecker(Plex plugin)
     {
         this.plugin = plugin;
-        this.REPO = plugin.config.getString("update_repo");
-        this.BRANCH = plugin.config.getString("update_branch");
-    }
-
-    // Adapted from Paper
-    private int fetchDistanceFromGitHub(@NonNull String repo, @NonNull String branch, @NonNull String hash)
-    {
-        try
-        {
-            HttpURLConnection connection = (HttpURLConnection) URI.create("https://api.github.com/repos/" + repo + "/compare/" + branch + "..." + hash).toURL().openConnection();
-            connection.connect();
-            if (connection.getResponseCode() == HttpURLConnection.HTTP_NOT_FOUND)
-            {
-                return -2; // Unknown commit
-            }
-            if (connection.getResponseCode() == HttpURLConnection.HTTP_FORBIDDEN)
-            {
-                return -3; // Rate limited likely
-            }
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8)))
-            {
-                JsonObject obj = new Gson().fromJson(reader, JsonObject.class);
-                String status = obj.get("status").getAsString();
-                return switch (status)
-                {
-                    case "identical" -> 0;
-                    case "behind" -> obj.get("behind_by").getAsInt();
-                    default -> -1;
-                };
-            }
-            catch (JsonSyntaxException | NumberFormatException e)
-            {
-                e.printStackTrace();
-                return -1;
-            }
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-            return -1;
-        }
+        this.channel = UpdateChannel.fromConfig(plugin.config.getString("updater.channel"));
+        this.metadataClient = new UpdateMetadataClient(channel);
     }
 
     // If verbose is 0, it will display nothing
@@ -90,141 +43,181 @@ public class UpdateChecker
     // If verbose is 2, it will display all messages
     public boolean getUpdateStatusMessage(CommandSender sender, boolean cached, int verbosity)
     {
-        if (BRANCH == null)
+        try
         {
-            PlexLog.error("You did not specify a branch to use for update checking. Defaulting to master.");
-            BRANCH = "master";
-        }
-        // If it's -4, it hasn't checked for updates yet
-        if (distance == -4)
-        {
-            distance = fetchDistanceFromGitHub(REPO, BRANCH, BuildInfo.getCommit());
-            PlexLog.debug("Never checked for updates, checking now...");
-        }
-        else
-        {
-            // If the request isn't asked to be cached, fetch it
-            if (!cached)
+            ArtifactMetadata metadata = fetchLatestPlexMetadata(cached);
+            if (metadata.matchesCurrentBuild(plugin.getPluginMeta().getVersion(), BuildInfo.getNumber(), BuildInfo.getCommit()))
             {
-                distance = fetchDistanceFromGitHub(REPO, BRANCH, BuildInfo.getCommit());
-                PlexLog.debug("We have checked for updates before, but this request was not asked to be cached.");
+                if (verbosity == 2)
+                {
+                    sendMessage(sender, Component.text("Plex is up to date on the " + channel.id() + " channel.").color(NamedTextColor.GREEN));
+                }
+                return false;
             }
-            else
-            {
-                PlexLog.debug("We have checked for updates before, using cache.");
-            }
-        }
 
-        switch (distance)
+            if (verbosity >= 1)
+            {
+                sendMessage(sender, Component.text("Plex " + metadata.version() + " is available on the " + channel.id() + " channel.", NamedTextColor.RED));
+                sendMessage(sender, Component.text("Run: /plex update").color(NamedTextColor.RED));
+            }
+            return true;
+        }
+        catch (UpdateMetadataClient.MetadataException e)
         {
-            case -1 ->
+            if (verbosity == 2 || (verbosity >= 1 && !e.notFound()))
             {
-                if (verbosity == 2)
-                {
-                    sendMessage(sender, Component.text("There was an error checking for updates.").color(NamedTextColor.RED));
-                }
-                return false;
+                sendMessage(sender, Component.text(updateMetadataErrorMessage(e)).color(NamedTextColor.RED));
             }
-            case 0 ->
+            if (!e.notFound())
             {
-                if (verbosity == 2)
+                PlexLog.error("Unable to check for updates: {0}", e.getMessage());
+                if (e.getCause() != null)
                 {
-                    sendMessage(sender, Component.text("Plex is up to date!").color(NamedTextColor.GREEN));
+                    e.getCause().printStackTrace();
                 }
-                return false;
             }
-            case -2 ->
-            {
-                if (verbosity == 2)
-                {
-                    sendMessage(sender, Component.text("Unknown version, unable to check for updates.").color(NamedTextColor.RED));
-                }
-                return false;
-            }
-            default ->
-            {
-                if (verbosity >= 1)
-                {
-                    sendMessage(sender, Component.text("Plex is not up to date!", NamedTextColor.RED));
-                    sendMessage(sender, Component.text("Download a new version at: " + DOWNLOAD_PAGE + "Plex").color(NamedTextColor.RED));
-                    sendMessage(sender, Component.text("Or run: /plex update").color(NamedTextColor.RED));
-                }
-                return true;
-            }
+            return false;
         }
     }
 
     public void updateJar(CommandSender sender, String name, boolean module)
     {
-        AtomicReference<String> url = new AtomicReference<>(DOWNLOAD_PAGE + name);
-        if (!module)
-        {
-            url.set(url.get() + "/job/" + BRANCH);
-        }
-        PlexLog.debug(url.toString());
         try
         {
-            HttpURLConnection connection = (HttpURLConnection) URI.create(url + "/lastSuccessfulBuild/api/json").toURL().openConnection();
-            int statusCode = connection.getResponseCode();
+            ArtifactMetadata metadata = module
+                    ? metadataClient.fetchModuleLatest(name, plugin.getApi().compatibility().version())
+                    : fetchLatestPlexMetadata(false);
 
-            if (statusCode == HttpURLConnection.HTTP_OK)
+            if (!module && metadata.matchesCurrentBuild(plugin.getPluginMeta().getVersion(), BuildInfo.getNumber(), BuildInfo.getCommit()))
             {
-                try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8)))
+                sendMessage(sender, PlexUtils.mmDeserialize("<red>Plex is already up to date on the " + channel.id() + " channel."));
+                return;
+            }
+
+            File copyTo = module
+                    ? new File(plugin.getModulesFolder(), metadata.fileName())
+                    : new File(Bukkit.getUpdateFolderFile(), metadata.fileName());
+
+            sendMessage(sender, PlexUtils.mmDeserialize("<green>Downloading latest JAR file: " + metadata.fileName()));
+            plugin.getApi().scheduler().runAsync(() -> downloadAndInstall(sender, metadata, copyTo));
+        }
+        catch (UpdateMetadataClient.MetadataException e)
+        {
+            sendMessage(sender, PlexUtils.mmDeserialize("<red>" + updateMetadataErrorMessage(e)));
+            if (!e.notFound())
+            {
+                PlexLog.error("Unable to update {0}: {1}", name, e.getMessage());
+                if (e.getCause() != null)
                 {
-                    JsonObject object = new Gson().fromJson(reader, JsonObject.class);
-                    JsonObject artifact = object.getAsJsonArray("artifacts").get(module ? 0 : 1).getAsJsonObject();
-                    String jarFile = artifact.get("fileName").getAsString();
-                    sendMessage(sender, PlexUtils.mmDeserialize("<green>Downloading latest JAR file: " + jarFile));
-                    File copyTo;
-                    if (!module)
-                    {
-                        copyTo = new File(Bukkit.getUpdateFolderFile(), jarFile);
-                    }
-                    else
-                    {
-                        copyTo = new File(plugin.getModulesFolder().getPath(), jarFile);
-                    }
-                    plugin.getApi().scheduler().runAsync(() ->
-                    {
-                        try
-                        {
-                            FileUtils.copyURLToFile(
-                                    URI.create(url + "/lastSuccessfulBuild/artifact/build/libs/" + jarFile).toURL(),
-                                    copyTo
-                            );
-                            sendMessage(sender, PlexUtils.mmDeserialize("<green>New JAR file downloaded successfully."));
-                        }
-                        catch (IOException e)
-                        {
-                            e.printStackTrace();
-                        }
-                    });
-                }
-                catch (JsonSyntaxException | NumberFormatException e)
-                {
-                    e.printStackTrace();
+                    e.getCause().printStackTrace();
                 }
             }
-            else if (statusCode == HttpURLConnection.HTTP_NOT_FOUND)
-            {
-                sendMessage(sender, PlexUtils.mmDeserialize("<red>Could not update " + name + " as it can't be found on Jenkins."));
-            }
-            else
-            {
-                sendMessage(sender, PlexUtils.mmDeserialize("<red>Something went wrong while trying to update " + name + ". Please check the log for more information."));
-                PlexLog.error("Unable to update module {0} due to unexpected status code returned from Jenkins - Status Code: {1}", name, statusCode);
-            }
+        }
+    }
+
+    private ArtifactMetadata fetchLatestPlexMetadata(boolean cached) throws UpdateMetadataClient.MetadataException
+    {
+        if (!cached || latestPlexMetadata == null)
+        {
+            latestPlexMetadata = metadataClient.fetchPlexLatest(BuildInfo.getMinecraftVersion());
+        }
+        return latestPlexMetadata;
+    }
+
+    private void downloadAndInstall(CommandSender sender, ArtifactMetadata metadata, File copyTo)
+    {
+        File parent = copyTo.getParentFile();
+        if (parent != null && !parent.exists() && !parent.mkdirs())
+        {
+            sendMessage(sender, PlexUtils.mmDeserialize("<red>Unable to create update directory: " + parent.getAbsolutePath()));
+            return;
+        }
+
+        File temporaryFile = new File(parent, copyTo.getName() + ".download");
+        try
+        {
+            download(metadata.downloadUrl(), temporaryFile);
+            validateDownloadedFile(metadata, temporaryFile);
+            Files.move(temporaryFile.toPath(), copyTo.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            sendMessage(sender, PlexUtils.mmDeserialize("<green>New JAR file downloaded and verified successfully."));
         }
         catch (IOException e)
         {
+            sendMessage(sender, PlexUtils.mmDeserialize("<red>Something went wrong while downloading " + metadata.name() + ". Please check the log for more information."));
+            PlexLog.error("Unable to download update {0}: {1}", metadata.name(), e.getMessage());
             e.printStackTrace();
         }
-        catch (JSONException e)
+        finally
         {
-            sendMessage(sender, PlexUtils.mmDeserialize("<red>Something went wrong while trying to gather information from Jenkins for " + name + ". Please check the log for more information"));
-            PlexLog.error("Unable to parse JSON information received from Jenkins - see below for more information...");
-            e.printStackTrace();
+            try
+            {
+                Files.deleteIfExists(temporaryFile.toPath());
+            }
+            catch (IOException ignored)
+            {
+            }
         }
+    }
+
+    private void download(String downloadUrl, File destination) throws IOException
+    {
+        HttpURLConnection connection = (HttpURLConnection) URI.create(downloadUrl).toURL().openConnection();
+        connection.setConnectTimeout(15000);
+        connection.setReadTimeout(30000);
+
+        int statusCode = connection.getResponseCode();
+        if (statusCode != HttpURLConnection.HTTP_OK)
+        {
+            throw new IOException("download request returned HTTP " + statusCode);
+        }
+
+        try (InputStream inputStream = connection.getInputStream())
+        {
+            Files.copy(inputStream, destination.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        }
+    }
+
+    private void validateDownloadedFile(ArtifactMetadata metadata, File file) throws IOException
+    {
+        if (metadata.size() != null && metadata.size() >= 0 && Files.size(file.toPath()) != metadata.size())
+        {
+            throw new IOException("downloaded file size did not match metadata size");
+        }
+
+        String actualSha256 = sha256(file);
+        if (!metadata.sha256().equalsIgnoreCase(actualSha256))
+        {
+            throw new IOException("downloaded file SHA-256 did not match metadata SHA-256");
+        }
+    }
+
+    private String sha256(File file) throws IOException
+    {
+        MessageDigest digest;
+        try
+        {
+            digest = MessageDigest.getInstance("SHA-256");
+        }
+        catch (NoSuchAlgorithmException e)
+        {
+            throw new IllegalStateException("SHA-256 is not available", e);
+        }
+
+        try (InputStream inputStream = Files.newInputStream(file.toPath());
+             DigestInputStream digestInputStream = new DigestInputStream(inputStream, digest))
+        {
+            digestInputStream.transferTo(OutputStream.nullOutputStream());
+        }
+        return HexFormat.of().formatHex(digest.digest());
+    }
+
+    private String updateMetadataErrorMessage(UpdateMetadataClient.MetadataException e)
+    {
+        if (e.notFound())
+        {
+            return "No compatible update is available on the " + channel.id() + " channel.";
+        }
+        return "There was an error checking update metadata: " + e.getMessage();
     }
 
     private void sendMessage(CommandSender sender, Component message)
