@@ -25,23 +25,33 @@ import org.jetbrains.annotations.NotNull;
 @SuppressWarnings("UnstableApiUsage")
 public class PlexLibraryManager implements PluginLoader
 {
+    private static final List<String> MAVEN_CENTRAL_URLS = List.of(
+            "https://repo1.maven.org/maven2",
+            "http://repo1.maven.org/maven2",
+            "https://repo.maven.apache.org/maven2",
+            "http://repo.maven.apache.org/maven2"
+    );
+
     @Override
     public void classloader(@NotNull PluginClasspathBuilder classpathBuilder)
     {
-        MavenLibraryResolver resolver = new MavenLibraryResolver();
         PluginLibraries pluginLibraries = load();
-        var repositoryUrls = new HashSet<String>();
-        pluginLibraries.asRepositories().forEach(repository ->
+        List<RemoteRepository> pluginRepositories = pluginLibraries.asRepositories().toList();
+        List<RemoteRepository> moduleRepositories = loadModuleRepositories().toList();
+        List<Dependency> moduleDependencies = loadModuleDependencies().toList();
+
+        if (!moduleDependencies.isEmpty())
         {
-            repositoryUrls.add(repository.getUrl());
-            resolver.addRepository(repository);
-        });
-        loadModuleRepositories()
-                .filter(repository -> repositoryUrls.add(repository.getUrl()))
-                .forEach(resolver::addRepository);
-        pluginLibraries.asDependencies().forEach(resolver::addDependency);
-        loadModuleDependencies().forEach(resolver::addDependency);
-        classpathBuilder.addLibrary(resolver);
+            MavenLibraryResolver moduleResolver = new MavenLibraryResolver();
+            addRepositories(moduleResolver, Stream.concat(moduleRepositories.stream(), pluginRepositories.stream()));
+            moduleDependencies.forEach(moduleResolver::addDependency);
+            classpathBuilder.addLibrary(moduleResolver);
+        }
+
+        MavenLibraryResolver pluginResolver = new MavenLibraryResolver();
+        addRepositories(pluginResolver, pluginRepositories.stream());
+        pluginLibraries.asDependencies().forEach(pluginResolver::addDependency);
+        classpathBuilder.addLibrary(pluginResolver);
     }
 
     public PluginLibraries load()
@@ -115,7 +125,7 @@ public class PlexLibraryManager implements PluginLoader
         return repositories.getKeys(false).stream()
                 .map(id -> Map.entry(id, repositories.getString(id, "")))
                 .filter(entry -> !entry.getValue().isBlank())
-                .map(entry -> new RemoteRepository.Builder(entry.getKey(), "default", entry.getValue()).build());
+                .flatMap(entry -> runtimeRepository(entry.getKey(), entry.getValue()));
     }
 
     private YamlConfiguration readModuleYml(File moduleFile)
@@ -149,7 +159,29 @@ public class PlexLibraryManager implements PluginLoader
 
         public Stream<RemoteRepository> asRepositories()
         {
-            return repositories.entrySet().stream().map(e -> new RemoteRepository.Builder(e.getKey(), "default", e.getValue()).build());
+            return repositories.entrySet().stream().flatMap(e -> runtimeRepository(e.getKey(), e.getValue()));
         }
+    }
+
+    private static Stream<RemoteRepository> runtimeRepository(String id, String url)
+    {
+        String runtimeUrl = MAVEN_CENTRAL_URLS.stream().anyMatch(url::startsWith)
+                ? MavenLibraryResolver.MAVEN_CENTRAL_DEFAULT_MIRROR
+                : url;
+
+        if (!runtimeUrl.startsWith("https://") && !runtimeUrl.startsWith("http://"))
+        {
+            return Stream.empty();
+        }
+
+        return Stream.of(new RemoteRepository.Builder(id, "default", runtimeUrl).build());
+    }
+
+    private static void addRepositories(MavenLibraryResolver resolver, Stream<RemoteRepository> repositories)
+    {
+        var repositoryUrls = new HashSet<String>();
+        repositories
+                .filter(repository -> repositoryUrls.add(repository.getUrl()))
+                .forEach(resolver::addRepository);
     }
 }
