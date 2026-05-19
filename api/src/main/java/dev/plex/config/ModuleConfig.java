@@ -44,6 +44,12 @@ public class ModuleConfig extends ModuleConfiguration
     }
 
     @Override
+    public Object get(String path, Object def)
+    {
+        return delegate.get(path, def);
+    }
+
+    @Override
     public String getString(String path)
     {
         return delegate.getString(path);
@@ -71,6 +77,36 @@ public class ModuleConfig extends ModuleConfiguration
     public boolean getBoolean(String path)
     {
         return delegate.getBoolean(path);
+    }
+
+    @Override
+    public boolean getBoolean(String path, boolean def)
+    {
+        return delegate.getBoolean(path, def);
+    }
+
+    @Override
+    public long getLong(String path)
+    {
+        return delegate.getLong(path);
+    }
+
+    @Override
+    public long getLong(String path, long def)
+    {
+        return delegate.getLong(path, def);
+    }
+
+    @Override
+    public double getDouble(String path)
+    {
+        return delegate.getDouble(path);
+    }
+
+    @Override
+    public double getDouble(String path, double def)
+    {
+        return delegate.getDouble(path, def);
     }
 
     @Override

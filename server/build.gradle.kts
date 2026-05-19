@@ -78,16 +78,18 @@ paper {
             required = false
             load = PaperPluginDescription.RelativeLoadOrder.BEFORE
         }
+        register("SuperVanish") {
+            required = false
+            load = PaperPluginDescription.RelativeLoadOrder.BEFORE
+        }
         register("PremiumVanish") {
             required = false
             load = PaperPluginDescription.RelativeLoadOrder.BEFORE
         }
-        register("SlimeWorldManager") {
+        // For the HTTPD
+        register("NBTAPI") {
             required = false
-            load = PaperPluginDescription.RelativeLoadOrder.AFTER
-        }
-        register("SuperVanish") {
-            required = false
+            joinClasspath = true
             load = PaperPluginDescription.RelativeLoadOrder.BEFORE
         }
         register("Vault") {
