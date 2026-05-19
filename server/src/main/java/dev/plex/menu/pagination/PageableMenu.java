@@ -15,7 +15,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -28,9 +27,6 @@ import org.bukkit.inventory.ItemStack;
 @Accessors(fluent = true)
 public abstract class PageableMenu<T>
 {
-    public static final ItemStack NEXT = new ItemBuilder(Material.FEATHER).displayName("<light_purple>Next Page").build();
-    public static final ItemStack PREVIOUS = new ItemBuilder(Material.FEATHER).displayName("<light_purple>Previous Page").build();
-    public static final ItemStack CLOSE = new ItemBuilder(Material.BARRIER).displayName("<red>Close").build();
     protected final Map<Integer, Page> pages = Maps.newHashMap();
     private final Component name;
     private final AbstractMenu.Rows rows;
@@ -61,7 +57,7 @@ public abstract class PageableMenu<T>
         {
             final Page page = new Page(name.append(Component.space()).append(PlexUtils.mmDeserialize("(1)")), rows);
             page.parent = this;
-            page.inventory().setItem(rows.slots() - 5, CLOSE);
+            page.inventory().setItem(rows.slots() - 5, closeItem());
             this.pages.put(0, page);
         }
         else
@@ -72,12 +68,12 @@ public abstract class PageableMenu<T>
                 page.parent = this;
                 if (i > 0) // If not first page set previous page button
                 {
-                    page.inventory().setItem(rows.slots() - 6, PREVIOUS);
+                    page.inventory().setItem(rows.slots() - 6, previousItem());
                 }
-                page.inventory().setItem(rows.slots() - 5, CLOSE);
+                page.inventory().setItem(rows.slots() - 5, closeItem());
                 if (i < (list().size() / (rows.slots() - 9)) - 1) // If not last page set next page button
                 {
-                    page.inventory().setItem(rows.slots() - 4, NEXT);
+                    page.inventory().setItem(rows.slots() - 4, nextItem());
                 }
                 this.pages.put(i, page);
             }
@@ -126,13 +122,13 @@ public abstract class PageableMenu<T>
     {
         if (!this.initialized)
         {
-            player.sendMessage(Component.text("Looks like this inventory was not initialized! Please contact a developer to report this.").color(NamedTextColor.RED));
+            player.sendMessage(PlexUtils.messageComponent("pageableNotInitialized"));
             return;
         }
         final Page page = this.pages.get(pageNum);
         if (page == null)
         {
-            player.sendMessage(Component.text("Could not find a page to open").color(NamedTextColor.RED));
+            player.sendMessage(PlexUtils.messageComponent("pageNotFound"));
             return;
         }
         player.openInventory(page.inventory());
@@ -142,6 +138,21 @@ public abstract class PageableMenu<T>
     {
         this.onClick = onClick;
         this.pages.forEach((integer, page) -> page.onClick(this.onClick));
+    }
+
+    public static ItemStack nextItem()
+    {
+        return new ItemBuilder(Material.FEATHER).displayName(PlexUtils.messageComponent("pageNext")).build();
+    }
+
+    public static ItemStack previousItem()
+    {
+        return new ItemBuilder(Material.FEATHER).displayName(PlexUtils.messageComponent("pagePrevious")).build();
+    }
+
+    public static ItemStack closeItem()
+    {
+        return new ItemBuilder(Material.BARRIER).displayName(PlexUtils.messageComponent("pageClose")).build();
     }
 
 

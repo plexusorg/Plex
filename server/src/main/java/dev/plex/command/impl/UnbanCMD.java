@@ -5,7 +5,6 @@ import com.google.common.collect.ImmutableList;
 import dev.plex.command.ServerCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
-import dev.plex.command.exception.PlayerNotBannedException;
 import dev.plex.command.exception.PlayerNotFoundException;
 import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.player.PlexPlayer;
@@ -45,7 +44,7 @@ public class UnbanCMD extends ServerCommand
             {
                 if (!aBoolean)
                 {
-                    send(sender, PlexUtils.mmDeserialize(new PlayerNotBannedException().getMessage()));
+                    send(sender, messageComponent("playerNotBanned"));
                     return;
                 }
                 plugin.getPunishmentManager().unban(target.getUuid());

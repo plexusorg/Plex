@@ -2,8 +2,7 @@ package dev.plex.listener.impl;
 
 import dev.plex.listener.ServerListenerBase;
 import dev.plex.player.PlexPlayer;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
+import dev.plex.util.PlexUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -25,7 +24,7 @@ public class CommandListener extends ServerListenerBase
             String command = event.getMessage();
             if (!pl.getUniqueId().equals(player.getUniqueId()))
             {
-                pl.sendMessage(Component.text(player.getName() + ": " + command).color(NamedTextColor.GRAY));
+                pl.sendMessage(PlexUtils.messageComponent("commandSpyFormat", player.getName(), command));
             }
         });
     }

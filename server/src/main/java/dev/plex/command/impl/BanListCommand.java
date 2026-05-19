@@ -27,7 +27,7 @@ public class BanListCommand extends ServerCommand
         {
             plugin.getPunishmentManager().getActiveBans().whenComplete((punishments, throwable) ->
             {
-                send(sender, mmString("<gold>Active Bans (" + punishments.size() + "): <yellow>" + StringUtils.join(punishments.stream().map(Punishment::getPunishedUsername).collect(Collectors.toList()), ", ")));
+                send(sender, messageComponent("activeBansList", punishments.size(), StringUtils.join(punishments.stream().map(Punishment::getPunishedUsername).collect(Collectors.toList()), ", ")));
             });
             return null;
         }
@@ -47,7 +47,7 @@ public class BanListCommand extends ServerCommand
             plugin.getPunishmentManager().getActiveBans().whenComplete((punishments, throwable) ->
             {
                 punishments.forEach(plugin.getPunishmentManager()::unban);
-                send(sender, mmString("<gold>Unbanned " + punishments.size() + " players."));
+                send(sender, messageComponent("unbannedPlayers", punishments.size()));
             });
         }
         return null;

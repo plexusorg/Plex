@@ -42,21 +42,21 @@ public class MenuListener extends ServerListenerBase
                         final ItemMeta meta = event.getCurrentItem().getItemMeta();
                         if (meta != null && meta.displayName() != null)
                         {
-                            if (meta.displayName().equals(PageableMenu.PREVIOUS.getItemMeta().displayName()))
+                            if (meta.displayName().equals(PageableMenu.previousItem().getItemMeta().displayName()))
                             {
                                 page.parent().currentPage(page.parent().currentPage() - 1);
                                 page.parent().open(player, page.parent().currentPage());
                                 event.setCancelled(true);
                                 return;
                             }
-                            else if (meta.displayName().equals(PageableMenu.NEXT.getItemMeta().displayName()))
+                            else if (meta.displayName().equals(PageableMenu.nextItem().getItemMeta().displayName()))
                             {
                                 page.parent().currentPage(page.parent().currentPage() + 1);
                                 page.parent().open(player, page.parent().currentPage());
                                 event.setCancelled(true);
                                 return;
                             }
-                            else if (meta.displayName().equals(PageableMenu.CLOSE.getItemMeta().displayName()))
+                            else if (meta.displayName().equals(PageableMenu.closeItem().getItemMeta().displayName()))
                             {
                                 player.closeInventory();
                                 event.setCancelled(true);

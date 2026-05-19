@@ -35,7 +35,7 @@ public class MobLimitCMD extends ServerCommand
                     .filter(entity -> entity instanceof LivingEntity && !(entity instanceof Player))
                     .count();
 
-            String status = plugin.config.getBoolean("entity_limit.mob_limit_enabled") ? "<green>Enabled" : "<red>Disabled";
+            String status = PlexUtils.messageString(plugin.config.getBoolean("entity_limit.mob_limit_enabled") ? "mobLimitEnabled" : "mobLimitDisabled");
             return PlexUtils.messageComponent("mobLimitStatus", status, currentMobCount, currentLimit, chunk.getX(), chunk.getZ());
         }
 
@@ -44,11 +44,11 @@ public class MobLimitCMD extends ServerCommand
             case "on":
                 plugin.config.set("entity_limit.mob_limit_enabled", true);
                 plugin.config.save();
-                return PlexUtils.messageComponent("mobLimitToggle", "enabled");
+                return PlexUtils.messageComponent("mobLimitToggle", PlexUtils.messageString("stateEnabled"));
             case "off":
                 plugin.config.set("entity_limit.mob_limit_enabled", false);
                 plugin.config.save();
-                return PlexUtils.messageComponent("mobLimitToggle", "disabled");
+                return PlexUtils.messageComponent("mobLimitToggle", PlexUtils.messageString("stateDisabled"));
             case "setmax":
                 try
                 {

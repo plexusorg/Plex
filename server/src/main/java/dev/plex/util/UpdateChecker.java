@@ -19,7 +19,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.HexFormat;
 
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -54,15 +53,15 @@ public class UpdateChecker
             {
                 if (verbosity == 2)
                 {
-                    sendMessage(sender, Component.text("Plex is up to date on the " + channel.id() + " channel.").color(NamedTextColor.GREEN));
+                    sendMessage(sender, PlexUtils.messageComponent("updateUpToDate", channel.id()));
                 }
                 return false;
             }
 
             if (verbosity >= 1)
             {
-                sendMessage(sender, Component.text("Plex " + metadata.version() + " is available on the " + channel.id() + " channel.", NamedTextColor.RED));
-                sendMessage(sender, Component.text("Run: /plex update").color(NamedTextColor.RED));
+                sendMessage(sender, PlexUtils.messageComponent("updateAvailable", metadata.version(), channel.id()));
+                sendMessage(sender, PlexUtils.messageComponent("updateRunCommand"));
             }
             return true;
         }
@@ -70,7 +69,7 @@ public class UpdateChecker
         {
             if (verbosity == 2 || (verbosity >= 1 && !e.notFound()))
             {
-                sendMessage(sender, Component.text(updateMetadataErrorMessage(e)).color(NamedTextColor.RED));
+                sendMessage(sender, updateMetadataErrorComponent(e));
             }
             if (!e.notFound())
             {
@@ -94,7 +93,7 @@ public class UpdateChecker
 
             if (!module && metadata.matchesCurrentBuild(plugin.getPluginMeta().getVersion(), BuildInfo.getNumber(), BuildInfo.getCommit()))
             {
-                sendMessage(sender, PlexUtils.mmDeserialize("<red>Plex is already up to date on the " + channel.id() + " channel."));
+                sendMessage(sender, PlexUtils.messageComponent("updateAlreadyUpToDate", channel.id()));
                 return;
             }
 
@@ -102,12 +101,12 @@ public class UpdateChecker
                     ? new File(plugin.getModulesFolder(), metadata.fileName())
                     : new File(Bukkit.getUpdateFolderFile(), metadata.fileName());
 
-            sendMessage(sender, PlexUtils.mmDeserialize("<green>Downloading latest JAR file: " + metadata.fileName()));
+            sendMessage(sender, PlexUtils.messageComponent("updateDownloading", metadata.fileName()));
             plugin.getApi().scheduler().runAsync(() -> downloadAndInstall(sender, metadata, copyTo));
         }
         catch (UpdateMetadataClient.MetadataException e)
         {
-            sendMessage(sender, PlexUtils.mmDeserialize("<red>" + updateMetadataErrorMessage(e)));
+            sendMessage(sender, updateMetadataErrorComponent(e));
             if (!e.notFound())
             {
                 PlexLog.error("Unable to update {0}: {1}", name, e.getMessage());
@@ -161,7 +160,7 @@ public class UpdateChecker
         File parent = copyTo.getParentFile();
         if (parent != null && !parent.exists() && !parent.mkdirs())
         {
-            sendMessage(sender, PlexUtils.mmDeserialize("<red>Unable to create update directory: " + parent.getAbsolutePath()));
+            sendMessage(sender, PlexUtils.messageComponent("updateDirectoryFailed", parent.getAbsolutePath()));
             return;
         }
 
@@ -171,11 +170,11 @@ public class UpdateChecker
             download(metadata.downloadUrl(), temporaryFile);
             validateDownloadedFile(metadata, temporaryFile);
             Files.move(temporaryFile.toPath(), copyTo.toPath(), StandardCopyOption.REPLACE_EXISTING);
-            sendMessage(sender, PlexUtils.mmDeserialize("<green>New JAR file downloaded and verified successfully."));
+            sendMessage(sender, PlexUtils.messageComponent("updateDownloaded"));
         }
         catch (IOException e)
         {
-            sendMessage(sender, PlexUtils.mmDeserialize("<red>Something went wrong while downloading " + metadata.name() + ". Please check the log for more information."));
+            sendMessage(sender, PlexUtils.messageComponent("updateDownloadFailed", metadata.name()));
             PlexLog.error("Unable to download update {0}: {1}", metadata.name(), e.getMessage());
             e.printStackTrace();
         }
@@ -243,13 +242,13 @@ public class UpdateChecker
         return HexFormat.of().formatHex(digest.digest());
     }
 
-    private String updateMetadataErrorMessage(UpdateMetadataClient.MetadataException e)
+    private Component updateMetadataErrorComponent(UpdateMetadataClient.MetadataException e)
     {
         if (e.notFound())
         {
-            return "No compatible update is available on the " + channel.id() + " channel.";
+            return PlexUtils.messageComponent("updateMetadataNotFound", channel.id());
         }
-        return "There was an error checking update metadata: " + e.getMessage();
+        return PlexUtils.messageComponent("updateMetadataError", e.getMessage());
     }
 
     private void sendMessage(CommandSender sender, Component message)

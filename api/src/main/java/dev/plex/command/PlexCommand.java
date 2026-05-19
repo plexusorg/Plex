@@ -105,7 +105,7 @@ public abstract class PlexCommand extends Command
         catch (PlayerNotFoundException | CommandFailException | ConsoleOnlyException |
                ConsoleMustDefinePlayerException | PlayerNotBannedException | NumberFormatException ex)
         {
-            send(sender, mmString(ex.getMessage()));
+            send(sender, exceptionComponent(ex));
         }
         return true;
     }
@@ -192,12 +192,33 @@ public abstract class PlexCommand extends Command
 
     protected Component usage()
     {
-        return Component.text("Correct Usage: ").color(NamedTextColor.YELLOW).append(componentFromString(getUsage()).color(NamedTextColor.GRAY));
+        return messageComponent("correctUsagePrefix").append(componentFromString(getUsage()).color(NamedTextColor.GRAY));
     }
 
     protected Component usage(String s)
     {
-        return Component.text("Correct Usage: ").color(NamedTextColor.YELLOW).append(componentFromString(s).color(NamedTextColor.GRAY));
+        return messageComponent("correctUsagePrefix").append(componentFromString(s).color(NamedTextColor.GRAY));
+    }
+
+    private Component exceptionComponent(RuntimeException ex)
+    {
+        if (ex instanceof PlayerNotFoundException && "PlayerNotFoundException".equals(ex.getMessage()))
+        {
+            return messageComponent("playerNotFound");
+        }
+        if (ex instanceof PlayerNotBannedException && "PlayerNotBannedException".equals(ex.getMessage()))
+        {
+            return messageComponent("playerNotBanned");
+        }
+        if (ex instanceof ConsoleOnlyException && "ConsoleOnlyException".equals(ex.getMessage()))
+        {
+            return messageComponent("consoleOnly");
+        }
+        if (ex instanceof ConsoleMustDefinePlayerException && "ConsoleMustDefinePlayerException".equals(ex.getMessage()))
+        {
+            return messageComponent("consoleMustDefinePlayer");
+        }
+        return mmString(ex.getMessage());
     }
 
     protected Player getNonNullPlayer(String name)

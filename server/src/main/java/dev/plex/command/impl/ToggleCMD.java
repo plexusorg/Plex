@@ -11,7 +11,6 @@ import dev.plex.util.PlexUtils;
 import java.util.List;
 
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -28,13 +27,13 @@ public class ToggleCMD extends ServerCommand
         {
             if (args.length == 0)
             {
-                sender.sendMessage(PlexUtils.mmDeserialize("<gray>Available toggles:"));
-                sender.sendMessage(PlexUtils.mmDeserialize("<gray>  - Explosions" + status("explosions")));
-                sender.sendMessage(PlexUtils.mmDeserialize("<gray>  - Fluidspread" + status("fluidspread")));
-                sender.sendMessage(PlexUtils.mmDeserialize("<gray>  - Drops" + status("drops")));
-                sender.sendMessage(PlexUtils.mmDeserialize("<gray>  - Redstone" + status("redstone")));
-                sender.sendMessage(PlexUtils.mmDeserialize("<gray>  - PVP" + status("pvp")));
-                sender.sendMessage(PlexUtils.mmDeserialize("<gray>  - Chat" + status("chat")));
+                sender.sendMessage(messageComponent("toggleAvailable"));
+                sender.sendMessage(toggleListItem("toggleExplosions", "explosions"));
+                sender.sendMessage(toggleListItem("toggleFluidSpread", "fluidspread"));
+                sender.sendMessage(toggleListItem("toggleDrops", "drops"));
+                sender.sendMessage(toggleListItem("toggleRedstone", "redstone"));
+                sender.sendMessage(toggleListItem("togglePvp", "pvp"));
+                sender.sendMessage(toggleListItem("toggleChat", "chat"));
                 return null;
             }
             switch (args[0].toLowerCase())
@@ -61,7 +60,7 @@ public class ToggleCMD extends ServerCommand
                 }
                 case "chat" ->
                 {
-                    PlexUtils.broadcast(PlexUtils.messageComponent("chatToggled", sender.getName(), plugin.toggles.getBoolean("chat") ? "off" : "on"));
+                    PlexUtils.broadcast(PlexUtils.messageComponent("chatToggled", sender.getName(), messageString(plugin.toggles.getBoolean("chat") ? "stateOff" : "stateOn")));
                     return toggle("chat");
                 }
                 default ->
@@ -80,14 +79,33 @@ public class ToggleCMD extends ServerCommand
         return args.length == 1 && silentCheckPermission(sender, this.getPermission()) ? PlexUtils.getPlayerNameList() : ImmutableList.of();
     }
 
-    private String status(String toggle)
+    private Component toggleListItem(String nameKey, String toggle)
     {
-        return plugin.toggles.getBoolean(toggle) ? " (enabled)" : " (disabled)";
+        return messageComponent("toggleListItem", messageString(nameKey), status(toggle));
     }
 
     private Component toggle(String toggle)
     {
         plugin.toggles.set(toggle, !plugin.getToggles().getBoolean(toggle));
-        return Component.text("Toggled " + toggle + status(toggle)).color(NamedTextColor.GRAY);
+        return messageComponent("toggleCommandResult", messageString(toggleNameKey(toggle)), status(toggle));
+    }
+
+    private String status(String toggle)
+    {
+        return messageString(plugin.toggles.getBoolean(toggle) ? "stateEnabled" : "stateDisabled");
+    }
+
+    private String toggleNameKey(String toggle)
+    {
+        return switch (toggle)
+        {
+            case "explosions" -> "toggleExplosions";
+            case "fluidspread" -> "toggleFluidSpread";
+            case "drops" -> "toggleDrops";
+            case "redstone" -> "toggleRedstone";
+            case "pvp" -> "togglePvp";
+            case "chat" -> "toggleChat";
+            default -> toggle;
+        };
     }
 }

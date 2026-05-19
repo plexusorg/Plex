@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.UUID;
 
 import net.kyori.adventure.text.Component;
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -37,7 +36,7 @@ public class AdminChatCMD extends ServerCommand
             {
                 player = plugin.getPlayerCache().getPlexPlayer(playerSender.getUniqueId());
                 player.setStaffChat(!player.isStaffChat());
-                return messageComponent("adminChatToggled", BooleanUtils.toStringOnOff(player.isStaffChat()));
+                return messageComponent("adminChatToggled", messageString(player.isStaffChat() ? "stateOn" : "stateOff"));
             }
             return usage();
         }

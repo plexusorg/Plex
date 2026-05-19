@@ -71,7 +71,7 @@ public class MobPurgeCMD extends ServerCommand
             PlexUtils.broadcast(messageComponent("removedMobs", sender.getName(), count));
             PlexLog.debug("All " + count + " valid mobs were removed");
         }
-        sender.sendMessage(messageComponent("amountOfMobsRemoved", count, (type != null ? mobName : "mob") + multipleS(count)));
+        sender.sendMessage(messageComponent("amountOfMobsRemoved", count, type != null ? mobName + multipleS(count) : messageString(count == 1 ? "mobSingular" : "mobPlural")));
         return null;
     }
 

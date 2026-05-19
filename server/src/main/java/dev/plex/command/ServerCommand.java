@@ -170,7 +170,7 @@ public abstract class ServerCommand extends Command implements PluginIdentifiabl
         catch (PlayerNotFoundException | CommandFailException | ConsoleOnlyException |
                ConsoleMustDefinePlayerException | PlayerNotBannedException | NumberFormatException ex)
         {
-            send(sender, PlexUtils.mmDeserialize(ex.getMessage()));
+            send(sender, exceptionComponent(ex));
         }
         return true;
     }
@@ -385,7 +385,7 @@ public abstract class ServerCommand extends Command implements PluginIdentifiabl
      */
     protected Component usage()
     {
-        return Component.text("Correct Usage: ").color(NamedTextColor.YELLOW).append(componentFromString(this.getUsage()).color(NamedTextColor.GRAY));
+        return messageComponent("correctUsagePrefix").append(componentFromString(this.getUsage()).color(NamedTextColor.GRAY));
     }
 
     /**
@@ -397,7 +397,28 @@ public abstract class ServerCommand extends Command implements PluginIdentifiabl
      */
     protected Component usage(String s)
     {
-        return Component.text("Correct Usage: ").color(NamedTextColor.YELLOW).append(componentFromString(s).color(NamedTextColor.GRAY));
+        return messageComponent("correctUsagePrefix").append(componentFromString(s).color(NamedTextColor.GRAY));
+    }
+
+    private Component exceptionComponent(RuntimeException ex)
+    {
+        if (ex instanceof PlayerNotFoundException && "PlayerNotFoundException".equals(ex.getMessage()))
+        {
+            return messageComponent("playerNotFound");
+        }
+        if (ex instanceof PlayerNotBannedException && "PlayerNotBannedException".equals(ex.getMessage()))
+        {
+            return messageComponent("playerNotBanned");
+        }
+        if (ex instanceof ConsoleOnlyException && "ConsoleOnlyException".equals(ex.getMessage()))
+        {
+            return messageComponent("consoleOnly");
+        }
+        if (ex instanceof ConsoleMustDefinePlayerException && "ConsoleMustDefinePlayerException".equals(ex.getMessage()))
+        {
+            return messageComponent("consoleMustDefinePlayer");
+        }
+        return PlexUtils.mmDeserialize(ex.getMessage());
     }
 
     protected Player getNonNullPlayer(String name)

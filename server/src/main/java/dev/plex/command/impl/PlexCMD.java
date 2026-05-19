@@ -97,7 +97,7 @@ public class PlexCMD extends ServerCommand
             {
                 if (!hasUpdateAccess(playerSender, sender))
                 {
-                    return messageComponent("noPermissionRank", "a Developer");
+                    return mmString("<red>You must be a Developer to use this command.");
                 }
                 for (PlexModule module : plugin.getModuleManager().getModules())
                 {
@@ -111,7 +111,7 @@ public class PlexCMD extends ServerCommand
         {
             if (!hasUpdateAccess(playerSender, sender))
             {
-                return messageComponent("noPermissionRank", "a Developer");
+                return mmString("<red>You must be a Developer to use this command.");
             }
             if (!plugin.getUpdateChecker().getUpdateStatusMessage(sender, false, 0))
             {

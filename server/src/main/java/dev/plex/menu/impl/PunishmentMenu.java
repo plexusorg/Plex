@@ -5,12 +5,11 @@ import dev.plex.menu.pagination.PageableMenu;
 import dev.plex.player.PlayerService;
 import dev.plex.player.PlexPlayer;
 import dev.plex.util.PlexLog;
+import dev.plex.util.PlexUtils;
 import dev.plex.util.item.ItemBuilder;
 
 import java.util.List;
 
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -24,7 +23,7 @@ public class PunishmentMenu extends PageableMenu<Player>
 
     public PunishmentMenu(PlayerService playerService)
     {
-        super("<aqua><bold>Punishments", AbstractMenu.Rows.SIX);
+        super(PlexUtils.messageComponent("punishmentMenuTitle"), AbstractMenu.Rows.SIX);
         this.playerService = playerService;
         PlexLog.debug("list: {0}", list().size());
         onClick((inventoryView, itemStacks, player, itemStack) ->
@@ -41,7 +40,7 @@ public class PunishmentMenu extends PageableMenu<Player>
             PlexPlayer punishedPlayer = playerService.getPlayer(meta.getOwningPlayer().getUniqueId());
             if (punishedPlayer == null)
             {
-                player.sendMessage(Component.text("This player does not exist. Try doing /punishments <player> instead.").color(NamedTextColor.RED));
+                player.sendMessage(PlexUtils.messageComponent("punishmentPlayerNotFound"));
                 player.closeInventory();
                 return true;
             }
@@ -55,7 +54,7 @@ public class PunishmentMenu extends PageableMenu<Player>
     @Override
     protected ItemStack toItem(Player object)
     {
-        return new ItemBuilder(Material.PLAYER_HEAD).owner(object).displayName("<!italic><yellow>" + object.getName()).build();
+        return new ItemBuilder(Material.PLAYER_HEAD).owner(object).displayName(PlexUtils.messageComponent("punishmentPlayerItem", object.getName())).build();
     }
 
     @Override

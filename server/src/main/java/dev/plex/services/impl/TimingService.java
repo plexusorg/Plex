@@ -7,6 +7,7 @@ import dev.plex.punishment.Punishment;
 import dev.plex.punishment.PunishmentType;
 import dev.plex.services.AbstractService;
 import dev.plex.util.PlexLog;
+import dev.plex.util.PlexUtils;
 import dev.plex.util.TimeUtils;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 
@@ -51,7 +52,7 @@ public class TimingService extends AbstractService
         Player player = Bukkit.getPlayer(map.getKey());
         PlexPlayer plexPlayer = plugin.getPlayerService().getPlayer(map.getKey());
         punishment.setType(PunishmentType.TEMPBAN);
-        punishment.setReason("You are temporarily banned for five minutes for using a Nuker.");
+        punishment.setReason(PlexUtils.messageString("nukerTempbanReason"));
         if (player != null)
         {
             punishment.setPunishedUsername(player.getName());

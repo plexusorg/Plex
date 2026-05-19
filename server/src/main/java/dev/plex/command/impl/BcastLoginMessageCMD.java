@@ -46,7 +46,7 @@ public class BcastLoginMessageCMD extends ServerCommand
         }
         else
         {
-            return mmString("<red>This player does not have a login message.");
+            return messageComponent("playerHasNoLoginMessage");
         }
 
         return null;
