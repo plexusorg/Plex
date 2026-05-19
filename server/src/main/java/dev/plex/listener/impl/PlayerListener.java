@@ -9,7 +9,6 @@ import dev.plex.util.PlexUtils;
 
 import java.util.List;
 
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -90,7 +89,7 @@ public class PlayerListener extends ServerListenerBase
         PlexPlayer player = plugin.getPlayerService().getPlayer(event.getPlayer().getUniqueId());
         if (player.isLockedUp())
         {
-            Bukkit.getGlobalRegionScheduler().runDelayed(plugin, (scheduledTask) -> event.getPlayer().openInventory(event.getInventory()), 1L);
+            event.getPlayer().getScheduler().runDelayed(plugin, scheduledTask -> event.getPlayer().openInventory(event.getInventory()), null, 1L);
         }
     }
 

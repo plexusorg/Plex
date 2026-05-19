@@ -12,7 +12,6 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 
 import lombok.NonNull;
@@ -21,6 +20,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import org.apache.commons.io.FileUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.json.JSONException;
 
 public class UpdateChecker
@@ -121,7 +121,7 @@ public class UpdateChecker
             {
                 if (verbosity == 2)
                 {
-                    sender.sendMessage(Component.text("There was an error checking for updates.").color(NamedTextColor.RED));
+                    sendMessage(sender, Component.text("There was an error checking for updates.").color(NamedTextColor.RED));
                 }
                 return false;
             }
@@ -129,7 +129,7 @@ public class UpdateChecker
             {
                 if (verbosity == 2)
                 {
-                    sender.sendMessage(Component.text("Plex is up to date!").color(NamedTextColor.GREEN));
+                    sendMessage(sender, Component.text("Plex is up to date!").color(NamedTextColor.GREEN));
                 }
                 return false;
             }
@@ -137,7 +137,7 @@ public class UpdateChecker
             {
                 if (verbosity == 2)
                 {
-                    sender.sendMessage(Component.text("Unknown version, unable to check for updates.").color(NamedTextColor.RED));
+                    sendMessage(sender, Component.text("Unknown version, unable to check for updates.").color(NamedTextColor.RED));
                 }
                 return false;
             }
@@ -145,9 +145,9 @@ public class UpdateChecker
             {
                 if (verbosity >= 1)
                 {
-                    sender.sendMessage(Component.text("Plex is not up to date!", NamedTextColor.RED));
-                    sender.sendMessage(Component.text("Download a new version at: " + DOWNLOAD_PAGE + "Plex").color(NamedTextColor.RED));
-                    sender.sendMessage(Component.text("Or run: /plex update").color(NamedTextColor.RED));
+                    sendMessage(sender, Component.text("Plex is not up to date!", NamedTextColor.RED));
+                    sendMessage(sender, Component.text("Download a new version at: " + DOWNLOAD_PAGE + "Plex").color(NamedTextColor.RED));
+                    sendMessage(sender, Component.text("Or run: /plex update").color(NamedTextColor.RED));
                 }
                 return true;
             }
@@ -174,7 +174,7 @@ public class UpdateChecker
                     JsonObject object = new Gson().fromJson(reader, JsonObject.class);
                     JsonObject artifact = object.getAsJsonArray("artifacts").asList().getFirst().getAsJsonObject();
                     String jarFile = artifact.get("fileName").getAsString();
-                    sender.sendMessage(PlexUtils.mmDeserialize("<green>Downloading latest JAR file: " + jarFile));
+                    sendMessage(sender, PlexUtils.mmDeserialize("<green>Downloading latest JAR file: " + jarFile));
                     File copyTo;
                     if (!module)
                     {
@@ -184,7 +184,7 @@ public class UpdateChecker
                     {
                         copyTo = new File(plugin.getModulesFolder().getPath(), jarFile);
                     }
-                    CompletableFuture.runAsync(() ->
+                    plugin.getApi().scheduler().runAsync(() ->
                     {
                         try
                         {
@@ -192,7 +192,7 @@ public class UpdateChecker
                                     URI.create(url + "/lastSuccessfulBuild/artifact/build/libs/" + jarFile).toURL(),
                                     copyTo
                             );
-                            sender.sendMessage(PlexUtils.mmDeserialize("<green>New JAR file downloaded successfully."));
+                            sendMessage(sender, PlexUtils.mmDeserialize("<green>New JAR file downloaded successfully."));
                         }
                         catch (IOException e)
                         {
@@ -207,11 +207,11 @@ public class UpdateChecker
             }
             else if (statusCode == HttpURLConnection.HTTP_NOT_FOUND)
             {
-                sender.sendMessage(PlexUtils.mmDeserialize("<red>Could not update " + name + " as it can't be found on Jenkins."));
+                sendMessage(sender, PlexUtils.mmDeserialize("<red>Could not update " + name + " as it can't be found on Jenkins."));
             }
             else
             {
-                sender.sendMessage(PlexUtils.mmDeserialize("<red>Something went wrong while trying to update " + name + ". Please check the log for more information."));
+                sendMessage(sender, PlexUtils.mmDeserialize("<red>Something went wrong while trying to update " + name + ". Please check the log for more information."));
                 PlexLog.error("Unable to update module {0} due to unexpected status code returned from Jenkins - Status Code: {1}", name, statusCode);
             }
         }
@@ -221,9 +221,19 @@ public class UpdateChecker
         }
         catch (JSONException e)
         {
-            sender.sendMessage(PlexUtils.mmDeserialize("<red>Something went wrong while trying to gather information from Jenkins for " + name + ". Please check the log for more information"));
+            sendMessage(sender, PlexUtils.mmDeserialize("<red>Something went wrong while trying to gather information from Jenkins for " + name + ". Please check the log for more information"));
             PlexLog.error("Unable to parse JSON information received from Jenkins - see below for more information...");
             e.printStackTrace();
         }
+    }
+
+    private void sendMessage(CommandSender sender, Component message)
+    {
+        if (sender instanceof Player player)
+        {
+            plugin.getApi().scheduler().runEntity(player, () -> sender.sendMessage(message));
+            return;
+        }
+        plugin.getApi().scheduler().runGlobal(() -> sender.sendMessage(message));
     }
 }

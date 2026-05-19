@@ -12,6 +12,7 @@ import dev.plex.api.message.MessageApi;
 import dev.plex.api.module.ModulesApi;
 import dev.plex.api.player.PlayersApi;
 import dev.plex.api.punishment.PunishmentsApi;
+import dev.plex.api.rollback.RollbackApi;
 import dev.plex.api.scheduler.SchedulerApi;
 import dev.plex.api.storage.StorageApi;
 
@@ -27,6 +28,7 @@ public final class DefaultPlexApi implements PlexApi
     private final MessageApi messages;
     private final PlayersApi players;
     private final PunishmentsApi punishments;
+    private final RollbackApi rollback;
     private final SchedulerApi scheduler;
     private final StorageApi storage;
 
@@ -42,6 +44,7 @@ public final class DefaultPlexApi implements PlexApi
         this.messages = new DefaultMessageApi();
         this.players = new DefaultPlayersApi(plugin);
         this.punishments = new DefaultPunishmentsApi(plugin);
+        this.rollback = new DefaultRollbackApi(plugin);
         this.scheduler = new DefaultSchedulerApi(plugin);
         this.storage = new DefaultStorageApi(plugin);
     }
@@ -56,6 +59,7 @@ public final class DefaultPlexApi implements PlexApi
     @Override public MessageApi messages() { return messages; }
     @Override public PlayersApi players() { return players; }
     @Override public PunishmentsApi punishments() { return punishments; }
+    @Override public RollbackApi rollback() { return rollback; }
     @Override public SchedulerApi scheduler() { return scheduler; }
     @Override public StorageApi storage() { return storage; }
 }

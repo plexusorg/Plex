@@ -30,25 +30,8 @@ public class AutoWipeService extends AbstractService
                 {
                     if (entities.stream().anyMatch(entityName -> entityName.equalsIgnoreCase(entity.getType().name())))
                     {
-                        Bukkit.getRegionScheduler().run(plugin, entity.getLocation(), this::entityRun);
+                        entity.getScheduler().run(plugin, scheduledTask -> entity.remove(), null);
                     }
-                }
-            }
-        }
-    }
-
-    private void entityRun(ScheduledTask task)
-    {
-        List<String> entities = plugin.config.getStringList("autowipe.entities");
-
-        for (World world : Bukkit.getWorlds())
-        {
-            for (Entity entity : world.getEntities())
-            {
-                if (entities.stream().anyMatch(entityName -> entityName.equalsIgnoreCase(entity.getType().name())))
-                {
-                    entity.remove();
-                    task.cancel();
                 }
             }
         }

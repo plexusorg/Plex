@@ -14,10 +14,8 @@ import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.TimeUtils;
 
-import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -28,9 +26,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.prism_mc.prism.api.activities.ActivityQuery;
-import org.prism_mc.prism.paper.api.PrismPaperApi;
-import org.prism_mc.prism.paper.api.activities.PaperActivityQuery;
 
 @CommandParameters(name = "ban", usage = "/<command> <player> [reason] [-rb]", aliases = "offlineban,gtfo", description = "Bans a player, offline or online")
 @CommandPermissions(permission = "plex.ban", source = RequiredCommandSource.ANY)
@@ -56,84 +51,52 @@ public class BanCMD extends ServerCommand
 
         plugin.getPunishmentManager().isAsyncBanned(plexPlayer.getUuid()).whenComplete((aBoolean, throwable) ->
         {
-            if (aBoolean)
+            plugin.getApi().scheduler().runGlobal(() ->
             {
-                send(sender, messageComponent("playerBanned"));
-                return;
-            }
-            String reason;
-            Punishment punishment = new Punishment(plexPlayer.getUuid(), getUUID(sender));
-            punishment.setType(PunishmentType.BAN);
-            boolean rollBack = false;
-            if (args.length > 1)
-            {
-                reason = StringUtils.join(args, " ", 1, args.length);
-                String newReason = StringUtils.normalizeSpace(reason.replace("-rb", ""));
-                punishment.setReason(newReason.trim().isEmpty() ? messageString("noReasonProvided") : newReason);
-                rollBack = reason.startsWith("-rb") || reason.endsWith("-rb");
-            }
-            else
-            {
-                punishment.setReason(messageString("noReasonProvided"));
-            }
-            punishment.setPunishedUsername(plexPlayer.getName());
-            ZonedDateTime date = ZonedDateTime.now(ZoneId.of(TimeUtils.TIMEZONE));
-            punishment.setEndDate(date.plusDays(1));
-            punishment.setCustomTime(false);
-            punishment.setActive(true);
-            punishment.setIp(player != null ? player.getAddress().getAddress().getHostAddress().trim() : plexPlayer.getIps().getLast());
-            plugin.getPunishmentManager().punish(plexPlayer, punishment);
-            PlexUtils.broadcast(messageComponent("banningPlayer", sender.getName(), plexPlayer.getName()));
-            Bukkit.getGlobalRegionScheduler().execute(plugin, () ->
-            {
+                if (throwable != null)
+                {
+                    PlexLog.error("Unable to check ban state for {0}: {1}", plexPlayer.getName(), throwable.getMessage());
+                    return;
+                }
+                if (aBoolean)
+                {
+                    send(sender, messageComponent("playerBanned"));
+                    return;
+                }
+                String reason;
+                Punishment punishment = new Punishment(plexPlayer.getUuid(), getUUID(sender));
+                punishment.setType(PunishmentType.BAN);
+                boolean rollBack = false;
+                if (args.length > 1)
+                {
+                    reason = StringUtils.join(args, " ", 1, args.length);
+                    String newReason = StringUtils.normalizeSpace(reason.replace("-rb", ""));
+                    punishment.setReason(newReason.trim().isEmpty() ? messageString("noReasonProvided") : newReason);
+                    rollBack = reason.startsWith("-rb") || reason.endsWith("-rb");
+                }
+                else
+                {
+                    punishment.setReason(messageString("noReasonProvided"));
+                }
+                punishment.setPunishedUsername(plexPlayer.getName());
+                ZonedDateTime date = ZonedDateTime.now(ZoneId.of(TimeUtils.TIMEZONE));
+                punishment.setEndDate(date.plusDays(1));
+                punishment.setCustomTime(false);
+                punishment.setActive(true);
+                punishment.setIp(plexPlayer.getIps().getLast());
+                plugin.getPunishmentManager().punish(plexPlayer, punishment);
+                PlexUtils.broadcast(messageComponent("banningPlayer", sender.getName(), plexPlayer.getName()));
                 if (player != null)
                 {
-                    BungeeUtil.kickPlayer(plugin, player, Punishment.generateBanMessage(punishment, plugin.config.getString("banning.ban_url"), plugin.getPlayerService()));
+                    plugin.getApi().scheduler().runEntity(player, () -> BungeeUtil.kickPlayer(plugin, player, Punishment.generateBanMessage(punishment, plugin.config.getString("banning.ban_url"), plugin.getPlayerService())));
+                }
+                PlexLog.debug("(From /ban command) PunishedPlayer UUID: " + plexPlayer.getUuid());
+
+                if (rollBack)
+                {
+                    plugin.getApi().rollback().rollbackLastDay(sender, plexPlayer.getName());
                 }
             });
-            PlexLog.debug("(From /ban command) PunishedPlayer UUID: " + plexPlayer.getUuid());
-
-            if (rollBack)
-            {
-                if (plugin.getPrismHook() != null && plugin.getPrismHook().hasPrism())
-                {
-                    PrismPaperApi prism = plugin.getPrismHook().getPrism();
-                    ActivityQuery query = PaperActivityQuery.builder()
-                            .actionTypeKeys(Arrays.asList("block-place", "block-break", "block-burn", "entity-spawn", "entity-kill", "entity-explode"))
-                            .causePlayerName(plexPlayer.getName())
-                            .before(Instant.now().getEpochSecond())
-                            .after(Instant.now().getEpochSecond() - 86400)
-                            .rollback()
-                            .build();
-                    prism.rollback(sender, query).whenCompleteAsync((result, error) ->
-                    {
-                        if (error != null)
-                        {
-                            send(sender, messageComponent("prismRollbackError", error.getMessage()));
-                            PlexLog.error("Unable to rollback: {0}", error);
-                            return;
-                        }
-
-                        int count = result.applied();
-                        if (count == 0)
-                        {
-                            send(sender, messageComponent("prismNoResult", count));
-                            PlexLog.debug("No activities are available to rollback");
-                            return;
-                        }
-
-                        send(sender, messageComponent("prismRollbackMessage", count));
-                        PlexLog.debug("Rolled back {0} activities", count);
-                    });
-                }
-                else if (plugin.getCoreProtectHook() != null && plugin.getCoreProtectHook().hasCoreProtect())
-                {
-                    Bukkit.getAsyncScheduler().runNow(plugin, scheduledTask ->
-                    {
-                        plugin.getCoreProtectHook().coreProtectAPI().performRollback(86400, Collections.singletonList(plexPlayer.getName()), null, null, null, null, 0, null);
-                    });
-                }
-            }
         });
 
         return null;

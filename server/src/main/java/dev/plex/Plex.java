@@ -11,6 +11,7 @@ import dev.plex.handlers.CommandHandler;
 import dev.plex.handlers.ListenerHandler;
 import dev.plex.hook.CoreProtectHook;
 import dev.plex.hook.PrismHook;
+import dev.plex.hook.RollbackManager;
 import dev.plex.module.ModuleManager;
 import dev.plex.player.PlayerService;
 import dev.plex.player.PlexPlayer;
@@ -18,7 +19,6 @@ import dev.plex.punishment.PunishmentManager;
 import dev.plex.services.ServiceManager;
 import dev.plex.storage.RedisConnection;
 import dev.plex.storage.SQLConnection;
-import dev.plex.storage.StorageExecutor;
 import dev.plex.storage.StorageType;
 import dev.plex.storage.player.SQLPlayerData;
 import dev.plex.storage.punishment.SQLNotes;
@@ -79,6 +79,7 @@ public class Plex extends JavaPlugin
 
     private CoreProtectHook coreProtectHook;
     private PrismHook prismHook;
+    private RollbackManager rollbackManager;
 
     public static Plex get()
     {
@@ -227,6 +228,8 @@ public class Plex extends JavaPlugin
             PlexLog.debug("Not hooking into SuperVanish / PremiumVanish");
         }
 
+        rollbackManager = new RollbackManager(this);
+
         updateChecker = new UpdateChecker(this);
         PlexLog.log("Update checking enabled");
 
@@ -246,9 +249,9 @@ public class Plex extends JavaPlugin
             PlexLog.log("Redis is disabled in the configuration file, not connecting.");
         }
 
-        punishmentRepository = new SQLPunishment(sqlConnection.getConnectionSource());
+        punishmentRepository = new SQLPunishment(sqlConnection.getConnectionSource(), api.scheduler().asyncExecutor());
         playerRepository = new SQLPlayerData(sqlConnection.getConnectionSource(), punishmentRepository);
-        noteRepository = new SQLNotes(sqlConnection.getConnectionSource());
+        noteRepository = new SQLNotes(sqlConnection.getConnectionSource(), api.scheduler().asyncExecutor());
         playerService = new PlayerService(playerCache, playerRepository);
 
         new ListenerHandler(this);
@@ -292,13 +295,17 @@ public class Plex extends JavaPlugin
 
         this.getServer().getMessenger().unregisterOutgoingPluginChannel(this);
 
+        if (serviceManager != null)
+        {
+            serviceManager.endServices();
+        }
+
         moduleManager.disableModules();
 
         if (sqlConnection != null)
         {
             sqlConnection.close();
         }
-        StorageExecutor.shutdown();
     }
 
     private void generateWorlds()

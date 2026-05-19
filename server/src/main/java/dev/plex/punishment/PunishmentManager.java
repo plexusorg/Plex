@@ -5,7 +5,6 @@ import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import dev.plex.Plex;
 import dev.plex.player.PlexPlayer;
-import dev.plex.storage.StorageExecutor;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.TimeUtils;
@@ -25,7 +24,6 @@ import lombok.Data;
 import lombok.Getter;
 import org.apache.commons.io.FileUtils;
 import org.bukkit.Bukkit;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.Nullable;
 
 public class PunishmentManager
@@ -135,7 +133,7 @@ public class PunishmentManager
             }
 
             return plugin.getPunishmentRepository().getPunishments(uuid).stream().anyMatch(punishment -> (punishment.getType() == PunishmentType.BAN || punishment.getType() == PunishmentType.TEMPBAN) && punishment.isActive());
-        }, StorageExecutor.io());
+        }, plugin.getApi().scheduler().asyncExecutor());
     }
 
     public boolean isBanned(UUID uuid)
@@ -194,25 +192,20 @@ public class PunishmentManager
             ZonedDateTime now = ZonedDateTime.now(ZoneId.of(TimeUtils.TIMEZONE));
             ZonedDateTime then = punishment.getEndDate();
             long seconds = ChronoUnit.SECONDS.between(now, then);
-            new BukkitRunnable()
+            plugin.getApi().scheduler().runGlobalLater(scheduledTask ->
             {
-                @Override
-                public void run()
+                PlexPlayer afterPlayer = plugin.getPlayerService().getPlayer(player.getUuid());
+                if (!afterPlayer.isFrozen())
                 {
-                    PlexPlayer afterPlayer = plugin.getPlayerService().getPlayer(player.getUuid());
-                    if (!afterPlayer.isFrozen())
-                    {
-                        this.cancel();
-                        return;
-                    }
-                    afterPlayer.setFrozen(false);
-                    punishment.setActive(false);
-                    plugin.getPunishmentRepository().updatePunishment(punishment.getType(), false, punishment.getPunished());
-
-                    plugin.getPlayerService().update(afterPlayer);
-                    Bukkit.broadcast(PlexUtils.messageComponent("unfrozePlayer", "Plex", Bukkit.getOfflinePlayer(afterPlayer.getUuid()).getName()));
+                    return;
                 }
-            }.runTaskLater(plugin, 20 * seconds);
+                afterPlayer.setFrozen(false);
+                punishment.setActive(false);
+                plugin.getPunishmentRepository().updatePunishment(punishment.getType(), false, punishment.getPunished());
+
+                plugin.getPlayerService().update(afterPlayer);
+                Bukkit.broadcast(PlexUtils.messageComponent("unfrozePlayer", "Plex", Bukkit.getOfflinePlayer(afterPlayer.getUuid()).getName()));
+            }, Math.max(1L, 20L * seconds));
         }
         else if (punishment.getType() == PunishmentType.MUTE)
         {
@@ -220,24 +213,19 @@ public class PunishmentManager
             ZonedDateTime now = ZonedDateTime.now(ZoneId.of(TimeUtils.TIMEZONE));
             ZonedDateTime then = punishment.getEndDate();
             long seconds = ChronoUnit.SECONDS.between(now, then);
-            new BukkitRunnable()
+            plugin.getApi().scheduler().runGlobalLater(scheduledTask ->
             {
-                @Override
-                public void run()
+                PlexPlayer afterPlayer = plugin.getPlayerService().getPlayer(player.getUuid());
+                if (!afterPlayer.isMuted())
                 {
-                    PlexPlayer afterPlayer = plugin.getPlayerService().getPlayer(player.getUuid());
-                    if (!afterPlayer.isMuted())
-                    {
-                        this.cancel();
-                        return;
-                    }
-                    afterPlayer.setMuted(false);
-                    punishment.setActive(false);
-                    plugin.getPunishmentRepository().updatePunishment(punishment.getType(), false, punishment.getPunished());
-
-                    Bukkit.broadcast(PlexUtils.messageComponent("unmutedPlayer", "Plex", Bukkit.getOfflinePlayer(afterPlayer.getUuid()).getName()));
+                    return;
                 }
-            }.runTaskLater(plugin, 20 * seconds);
+                afterPlayer.setMuted(false);
+                punishment.setActive(false);
+                plugin.getPunishmentRepository().updatePunishment(punishment.getType(), false, punishment.getPunished());
+
+                Bukkit.broadcast(PlexUtils.messageComponent("unmutedPlayer", "Plex", Bukkit.getOfflinePlayer(afterPlayer.getUuid()).getName()));
+            }, Math.max(1L, 20L * seconds));
         }
     }
 

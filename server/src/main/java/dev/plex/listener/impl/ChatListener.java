@@ -36,12 +36,12 @@ public class ChatListener extends ServerListenerBase
                             matchResult.group()
                     ))).build();
     public static BiConsumer<AsyncChatEvent, PlexPlayer> PRE_RENDERER = ChatListener::defaultChatProcessing;
-    private final PlexChatRenderer renderer = new PlexChatRenderer();
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onChat(AsyncChatEvent event)
     {
         PlexPlayer plexPlayer = plugin.getPlayerCache().getPlexPlayerMap().get(event.getPlayer().getUniqueId());
+        PlexChatRenderer renderer = new PlexChatRenderer();
         renderer.format = SafeMiniMessage.mmDeserialize(plugin.config.getString("chat.format"));
         if (plexPlayer.isStaffChat())
         {

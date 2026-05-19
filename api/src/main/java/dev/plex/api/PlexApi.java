@@ -9,6 +9,7 @@ import dev.plex.api.message.MessageApi;
 import dev.plex.api.module.ModulesApi;
 import dev.plex.api.player.PlayersApi;
 import dev.plex.api.punishment.PunishmentsApi;
+import dev.plex.api.rollback.RollbackApi;
 import dev.plex.api.scheduler.SchedulerApi;
 import dev.plex.api.storage.StorageApi;
 
@@ -48,6 +49,8 @@ public interface PlexApi
     PlayersApi players();
 
     PunishmentsApi punishments();
+
+    RollbackApi rollback();
 
     SchedulerApi scheduler();
 

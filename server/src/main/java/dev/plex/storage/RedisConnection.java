@@ -55,7 +55,7 @@ public class RedisConnection
 
     public void runAsync(Consumer<Jedis> jedisConsumer)
     {
-        StorageExecutor.io().execute(() -> execute(jedisConsumer));
+        plugin.getApi().scheduler().runAsync(() -> execute(jedisConsumer));
     }
 
     public final boolean isEnabled()

@@ -7,8 +7,11 @@ import dev.plex.services.impl.BanService;
 import dev.plex.services.impl.GameRuleService;
 import dev.plex.services.impl.TimingService;
 import dev.plex.services.impl.UpdateCheckerService;
+import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.bukkit.Bukkit;
@@ -17,6 +20,7 @@ public class ServiceManager
 {
     private final Plex plugin;
     private final List<AbstractService> services = Lists.newArrayList();
+    private final Map<AbstractService, ScheduledTask> scheduledTasks = new HashMap<>();
 
     public ServiceManager(Plex plugin)
     {
@@ -45,25 +49,36 @@ public class ServiceManager
 
     public void startService(AbstractService service)
     {
+        ScheduledTask existingTask = scheduledTasks.remove(service);
+        if (existingTask != null)
+        {
+            existingTask.cancel();
+        }
+
+        ScheduledTask task = null;
         if (!service.isRepeating())
         {
             int time = service.repeatInSeconds();
             if (time == 0)
             {
-                Bukkit.getGlobalRegionScheduler().run(plugin, service::run);
+                task = Bukkit.getGlobalRegionScheduler().run(plugin, service::run);
             }
             else
             {
-                Bukkit.getAsyncScheduler().runDelayed(plugin, service::run, time, TimeUnit.SECONDS);
+                task = Bukkit.getAsyncScheduler().runDelayed(plugin, service::run, time, TimeUnit.SECONDS);
             }
         }
         else if (service.isRepeating() && service.isAsynchronous())
         {
-            Bukkit.getAsyncScheduler().runAtFixedRate(plugin, service::run, 1, service.repeatInSeconds(), TimeUnit.SECONDS);
+            task = Bukkit.getAsyncScheduler().runAtFixedRate(plugin, service::run, 1, service.repeatInSeconds(), TimeUnit.SECONDS);
         }
         else if (service.isRepeating() && !service.isAsynchronous())
         {
-            Bukkit.getGlobalRegionScheduler().runAtFixedRate(plugin, service::run, 1, 20L * service.repeatInSeconds());
+            task = Bukkit.getGlobalRegionScheduler().runAtFixedRate(plugin, service::run, 1, 20L * service.repeatInSeconds());
+        }
+        if (task != null)
+        {
+            scheduledTasks.put(service, task);
         }
         if (!services.contains(service))
         {
@@ -74,8 +89,11 @@ public class ServiceManager
 
     public void endService(AbstractService service, boolean remove)
     {
-        Bukkit.getGlobalRegionScheduler().cancelTasks(plugin);
-        Bukkit.getAsyncScheduler().cancelTasks(plugin);
+        ScheduledTask task = scheduledTasks.remove(service);
+        if (task != null)
+        {
+            task.cancel();
+        }
         service.onEnd();
         if (remove)
         {
