@@ -89,9 +89,16 @@ public class ModuleManager
                     }
 
                     List<String> libraries = internalModuleConfig.getStringList("libraries");
+                    List<String> repositories = internalModuleConfig.getConfigurationSection("repositories") == null
+                            ? List.of()
+                            : internalModuleConfig.getConfigurationSection("repositories").getKeys(false).stream()
+                                    .map(id -> internalModuleConfig.getConfigurationSection("repositories").getString(id, ""))
+                                    .filter(repository -> !repository.isBlank())
+                                    .toList();
 
                     PlexModuleFile plexModuleFile = new PlexModuleFile(name, main, description, version, apiCompatibility);
                     plexModuleFile.setLibraries(libraries);
+                    plexModuleFile.setRepositories(repositories);
                     Class<? extends PlexModule> module = (Class<? extends PlexModule>) Class.forName(main, true, loader);
 
                     PlexModule plexModule = module.getConstructor().newInstance();

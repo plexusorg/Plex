@@ -13,6 +13,7 @@ public final class PlexModuleFile
     private final String version;
     private final int apiCompatibility;
     private List<String> libraries = List.of();
+    private List<String> repositories = List.of();
 
     public PlexModuleFile(String name, String main, String description, String version, int apiCompatibility)
     {
@@ -56,5 +57,15 @@ public final class PlexModuleFile
     public void setLibraries(List<String> libraries)
     {
         this.libraries = List.copyOf(libraries);
+    }
+
+    public List<String> getRepositories()
+    {
+        return repositories;
+    }
+
+    public void setRepositories(List<String> repositories)
+    {
+        this.repositories = List.copyOf(repositories);
     }
 }
