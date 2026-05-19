@@ -3,11 +3,11 @@ package dev.plex.punishment;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import dev.plex.Plex;
-import dev.plex.storage.annotation.SQLTable;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.TimeUtils;
 import dev.plex.util.adapter.ZonedDateTimeAdapter;
 
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.UUID;
 
@@ -18,7 +18,6 @@ import org.jetbrains.annotations.NotNull;
 
 @Getter
 @Setter
-@SQLTable("punishments")
 public class Punishment
 {
     private static final Gson gson = new GsonBuilder().registerTypeAdapter(ZonedDateTime.class, new ZonedDateTimeAdapter()).create();
@@ -36,12 +35,14 @@ public class Punishment
     private String reason;
     private boolean customTime;
     private boolean active; // Field is only for bans
+    private ZonedDateTime issueDate;
     private ZonedDateTime endDate;
 
     public Punishment(UUID punished, UUID punisher)
     {
         this.punished = punished;
         this.punisher = punisher;
+        this.issueDate = ZonedDateTime.now(ZoneId.of(TimeUtils.TIMEZONE));
     }
 
     public static Component generateBanMessage(Punishment punishment)

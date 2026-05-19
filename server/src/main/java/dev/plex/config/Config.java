@@ -4,8 +4,6 @@ import dev.plex.Plex;
 import dev.plex.util.PlexLog;
 
 import java.io.File;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -17,22 +15,17 @@ public class Config extends YamlConfiguration
     /**
      * The plugin instance
      */
-    private Plex plugin;
+    private final Plex plugin;
 
     /**
      * The File instance
      */
-    private File file;
+    private final File file;
 
     /**
      * The file name
      */
-    private String name;
-
-    /**
-     * Whether new entries were added to the file automatically
-     */
-    private boolean added = false;
+    private final String name;
 
     /**
      * Creates a config object
@@ -60,37 +53,20 @@ public class Config extends YamlConfiguration
     /**
      * Loads the configuration file
      */
-    public void load(boolean loadFromFile)
+    public void load(boolean reconcileWithDefaults)
     {
         try
         {
-            if (loadFromFile)
+            if (reconcileWithDefaults)
             {
-                YamlConfiguration externalYamlConfig = YamlConfiguration.loadConfiguration(file);
-                InputStreamReader internalConfigFileStream = new InputStreamReader(plugin.getResource(name), StandardCharsets.UTF_8);
-                YamlConfiguration internalYamlConfig = YamlConfiguration.loadConfiguration(internalConfigFileStream);
-
-                // Gets all the keys inside the internal file and iterates through all of it's key pairs
-                for (String string : internalYamlConfig.getKeys(true))
+                ConfigDefaultsMerger.Result result = ConfigDefaultsMerger.merge(file, plugin.getResource(name), name);
+                if (!result.addedKeys().isEmpty())
                 {
-                    // Checks if the external file contains the key already.
-                    if (!externalYamlConfig.contains(string))
-                    {
-                        // If it doesn't contain the key, we set the key based off what was found inside the plugin jar
-                        externalYamlConfig.setComments(string, internalYamlConfig.getComments(string));
-                        externalYamlConfig.setInlineComments(string, internalYamlConfig.getInlineComments(string));
-                        externalYamlConfig.set(string, internalYamlConfig.get(string));
-                        PlexLog.log("Setting key: " + string + " in " + this.name + " to the default value(s) since it does not exist!");
-                        added = true;
-                    }
-                }
-                if (added)
-                {
-                    externalYamlConfig.save(file);
-                    PlexLog.log("Saving new file...");
-                    added = false;
+                    PlexLog.log("Merged default key(s) into " + name + ": " + String.join(", ", result.addedKeys()));
                 }
             }
+
+            this.options().parseComments(true);
             super.load(file);
         }
         catch (Exception ex)

@@ -23,7 +23,10 @@ dependencies {
     library("commons-io:commons-io:2.22.0")
     library("redis.clients:jedis:7.5.0")
     library("org.mariadb.jdbc:mariadb-java-client:3.5.8")
+    library("org.postgresql:postgresql:42.7.11")
+    library("org.xerial:sqlite-jdbc:3.53.1.0")
     library("com.zaxxer:HikariCP:7.0.2")
+    library("com.j256.ormlite:ormlite-jdbc:6.1")
     library("org.jetbrains:annotations:26.1.0")
     compileOnly("io.papermc.paper:paper-api:26.1.2.build.+")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7.1") {

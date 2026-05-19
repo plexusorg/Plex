@@ -1,15 +1,16 @@
 package dev.plex.storage.punishment;
 
 import com.google.common.collect.Lists;
+import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.dao.DaoManager;
+import com.j256.ormlite.stmt.UpdateBuilder;
 import dev.plex.Plex;
 import dev.plex.punishment.Punishment;
 import dev.plex.punishment.PunishmentType;
+import dev.plex.storage.database.entity.PunishmentEntity;
 import dev.plex.util.PlexLog;
 import dev.plex.util.TimeUtils;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -20,122 +21,70 @@ import java.util.concurrent.CompletableFuture;
 
 public class SQLPunishment
 {
-    private static final String SELECT = "SELECT * FROM `punishments` WHERE punished=?";
-    private static final String SELECT_BY_IP = "SELECT * FROM `punishments` WHERE ip=?";
-    private static final String SELECT_BY = "SELECT * FROM `punishments` WHERE punisher=?";
+    private final Dao<PunishmentEntity, Long> punishments;
 
-    private static final String INSERT = "INSERT INTO `punishments` (`punished`, `punisher`, `punisherName`, `punishedUsername`, `ip`, `type`, `reason`, `customTime`, `active`, `endDate`) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-    private static final String UPDATE_PUNISHMENT = "UPDATE `punishments` SET active=? WHERE punished=? AND type=?";
+    public SQLPunishment()
+    {
+        try
+        {
+            this.punishments = DaoManager.createDao(Plex.get().getSqlConnection().getConnectionSource(), PunishmentEntity.class);
+        }
+        catch (SQLException e)
+        {
+            throw new IllegalStateException("Failed to create punishment DAO", e);
+        }
+    }
 
     public CompletableFuture<List<Punishment>> getPunishments()
     {
         return CompletableFuture.supplyAsync(() ->
         {
-            List<Punishment> punishments = Lists.newArrayList();
-            try (Connection con = Plex.get().getSqlConnection().getCon())
+            try
             {
-                PreparedStatement statement = con.prepareStatement("SELECT * FROM `punishments`");
-                ResultSet set = statement.executeQuery();
-                while (set.next())
-                {
-                    Punishment punishment = new Punishment(UUID.fromString(set.getString("punished")), set.getString("punisher") != null && set.getString("punisher").isEmpty() ? UUID.fromString(set.getString("punisher")) : null);
-                    punishment.setActive(set.getBoolean("active"));
-                    punishment.setType(PunishmentType.valueOf(set.getString("type")));
-                    punishment.setCustomTime(set.getBoolean("customTime"));
-                    punishment.setPunishedUsername(set.getString("punishedUsername"));
-                    punishment.setPunisherName(set.getString("punisherName"));
-                    punishment.setEndDate(ZonedDateTime.ofInstant(Instant.ofEpochMilli(set.getLong("endDate")), ZoneId.of(TimeUtils.TIMEZONE)));
-                    punishment.setReason(set.getString("reason"));
-                    punishment.setIp(set.getString("ip"));
-                    punishments.add(punishment);
-                }
+                return punishments.queryForAll().stream().map(this::toPunishment).toList();
             }
             catch (SQLException e)
             {
                 e.printStackTrace();
-                return punishments;
+                return Lists.newArrayList();
             }
-            return punishments;
         });
     }
 
     public List<Punishment> getPunishments(UUID uuid)
     {
-        List<Punishment> punishments = Lists.newArrayList();
-        try (Connection con = Plex.get().getSqlConnection().getCon())
+        try
         {
-            PreparedStatement statement = con.prepareStatement(SELECT);
-            statement.setString(1, uuid.toString());
-            ResultSet set = statement.executeQuery();
-            while (set.next())
-            {
-                Punishment punishment = new Punishment(UUID.fromString(set.getString("punished")), set.getString("punisher") == null ? null : UUID.fromString(set.getString("punisher")));
-                punishment.setActive(set.getBoolean("active"));
-                punishment.setType(PunishmentType.valueOf(set.getString("type")));
-                punishment.setCustomTime(set.getBoolean("customTime"));
-                punishment.setPunishedUsername(set.getString("punishedUsername"));
-                punishment.setEndDate(ZonedDateTime.ofInstant(Instant.ofEpochMilli(set.getLong("endDate")), ZoneId.of(TimeUtils.TIMEZONE)));
-                punishment.setReason(set.getString("reason"));
-                punishment.setIp(set.getString("ip"));
-                punishments.add(punishment);
-            }
+            return punishments.queryForEq("punished", uuid.toString()).stream().map(this::toPunishment).toList();
         }
         catch (SQLException e)
         {
             e.printStackTrace();
+            return Lists.newArrayList();
         }
-        return punishments;
     }
 
     public List<Punishment> getPunishments(String ip)
     {
-        List<Punishment> punishments = Lists.newArrayList();
-        try (Connection con = Plex.get().getSqlConnection().getCon())
+        try
         {
-            PreparedStatement statement = con.prepareStatement(SELECT_BY_IP);
-            statement.setString(1, ip);
-            ResultSet set = statement.executeQuery();
-            while (set.next())
-            {
-                Punishment punishment = new Punishment(UUID.fromString(set.getString("punished")), set.getString("punisher") == null ? null : UUID.fromString(set.getString("punisher")));
-                punishment.setActive(set.getBoolean("active"));
-                punishment.setType(PunishmentType.valueOf(set.getString("type")));
-                punishment.setCustomTime(set.getBoolean("customTime"));
-                punishment.setPunishedUsername(set.getString("punishedUsername"));
-                punishment.setEndDate(ZonedDateTime.ofInstant(Instant.ofEpochMilli(set.getLong("endDate")), ZoneId.of(TimeUtils.TIMEZONE)));
-                punishment.setReason(set.getString("reason"));
-                punishment.setIp(set.getString("ip"));
-                punishments.add(punishment);
-            }
+            return punishments.queryForEq("ip", ip).stream().map(this::toPunishment).toList();
         }
         catch (SQLException e)
         {
             e.printStackTrace();
+            return Lists.newArrayList();
         }
-        return punishments;
     }
 
     public CompletableFuture<Void> insertPunishment(Punishment punishment)
     {
-
         return CompletableFuture.runAsync(() ->
         {
-            try (Connection con = Plex.get().getSqlConnection().getCon())
+            try
             {
-                PlexLog.debug("Running execute punishment on " + punishment.getPunished().toString());
-                PreparedStatement statement = con.prepareStatement(INSERT);
-                statement.setString(1, punishment.getPunished().toString());
-                statement.setString(2, punishment.getPunisher() == null ? null : punishment.getPunisher().toString());
-                statement.setString(3, punishment.getPunisherName());
-                statement.setString(4, punishment.getPunishedUsername());
-                statement.setString(5, punishment.getIp());
-                statement.setString(6, punishment.getType().name());
-                statement.setString(7, punishment.getReason());
-                statement.setBoolean(8, punishment.isCustomTime());
-                statement.setBoolean(9, punishment.isActive());
-                statement.setLong(10, punishment.getEndDate().toInstant().toEpochMilli());
-                PlexLog.debug("Executing punishment");
-                statement.execute();
+                PlexLog.debug("Persisting punishment for " + punishment.getPunished());
+                punishments.create(toEntity(punishment));
             }
             catch (SQLException e)
             {
@@ -146,19 +95,28 @@ public class SQLPunishment
 
     public void syncRemoveBan(UUID uuid)
     {
-        try (Connection con = Plex.get().getSqlConnection().getCon())
-        {
-            PreparedStatement statement = con.prepareStatement(UPDATE_PUNISHMENT);
-            statement.setBoolean(1, false);
-            statement.setString(2, uuid.toString());
-            statement.setString(3, PunishmentType.BAN.name());
-            statement.executeUpdate();
+        setActive(uuid, PunishmentType.BAN, false);
+        setActive(uuid, PunishmentType.TEMPBAN, false);
+    }
 
-            PreparedStatement statement1 = con.prepareStatement(UPDATE_PUNISHMENT);
-            statement1.setBoolean(1, false);
-            statement1.setString(2, uuid.toString());
-            statement1.setString(3, PunishmentType.TEMPBAN.name());
-            statement1.executeUpdate();
+    public CompletableFuture<Void> updatePunishment(PunishmentType type, boolean active, UUID punished)
+    {
+        return CompletableFuture.runAsync(() -> setActive(punished, type, active));
+    }
+
+    public CompletableFuture<Void> removeBan(UUID uuid)
+    {
+        return CompletableFuture.runAsync(() -> syncRemoveBan(uuid));
+    }
+
+    private void setActive(UUID punished, PunishmentType type, boolean active)
+    {
+        try
+        {
+            UpdateBuilder<PunishmentEntity, Long> update = punishments.updateBuilder();
+            update.updateColumnValue("active", active);
+            update.where().eq("punished", punished.toString()).and().eq("type", type.name());
+            update.update();
         }
         catch (SQLException e)
         {
@@ -166,48 +124,36 @@ public class SQLPunishment
         }
     }
 
-    public CompletableFuture<Void> updatePunishment(PunishmentType type, boolean active, UUID punished)
+    private Punishment toPunishment(PunishmentEntity entity)
     {
-        return CompletableFuture.runAsync(() ->
-        {
-            try (Connection con = Plex.get().getSqlConnection().getCon())
-            {
-                PreparedStatement statement = con.prepareStatement(UPDATE_PUNISHMENT);
-                statement.setBoolean(1, active);
-                statement.setString(2, punished.toString());
-                statement.setString(3, type.name());
-                statement.executeUpdate();
-            }
-            catch (SQLException e)
-            {
-                e.printStackTrace();
-            }
-        });
+        UUID punisher = entity.getPunisher() == null || entity.getPunisher().isBlank() ? null : UUID.fromString(entity.getPunisher());
+        Punishment punishment = new Punishment(UUID.fromString(entity.getPunished()), punisher);
+        punishment.setActive(entity.isActive());
+        punishment.setType(PunishmentType.valueOf(entity.getType()));
+        punishment.setCustomTime(entity.isCustomTime());
+        punishment.setPunishedUsername(entity.getPunishedUsername());
+        punishment.setPunisherName(entity.getPunisherName());
+        punishment.setIssueDate(ZonedDateTime.ofInstant(Instant.ofEpochMilli(entity.getIssueDate()), ZoneId.of(TimeUtils.TIMEZONE)));
+        punishment.setEndDate(ZonedDateTime.ofInstant(Instant.ofEpochMilli(entity.getEndDate()), ZoneId.of(TimeUtils.TIMEZONE)));
+        punishment.setReason(entity.getReason());
+        punishment.setIp(entity.getIp());
+        return punishment;
     }
 
-    public CompletableFuture<Void> removeBan(UUID uuid)
+    private PunishmentEntity toEntity(Punishment punishment)
     {
-        return CompletableFuture.runAsync(() ->
-        {
-            try (Connection con = Plex.get().getSqlConnection().getCon())
-            {
-                PreparedStatement statement = con.prepareStatement(UPDATE_PUNISHMENT);
-                statement.setBoolean(1, false);
-                statement.setString(2, uuid.toString());
-                statement.setString(3, PunishmentType.BAN.name());
-                statement.executeUpdate();
-
-                PreparedStatement statement1 = con.prepareStatement(UPDATE_PUNISHMENT);
-                statement1.setBoolean(1, false);
-                statement1.setString(2, uuid.toString());
-                statement1.setString(3, PunishmentType.TEMPBAN.name());
-                statement1.executeUpdate();
-            }
-            catch (SQLException e)
-            {
-                e.printStackTrace();
-            }
-        });
+        PunishmentEntity entity = new PunishmentEntity();
+        entity.setPunished(punishment.getPunished().toString());
+        entity.setPunisher(punishment.getPunisher() == null ? null : punishment.getPunisher().toString());
+        entity.setPunisherName(punishment.getPunisherName());
+        entity.setPunishedUsername(punishment.getPunishedUsername());
+        entity.setIp(punishment.getIp());
+        entity.setType(punishment.getType().name());
+        entity.setReason(punishment.getReason());
+        entity.setCustomTime(punishment.isCustomTime());
+        entity.setActive(punishment.isActive());
+        entity.setIssueDate(punishment.getIssueDate().toInstant().toEpochMilli());
+        entity.setEndDate(punishment.getEndDate().toInstant().toEpochMilli());
+        return entity;
     }
-
 }

@@ -6,10 +6,6 @@ import dev.plex.Plex;
 import dev.plex.punishment.Punishment;
 import dev.plex.punishment.PunishmentType;
 import dev.plex.punishment.extra.Note;
-import dev.plex.storage.annotation.MapObjectList;
-import dev.plex.storage.annotation.PrimaryKey;
-import dev.plex.storage.annotation.SQLTable;
-import dev.plex.storage.annotation.VarcharLimit;
 import dev.plex.util.adapter.ZonedDateTimeAdapter;
 
 import java.time.ZonedDateTime;
@@ -26,15 +22,12 @@ import org.jetbrains.annotations.NotNull;
 
 @Getter
 @Setter
-@SQLTable("players")
 public class PlexPlayer
 {
     @Setter(AccessLevel.NONE)
-    @PrimaryKey
     @NotNull
     private UUID uuid;
 
-    @VarcharLimit(16)
     @NotNull
     private String name;
 
@@ -54,10 +47,8 @@ public class PlexPlayer
 
     private List<String> ips = Lists.newArrayList();
 
-    @MapObjectList
     private List<Punishment> punishments = Lists.newArrayList();
 
-    @MapObjectList
     private List<Note> notes = Lists.newArrayList();
 
     public PlexPlayer()

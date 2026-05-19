@@ -41,14 +41,14 @@ loginmessages:
   name: true
 
 data:
-  central:
-    storage: sqlite # Use mariadb, or sqlite here
+  db:
+    storage: sqlite # Use mariadb, postgres, or sqlite here
     user: ""
     password: ""
     hostname: 127.0.0.1
-    port: 27017
-    db: "plex"
-  side: # This is Redis, leave password blank if auth is false
+    port: 3306
+    name: "plex"
+  redis: # Leave password blank if auth is false
     enabled: false
     auth: true
     hostname: 127.0.0.1

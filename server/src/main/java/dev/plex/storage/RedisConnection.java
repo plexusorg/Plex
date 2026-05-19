@@ -14,11 +14,11 @@ public class RedisConnection implements PlexBase
     {
         try
         {
-            jedis = new Jedis(plugin.config.getString("data.side.hostname"),
-                    plugin.config.getInt("data.side.port"));
-            if (plugin.config.getBoolean("data.side.auth"))
+            jedis = new Jedis(plugin.config.getString("data.redis.hostname"),
+                    plugin.config.getInt("data.redis.port"));
+            if (plugin.config.getBoolean("data.redis.auth"))
             {
-                jedis.auth(plugin.config.getString("data.side.password"));
+                jedis.auth(plugin.config.getString("data.redis.password"));
             }
             return jedis;
         }
@@ -43,6 +43,6 @@ public class RedisConnection implements PlexBase
 
     public final boolean isEnabled()
     {
-        return plugin.config.getBoolean("data.side.enabled");
+        return plugin.config.getBoolean("data.redis.enabled");
     }
 }

@@ -2,72 +2,66 @@ package dev.plex.storage.player;
 
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
+import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.dao.DaoManager;
+import com.j256.ormlite.stmt.DeleteBuilder;
 import dev.plex.Plex;
 import dev.plex.player.PlexPlayer;
-import dev.plex.storage.StorageType;
-import dev.plex.util.PlexLog;
+import dev.plex.storage.database.entity.PlayerEntity;
+import dev.plex.storage.database.entity.PlayerIpEntity;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
 
 /**
- * SQL fetching utilities for players
+ * Player persistence backed by ORMLite.
  */
 public class SQLPlayerData
 {
-    private final String SELECT = "SELECT * FROM `players` WHERE uuid=?";
-    private final String UPDATE = "UPDATE `players` SET name=?, login_msg=?, prefix=?, ips=?, coins=?, vanished=?, commandspy=? WHERE uuid=?";
-    private final String INSERT = "INSERT INTO `players` (`uuid`, `name`, `login_msg`, `prefix`, `ips`, `coins`, `vanished`, `commandspy`) VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
+    private static final Gson GSON = new Gson();
+    private final Dao<PlayerEntity, String> players;
+    private final Dao<PlayerIpEntity, Long> playerIps;
 
-    /**
-     * Checks if a player exists in the SQL database
-     *
-     * @param uuid The unique ID of the player
-     * @return true if the player was found in the database
-     */
+    public SQLPlayerData()
+    {
+        try
+        {
+            this.players = DaoManager.createDao(Plex.get().getSqlConnection().getConnectionSource(), PlayerEntity.class);
+            this.playerIps = DaoManager.createDao(Plex.get().getSqlConnection().getConnectionSource(), PlayerIpEntity.class);
+        }
+        catch (SQLException e)
+        {
+            throw new IllegalStateException("Failed to create player DAOs", e);
+        }
+    }
+
     public boolean exists(UUID uuid)
     {
-        try (Connection con = Plex.get().getSqlConnection().getCon())
+        try
         {
-            PreparedStatement statement = con.prepareStatement(SELECT);
-            statement.setString(1, uuid.toString());
-            ResultSet set = statement.executeQuery();
-            return set.next();
+            return players.idExists(uuid.toString());
         }
-        catch (SQLException throwables)
+        catch (SQLException e)
         {
-            throwables.printStackTrace();
+            e.printStackTrace();
+            return false;
         }
-        return false;
     }
 
     public boolean exists(String username)
     {
-        try (Connection con = Plex.get().getSqlConnection().getCon())
+        try
         {
-            PreparedStatement statement = con.prepareStatement("SELECT * FROM `players` WHERE name=?");
-            statement.setString(1, username);
-            ResultSet set = statement.executeQuery();
-            return set.next();
+            return players.queryBuilder().where().eq("name", username).queryForFirst() != null;
         }
-        catch (SQLException throwables)
+        catch (SQLException e)
         {
-            throwables.printStackTrace();
+            e.printStackTrace();
+            return false;
         }
-        return false;
     }
 
-    /**
-     * Gets the player from cache or from the SQL database
-     *
-     * @param uuid The unique ID of the player
-     * @return a PlexPlayer object
-     * @see PlexPlayer
-     */
     public PlexPlayer getByUUID(UUID uuid, boolean loadExtraData)
     {
         if (Plex.get().getPlayerCache().getPlexPlayerMap().containsKey(uuid))
@@ -75,48 +69,17 @@ public class SQLPlayerData
             return Plex.get().getPlayerCache().getPlexPlayerMap().get(uuid);
         }
 
-        try (Connection con = Plex.get().getSqlConnection().getCon())
+        try
         {
-            PreparedStatement statement = con.prepareStatement(SELECT);
-            statement.setString(1, uuid.toString());
-            ResultSet set = statement.executeQuery();
-            PlexPlayer plexPlayer = new PlexPlayer(uuid, loadExtraData);
-            while (set.next())
-            {
-                String name = set.getString("name");
-                String loginMSG = set.getString("login_msg");
-                String prefix = set.getString("prefix");
-                long coins = set.getLong("coins");
-                boolean vanished = set.getBoolean("vanished");
-                boolean commandspy = set.getBoolean("commandspy");
-                List<String> ips = new Gson().fromJson(set.getString("ips"), new TypeToken<List<String>>()
-                {
-                }.getType());
-                plexPlayer.setName(name);
-                plexPlayer.setLoginMessage(loginMSG);
-                plexPlayer.setPrefix(prefix);
-                plexPlayer.setIps(ips);
-                plexPlayer.setCoins(coins);
-                plexPlayer.setVanished(vanished);
-                plexPlayer.setCommandSpy(commandspy);
-            }
-            return plexPlayer;
+            return toPlayer(players.queryForId(uuid.toString()), loadExtraData);
         }
-        catch (SQLException throwables)
+        catch (SQLException e)
         {
-            throwables.printStackTrace();
+            e.printStackTrace();
+            return null;
         }
-        return null;
     }
 
-
-    /**
-     * Gets the player from cache or from the SQL database
-     *
-     * @param uuid The unique ID of the player
-     * @return a PlexPlayer object
-     * @see PlexPlayer
-     */
     public String getNameByUUID(UUID uuid)
     {
         if (Plex.get().getPlayerCache().getPlexPlayerMap().containsKey(uuid))
@@ -124,67 +87,43 @@ public class SQLPlayerData
             return Plex.get().getPlayerCache().getPlexPlayerMap().get(uuid).getName();
         }
 
-        try (Connection con = Plex.get().getSqlConnection().getCon())
+        try
         {
-            PreparedStatement statement = con.prepareStatement("SELECT `name` FROM `players` WHERE uuid=?");
-            statement.setString(1, uuid.toString());
-            ResultSet set = statement.executeQuery();
-            if (set.next())
-            {
-                return set.getString("name");
-            }
+            PlayerEntity entity = players.queryForId(uuid.toString());
+            return entity == null ? null : entity.getName();
         }
-        catch (SQLException throwables)
+        catch (SQLException e)
         {
-            throwables.printStackTrace();
+            e.printStackTrace();
+            return null;
         }
-        return null;
     }
 
     public PlexPlayer getByUUID(UUID uuid)
     {
-        return this.getByUUID(uuid, true);
+        return getByUUID(uuid, true);
     }
 
     public PlexPlayer getByName(String username, boolean loadExtraData)
     {
-        PlexPlayer player = Plex.get().getPlayerCache().getPlexPlayerMap().values().stream().filter(plexPlayer -> plexPlayer.getName().equalsIgnoreCase(username)).findFirst().orElse(null);
+        PlexPlayer player = Plex.get().getPlayerCache().getPlexPlayerMap().values().stream()
+                .filter(plexPlayer -> plexPlayer.getName().equalsIgnoreCase(username))
+                .findFirst()
+                .orElse(null);
         if (player != null)
         {
             return player;
         }
-        try (Connection con = Plex.get().getSqlConnection().getCon())
+
+        try
         {
-            PreparedStatement statement = con.prepareStatement("SELECT * FROM `players` WHERE name=? LIMIT 1");
-            statement.setString(1, username);
-            ResultSet set = statement.executeQuery();
-            while (set.next())
-            {
-                PlexPlayer plexPlayer = new PlexPlayer(UUID.fromString(set.getString("uuid")), loadExtraData);
-                String loginMSG = set.getString("login_msg");
-                String prefix = set.getString("prefix");
-                long coins = set.getLong("coins");
-                boolean vanished = set.getBoolean("vanished");
-                boolean commandspy = set.getBoolean("commandspy");
-                List<String> ips = new Gson().fromJson(set.getString("ips"), new TypeToken<List<String>>()
-                {
-                }.getType());
-                plexPlayer.setName(username);
-                plexPlayer.setLoginMessage(loginMSG);
-                plexPlayer.setPrefix(prefix);
-                plexPlayer.setIps(ips);
-                plexPlayer.setCoins(coins);
-                plexPlayer.setVanished(vanished);
-                plexPlayer.setCommandSpy(commandspy);
-                return plexPlayer;
-            }
+            return toPlayer(players.queryBuilder().limit(1L).where().eq("name", username).queryForFirst(), loadExtraData);
+        }
+        catch (SQLException e)
+        {
+            e.printStackTrace();
             return null;
         }
-        catch (SQLException throwables)
-        {
-            throwables.printStackTrace();
-        }
-        return null;
     }
 
     public PlexPlayer getByName(String username)
@@ -192,155 +131,115 @@ public class SQLPlayerData
         return getByName(username, true);
     }
 
-    /**
-     * Gets the player from cache or from the SQL database
-     *
-     * @param ip The IP address of the player.
-     * @return a PlexPlayer object
-     * @see PlexPlayer
-     */
     public PlexPlayer getByIP(String ip)
     {
-        PlexPlayer player = Plex.get().getPlayerCache().getPlexPlayerMap().values().stream().filter(plexPlayer -> plexPlayer.getIps().contains(ip)).findFirst().orElse(null);
+        PlexPlayer player = Plex.get().getPlayerCache().getPlexPlayerMap().values().stream()
+                .filter(plexPlayer -> plexPlayer.getIps().contains(ip))
+                .findFirst()
+                .orElse(null);
         if (player != null)
         {
             return player;
         }
 
-        if (Plex.get().getStorageType() == StorageType.MARIADB)
+        try
         {
-            try (Connection con = Plex.get().getSqlConnection().getCon())
+            PlayerIpEntity playerIp = playerIps.queryBuilder().limit(1L).where().eq("ip", ip).queryForFirst();
+            if (playerIp != null)
             {
-                PreparedStatement statement = con.prepareStatement("select * from `players` where json_search(ips, ?, ?) IS NOT NULL LIMIT 1");
-                statement.setString(1, "one");
-                statement.setString(2, ip);
-                ResultSet set = statement.executeQuery();
-
-                PlexPlayer plexPlayer = null;
-                while (set.next())
-                {
-                    String uuid = set.getString("uuid");
-                    String name = set.getString("name");
-                    String loginMSG = set.getString("login_msg");
-                    String prefix = set.getString("prefix");
-                    long coins = set.getLong("coins");
-                    boolean vanished = set.getBoolean("vanished");
-                    boolean commandspy = set.getBoolean("commandspy");
-                    List<String> ips = new Gson().fromJson(set.getString("ips"), new TypeToken<List<String>>()
-                    {
-                    }.getType());
-                    plexPlayer = new PlexPlayer(UUID.fromString(uuid));
-                    plexPlayer.setName(name);
-                    plexPlayer.setLoginMessage(loginMSG);
-                    plexPlayer.setPrefix(prefix);
-                    plexPlayer.setIps(ips);
-                    plexPlayer.setCoins(coins);
-                    plexPlayer.setVanished(vanished);
-                    plexPlayer.setCommandSpy(commandspy);
-                }
-                return plexPlayer;
+                return toPlayer(players.queryForId(playerIp.getPlayerUuid()), true);
             }
-            catch (SQLException throwables)
+
+            for (PlayerEntity entity : players.queryForAll())
             {
-                throwables.printStackTrace();
+                List<String> ips = parseIps(entity.getIps());
+                if (ips.contains(ip))
+                {
+                    syncIps(entity.getUuid(), ips);
+                    return toPlayer(entity, true);
+                }
             }
         }
-        else if (Plex.get().getStorageType() == StorageType.SQLITE)
+        catch (SQLException e)
         {
-            PlexLog.warn("Querying a user by IP running SQLite can cause performance issues! Please try to switch to a remote DB ASAP!");
-            try (Connection con = Plex.get().getSqlConnection().getCon())
-            {
-                PreparedStatement statement = con.prepareStatement("select * from `players`");
-                ResultSet set = statement.executeQuery();
-
-                PlexPlayer plexPlayer = null;
-                while (set.next())
-                {
-                    List<String> ips = new Gson().fromJson(set.getString("ips"), new TypeToken<List<String>>()
-                    {
-                    }.getType());
-                    if (!ips.contains(ip))
-                    {
-                        continue;
-                    }
-                    String uuid = set.getString("uuid");
-                    String name = set.getString("name");
-                    String loginMSG = set.getString("login_msg");
-                    String prefix = set.getString("prefix");
-                    long coins = set.getLong("coins");
-                    boolean vanished = set.getBoolean("vanished");
-                    boolean commandspy = set.getBoolean("commandspy");
-
-                    plexPlayer = new PlexPlayer(UUID.fromString(uuid));
-                    plexPlayer.setName(name);
-                    plexPlayer.setLoginMessage(loginMSG);
-                    plexPlayer.setPrefix(prefix);
-                    plexPlayer.setIps(ips);
-                    plexPlayer.setCoins(coins);
-                    plexPlayer.setVanished(vanished);
-                    plexPlayer.setCommandSpy(commandspy);
-                }
-                return plexPlayer;
-            }
-            catch (SQLException throwables)
-            {
-                throwables.printStackTrace();
-            }
+            e.printStackTrace();
         }
         return null;
     }
 
-    /**
-     * Updates a player's information in the SQL database
-     *
-     * @param player The PlexPlayer object
-     * @see PlexPlayer
-     */
     public void update(PlexPlayer player)
     {
-        try (Connection con = Plex.get().getSqlConnection().getCon())
+        try
         {
-            PreparedStatement statement = con.prepareStatement(UPDATE);
-            statement.setString(1, player.getName());
-            statement.setString(2, player.getLoginMessage());
-            statement.setString(3, player.getPrefix());
-            statement.setString(4, new Gson().toJson(player.getIps()));
-            statement.setLong(5, player.getCoins());
-            statement.setBoolean(6, player.isVanished());
-            statement.setBoolean(7, player.isCommandSpy());
-            statement.setString(8, player.getUuid().toString());
-            statement.executeUpdate();
+            players.createOrUpdate(toEntity(player));
+            syncIps(player.getUuid().toString(), player.getIps());
         }
-        catch (SQLException throwables)
+        catch (SQLException e)
         {
-            throwables.printStackTrace();
+            e.printStackTrace();
         }
     }
 
-    /**
-     * Inserts the player's information in the database
-     *
-     * @param player The PlexPlayer object
-     * @see PlexPlayer
-     */
     public void insert(PlexPlayer player)
     {
-        try (Connection con = Plex.get().getSqlConnection().getCon())
+        update(player);
+    }
+
+    private PlexPlayer toPlayer(PlayerEntity entity, boolean loadExtraData)
+    {
+        if (entity == null)
         {
-            PreparedStatement statement = con.prepareStatement(INSERT);
-            statement.setString(1, player.getUuid().toString());
-            statement.setString(2, player.getName());
-            statement.setString(3, player.getLoginMessage());
-            statement.setString(4, player.getPrefix());
-            statement.setString(5, new Gson().toJson(player.getIps()));
-            statement.setLong(6, player.getCoins());
-            statement.setBoolean(7, player.isVanished());
-            statement.setBoolean(8, player.isCommandSpy());
-            statement.execute();
+            return null;
         }
-        catch (SQLException throwables)
+
+        PlexPlayer plexPlayer = new PlexPlayer(UUID.fromString(entity.getUuid()), loadExtraData);
+        plexPlayer.setName(entity.getName());
+        plexPlayer.setLoginMessage(entity.getLoginMessage());
+        plexPlayer.setPrefix(entity.getPrefix());
+        plexPlayer.setStaffChat(entity.isStaffChat());
+        plexPlayer.setIps(parseIps(entity.getIps()));
+        plexPlayer.setCoins(entity.getCoins());
+        plexPlayer.setVanished(entity.isVanished());
+        plexPlayer.setCommandSpy(entity.isCommandSpy());
+        return plexPlayer;
+    }
+
+    private PlayerEntity toEntity(PlexPlayer player)
+    {
+        PlayerEntity entity = new PlayerEntity();
+        entity.setUuid(player.getUuid().toString());
+        entity.setName(player.getName());
+        entity.setLoginMessage(player.getLoginMessage());
+        entity.setPrefix(player.getPrefix());
+        entity.setStaffChat(player.isStaffChat());
+        entity.setIps(GSON.toJson(player.getIps()));
+        entity.setCoins(player.getCoins());
+        entity.setVanished(player.isVanished());
+        entity.setCommandSpy(player.isCommandSpy());
+        return entity;
+    }
+
+    private List<String> parseIps(String ips)
+    {
+        if (ips == null || ips.isBlank())
         {
-            throwables.printStackTrace();
+            return List.of();
+        }
+        List<String> parsed = GSON.fromJson(ips, new TypeToken<List<String>>()
+        {
+        }.getType());
+        return parsed == null ? List.of() : parsed;
+    }
+
+    private void syncIps(String playerUuid, List<String> ips) throws SQLException
+    {
+        DeleteBuilder<PlayerIpEntity, Long> delete = playerIps.deleteBuilder();
+        delete.where().eq("player_uuid", playerUuid);
+        delete.delete();
+
+        for (String ip : ips.stream().distinct().toList())
+        {
+            playerIps.create(new PlayerIpEntity(playerUuid, ip));
         }
     }
 }

@@ -112,7 +112,7 @@ public class Plex extends JavaPlugin
 
         playerCache = new PlayerCache();
 
-        PlexLog.log("Attempting to connect to DB: {0}", plugin.config.getString("data.central.db"));
+        PlexLog.log("Attempting to connect to DB: {0}", plugin.config.getString("data.db.name"));
         try
         {
             PlexUtils.testConnections();
@@ -226,6 +226,11 @@ public class Plex extends JavaPlugin
         this.getServer().getMessenger().unregisterOutgoingPluginChannel(this);
 
         moduleManager.disableModules();
+
+        if (sqlConnection != null)
+        {
+            sqlConnection.close();
+        }
     }
 
     private void generateWorlds()

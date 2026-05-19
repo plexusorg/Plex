@@ -5,7 +5,6 @@ import com.google.common.collect.Lists;
 import dev.plex.Plex;
 import dev.plex.PlexBase;
 import dev.plex.listener.impl.ChatListener;
-import dev.plex.storage.StorageType;
 import dev.plex.util.minimessage.SafeMiniMessage;
 
 import java.sql.Connection;
@@ -85,14 +84,7 @@ public class PlexUtils implements PlexBase
         {
             try (Connection ignored = Plex.get().getSqlConnection().getCon())
             {
-                if (Plex.get().getStorageType() == StorageType.MARIADB)
-                {
-                    PlexLog.log("Successfully enabled MySQL!");
-                }
-                else if (Plex.get().getStorageType() == StorageType.SQLITE)
-                {
-                    PlexLog.log("Successfully enabled SQLite!");
-                }
+                PlexLog.log("Successfully enabled " + Plex.get().getStorageType().getDisplayName() + "!");
             }
             catch (SQLException e)
             {
