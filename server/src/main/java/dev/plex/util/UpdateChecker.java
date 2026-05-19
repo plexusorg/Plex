@@ -26,10 +26,14 @@ import org.bukkit.entity.Player;
 
 public class UpdateChecker
 {
+    private static final long PLEX_METADATA_FAILURE_CACHE_MILLIS = 5 * 60 * 1000L;
+
     private final Plex plugin;
     private final UpdateChannel channel;
     private final UpdateMetadataClient metadataClient;
     private ArtifactMetadata latestPlexMetadata;
+    private UpdateMetadataClient.MetadataException latestPlexMetadataFailure;
+    private long latestPlexMetadataFailureAtMillis;
 
     public UpdateChecker(Plex plugin)
     {
@@ -115,13 +119,41 @@ public class UpdateChecker
         }
     }
 
-    private ArtifactMetadata fetchLatestPlexMetadata(boolean cached) throws UpdateMetadataClient.MetadataException
+    private synchronized ArtifactMetadata fetchLatestPlexMetadata(boolean cached) throws UpdateMetadataClient.MetadataException
     {
-        if (!cached || latestPlexMetadata == null)
+        if (cached)
+        {
+            if (latestPlexMetadata != null)
+            {
+                return latestPlexMetadata;
+            }
+            if (latestPlexMetadataFailure != null && isPlexMetadataFailureCacheFresh())
+            {
+                throw latestPlexMetadataFailure;
+            }
+        }
+
+        try
         {
             latestPlexMetadata = metadataClient.fetchPlexLatest(BuildInfo.getMinecraftVersion());
+            latestPlexMetadataFailure = null;
+            latestPlexMetadataFailureAtMillis = 0L;
+            return latestPlexMetadata;
         }
-        return latestPlexMetadata;
+        catch (UpdateMetadataClient.MetadataException e)
+        {
+            if (latestPlexMetadata == null)
+            {
+                latestPlexMetadataFailure = e;
+                latestPlexMetadataFailureAtMillis = System.currentTimeMillis();
+            }
+            throw e;
+        }
+    }
+
+    private boolean isPlexMetadataFailureCacheFresh()
+    {
+        return System.currentTimeMillis() - latestPlexMetadataFailureAtMillis < PLEX_METADATA_FAILURE_CACHE_MILLIS;
     }
 
     private void downloadAndInstall(CommandSender sender, ArtifactMetadata metadata, File copyTo)
