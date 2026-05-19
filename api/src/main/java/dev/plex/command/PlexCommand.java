@@ -179,6 +179,12 @@ public abstract class PlexCommand extends Command
         return requireRuntime().messageComponent(s, objects);
     }
 
+    @Override
+    public Component permissionMessage()
+    {
+        return messageComponent("noPermissionNode", getPermission());
+    }
+
     protected String messageString(String s, Object... objects)
     {
         return requireRuntime().messageString(s, objects);
@@ -237,6 +243,21 @@ public abstract class PlexCommand extends Command
         return requireRuntime().miniMessage(s);
     }
 
+    protected void broadcast(String miniMessage)
+    {
+        requireRuntime().broadcast(miniMessage);
+    }
+
+    protected void broadcast(Component component)
+    {
+        requireRuntime().broadcast(component);
+    }
+
+    protected List<String> onlinePlayerNames()
+    {
+        return requireRuntime().onlinePlayerNames();
+    }
+
     public CommandMap getMap()
     {
         return Bukkit.getCommandMap();
@@ -258,5 +279,8 @@ public abstract class PlexCommand extends Command
         Component messageComponent(String entry, Component... objects);
         String messageString(String entry, Object... objects);
         Component miniMessage(String input);
+        void broadcast(String miniMessage);
+        void broadcast(Component component);
+        List<String> onlinePlayerNames();
     }
 }

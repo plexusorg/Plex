@@ -159,6 +159,24 @@ public class Plex extends JavaPlugin
             {
                 return api.messages().miniMessage(input);
             }
+
+            @Override
+            public void broadcast(String miniMessage)
+            {
+                api.messages().broadcast(miniMessage);
+            }
+
+            @Override
+            public void broadcast(net.kyori.adventure.text.Component component)
+            {
+                api.messages().broadcast(component);
+            }
+
+            @Override
+            public java.util.List<String> onlinePlayerNames()
+            {
+                return api.players().onlineNames();
+            }
         });
         ModuleConfig.setFactory((module, from, to) -> api.moduleConfigs().create(module, from, to));
     }
