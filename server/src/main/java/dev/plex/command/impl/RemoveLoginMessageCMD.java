@@ -2,7 +2,7 @@ package dev.plex.command.impl;
 
 
 import com.google.common.collect.ImmutableList;
-import dev.plex.command.PlexCommand;
+import dev.plex.command.ServerCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.source.RequiredCommandSource;
@@ -19,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
 
 @CommandPermissions(permission = "plex.removeloginmessage", source = RequiredCommandSource.ANY)
 @CommandParameters(name = "removeloginmessage", usage = "/<command> [-o <player>]", description = "Remove your own (or someone else's) login message", aliases = "rlm,removeloginmsg")
-public class RemoveLoginMessageCMD extends PlexCommand
+public class RemoveLoginMessageCMD extends ServerCommand
 {
     @Override
     protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)

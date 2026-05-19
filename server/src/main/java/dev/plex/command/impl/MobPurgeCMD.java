@@ -1,6 +1,6 @@
 package dev.plex.command.impl;
 
-import dev.plex.command.PlexCommand;
+import dev.plex.command.ServerCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.source.RequiredCommandSource;
@@ -26,7 +26,7 @@ import org.jetbrains.annotations.Nullable;
 
 @CommandPermissions(permission = "plex.mobpurge", source = RequiredCommandSource.ANY)
 @CommandParameters(name = "mobpurge", description = "Purge all mobs.", usage = "/<command> [mob]", aliases = "mp")
-public class MobPurgeCMD extends PlexCommand
+public class MobPurgeCMD extends ServerCommand
 {
     private final List<EntityType> MOB_TYPES = new ArrayList<>();
 

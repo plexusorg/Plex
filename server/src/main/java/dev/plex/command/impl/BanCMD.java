@@ -1,7 +1,7 @@
 package dev.plex.command.impl;
 
 
-import dev.plex.command.PlexCommand;
+import dev.plex.command.ServerCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.exception.PlayerNotFoundException;
@@ -35,7 +35,7 @@ import org.prism_mc.prism.paper.api.activities.PaperActivityQuery;
 @CommandParameters(name = "ban", usage = "/<command> <player> [reason] [-rb]", aliases = "offlineban,gtfo", description = "Bans a player, offline or online")
 @CommandPermissions(permission = "plex.ban", source = RequiredCommandSource.ANY)
 
-public class BanCMD extends PlexCommand
+public class BanCMD extends ServerCommand
 {
     @Override
     protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)

@@ -2,7 +2,7 @@ package dev.plex.command.impl;
 
 
 import com.google.common.collect.ImmutableList;
-import dev.plex.command.PlexCommand;
+import dev.plex.command.ServerCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.exception.PlayerNotFoundException;
@@ -21,7 +21,7 @@ import org.jetbrains.annotations.Nullable;
 
 @CommandPermissions(permission = "plex.broadcastloginmessage", source = RequiredCommandSource.ANY)
 @CommandParameters(name = "bcastloginmessage", usage = "/<command> <player>", description = "Broadcast your login message (for vanish support)", aliases = "bcastlm")
-public class BcastLoginMessageCMD extends PlexCommand
+public class BcastLoginMessageCMD extends ServerCommand
 {
     @Override
     protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)

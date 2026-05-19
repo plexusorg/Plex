@@ -2,7 +2,7 @@ package dev.plex.listener.impl;
 
 import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
 import com.destroystokyo.paper.event.server.PaperServerListPingEvent.ListedPlayerInfo;
-import dev.plex.listener.PlexListener;
+import dev.plex.listener.ServerListenerBase;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.RandomUtil;
 
@@ -14,7 +14,7 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 
-public class ServerListener extends PlexListener
+public class ServerListener extends ServerListenerBase
 {
     @EventHandler
     public void onServerPing(PaperServerListPingEvent event)

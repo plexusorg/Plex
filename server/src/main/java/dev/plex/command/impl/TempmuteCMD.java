@@ -1,7 +1,7 @@
 package dev.plex.command.impl;
 
 import com.google.common.collect.ImmutableList;
-import dev.plex.command.PlexCommand;
+import dev.plex.command.ServerCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.player.PlexPlayer;
@@ -23,7 +23,7 @@ import org.jetbrains.annotations.Nullable;
 @CommandParameters(name = "tempmute", description = "Temporarily mute a player on the server",
         usage = "/<command> <player> <time> [reason]", aliases = "tmute")
 @CommandPermissions(permission = "plex.tempmute")
-public class TempmuteCMD extends PlexCommand
+public class TempmuteCMD extends ServerCommand
 {
     @Override
     protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)

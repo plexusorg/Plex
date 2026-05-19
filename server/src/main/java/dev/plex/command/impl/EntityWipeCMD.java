@@ -1,6 +1,6 @@
 package dev.plex.command.impl;
 
-import dev.plex.command.PlexCommand;
+import dev.plex.command.ServerCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.source.RequiredCommandSource;
@@ -26,7 +26,7 @@ import org.jetbrains.annotations.Nullable;
 
 @CommandPermissions(permission = "plex.entitywipe", source = RequiredCommandSource.ANY)
 @CommandParameters(name = "entitywipe", description = "Remove various server entities that may cause lag, such as dropped items, minecarts, and boats.", usage = "/<command> [entity] [radius]", aliases = "ew,rd")
-public class EntityWipeCMD extends PlexCommand
+public class EntityWipeCMD extends ServerCommand
 {
     @Override
     protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, @NotNull String[] args)

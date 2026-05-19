@@ -1,6 +1,6 @@
 package dev.plex.listener.impl;
 
-import dev.plex.listener.PlexListener;
+import dev.plex.listener.ServerListenerBase;
 import dev.plex.util.PlexUtils;
 
 import java.util.ArrayList;
@@ -17,7 +17,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 
-public class BlockListener extends PlexListener
+public class BlockListener extends ServerListenerBase
 {
     private static final List<Material> blockedBlocks = new ArrayList<>();
     private static final List<Material> SIGNS = Arrays.stream(Material.values()).filter((mat) -> mat.name().endsWith("_SIGN")).toList();

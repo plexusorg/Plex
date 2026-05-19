@@ -4,7 +4,7 @@ import com.velocitypowered.api.event.PostOrder;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyPingEvent;
 import com.velocitypowered.api.proxy.server.ServerPing;
-import dev.plex.listener.PlexListener;
+import dev.plex.listener.ProxyListener;
 import dev.plex.settings.ServerSettings;
 import dev.plex.util.RandomUtil;
 import java.util.UUID;
@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 
-public class ServerListener extends PlexListener
+public class ServerListener extends ProxyListener
 {
     @Subscribe(order = PostOrder.FIRST)
     public void onPing(ProxyPingEvent event)

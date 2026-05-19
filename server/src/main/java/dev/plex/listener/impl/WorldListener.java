@@ -1,6 +1,6 @@
 package dev.plex.listener.impl;
 
-import dev.plex.listener.PlexListener;
+import dev.plex.listener.ServerListenerBase;
 
 import java.util.Arrays;
 import java.util.List;
@@ -25,7 +25,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemDamageEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
-public class WorldListener extends PlexListener
+public class WorldListener extends ServerListenerBase
 {
     private final List<String> EDIT_COMMANDS = Arrays.asList("bigtree", "ebigtree", "largetree", "elargetree", "break", "ebreak", "antioch", "nuke", "editsign", "tree", "etree");
 

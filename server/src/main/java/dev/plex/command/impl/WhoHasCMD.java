@@ -1,7 +1,7 @@
 package dev.plex.command.impl;
 
 import com.google.common.collect.ImmutableList;
-import dev.plex.command.PlexCommand;
+import dev.plex.command.ServerCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 
@@ -21,7 +21,7 @@ import org.jetbrains.annotations.Nullable;
 
 @CommandPermissions(permission = "plex.whohas")
 @CommandParameters(name = "whohas", description = "Returns a list of players with a specific item in their inventory.", usage = "/<command> <material>", aliases = "wh")
-public class WhoHasCMD extends PlexCommand
+public class WhoHasCMD extends ServerCommand
 {
     @Override
     protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, @NotNull String[] args)

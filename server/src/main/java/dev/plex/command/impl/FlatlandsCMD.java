@@ -1,6 +1,6 @@
 package dev.plex.command.impl;
 
-import dev.plex.command.PlexCommand;
+import dev.plex.command.ServerCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.source.RequiredCommandSource;
@@ -18,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 
 @CommandPermissions(permission = "plex.flatlands", source = RequiredCommandSource.IN_GAME)
 @CommandParameters(name = "flatlands", description = "Teleport to the flatlands")
-public class FlatlandsCMD extends PlexCommand
+public class FlatlandsCMD extends ServerCommand
 {
     @Override
     protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)

@@ -1,7 +1,7 @@
 package dev.plex.handlers;
 
 import com.google.common.collect.Lists;
-import dev.plex.listener.PlexListener;
+import dev.plex.listener.ProxyListener;
 import dev.plex.util.PlexLog;
 import dev.plex.util.ReflectionsUtil;
 import java.lang.reflect.InvocationTargetException;
@@ -12,8 +12,8 @@ public class ListenerHandler
 {
     public ListenerHandler()
     {
-        Set<Class<? extends PlexListener>> listenerSet = ReflectionsUtil.getClassesBySubType("dev.plex.listener.impl", PlexListener.class);
-        List<PlexListener> listeners = Lists.newArrayList();
+        Set<Class<? extends ProxyListener>> listenerSet = ReflectionsUtil.getClassesBySubType("dev.plex.listener.impl", ProxyListener.class);
+        List<ProxyListener> listeners = Lists.newArrayList();
 
         listenerSet.forEach(clazz ->
         {

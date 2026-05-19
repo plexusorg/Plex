@@ -1,6 +1,6 @@
 package dev.plex.command.impl;
 
-import dev.plex.command.PlexCommand;
+import dev.plex.command.ServerCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.source.RequiredCommandSource;
@@ -18,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 
 @CommandPermissions(permission = "plex.rawsay", source = RequiredCommandSource.ANY)
 @CommandParameters(name = "rawsay", usage = "/<command> <message>", description = "Displays a raw message to everyone")
-public class RawSayCMD extends PlexCommand
+public class RawSayCMD extends ServerCommand
 {
     @Override
     protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)

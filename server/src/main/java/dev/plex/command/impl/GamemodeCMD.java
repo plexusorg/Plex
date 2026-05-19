@@ -1,6 +1,6 @@
 package dev.plex.command.impl;
 
-import dev.plex.command.PlexCommand;
+import dev.plex.command.ServerCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.exception.CommandFailException;
@@ -22,7 +22,7 @@ import org.jetbrains.annotations.Nullable;
 
 @CommandParameters(name = "gamemode", usage = "/<command> <creative | survival | adventure | default | spectator> [player]", description = "Change your gamemode", aliases = "gm,egamemode,gmt,egmt")
 @CommandPermissions(permission = "plex.gamemode", source = RequiredCommandSource.ANY)
-public class GamemodeCMD extends PlexCommand
+public class GamemodeCMD extends ServerCommand
 {
     private GameMode gamemode;
 

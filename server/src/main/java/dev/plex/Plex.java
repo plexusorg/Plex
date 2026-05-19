@@ -1,7 +1,12 @@
 package dev.plex;
 
+import dev.plex.api.PlexApi;
+import dev.plex.api.impl.DefaultPlexApi;
 import dev.plex.cache.PlayerCache;
+import dev.plex.command.PlexCommand;
+import dev.plex.command.ServerCommand;
 import dev.plex.config.Config;
+import dev.plex.config.ModuleConfig;
 import dev.plex.handlers.CommandHandler;
 import dev.plex.handlers.ListenerHandler;
 import dev.plex.hook.CoreProtectHook;
@@ -45,6 +50,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class Plex extends JavaPlugin
 {
     public static final BuildInfo build = new BuildInfo();
+    public static final int MODULE_API_COMPATIBILITY_VERSION = 1;
     private static Plex plugin;
     public Config config;
     public Config messages;
@@ -66,6 +72,7 @@ public class Plex extends JavaPlugin
     private ServiceManager serviceManager;
     private PunishmentManager punishmentManager;
     private UpdateChecker updateChecker;
+    private PlexApi api;
 
     private Permission permissions;
     private Chat chat;
@@ -88,6 +95,8 @@ public class Plex extends JavaPlugin
         indefBans = new Config(this, "indefbans.yml");
         toggles = new Config(this, "toggles.yml");
         build.load(this);
+        api = new DefaultPlexApi(this, MODULE_API_COMPATIBILITY_VERSION);
+        installModuleApiRuntimes();
 
         modulesFolder = new File(this.getDataFolder() + File.separator + "modules");
         if (!modulesFolder.exists())
@@ -100,6 +109,57 @@ public class Plex extends JavaPlugin
         moduleManager.loadModules();
 
         //this.setChatHandler(new ChatListener.ChatHandlerImpl());
+    }
+
+    private void installModuleApiRuntimes()
+    {
+        ServerCommand.setRuntime(new ServerCommand.Runtime()
+        {
+            @Override
+            public Plex plugin()
+            {
+                return Plex.this;
+            }
+
+            @Override
+            public void register(org.bukkit.command.Command command)
+            {
+                api.commands().register(command);
+            }
+        });
+        PlexCommand.setRuntime(new PlexCommand.Runtime()
+        {
+            @Override
+            public void register(org.bukkit.command.Command command)
+            {
+                api.commands().register(command);
+            }
+
+            @Override
+            public net.kyori.adventure.text.Component messageComponent(String entry, Object... objects)
+            {
+                return api.messages().messageComponent(entry, objects);
+            }
+
+            @Override
+            public net.kyori.adventure.text.Component messageComponent(String entry, net.kyori.adventure.text.Component... objects)
+            {
+                return api.messages().messageComponent(entry, objects);
+            }
+
+            @Override
+            public String messageString(String entry, Object... objects)
+            {
+                return api.messages().messageString(entry, objects);
+            }
+
+            @Override
+            public net.kyori.adventure.text.Component miniMessage(String input)
+            {
+                return api.messages().miniMessage(input);
+            }
+        });
+        ModuleConfig.setFactory((module, from, to) -> api.moduleConfigs().create(module, from, to));
     }
 
     @Override

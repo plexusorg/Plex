@@ -1,13 +1,13 @@
 package dev.plex.listener.impl;
 
 import dev.plex.event.GameModeUpdateEvent;
-import dev.plex.listener.PlexListener;
+import dev.plex.listener.ServerListenerBase;
 import dev.plex.util.PlexUtils;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 
-public class GameModeListener extends PlexListener
+public class GameModeListener extends ServerListenerBase
 {
     @EventHandler
     public void onGameModeUpdate(GameModeUpdateEvent event)

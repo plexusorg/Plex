@@ -6,6 +6,8 @@ import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.ProxyServer;
+import dev.plex.api.PlexApi;
+import dev.plex.api.impl.DefaultPlexApi;
 import dev.plex.config.TomlConfig;
 import dev.plex.handlers.ListenerHandler;
 import dev.plex.settings.ServerSettings;
@@ -35,6 +37,7 @@ import lombok.Getter;
 @Getter
 public class Plex
 {
+    public static final int MODULE_API_COMPATIBILITY_VERSION = 1;
     private static Plex plugin;
 
     public final ProxyServer server;
@@ -42,6 +45,7 @@ public class Plex
     private final File dataFolder;
 
     private TomlConfig config;
+    private PlexApi api;
 
     @Inject
     public Plex(ProxyServer server, Logger logger, @DataDirectory Path folder)
@@ -71,6 +75,7 @@ public class Plex
         });
         this.config.create(true);
         this.config.write(new ServerSettings());
+        this.api = new DefaultPlexApi(this, MODULE_API_COMPATIBILITY_VERSION);
         new ListenerHandler();
     }
 

@@ -1,7 +1,7 @@
 package dev.plex.command.impl;
 
 import com.google.common.collect.Lists;
-import dev.plex.command.PlexCommand;
+import dev.plex.command.ServerCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.hook.VaultHook;
@@ -21,7 +21,7 @@ import org.jetbrains.annotations.Nullable;
 
 @CommandParameters(name = "list", description = "Show a list of all online players", usage = "/<command> [-d | -v]", aliases = "lsit,who,playerlist,online")
 @CommandPermissions(permission = "plex.list")
-public class ListCMD extends PlexCommand
+public class ListCMD extends ServerCommand
 {
     @Override
     protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)

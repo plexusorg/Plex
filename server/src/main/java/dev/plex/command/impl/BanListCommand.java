@@ -1,7 +1,7 @@
 package dev.plex.command.impl;
 
 import com.google.common.collect.ImmutableList;
-import dev.plex.command.PlexCommand;
+import dev.plex.command.ServerCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.punishment.Punishment;
@@ -18,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 
 @CommandParameters(name = "banlist", description = "Manages the banlist", usage = "/<command> [purge]")
 @CommandPermissions(permission = "plex.banlist")
-public class BanListCommand extends PlexCommand
+public class BanListCommand extends ServerCommand
 {
     @Override
     protected Component execute(@NotNull CommandSender sender, @Nullable Player player, @NotNull String[] args)

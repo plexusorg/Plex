@@ -1,7 +1,7 @@
 package dev.plex.command.impl;
 
 import com.google.common.collect.ImmutableList;
-import dev.plex.command.PlexCommand;
+import dev.plex.command.ServerCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.player.PlexPlayer;
@@ -22,7 +22,7 @@ import org.jetbrains.annotations.Nullable;
 
 @CommandParameters(name = "freeze", description = "Freeze a player on the server", usage = "/<command> <player>", aliases = "fr")
 @CommandPermissions(permission = "plex.freeze")
-public class FreezeCMD extends PlexCommand
+public class FreezeCMD extends ServerCommand
 {
     @Override
     protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)

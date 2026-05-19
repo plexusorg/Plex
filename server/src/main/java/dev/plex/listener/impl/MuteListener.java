@@ -1,6 +1,6 @@
 package dev.plex.listener.impl;
 
-import dev.plex.listener.PlexListener;
+import dev.plex.listener.ServerListenerBase;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import io.papermc.paper.event.player.AsyncChatEvent;
@@ -13,7 +13,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 
-public class MuteListener extends PlexListener
+public class MuteListener extends ServerListenerBase
 {
     List<String> commands = plugin.config.getStringList("block_on_mute");
 

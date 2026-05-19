@@ -1,7 +1,7 @@
 package dev.plex.command.impl;
 
 import com.google.common.collect.ImmutableList;
-import dev.plex.command.PlexCommand;
+import dev.plex.command.ServerCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.player.PlexPlayer;
@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
 
 @CommandParameters(name = "lockup", description = "Lockup a player on the server", usage = "/<command> <player>")
 @CommandPermissions(permission = "plex.lockup")
-public class LockupCMD extends PlexCommand
+public class LockupCMD extends ServerCommand
 {
     @Override
     protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)

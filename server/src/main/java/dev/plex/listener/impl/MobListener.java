@@ -1,6 +1,6 @@
 package dev.plex.listener.impl;
 
-import dev.plex.listener.PlexListener;
+import dev.plex.listener.ServerListenerBase;
 import dev.plex.util.BlockUtils;
 import dev.plex.util.PlexUtils;
 import org.bukkit.Chunk;
@@ -28,7 +28,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-public class MobListener extends PlexListener
+public class MobListener extends ServerListenerBase
 {
     private static final List<Material> SPAWN_EGGS = Arrays.stream(Material.values()).filter((mat) -> mat.name().endsWith("_SPAWN_EGG")).toList();
 

@@ -2,7 +2,7 @@ package dev.plex.handlers;
 
 import com.google.common.collect.Lists;
 import dev.plex.Plex;
-import dev.plex.listener.PlexListener;
+import dev.plex.listener.ServerListenerBase;
 import dev.plex.listener.annotation.Toggleable;
 import dev.plex.util.PlexLog;
 import dev.plex.util.ReflectionsUtil;
@@ -18,8 +18,8 @@ public class ListenerHandler
     public ListenerHandler(Plex plugin)
     {
         this.plugin = plugin;
-        Set<Class<? extends PlexListener>> listenerSet = ReflectionsUtil.getClassesBySubType("dev.plex.listener.impl", PlexListener.class);
-        List<PlexListener> listeners = Lists.newArrayList();
+        Set<Class<? extends ServerListenerBase>> listenerSet = ReflectionsUtil.getClassesBySubType("dev.plex.listener.impl", ServerListenerBase.class);
+        List<ServerListenerBase> listeners = Lists.newArrayList();
 
         listenerSet.forEach(clazz ->
         {

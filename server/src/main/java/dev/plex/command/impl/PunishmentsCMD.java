@@ -2,7 +2,7 @@ package dev.plex.command.impl;
 
 
 import com.google.common.collect.ImmutableList;
-import dev.plex.command.PlexCommand;
+import dev.plex.command.ServerCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.exception.PlayerNotFoundException;
@@ -24,7 +24,7 @@ import org.jetbrains.annotations.Nullable;
 
 @CommandParameters(name = "punishments", usage = "/<command> [player]", description = "Opens the Punishments GUI", aliases = "punishlist,punishes")
 @CommandPermissions(permission = "plex.punishments", source = RequiredCommandSource.IN_GAME)
-public class PunishmentsCMD extends PlexCommand
+public class PunishmentsCMD extends ServerCommand
 {
     @Override
     protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)

@@ -1,7 +1,7 @@
 package dev.plex.listener.impl;
 
 import dev.plex.hook.VaultHook;
-import dev.plex.listener.PlexListener;
+import dev.plex.listener.ServerListenerBase;
 import dev.plex.listener.annotation.Toggleable;
 import dev.plex.meta.PlayerMeta;
 import dev.plex.player.PlexPlayer;
@@ -25,7 +25,7 @@ import org.bukkit.event.EventPriority;
 import org.jetbrains.annotations.NotNull;
 
 @Toggleable("chat.enabled")
-public class ChatListener extends PlexListener
+public class ChatListener extends ServerListenerBase
 {
     public static final TextReplacementConfig URL_REPLACEMENT_CONFIG = TextReplacementConfig
             .builder()

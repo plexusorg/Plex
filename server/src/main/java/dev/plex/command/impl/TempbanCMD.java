@@ -2,7 +2,7 @@ package dev.plex.command.impl;
 
 
 import com.google.common.collect.ImmutableList;
-import dev.plex.command.PlexCommand;
+import dev.plex.command.ServerCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.exception.PlayerNotFoundException;
@@ -29,7 +29,7 @@ import org.jetbrains.annotations.Nullable;
 @CommandParameters(name = "tempban", usage = "/<command> <player> <time> [reason] [-rb]", description = "Temporarily ban a player")
 @CommandPermissions(permission = "plex.tempban", source = RequiredCommandSource.ANY)
 
-public class TempbanCMD extends PlexCommand
+public class TempbanCMD extends ServerCommand
 {
     @Override
     public Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)

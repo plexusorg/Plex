@@ -2,7 +2,7 @@ package dev.plex.command.impl;
 
 
 import com.google.common.collect.ImmutableList;
-import dev.plex.command.PlexCommand;
+import dev.plex.command.ServerCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.exception.CommandFailException;
@@ -21,7 +21,7 @@ import org.jetbrains.annotations.Nullable;
 
 @CommandPermissions(permission = "plex.unfreeze")
 @CommandParameters(name = "unfreeze", description = "Unfreeze a player", usage = "/<command> <player>")
-public class UnfreezeCMD extends PlexCommand
+public class UnfreezeCMD extends ServerCommand
 {
     @Override
     protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)

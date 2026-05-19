@@ -2,7 +2,7 @@ package dev.plex.listener.impl;
 
 
 import dev.plex.hook.VaultHook;
-import dev.plex.listener.PlexListener;
+import dev.plex.listener.ServerListenerBase;
 import dev.plex.meta.PlayerMeta;
 import dev.plex.player.PlexPlayer;
 import dev.plex.util.PlexUtils;
@@ -12,7 +12,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerJoinEvent;
 
-public class TabListener extends PlexListener
+public class TabListener extends ServerListenerBase
 {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerJoin(PlayerJoinEvent event)

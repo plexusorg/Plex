@@ -1,6 +1,6 @@
 package dev.plex.listener.impl;
 
-import dev.plex.listener.PlexListener;
+import dev.plex.listener.ServerListenerBase;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.minimessage.SafeMiniMessage;
 import net.kyori.adventure.text.Component;
@@ -12,7 +12,7 @@ import org.bukkit.inventory.meta.BookMeta;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BookListener extends PlexListener
+public class BookListener extends ServerListenerBase
 {
     @EventHandler(priority = EventPriority.LOW)
     public void onBookEdit(PlayerEditBookEvent event)

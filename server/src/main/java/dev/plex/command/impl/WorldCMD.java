@@ -1,7 +1,7 @@
 package dev.plex.command.impl;
 
 import com.google.common.collect.Lists;
-import dev.plex.command.PlexCommand;
+import dev.plex.command.ServerCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.source.RequiredCommandSource;
@@ -20,7 +20,7 @@ import org.jetbrains.annotations.Nullable;
 
 @CommandPermissions(permission = "plex.world", source = RequiredCommandSource.IN_GAME)
 @CommandParameters(name = "world", description = "Teleport to a world.", usage = "/<command> <world>")
-public class WorldCMD extends PlexCommand
+public class WorldCMD extends ServerCommand
 {
     private static final Pattern UUID_PATTERN = Pattern.compile("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}");
 

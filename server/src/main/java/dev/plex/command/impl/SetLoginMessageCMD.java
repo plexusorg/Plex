@@ -2,7 +2,7 @@ package dev.plex.command.impl;
 
 
 import com.google.common.collect.ImmutableList;
-import dev.plex.command.PlexCommand;
+import dev.plex.command.ServerCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.exception.CommandFailException;
@@ -23,7 +23,7 @@ import org.jetbrains.annotations.Nullable;
 
 @CommandPermissions(permission = "plex.setloginmessage", source = RequiredCommandSource.ANY)
 @CommandParameters(name = "setloginmessage", usage = "/<command> [-o <player>] <message>", description = "Sets your (or someone else's) login message", aliases = "slm,setloginmsg")
-public class SetLoginMessageCMD extends PlexCommand
+public class SetLoginMessageCMD extends ServerCommand
 {
     private final boolean nameRequired = plugin.getConfig().getBoolean("loginmessages.name");
 

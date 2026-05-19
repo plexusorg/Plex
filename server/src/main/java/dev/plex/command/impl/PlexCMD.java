@@ -1,6 +1,6 @@
 package dev.plex.command.impl;
 
-import dev.plex.command.PlexCommand;
+import dev.plex.command.ServerCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.exception.CommandFailException;
@@ -28,7 +28,7 @@ import org.jetbrains.annotations.Nullable;
 
 @CommandPermissions(source = RequiredCommandSource.ANY)
 @CommandParameters(name = "plex", usage = "/<command> [reload | redis | modules [reload]]", description = "Show information about Plex or reload it")
-public class PlexCMD extends PlexCommand
+public class PlexCMD extends ServerCommand
 {
     // Don't modify this command
     @Override

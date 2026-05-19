@@ -1,7 +1,7 @@
 package dev.plex.command.impl;
 
 import com.google.common.collect.ImmutableList;
-import dev.plex.command.PlexCommand;
+import dev.plex.command.ServerCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.exception.CommandFailException;
@@ -21,7 +21,7 @@ import org.jetbrains.annotations.Nullable;
 
 @CommandPermissions(permission = "plex.gamemode.creative", source = RequiredCommandSource.ANY)
 @CommandParameters(name = "creative", aliases = "gmc,egmc,ecreative,eecreative,creativemode,ecreativemode", description = "Set your own or another player's gamemode to creative mode")
-public class CreativeCMD extends PlexCommand
+public class CreativeCMD extends ServerCommand
 {
     @Override
     protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)

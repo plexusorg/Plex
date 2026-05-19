@@ -19,6 +19,7 @@ repositories {
 }
 
 dependencies {
+    implementation(project(":api"))
     library("org.projectlombok:lombok:1.18.46")
     library("commons-io:commons-io:2.22.0")
     library("redis.clients:jedis:7.5.0")

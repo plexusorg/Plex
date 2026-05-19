@@ -1,7 +1,7 @@
 package dev.plex.listener.impl;
 
 
-import dev.plex.listener.PlexListener;
+import dev.plex.listener.ServerListenerBase;
 import dev.plex.meta.PlayerMeta;
 import dev.plex.player.PlexPlayer;
 import dev.plex.util.PlexLog;
@@ -18,7 +18,7 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
-public class PlayerListener extends PlexListener
+public class PlayerListener extends ServerListenerBase
 {
     // setting up a player's data
     @EventHandler(priority = EventPriority.HIGHEST)

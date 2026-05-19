@@ -2,7 +2,7 @@ package dev.plex.command.impl;
 
 
 import com.google.common.collect.ImmutableList;
-import dev.plex.command.PlexCommand;
+import dev.plex.command.ServerCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.exception.PlayerNotBannedException;
@@ -22,7 +22,7 @@ import org.jetbrains.annotations.Nullable;
 @CommandParameters(name = "unban", usage = "/<command> <player>", description = "Unbans a player, offline or online")
 @CommandPermissions(permission = "plex.ban", source = RequiredCommandSource.ANY)
 
-public class UnbanCMD extends PlexCommand
+public class UnbanCMD extends ServerCommand
 {
     @Override
     public Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)

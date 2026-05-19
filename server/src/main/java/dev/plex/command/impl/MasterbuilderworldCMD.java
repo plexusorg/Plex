@@ -1,6 +1,6 @@
 package dev.plex.command.impl;
 
-import dev.plex.command.PlexCommand;
+import dev.plex.command.ServerCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.source.RequiredCommandSource;
@@ -18,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 
 @CommandPermissions(permission = "plex.masterbuilderworld", source = RequiredCommandSource.IN_GAME)
 @CommandParameters(name = "masterbuilderworld", aliases = "mbw", description = "Teleport to the Master Builder world")
-public class MasterbuilderworldCMD extends PlexCommand
+public class MasterbuilderworldCMD extends ServerCommand
 {
     @Override
     protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)

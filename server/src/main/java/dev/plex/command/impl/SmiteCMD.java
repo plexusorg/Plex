@@ -1,6 +1,6 @@
 package dev.plex.command.impl;
 
-import dev.plex.command.PlexCommand;
+import dev.plex.command.ServerCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.source.RequiredCommandSource;
@@ -29,7 +29,7 @@ import org.jetbrains.annotations.Nullable;
 
 @CommandPermissions(permission = "plex.smite", source = RequiredCommandSource.ANY)
 @CommandParameters(name = "smite", usage = "/<command> <player> [reason] [-ci | -q]", description = "Someone being a little bitch? Smite them down...")
-public class SmiteCMD extends PlexCommand
+public class SmiteCMD extends ServerCommand
 {
     @Override
     protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)

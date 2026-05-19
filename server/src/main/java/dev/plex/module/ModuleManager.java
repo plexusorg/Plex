@@ -7,6 +7,7 @@ import dev.plex.util.PlexLog;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
@@ -34,8 +35,15 @@ public class ModuleManager
     public void loadAllModules()
     {
         this.modules.clear();
-        PlexLog.debug(String.valueOf(plugin.getModulesFolder().listFiles().length));
-        Arrays.stream(plugin.getModulesFolder().listFiles()).forEach(file ->
+        File[] moduleFiles = plugin.getModulesFolder().listFiles();
+        if (moduleFiles == null)
+        {
+            PlexLog.warn("Unable to read modules folder " + plugin.getModulesFolder().getAbsolutePath());
+            return;
+        }
+
+        PlexLog.debug(String.valueOf(moduleFiles.length));
+        Arrays.stream(moduleFiles).forEach(file ->
         {
             if (file.getName().endsWith(".jar"))
             {
@@ -46,7 +54,13 @@ public class ModuleManager
                             Plex.class.getClassLoader()
                     );
 
-                    InputStreamReader internalModuleFile = new InputStreamReader(loader.getResourceAsStream("module.yml"), StandardCharsets.UTF_8);
+                    InputStream moduleDescriptor = loader.getResourceAsStream("module.yml");
+                    if (moduleDescriptor == null)
+                    {
+                        throw new ModuleLoadException("Plex module " + file.getName() + " does not contain module.yml");
+                    }
+
+                    InputStreamReader internalModuleFile = new InputStreamReader(moduleDescriptor, StandardCharsets.UTF_8);
                     YamlConfiguration internalModuleConfig = YamlConfiguration.loadConfiguration(internalModuleFile);
 
                     String name = internalModuleConfig.getString("name");
@@ -63,14 +77,25 @@ public class ModuleManager
 
                     String description = internalModuleConfig.getString("description", "A Plex module");
                     String version = internalModuleConfig.getString("version", "1.0");
+                    if (!internalModuleConfig.isInt("apiCompatibility"))
+                    {
+                        throw new ModuleLoadException("Plex module " + name + " must declare an integer apiCompatibility in module.yml");
+                    }
+
+                    int apiCompatibility = internalModuleConfig.getInt("apiCompatibility");
+                    if (apiCompatibility != plugin.getApi().compatibility().version())
+                    {
+                        throw new ModuleLoadException("Plex module " + name + " requires API compatibility " + apiCompatibility + ", but this Plex build provides API compatibility " + plugin.getApi().compatibility().version());
+                    }
+
                     List<String> libraries = internalModuleConfig.getStringList("libraries");
 
-                    PlexModuleFile plexModuleFile = new PlexModuleFile(name, main, description, version);
+                    PlexModuleFile plexModuleFile = new PlexModuleFile(name, main, description, version, apiCompatibility);
                     plexModuleFile.setLibraries(libraries);
                     Class<? extends PlexModule> module = (Class<? extends PlexModule>) Class.forName(main, true, loader);
 
                     PlexModule plexModule = module.getConstructor().newInstance();
-                    plexModule.setPlex(plugin);
+                    plexModule.setApi(plugin.getApi());
                     plexModule.setPlexModuleFile(plexModuleFile);
 
                     plexModule.setDataFolder(new File(plugin.getModulesFolder() + File.separator + plexModuleFile.getName()));
@@ -86,6 +111,10 @@ public class ModuleManager
                        InstantiationException | IllegalAccessException | NoSuchMethodException e)
                 {
                     e.printStackTrace();
+                }
+                catch (ModuleLoadException e)
+                {
+                    PlexLog.warn("Skipping module " + file.getName() + ": " + e.getMessage());
                 }
             }
         });

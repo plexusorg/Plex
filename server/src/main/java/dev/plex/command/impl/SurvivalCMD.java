@@ -1,7 +1,7 @@
 package dev.plex.command.impl;
 
 import com.google.common.collect.ImmutableList;
-import dev.plex.command.PlexCommand;
+import dev.plex.command.ServerCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.exception.CommandFailException;
@@ -21,7 +21,7 @@ import org.jetbrains.annotations.Nullable;
 
 @CommandPermissions(permission = "plex.gamemode.survival", source = RequiredCommandSource.ANY)
 @CommandParameters(name = "survival", aliases = "gms,egms,esurvival,survivalmode,esurvivalmode", description = "Set your own or another player's gamemode to survival mode")
-public class SurvivalCMD extends PlexCommand
+public class SurvivalCMD extends ServerCommand
 {
     @Override
     protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)

@@ -1,7 +1,7 @@
 package dev.plex.command.impl;
 
 
-import dev.plex.command.PlexCommand;
+import dev.plex.command.ServerCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.player.PlexPlayer;
@@ -26,7 +26,7 @@ import org.jetbrains.annotations.Nullable;
 
 @CommandParameters(name = "notes", description = "Manage notes for a player", usage = "/<command> <player> <list | add <note> | remove <id> | clear>")
 @CommandPermissions(permission = "plex.notes")
-public class NotesCMD extends PlexCommand
+public class NotesCMD extends ServerCommand
 {
     @Override
     protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)

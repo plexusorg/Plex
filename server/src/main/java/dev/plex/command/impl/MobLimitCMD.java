@@ -1,6 +1,6 @@
 package dev.plex.command.impl;
 
-import dev.plex.command.PlexCommand;
+import dev.plex.command.ServerCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.source.RequiredCommandSource;
@@ -21,7 +21,7 @@ import org.jetbrains.annotations.Nullable;
 
 @CommandParameters(name = "moblimit", usage = "/<command> [on | off | setmax <limit>]", aliases = "entitylimit", description = "Manages the mob limit per chunk.")
 @CommandPermissions(permission = "plex.moblimit", source = RequiredCommandSource.ANY)
-public class MobLimitCMD extends PlexCommand
+public class MobLimitCMD extends ServerCommand
 {
     @Override
     protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)

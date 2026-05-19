@@ -19,7 +19,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-final class ConfigDefaultsMerger
+public final class ConfigDefaultsMerger
 {
     private static final Pattern KEY = Pattern.compile("^(\\s*)([A-Za-z0-9_-]+):(?:\\s+.*)?$");
 
@@ -27,7 +27,7 @@ final class ConfigDefaultsMerger
     {
     }
 
-    static Result merge(File file, InputStream defaultsStream, String displayName) throws IOException, InvalidConfigurationException
+    public static Result merge(File file, InputStream defaultsStream, String displayName) throws IOException, InvalidConfigurationException
     {
         if (defaultsStream == null)
         {
@@ -214,7 +214,7 @@ final class ConfigDefaultsMerger
     {
     }
 
-    record Result(YamlConfiguration config, List<String> addedKeys, boolean changed)
+    public record Result(YamlConfiguration config, List<String> addedKeys, boolean changed)
     {
     }
 }

@@ -1,7 +1,7 @@
 package dev.plex.command.impl;
 
 
-import dev.plex.command.PlexCommand;
+import dev.plex.command.ServerCommand;
 import dev.plex.command.annotation.CommandParameters;
 import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.source.RequiredCommandSource;
@@ -24,7 +24,7 @@ import org.jetbrains.annotations.Nullable;
 
 @CommandPermissions(permission = "plex.tag", source = RequiredCommandSource.ANY)
 @CommandParameters(name = "tag", aliases = "prefix", description = "Set or clear your prefix", usage = "/<command> <set <prefix> | clear <player>>")
-public class TagCMD extends PlexCommand
+public class TagCMD extends ServerCommand
 {
     @Override
     protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)

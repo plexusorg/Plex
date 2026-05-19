@@ -2,7 +2,7 @@ package dev.plex.handlers;
 
 import com.google.common.collect.Lists;
 import dev.plex.Plex;
-import dev.plex.command.PlexCommand;
+import dev.plex.command.ServerCommand;
 import dev.plex.command.impl.DebugCMD;
 import dev.plex.util.PlexLog;
 import dev.plex.util.ReflectionsUtil;
@@ -18,8 +18,8 @@ public class CommandHandler
     public CommandHandler(Plex plugin)
     {
         this.plugin = plugin;
-        Set<Class<? extends PlexCommand>> commandSet = ReflectionsUtil.getClassesBySubType("dev.plex.command.impl", PlexCommand.class);
-        List<PlexCommand> commands = Lists.newArrayList();
+        Set<Class<? extends ServerCommand>> commandSet = ReflectionsUtil.getClassesBySubType("dev.plex.command.impl", ServerCommand.class);
+        List<ServerCommand> commands = Lists.newArrayList();
 
         commandSet.forEach(clazz ->
         {
