@@ -26,7 +26,7 @@ public class PlayerListener extends ServerListenerBase
     }
 
     // setting up a player's data
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerSetup(PlayerJoinEvent event)
     {
         Player player = event.getPlayer();
@@ -60,6 +60,19 @@ public class PlayerListener extends ServerListenerBase
             }
         }
         plugin.getPlayerCache().getPlexPlayerMap().put(player.getUniqueId(), plexPlayer);
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onPlayerJoin(PlayerJoinEvent event)
+    {
+        Player player = event.getPlayer();
+        PlexPlayer plexPlayer = plugin.getPlayerService().getPlayer(player.getUniqueId());
+        if (plexPlayer == null)
+        {
+            PlexLog.warn("Unable to load Plex player data for {0}; skipping join metadata.", player.getName());
+            return;
+        }
+
         if (plexPlayer.isLockedUp())
         {
             player.openInventory(player.getInventory());
