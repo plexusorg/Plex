@@ -2,8 +2,7 @@ package dev.plex.command.impl;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
-import dev.plex.command.annotation.CommandParameters;
-import dev.plex.command.annotation.CommandPermissions;
+import dev.plex.command.ServerCommandContext;
 
 import java.util.Arrays;
 import java.util.List;
@@ -17,12 +16,18 @@ import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-@CommandPermissions(permission = "plex.whohas")
-@CommandParameters(name = "whohas", description = "Returns a list of players with a specific item in their inventory.", usage = "/<command> <material>", aliases = "wh")
 public class WhoHasCMD extends ServerCommand
 {
+    public WhoHasCMD()
+    {
+        super(command("whohas")
+            .description("Returns a list of players with a specific item in their inventory.")
+            .usage("/<command> <material>")
+            .aliases("wh")
+            .permission("plex.whohas")
+            .build());
+    }
     @Override
     protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
     {
@@ -35,25 +40,28 @@ public class WhoHasCMD extends ServerCommand
     }
 
     @Override
-    protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, @NotNull String[] args)
+    protected Component execute(@NotNull ServerCommandContext context)
     {
+        CommandSender sender = context.sender();
+        Player playerSender = context.player();
+        String[] args = context.args();
         if (args.length == 0)
         {
-            return usage();
+            return context.usage();
         }
 
         final Material material = Material.getMaterial(args[0].toUpperCase());
 
         if (material == null)
         {
-            return messageComponent("materialNotFound", args[0]);
+            return context.messageComponent("materialNotFound", args[0]);
         }
 
         boolean clearInventory = args.length > 1 && args[1].equalsIgnoreCase("clear");
 
         if (clearInventory && !sender.hasPermission("plex.whohas.clear"))
         {
-            return messageComponent("noPermissionNode", "plex.whohas.clear");
+            return context.messageComponent("noPermissionNode", "plex.whohas.clear");
         }
 
         List<TextComponent> players = Bukkit.getOnlinePlayers().stream().filter(player ->
@@ -68,11 +76,11 @@ public class WhoHasCMD extends ServerCommand
         }).toList();
 
         return players.isEmpty() ?
-                messageComponent("nobodyHasThatMaterial") :
+                context.messageComponent("nobodyHasThatMaterial") :
                 (clearInventory ?
-                        messageComponent("playersMaterialCleared", Component.text(material.name()),
+                        context.messageComponent("playersMaterialCleared", Component.text(material.name()),
                                 Component.join(JoinConfiguration.commas(true), players)) :
-                        messageComponent("playersWithMaterial", Component.text(material.name()),
+                        context.messageComponent("playersWithMaterial", Component.text(material.name()),
                                 Component.join(JoinConfiguration.commas(true), players)));
     }
 

@@ -2,8 +2,7 @@ package dev.plex.command.impl;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
-import dev.plex.command.annotation.CommandParameters;
-import dev.plex.command.annotation.CommandPermissions;
+import dev.plex.command.ServerCommandContext;
 import dev.plex.punishment.Punishment;
 
 import java.util.stream.Collectors;
@@ -14,12 +13,17 @@ import org.apache.commons.lang3.StringUtils;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-@CommandParameters(name = "banlist", description = "Manages the banlist", usage = "/<command> [purge]")
-@CommandPermissions(permission = "plex.banlist")
 public class BanListCommand extends ServerCommand
 {
+    public BanListCommand()
+    {
+        super(command("banlist")
+            .description("Manages the banlist")
+            .usage("/<command> [purge]")
+            .permission("plex.banlist")
+            .build());
+    }
     @Override
     protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
     {
@@ -31,13 +35,16 @@ public class BanListCommand extends ServerCommand
     }
 
     @Override
-    protected Component execute(@NotNull CommandSender sender, @Nullable Player player, @NotNull String[] args)
+    protected Component execute(@NotNull ServerCommandContext context)
     {
+        CommandSender sender = context.sender();
+        Player playerSender = context.player();
+        String[] args = context.args();
         if (args.length == 0)
         {
             plugin.getPunishmentManager().getActiveBans().whenComplete((punishments, throwable) ->
             {
-                send(sender, messageComponent("activeBansList", punishments.size(), StringUtils.join(punishments.stream().map(Punishment::getPunishedUsername).collect(Collectors.toList()), ", ")));
+                context.send(sender, context.messageComponent("activeBansList", punishments.size(), StringUtils.join(punishments.stream().map(Punishment::getPunishedUsername).collect(Collectors.toList()), ", ")));
             });
             return null;
         }
@@ -45,11 +52,11 @@ public class BanListCommand extends ServerCommand
         {
             if (sender instanceof Player)
             {
-                return messageComponent("noPermissionInGame");
+                return context.messageComponent("noPermissionInGame");
             }
             if (!sender.getName().equalsIgnoreCase("console"))
             {
-                if (!checkPermission(sender, "plex.banlist.clear"))
+                if (!context.checkPermission(sender, "plex.banlist.clear"))
                 {
                     return null;
                 }
@@ -57,7 +64,7 @@ public class BanListCommand extends ServerCommand
             plugin.getPunishmentManager().getActiveBans().whenComplete((punishments, throwable) ->
             {
                 punishments.forEach(plugin.getPunishmentManager()::unban);
-                send(sender, messageComponent("unbannedPlayers", punishments.size()));
+                context.send(sender, context.messageComponent("unbannedPlayers", punishments.size()));
             });
         }
         return null;

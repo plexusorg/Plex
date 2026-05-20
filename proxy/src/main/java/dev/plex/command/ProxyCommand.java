@@ -6,8 +6,6 @@ import com.velocitypowered.api.command.SimpleCommand;
 import com.velocitypowered.api.proxy.ConsoleCommandSource;
 import com.velocitypowered.api.proxy.Player;
 import dev.plex.Plex;
-import dev.plex.command.annotation.CommandParameters;
-import dev.plex.command.annotation.CommandPermissions;
 import dev.plex.command.source.RequiredCommandSource;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
@@ -16,37 +14,38 @@ import org.jetbrains.annotations.Nullable;
 
 public abstract class ProxyCommand implements SimpleCommand
 {
-    /**
-     * Returns the instance of the plugin
-     */
-    protected static Plex plugin = Plex.get();
-
-    /**
-     * The parameters for the command
-     */
-    private final CommandParameters params;
-
-    /**
-     * The permissions for the command
-     */
-    private final CommandPermissions perms;
-    /**
-     * Required command source fetched from the permissions
-     */
+    protected final Plex plugin;
+    private final CommandSpec commandSpec;
     private final RequiredCommandSource commandSource;
 
-    public ProxyCommand()
+    /**
+     * Creates and registers a proxy command using the current proxy plugin.
+     *
+     * @param commandSpec explicit command metadata
+     */
+    protected ProxyCommand(CommandSpec commandSpec)
     {
-        this.params = getClass().getAnnotation(CommandParameters.class);
-        this.perms = getClass().getAnnotation(CommandPermissions.class);
-        this.commandSource = this.perms.source();
+        this(Plex.get(), commandSpec);
+    }
 
-        CommandMeta.Builder meta = plugin.getServer().getCommandManager().metaBuilder(this.params.name());
-        if (!this.params.aliases().isEmpty())
+    /**
+     * Creates and registers a proxy command.
+     *
+     * @param plugin running proxy plugin
+     * @param commandSpec explicit command metadata
+     */
+    protected ProxyCommand(Plex plugin, CommandSpec commandSpec)
+    {
+        this.plugin = plugin;
+        this.commandSpec = commandSpec;
+        this.commandSource = commandSpec.requiredSource();
+
+        CommandMeta.Builder meta = plugin.getServer().getCommandManager().metaBuilder(commandSpec.name());
+        if (!commandSpec.aliases().isEmpty())
         {
-            meta.aliases(this.params.aliases().split(","));
+            meta.aliases(commandSpec.aliases().toArray(String[]::new));
         }
-        meta.plugin(Plex.get());
+        meta.plugin(plugin);
         plugin.getServer().getCommandManager().register(meta.build(), this);
     }
 
@@ -74,9 +73,9 @@ public abstract class ProxyCommand implements SimpleCommand
                 return;
             }
         }
-        if (!perms.permission().isEmpty())
+        if (!commandSpec.permission().isEmpty())
         {
-            if (!invocation.source().hasPermission(perms.permission()))
+            if (!invocation.source().hasPermission(commandSpec.permission()))
             {
                 return;
             }
@@ -90,11 +89,11 @@ public abstract class ProxyCommand implements SimpleCommand
 
     private boolean matches(String label)
     {
-        if (params.name().equalsIgnoreCase(label))
+        if (commandSpec.name().equalsIgnoreCase(label))
         {
             return true;
         }
-        return !params.aliases().isEmpty() && java.util.Arrays.stream(params.aliases().split(",")).anyMatch(s -> s.equalsIgnoreCase(label));
+        return commandSpec.aliases().stream().anyMatch(alias -> alias.equalsIgnoreCase(label));
     }
 
     protected void send(Audience audience, Component component)

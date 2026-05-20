@@ -2,8 +2,7 @@ package dev.plex.command.impl;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
-import dev.plex.command.annotation.CommandParameters;
-import dev.plex.command.annotation.CommandPermissions;
+import dev.plex.command.ServerCommandContext;
 import dev.plex.command.source.RequiredCommandSource;
 
 
@@ -14,12 +13,18 @@ import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-@CommandPermissions(permission = "plex.masterbuilderworld", source = RequiredCommandSource.IN_GAME)
-@CommandParameters(name = "masterbuilderworld", aliases = "mbw", description = "Teleport to the Master Builder world")
 public class MasterbuilderworldCMD extends ServerCommand
 {
+    public MasterbuilderworldCMD()
+    {
+        super(command("masterbuilderworld")
+            .description("Teleport to the Master Builder world")
+            .aliases("mbw")
+            .permission("plex.masterbuilderworld")
+            .source(RequiredCommandSource.IN_GAME)
+            .build());
+    }
     @Override
     protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
     {
@@ -27,15 +32,18 @@ public class MasterbuilderworldCMD extends ServerCommand
     }
 
     @Override
-    protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
+    protected Component execute(@NotNull ServerCommandContext context)
     {
+        CommandSender sender = context.sender();
+        Player playerSender = context.player();
+        String[] args = context.args();
         assert playerSender != null;
         // TODO: Add masterbuilderworld settings
         if (args.length == 0)
         {
             Location loc = new Location(Bukkit.getWorld("masterbuilderworld"), 0, 50, 0);
             playerSender.teleportAsync(loc);
-            return messageComponent("teleportedToWorld", "Master Builder World");
+            return context.messageComponent("teleportedToWorld", "Master Builder World");
         }
         return null;
     }

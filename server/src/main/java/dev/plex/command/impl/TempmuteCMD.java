@@ -2,8 +2,7 @@ package dev.plex.command.impl;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
-import dev.plex.command.annotation.CommandParameters;
-import dev.plex.command.annotation.CommandPermissions;
+import dev.plex.command.ServerCommandContext;
 import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.Punishment;
 import dev.plex.punishment.PunishmentType;
@@ -18,13 +17,18 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-@CommandParameters(name = "tempmute", description = "Temporarily mute a player on the server",
-        usage = "/<command> <player> <time> [reason]", aliases = "tmute")
-@CommandPermissions(permission = "plex.tempmute")
 public class TempmuteCMD extends ServerCommand
 {
+    public TempmuteCMD()
+    {
+        super(command("tempmute")
+            .description("Temporarily mute a player on the server")
+            .usage("/<command> <player> <time> [reason]")
+            .aliases("tmute")
+            .permission("plex.tempmute")
+            .build());
+    }
     @Override
     protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
     {
@@ -37,24 +41,27 @@ public class TempmuteCMD extends ServerCommand
     }
 
     @Override
-    protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
+    protected Component execute(@NotNull ServerCommandContext context)
     {
+        CommandSender sender = context.sender();
+        Player playerSender = context.player();
+        String[] args = context.args();
         if (args.length < 2)
         {
-            return usage();
+            return context.usage();
         }
 
-        Player player = getNonNullPlayer(args[0]);
-        PlexPlayer punishedPlayer = getOfflinePlexPlayer(player.getUniqueId());
+        Player player = context.getNonNullPlayer(args[0]);
+        PlexPlayer punishedPlayer = context.getOfflinePlexPlayer(player.getUniqueId());
 
         if (punishedPlayer.isMuted())
         {
-            return messageComponent("playerMuted");
+            return context.messageComponent("playerMuted");
         }
 
-        if (silentCheckPermission(player, "plex.tempmute"))
+        if (context.silentCheckPermission(player, "plex.tempmute"))
         {
-            send(sender, messageComponent("higherRankThanYou"));
+            context.send(sender, context.messageComponent("higherRankThanYou"));
             return null;
         }
 
@@ -65,24 +72,24 @@ public class TempmuteCMD extends ServerCommand
         }
         catch (NumberFormatException e)
         {
-            return messageComponent("invalidTimeFormat");
+            return context.messageComponent("invalidTimeFormat");
         }
 
         if (endDate.isBefore(ZonedDateTime.now()))
         {
-            return messageComponent("timeMustBeFuture");
+            return context.messageComponent("timeMustBeFuture");
         }
 
         ZonedDateTime oneWeekFromNow = ZonedDateTime.now().plusWeeks(1);
         if (endDate.isAfter(oneWeekFromNow))
         {
-            return messageComponent("maxTimeExceeded");
+            return context.messageComponent("maxTimeExceeded");
         }
 
         final String reason = args.length >= 3 ? String.join(" ", Arrays.copyOfRange(args, 2, args.length))
-                : messageString("noReasonProvided");
+                : context.messageString("noReasonProvided");
 
-        Punishment punishment = new Punishment(punishedPlayer.getUuid(), getUUID(sender));
+        Punishment punishment = new Punishment(punishedPlayer.getUuid(), context.getUUID(sender));
         punishment.setCustomTime(true);
         punishment.setEndDate(endDate);
         punishment.setType(PunishmentType.MUTE);
@@ -92,7 +99,7 @@ public class TempmuteCMD extends ServerCommand
         punishment.setActive(true);
 
         plugin.getPunishmentManager().punish(punishedPlayer, punishment);
-        PlexUtils.broadcast(messageComponent("tempMutedPlayer", sender.getName(), player.getName(), TimeUtils.formatRelativeTime(endDate)));
+        PlexUtils.broadcast(context.messageComponent("tempMutedPlayer", sender.getName(), player.getName(), TimeUtils.formatRelativeTime(endDate)));
         return null;
     }
 

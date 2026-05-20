@@ -3,8 +3,7 @@ package dev.plex.command.impl;
 import dev.plex.command.PlexCommand;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
-import dev.plex.command.annotation.CommandParameters;
-import dev.plex.command.annotation.CommandPermissions;
+import dev.plex.command.ServerCommandContext;
 import dev.plex.menu.impl.MaterialMenu;
 import dev.plex.util.GameRuleUtil;
 import dev.plex.util.PlexLog;
@@ -20,12 +19,17 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-@CommandParameters(name = "pdebug", description = "Plex's debug command", usage = "/<command> <aliases <command> | redis-reset <player> | gamerules>")
-@CommandPermissions(permission = "plex.debug")
 public class DebugCMD extends ServerCommand
 {
+    public DebugCMD()
+    {
+        super(command("pdebug")
+            .description("Plex's debug command")
+            .usage("/<command> <aliases <command> | redis-reset <player> | gamerules>")
+            .permission("plex.debug")
+            .build());
+    }
     @Override
     protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
     {
@@ -43,23 +47,26 @@ public class DebugCMD extends ServerCommand
     }
 
     @Override
-    protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
+    protected Component execute(@NotNull ServerCommandContext context)
     {
+        CommandSender sender = context.sender();
+        Player playerSender = context.player();
+        String[] args = context.args();
         if (args.length == 0)
         {
-            return usage();
+            return context.usage();
         }
         if (args[0].equalsIgnoreCase("redis-reset"))
         {
             if (args.length == 2)
             {
-                Player player = getNonNullPlayer(args[1]);
+                Player player = context.getNonNullPlayer(args[1]);
                 if (plugin.getRedisConnection().query(jedis -> jedis.exists(player.getUniqueId().toString())))
                 {
                     plugin.getRedisConnection().execute(jedis -> jedis.del(player.getUniqueId().toString()));
-                    return messageComponent("redisResetSuccessful", player.getName());
+                    return context.messageComponent("redisResetSuccessful", player.getName());
                 }
-                return messageComponent("redisResetPlayerNotFound");
+                return context.messageComponent("redisResetPlayerNotFound");
             }
         }
         if (args[0].equalsIgnoreCase("gamerules"))
@@ -78,7 +85,7 @@ public class DebugCMD extends ServerCommand
                     PlexLog.log("Set specific gamerules for world: " + world.toLowerCase(Locale.ROOT));
                 }
             }
-            return messageComponent("reappliedGamerules");
+            return context.messageComponent("reappliedGamerules");
         }
         if (args[0].equalsIgnoreCase("aliases"))
         {
@@ -88,26 +95,26 @@ public class DebugCMD extends ServerCommand
                 PlexCommand plexCommand = plugin.getCommandHandler().getCommand(commandName);
                 if (plexCommand != null)
                 {
-                    return messageComponent("commandAliases", commandName, Arrays.toString(plexCommand.getAliases().toArray(new String[0])));
+                    return context.messageComponent("commandAliases", commandName, Arrays.toString(plexCommand.getAliases().toArray(new String[0])));
                 }
                 Command command = plugin.getServer().getCommandMap().getCommand(commandName);
                 if (command == null)
                 {
-                    return messageComponent("commandNotFound");
+                    return context.messageComponent("commandNotFound");
                 }
-                return messageComponent("commandAliases", commandName, Arrays.toString(command.getAliases().toArray(new String[0])));
+                return context.messageComponent("commandAliases", commandName, Arrays.toString(command.getAliases().toArray(new String[0])));
             }
         }
         if (args[0].equalsIgnoreCase("pagination"))
         {
             if (playerSender == null)
             {
-                return messageComponent("noPermissionConsole");
+                return context.messageComponent("noPermissionConsole");
             }
             new MaterialMenu().open(playerSender);
             return null;
         }
-        return usage();
+        return context.usage();
     }
 
 }

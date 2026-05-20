@@ -2,8 +2,7 @@ package dev.plex.command.impl;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
-import dev.plex.command.annotation.CommandParameters;
-import dev.plex.command.annotation.CommandPermissions;
+import dev.plex.command.ServerCommandContext;
 import dev.plex.command.source.RequiredCommandSource;
 
 
@@ -14,12 +13,18 @@ import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-@CommandPermissions(permission = "plex.adminworld", source = RequiredCommandSource.IN_GAME)
-@CommandParameters(name = "adminworld", aliases = "aw", description = "Teleport to the adminworld")
 public class AdminworldCMD extends ServerCommand
 {
+    public AdminworldCMD()
+    {
+        super(command("adminworld")
+            .description("Teleport to the adminworld")
+            .aliases("aw")
+            .permission("plex.adminworld")
+            .source(RequiredCommandSource.IN_GAME)
+            .build());
+    }
     @Override
     protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
     {
@@ -27,15 +32,18 @@ public class AdminworldCMD extends ServerCommand
     }
 
     @Override
-    protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
+    protected Component execute(@NotNull ServerCommandContext context)
     {
+        CommandSender sender = context.sender();
+        Player playerSender = context.player();
+        String[] args = context.args();
         assert playerSender != null;
         // TODO: Add adminworld settings
         if (args.length == 0)
         {
             Location loc = new Location(Bukkit.getWorld("adminworld"), 0, 50, 0);
             playerSender.teleportAsync(loc);
-            return messageComponent("teleportedToWorld", "adminworld");
+            return context.messageComponent("teleportedToWorld", "adminworld");
         }
         return null;
     }

@@ -2,9 +2,7 @@ package dev.plex.command.impl;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
-import dev.plex.command.annotation.CommandParameters;
-import dev.plex.command.annotation.CommandPermissions;
-import dev.plex.command.source.RequiredCommandSource;
+import dev.plex.command.ServerCommandContext;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 
@@ -23,12 +21,18 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-@CommandPermissions(permission = "plex.mobpurge", source = RequiredCommandSource.ANY)
-@CommandParameters(name = "mobpurge", description = "Purge all mobs.", usage = "/<command> [mob]", aliases = "mp")
 public class MobPurgeCMD extends ServerCommand
 {
+    public MobPurgeCMD()
+    {
+        super(command("mobpurge")
+            .description("Purge all mobs.")
+            .usage("/<command> [mob]")
+            .aliases("mp")
+            .permission("plex.mobpurge")
+            .build());
+    }
     private final List<EntityType> MOB_TYPES = new ArrayList<>();
 
     @Override
@@ -41,8 +45,11 @@ public class MobPurgeCMD extends ServerCommand
     }
 
     @Override
-    protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, @NotNull String[] args)
+    protected Component execute(@NotNull ServerCommandContext context)
     {
+        CommandSender sender = context.sender();
+        Player playerSender = context.player();
+        String[] args = context.args();
         EntityType type = null;
         String mobName = null;
         if (args.length > 0)
@@ -54,14 +61,14 @@ public class MobPurgeCMD extends ServerCommand
             catch (Exception e)
             {
                 PlexLog.debug("A genius tried and failed removing the following invalid mob: " + args[0].toUpperCase());
-                send(sender, messageComponent("notAValidMob"));
+                context.send(sender, context.messageComponent("notAValidMob"));
                 return null;
             }
             if (!MOB_TYPES.contains(type))
             {
                 PlexLog.debug(Arrays.deepToString(MOB_TYPES.toArray()));
                 PlexLog.debug("A genius tried to remove a mob that doesn't exist: " + args[0].toUpperCase());
-                sender.sendMessage(messageComponent("notAValidMobButValidEntity"));
+                sender.sendMessage(context.messageComponent("notAValidMobButValidEntity"));
                 return null;
             }
         }
@@ -73,15 +80,15 @@ public class MobPurgeCMD extends ServerCommand
         int count = purgeMobs(type);
         if (type != null)
         {
-            PlexUtils.broadcast(messageComponent("removedEntitiesOfTypes", sender.getName(), count, mobName));
+            PlexUtils.broadcast(context.messageComponent("removedEntitiesOfTypes", sender.getName(), count, mobName));
             PlexLog.debug("All " + count + " of " + mobName + " were removed");
         }
         else
         {
-            PlexUtils.broadcast(messageComponent("removedMobs", sender.getName(), count));
+            PlexUtils.broadcast(context.messageComponent("removedMobs", sender.getName(), count));
             PlexLog.debug("All " + count + " valid mobs were removed");
         }
-        sender.sendMessage(messageComponent("amountOfMobsRemoved", count, type != null ? mobName + multipleS(count) : messageString(count == 1 ? "mobSingular" : "mobPlural")));
+        sender.sendMessage(context.messageComponent("amountOfMobsRemoved", count, type != null ? mobName + multipleS(count) : context.messageString(count == 1 ? "mobSingular" : "mobPlural")));
         return null;
     }
 

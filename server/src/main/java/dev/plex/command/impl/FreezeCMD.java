@@ -2,8 +2,7 @@ package dev.plex.command.impl;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
-import dev.plex.command.annotation.CommandParameters;
-import dev.plex.command.annotation.CommandPermissions;
+import dev.plex.command.ServerCommandContext;
 import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.Punishment;
 import dev.plex.punishment.PunishmentType;
@@ -18,12 +17,18 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-@CommandParameters(name = "freeze", description = "Freeze a player on the server", usage = "/<command> <player>", aliases = "fr")
-@CommandPermissions(permission = "plex.freeze")
 public class FreezeCMD extends ServerCommand
 {
+    public FreezeCMD()
+    {
+        super(command("freeze")
+            .description("Freeze a player on the server")
+            .usage("/<command> <player>")
+            .aliases("fr")
+            .permission("plex.freeze")
+            .build());
+    }
     @Override
     protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
     {
@@ -33,21 +38,24 @@ public class FreezeCMD extends ServerCommand
     }
 
     @Override
-    protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
+    protected Component execute(@NotNull ServerCommandContext context)
     {
+        CommandSender sender = context.sender();
+        Player playerSender = context.player();
+        String[] args = context.args();
         if (args.length != 1)
         {
-            return usage();
+            return context.usage();
         }
-        Player player = getNonNullPlayer(args[0]);
-        PlexPlayer punishedPlayer = getPlexPlayer(player);
+        Player player = context.getNonNullPlayer(args[0]);
+        PlexPlayer punishedPlayer = context.getPlexPlayer(player);
 
         if (punishedPlayer.isFrozen())
         {
-            return messageComponent("playerFrozen");
+            return context.messageComponent("playerFrozen");
         }
 
-        Punishment punishment = new Punishment(punishedPlayer.getUuid(), getUUID(sender));
+        Punishment punishment = new Punishment(punishedPlayer.getUuid(), context.getUUID(sender));
         punishment.setCustomTime(false);
         ZonedDateTime date = ZonedDateTime.now(ZoneId.of(TimeUtils.TIMEZONE));
         punishment.setEndDate(date.plusSeconds(plugin.config.getInt("punishments.freeze-timer", 300)));
@@ -58,7 +66,7 @@ public class FreezeCMD extends ServerCommand
         punishment.setActive(true);
 
         plugin.getPunishmentManager().punish(punishedPlayer, punishment);
-        PlexUtils.broadcast(messageComponent("frozePlayer", sender.getName(), player.getName()));
+        PlexUtils.broadcast(context.messageComponent("frozePlayer", sender.getName(), player.getName()));
         return null;
     }
 

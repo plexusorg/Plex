@@ -3,8 +3,7 @@ package dev.plex.command.impl;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
-import dev.plex.command.annotation.CommandParameters;
-import dev.plex.command.annotation.CommandPermissions;
+import dev.plex.command.ServerCommandContext;
 import dev.plex.command.exception.PlayerNotFoundException;
 import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.menu.impl.PunishedPlayerMenu;
@@ -19,12 +18,19 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-@CommandParameters(name = "punishments", usage = "/<command> [player]", description = "Opens the Punishments GUI", aliases = "punishlist,punishes")
-@CommandPermissions(permission = "plex.punishments", source = RequiredCommandSource.IN_GAME)
 public class PunishmentsCMD extends ServerCommand
 {
+    public PunishmentsCMD()
+    {
+        super(command("punishments")
+            .description("Opens the Punishments GUI")
+            .usage("/<command> [player]")
+            .aliases("punishlist,punishes")
+            .permission("plex.punishments")
+            .source(RequiredCommandSource.IN_GAME)
+            .build());
+    }
     @Override
     protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
     {
@@ -34,8 +40,11 @@ public class PunishmentsCMD extends ServerCommand
     }
 
     @Override
-    protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
+    protected Component execute(@NotNull ServerCommandContext context)
     {
+        CommandSender sender = context.sender();
+        Player playerSender = context.player();
+        String[] args = context.args();
         if (args.length == 0)
         {
             new PunishmentMenu(plugin.getPlayerService()).open(playerSender);
@@ -48,7 +57,7 @@ public class PunishmentsCMD extends ServerCommand
             }
 
             final OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(args[0]);
-            final PlexPlayer player = offlinePlayer.isOnline() ? getOnlinePlexPlayer(args[0]) : getOfflinePlexPlayer(offlinePlayer.getUniqueId());
+            final PlexPlayer player = offlinePlayer.isOnline() ? context.getOnlinePlexPlayer(args[0]) : context.getOfflinePlexPlayer(offlinePlayer.getUniqueId());
 
             new PunishedPlayerMenu(player, plugin.getPlayerService()).open(playerSender);
         }

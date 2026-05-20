@@ -2,9 +2,7 @@ package dev.plex.command.impl;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
-import dev.plex.command.annotation.CommandParameters;
-import dev.plex.command.annotation.CommandPermissions;
-import dev.plex.command.source.RequiredCommandSource;
+import dev.plex.command.ServerCommandContext;
 import dev.plex.util.PlexUtils;
 
 
@@ -14,12 +12,17 @@ import org.apache.commons.lang3.StringUtils;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-@CommandPermissions(permission = "plex.say", source = RequiredCommandSource.ANY)
-@CommandParameters(name = "say", usage = "/<command> <message>", description = "Displays a message to everyone")
 public class SayCMD extends ServerCommand
 {
+    public SayCMD()
+    {
+        super(command("say")
+            .description("Displays a message to everyone")
+            .usage("/<command> <message>")
+            .permission("plex.say")
+            .build());
+    }
     @Override
     protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
     {
@@ -29,11 +32,14 @@ public class SayCMD extends ServerCommand
     }
 
     @Override
-    protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
+    protected Component execute(@NotNull ServerCommandContext context)
     {
+        CommandSender sender = context.sender();
+        Player playerSender = context.player();
+        String[] args = context.args();
         if (args.length == 0)
         {
-            return usage();
+            return context.usage();
         }
 
         PlexUtils.broadcast(PlexUtils.messageComponent("sayMessage", sender.getName(), PlexUtils.mmStripColor(StringUtils.join(args, " "))));

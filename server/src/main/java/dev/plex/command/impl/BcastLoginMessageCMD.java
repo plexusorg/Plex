@@ -3,10 +3,8 @@ package dev.plex.command.impl;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
-import dev.plex.command.annotation.CommandParameters;
-import dev.plex.command.annotation.CommandPermissions;
+import dev.plex.command.ServerCommandContext;
 import dev.plex.command.exception.PlayerNotFoundException;
-import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.meta.PlayerMeta;
 import dev.plex.player.PlexPlayer;
 import dev.plex.util.PlexUtils;
@@ -17,12 +15,18 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-@CommandPermissions(permission = "plex.broadcastloginmessage", source = RequiredCommandSource.ANY)
-@CommandParameters(name = "bcastloginmessage", usage = "/<command> <player>", description = "Broadcast your login message (for vanish support)", aliases = "bcastlm")
 public class BcastLoginMessageCMD extends ServerCommand
 {
+    public BcastLoginMessageCMD()
+    {
+        super(command("bcastloginmessage")
+            .description("Broadcast your login message (for vanish support)")
+            .usage("/<command> <player>")
+            .aliases("bcastlm")
+            .permission("plex.broadcastloginmessage")
+            .build());
+    }
     @Override
     protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
     {
@@ -32,11 +36,14 @@ public class BcastLoginMessageCMD extends ServerCommand
     }
 
     @Override
-    protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
+    protected Component execute(@NotNull ServerCommandContext context)
     {
+        CommandSender sender = context.sender();
+        Player playerSender = context.player();
+        String[] args = context.args();
         if (args.length == 0)
         {
-            return usage();
+            return context.usage();
         }
 
         PlexPlayer plexPlayer = plugin.getPlayerService().getPlayer(args[0]);
@@ -50,11 +57,11 @@ public class BcastLoginMessageCMD extends ServerCommand
         if (!loginMessage.isEmpty())
         {
             PlexUtils.broadcast(PlexUtils.stringToComponent(loginMessage));
-            PlexUtils.broadcast(messageComponent("loginMessage", plexPlayer.getName()));
+            PlexUtils.broadcast(context.messageComponent("loginMessage", plexPlayer.getName()));
         }
         else
         {
-            return messageComponent("playerHasNoLoginMessage");
+            return context.messageComponent("playerHasNoLoginMessage");
         }
 
         return null;

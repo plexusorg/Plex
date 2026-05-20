@@ -3,8 +3,7 @@ package dev.plex.command.impl;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
-import dev.plex.command.annotation.CommandParameters;
-import dev.plex.command.annotation.CommandPermissions;
+import dev.plex.command.ServerCommandContext;
 import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.extra.Note;
 import dev.plex.util.TimeUtils;
@@ -21,12 +20,17 @@ import org.apache.commons.lang3.StringUtils;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-@CommandParameters(name = "notes", description = "Manage notes for a player", usage = "/<command> <player> <list | add <note> | remove <id> | clear>")
-@CommandPermissions(permission = "plex.notes")
 public class NotesCMD extends ServerCommand
 {
+    public NotesCMD()
+    {
+        super(command("notes")
+            .description("Manage notes for a player")
+            .usage("/<command> <player> <list | add <note> | remove <id> | clear>")
+            .permission("plex.notes")
+            .build());
+    }
     @Override
     protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
     {
@@ -45,18 +49,21 @@ public class NotesCMD extends ServerCommand
     }
 
     @Override
-    protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
+    protected Component execute(@NotNull ServerCommandContext context)
     {
+        CommandSender sender = context.sender();
+        Player playerSender = context.player();
+        String[] args = context.args();
         if (args.length < 2)
         {
-            return usage();
+            return context.usage();
         }
 
         PlexPlayer plexPlayer = plugin.getPlayerService().getPlayer(args[0]);
 
         if (plexPlayer == null)
         {
-            return messageComponent("playerNotFound");
+            return context.messageComponent("playerNotFound");
         }
 
         switch (args[1].toLowerCase())
@@ -67,10 +74,10 @@ public class NotesCMD extends ServerCommand
                 {
                     if (notes.isEmpty())
                     {
-                        send(sender, messageComponent("noNotes"));
+                        context.send(sender, context.messageComponent("noNotes"));
                         return;
                     }
-                    readNotes(sender, plexPlayer, notes);
+                    readNotes(context, sender, plexPlayer, notes);
                 });
                 return null;
             }
@@ -78,7 +85,7 @@ public class NotesCMD extends ServerCommand
             {
                 if (args.length < 3)
                 {
-                    return usage();
+                    return context.usage();
                 }
                 String content = StringUtils.join(ArrayUtils.subarray(args, 2, args.length), " ");
                 if (playerSender != null)
@@ -86,14 +93,14 @@ public class NotesCMD extends ServerCommand
                     Note note = new Note(plexPlayer.getUuid(), content, playerSender.getUniqueId(), ZonedDateTime.now(ZoneId.of(TimeUtils.TIMEZONE)));
                     plexPlayer.getNotes().add(note);
                     plugin.getNoteRepository().addNote(note);
-                    return messageComponent("noteAdded");
+                    return context.messageComponent("noteAdded");
                 }
             }
             case "remove":
             {
                 if (args.length < 3)
                 {
-                    return usage();
+                    return context.usage();
                 }
                 int id;
                 try
@@ -102,7 +109,7 @@ public class NotesCMD extends ServerCommand
                 }
                 catch (NumberFormatException ignored)
                 {
-                    return messageComponent("unableToParseNumber", args[2]);
+                    return context.messageComponent("unableToParseNumber", args[2]);
                 }
                 plugin.getNoteRepository().getNotes(plexPlayer.getUuid()).whenComplete((notes, ex) ->
                 {
@@ -112,13 +119,13 @@ public class NotesCMD extends ServerCommand
                         if (note.getId() == id)
                         {
                             plugin.getNoteRepository().deleteNote(id, plexPlayer.getUuid()).whenComplete((notes1, ex1) ->
-                                    send(sender, messageComponent("removedNote", id)));
+                                    context.send(sender, context.messageComponent("removedNote", id)));
                             deleted = true;
                         }
                     }
                     if (!deleted)
                     {
-                        send(sender, messageComponent("noteNotFound"));
+                        context.send(sender, context.messageComponent("noteNotFound"));
                     }
                     plexPlayer.getNotes().removeIf(note -> note.getId() == id);
                 });
@@ -129,26 +136,26 @@ public class NotesCMD extends ServerCommand
                 int count = plexPlayer.getNotes().size();
                 plexPlayer.getNotes().clear();
                 plugin.getPlayerService().update(plexPlayer);
-                return messageComponent("clearedNotes", count);
+                return context.messageComponent("clearedNotes", count);
             }
             default:
             {
-                return usage();
+                return context.usage();
             }
         }
     }
 
-    private void readNotes(@NotNull CommandSender sender, PlexPlayer plexPlayer, List<Note> notes)
+    private void readNotes(ServerCommandContext context, @NotNull CommandSender sender, PlexPlayer plexPlayer, List<Note> notes)
     {
-        AtomicReference<Component> noteList = new AtomicReference<>(messageComponent("notesHeader", plexPlayer.getName()));
+        AtomicReference<Component> noteList = new AtomicReference<>(context.messageComponent("notesHeader", plexPlayer.getName()));
         for (Note note : notes)
         {
-            Component noteLine = messageComponent("notePrefix", note.getId(), plugin.getPlayerService().getPlayer(note.getWrittenBy()).getName(), TimeUtils.useTimezone(note.getTimestamp()));
-            noteLine = noteLine.append(messageComponent("noteLine", note.getNote()));
+            Component noteLine = context.messageComponent("notePrefix", note.getId(), plugin.getPlayerService().getPlayer(note.getWrittenBy()).getName(), TimeUtils.useTimezone(note.getTimestamp()));
+            noteLine = noteLine.append(context.messageComponent("noteLine", note.getNote()));
             noteList.set(noteList.get().append(Component.newline()));
             noteList.set(noteList.get().append(noteLine));
         }
-        send(sender, noteList.get());
+        context.send(sender, noteList.get());
     }
 
 }

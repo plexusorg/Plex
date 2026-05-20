@@ -2,9 +2,7 @@ package dev.plex.command.impl;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
-import dev.plex.command.annotation.CommandParameters;
-import dev.plex.command.annotation.CommandPermissions;
-import dev.plex.command.source.RequiredCommandSource;
+import dev.plex.command.ServerCommandContext;
 import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.Punishment;
 import dev.plex.punishment.PunishmentType;
@@ -26,12 +24,17 @@ import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-@CommandPermissions(permission = "plex.smite", source = RequiredCommandSource.ANY)
-@CommandParameters(name = "smite", usage = "/<command> <player> [reason] [-ci | -q]", description = "Someone being a little bitch? Smite them down...")
 public class SmiteCMD extends ServerCommand
 {
+    public SmiteCMD()
+    {
+        super(command("smite")
+            .description("Someone being a little bitch? Smite them down...")
+            .usage("/<command> <player> [reason] [-ci | -q]")
+            .permission("plex.smite")
+            .build());
+    }
     @Override
     protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
     {
@@ -44,11 +47,14 @@ public class SmiteCMD extends ServerCommand
     }
 
     @Override
-    protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
+    protected Component execute(@NotNull ServerCommandContext context)
     {
+        CommandSender sender = context.sender();
+        Player playerSender = context.player();
+        String[] args = context.args();
         if (args.length < 1)
         {
-            return usage();
+            return context.usage();
         }
 
         String reason = null;
@@ -79,19 +85,19 @@ public class SmiteCMD extends ServerCommand
             }
         }
 
-        final Player player = getNonNullPlayer(args[0]);
-        final PlexPlayer plexPlayer = getPlexPlayer(player);
+        final Player player = context.getNonNullPlayer(args[0]);
+        final PlexPlayer plexPlayer = context.getPlexPlayer(player);
 
-        Title title = Title.title(messageComponent("smiteTitleHeader"), messageComponent("smiteTitleMessage", reason, sender.getName()));
+        Title title = Title.title(context.messageComponent("smiteTitleHeader"), context.messageComponent("smiteTitleMessage", reason, sender.getName()));
         player.showTitle(title);
 
         if (!silent)
         {
-            PlexUtils.broadcast(messageComponent("smiteBroadcast", player.getName(), reason != null ? reason : messageString("noReasonProvided"), sender.getName()));
+            PlexUtils.broadcast(context.messageComponent("smiteBroadcast", player.getName(), reason != null ? reason : context.messageString("noReasonProvided"), sender.getName()));
         }
         else
         {
-            send(sender, messageComponent("smittenQuietly", player.getName()));
+            context.send(sender, context.messageComponent("smittenQuietly", player.getName()));
         }
 
         // Set gamemode to survival
@@ -118,7 +124,7 @@ public class SmiteCMD extends ServerCommand
         // Kill
         player.setHealth(0.0);
 
-        Punishment punishment = new Punishment(plexPlayer.getUuid(), getUUID(sender));
+        Punishment punishment = new Punishment(plexPlayer.getUuid(), context.getUUID(sender));
         punishment.setCustomTime(false);
         punishment.setEndDate(ZonedDateTime.now(ZoneId.of(TimeUtils.TIMEZONE)));
         punishment.setType(PunishmentType.SMITE);
@@ -129,7 +135,7 @@ public class SmiteCMD extends ServerCommand
         {
             punishment.setReason(reason);
         }
-        send(player, messageComponent("smitten", reason != null ? reason : messageString("noReasonProvided")));
+        context.send(player, context.messageComponent("smitten", reason != null ? reason : context.messageString("noReasonProvided")));
         return null;
     }
 

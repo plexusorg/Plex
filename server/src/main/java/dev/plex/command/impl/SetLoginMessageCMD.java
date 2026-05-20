@@ -3,10 +3,8 @@ package dev.plex.command.impl;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
-import dev.plex.command.annotation.CommandParameters;
-import dev.plex.command.annotation.CommandPermissions;
+import dev.plex.command.ServerCommandContext;
 import dev.plex.command.exception.CommandFailException;
-import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.player.PlexPlayer;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
@@ -20,12 +18,18 @@ import org.apache.commons.lang3.StringUtils;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-@CommandPermissions(permission = "plex.setloginmessage", source = RequiredCommandSource.ANY)
-@CommandParameters(name = "setloginmessage", usage = "/<command> [-o <player>] <message>", description = "Sets your (or someone else's) login message", aliases = "slm,setloginmsg")
 public class SetLoginMessageCMD extends ServerCommand
 {
+    public SetLoginMessageCMD()
+    {
+        super(command("setloginmessage")
+            .description("Sets your (or someone else's) login message")
+            .usage("/<command> [-o <player>] <message>")
+            .aliases("slm,setloginmsg")
+            .permission("plex.setloginmessage")
+            .build());
+    }
     private final boolean nameRequired = plugin.getConfig().getBoolean("loginmessages.name");
 
     @Override
@@ -35,7 +39,7 @@ public class SetLoginMessageCMD extends ServerCommand
         command.then(greedyString("message")
                 .suggests((context, builder) ->
                 {
-                    if (!silentCheckPermission(context.getSource().getSender(), "plex.setloginmessage.others"))
+                    if (!canUsePermission(context.getSource(), "plex.setloginmessage.others"))
                     {
                         return builder.buildFuture();
                     }
@@ -61,58 +65,61 @@ public class SetLoginMessageCMD extends ServerCommand
     }
 
     @Override
-    protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
+    protected Component execute(@NotNull ServerCommandContext context)
     {
+        CommandSender sender = context.sender();
+        Player playerSender = context.player();
+        String[] args = context.args();
         if (args.length == 0)
         {
-            return usage();
+            return context.usage();
         }
         if (playerSender != null)
         {
             if (args[0].equals("-o"))
             {
-                checkPermission(sender, "plex.setloginmessage.others");
+                context.checkPermission(sender, "plex.setloginmessage.others");
 
                 if (args.length < 2)
                 {
-                    return messageComponent("specifyPlayer");
+                    return context.messageComponent("specifyPlayer");
                 }
                 if (args.length < 3)
                 {
-                    return messageComponent("specifyLoginMessage");
+                    return context.messageComponent("specifyLoginMessage");
                 }
                 PlexPlayer plexPlayer = plugin.getPlayerService().getPlayer(args[1]);
                 if (plexPlayer == null)
                 {
-                    return messageComponent("playerNotFound");
+                    return context.messageComponent("playerNotFound");
                 }
                 String message = StringUtils.join(args, " ", 2, args.length);
                 message = message.replace(plexPlayer.getName(), "%player%");
-                validateMessage(message);
+                validateMessage(context, message);
                 plexPlayer.setLoginMessage(message);
-                return messageComponent("setOtherPlayersLoginMessage", plexPlayer.getName(),
+                return context.messageComponent("setOtherPlayersLoginMessage", plexPlayer.getName(),
                         MiniMessage.miniMessage().serialize(PlexUtils.stringToComponent(message.replace("%player%", plexPlayer.getName()))));
             }
-            if (isConsole(sender))
+            if (context.isConsole(sender))
             {
-                return messageComponent("noPermissionConsole");
+                return context.messageComponent("noPermissionConsole");
             }
             PlexPlayer plexPlayer = plugin.getPlayerCache().getPlexPlayer(playerSender.getUniqueId());
             String message = StringUtils.join(args, " ", 0, args.length)
                     .replace(plexPlayer.getName(), "%player%");
-            validateMessage(message);
+            validateMessage(context, message);
             plexPlayer.setLoginMessage(message);
-            return messageComponent("setOwnLoginMessage", PlexUtils.stringToComponent(message.replace("%player%", plexPlayer.getName())));
+            return context.messageComponent("setOwnLoginMessage", PlexUtils.stringToComponent(message.replace("%player%", plexPlayer.getName())));
         }
         return null;
     }
 
-    private void validateMessage(String message)
+    private void validateMessage(ServerCommandContext context, String message)
     {
         if (nameRequired && !message.contains("%player%"))
         {
             PlexLog.debug("Validating login message has a valid name in it");
-            throw new CommandFailException(messageString("nameRequired"));
+            throw new CommandFailException(context.messageString("nameRequired"));
         }
     }
 

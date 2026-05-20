@@ -2,10 +2,8 @@ package dev.plex.command.impl;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
-import dev.plex.command.annotation.CommandParameters;
-import dev.plex.command.annotation.CommandPermissions;
+import dev.plex.command.ServerCommandContext;
 import dev.plex.command.exception.CommandFailException;
-import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.module.PlexModule;
 import dev.plex.module.PlexModuleFile;
 import dev.plex.util.BuildInfo;
@@ -24,12 +22,16 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-@CommandPermissions(source = RequiredCommandSource.ANY)
-@CommandParameters(name = "plex", usage = "/<command> [reload | redis | update | modules [reload | update]]", description = "Show information about Plex or reload it")
 public class PlexCMD extends ServerCommand
 {
+    public PlexCMD()
+    {
+        super(command("plex")
+            .description("Show information about Plex or reload it")
+            .usage("/<command> [reload | redis | update | modules [reload | update]]")
+            .build());
+    }
     // Don't modify this command
     @Override
     protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
@@ -50,106 +52,109 @@ public class PlexCMD extends ServerCommand
     }
 
     @Override
-    protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
+    protected Component execute(@NotNull ServerCommandContext context)
     {
+        CommandSender sender = context.sender();
+        Player playerSender = context.player();
+        String[] args = context.args();
         if (args.length == 0)
         {
-            send(sender, mmString("<light_purple>Plex - A new freedom plugin."));
-            send(sender, mmString("<light_purple>Plugin version: <gold>" + plugin.getPluginMeta().getVersion() + " #" + BuildInfo.getNumber() + " <light_purple>Git: <gold>" + BuildInfo.shortenCommit(BuildInfo.getCommit())));
-            send(sender, mmString("<light_purple>Authors: <gold>Telesphoreo, Taahh"));
-            send(sender, mmString("<light_purple>Built by: <gold>" + BuildInfo.getAuthor() + " <light_purple>on <gold>" + BuildInfo.getDate()));
-            send(sender, mmString("<light_purple>Run <gold>/plex modules <light_purple>to see a list of modules."));
+            context.send(sender, context.mmString("<light_purple>Plex - A new freedom plugin."));
+            context.send(sender, context.mmString("<light_purple>Plugin version: <gold>" + plugin.getPluginMeta().getVersion() + " #" + BuildInfo.getNumber() + " <light_purple>Git: <gold>" + BuildInfo.shortenCommit(BuildInfo.getCommit())));
+            context.send(sender, context.mmString("<light_purple>Authors: <gold>Telesphoreo, Taahh"));
+            context.send(sender, context.mmString("<light_purple>Built by: <gold>" + BuildInfo.getAuthor() + " <light_purple>on <gold>" + BuildInfo.getDate()));
+            context.send(sender, context.mmString("<light_purple>Run <gold>/plex modules <light_purple>to see a list of modules."));
             plugin.getUpdateChecker().getUpdateStatusMessage(sender, true, 2);
             return null;
         }
         if (args[0].equalsIgnoreCase("reload"))
         {
-            checkPermission(sender, "plex.reload");
+            context.checkPermission(sender, "plex.reload");
             plugin.config.load();
             PlexLog.setDebugEnabled(plugin.config.getBoolean("debug"));
-            send(sender, "Reloaded config file");
+            context.send(sender, "Reloaded config file");
             plugin.messages.load();
             PlexUtils.configure(plugin.config, plugin.messages);
-            send(sender, "Reloaded messages file");
+            context.send(sender, "Reloaded messages file");
             plugin.indefBans.load(false);
             plugin.getPunishmentManager().mergeIndefiniteBans();
-            send(sender, "Reloaded indefinite bans");
+            context.send(sender, "Reloaded indefinite bans");
             if (!plugin.getServer().getPluginManager().isPluginEnabled("Vault"))
             {
                 throw new RuntimeException("Vault is required to run on the server if you use permissions!");
             }
             plugin.getServiceManager().endServices();
             plugin.getServiceManager().startServices();
-            send(sender, "Restarted services.");
+            context.send(sender, "Restarted services.");
             TimeUtils.TIMEZONE = plugin.config.getString("server.timezone");
-            send(sender, "Set timezone to: " + TimeUtils.TIMEZONE);
-            send(sender, "Plex successfully reloaded.");
+            context.send(sender, "Set timezone to: " + TimeUtils.TIMEZONE);
+            context.send(sender, "Plex successfully reloaded.");
             return null;
         }
         else if (args[0].equalsIgnoreCase("redis"))
         {
-            checkPermission(sender, "plex.redis");
+            context.checkPermission(sender, "plex.redis");
             if (!plugin.getRedisConnection().isEnabled())
             {
                 throw new CommandFailException("&cRedis is not enabled.");
             }
             plugin.getRedisConnection().execute(jedis -> jedis.set("test", "123"));
-            send(sender, "Set test to 123. Now outputting key test...");
+            context.send(sender, "Set test to 123. Now outputting key test...");
             String test = plugin.getRedisConnection().query(jedis -> jedis.get("test"));
-            send(sender, test);
+            context.send(sender, test);
             return null;
         }
         else if (args[0].equalsIgnoreCase("modules"))
         {
             if (args.length == 1)
             {
-                return mmString("<gold>Modules (" + plugin.getModuleManager().getModules().size() + "): <yellow>" + StringUtils.join(plugin.getModuleManager().getModules().stream().map(PlexModule::getPlexModuleFile).map(PlexModuleFile::getName).collect(Collectors.toList()), ", "));
+                return context.mmString("<gold>Modules (" + plugin.getModuleManager().getModules().size() + "): <yellow>" + StringUtils.join(plugin.getModuleManager().getModules().stream().map(PlexModule::getPlexModuleFile).map(PlexModuleFile::getName).collect(Collectors.toList()), ", "));
             }
             if (args[1].equalsIgnoreCase("reload"))
             {
-                checkPermission(sender, "plex.modules.reload");
+                context.checkPermission(sender, "plex.modules.reload");
                 plugin.getModuleManager().reloadModules();
-                return mmString("<green>All modules reloaded!");
+                return context.mmString("<green>All modules reloaded!");
             }
             else if (args[1].equalsIgnoreCase("update"))
             {
-                if (!hasUpdateAccess(playerSender, sender))
+                if (!hasUpdateAccess(context, playerSender, sender))
                 {
-                    return mmString("<red>You must be a Developer to use this command.");
+                    return context.mmString("<red>You must be a Developer to use this command.");
                 }
                 for (PlexModule module : plugin.getModuleManager().getModules())
                 {
                     plugin.getUpdateChecker().updateJar(sender, module.getPlexModuleFile().getName(), true);
                 }
                 plugin.getModuleManager().reloadModules();
-                return mmString("<green>All modules updated and reloaded!");
+                return context.mmString("<green>All modules updated and reloaded!");
             }
         }
         else if (args[0].equalsIgnoreCase("update"))
         {
-            if (!hasUpdateAccess(playerSender, sender))
+            if (!hasUpdateAccess(context, playerSender, sender))
             {
-                return mmString("<red>You must be a Developer to use this command.");
+                return context.mmString("<red>You must be a Developer to use this command.");
             }
             if (!plugin.getUpdateChecker().getUpdateStatusMessage(sender, false, 0))
             {
-                return mmString("<red>Plex is already up to date!");
+                return context.mmString("<red>Plex is already up to date!");
             }
             plugin.getUpdateChecker().updateJar(sender, "Plex", false);
-            return mmString("<red>Alert: Restart the server for the new JAR file to be applied.");
+            return context.mmString("<red>Alert: Restart the server for the new JAR file to be applied.");
         }
         else
         {
-            return usage();
+            return context.usage();
         }
         return null;
     }
 
     // Owners and developers only have access
-    private boolean hasUpdateAccess(Player player, CommandSender sender)
+    private boolean hasUpdateAccess(ServerCommandContext context, Player player, CommandSender sender)
     {
         // Allow CONSOLE, get OfflinePlayer for Telnet
-        if (isConsole(sender))
+        if (context.isConsole(sender))
         {
             if (sender.getName().equalsIgnoreCase("CONSOLE"))
             {

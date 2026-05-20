@@ -3,9 +3,7 @@ package dev.plex.command.impl;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
-import dev.plex.command.annotation.CommandParameters;
-import dev.plex.command.annotation.CommandPermissions;
-import dev.plex.command.source.RequiredCommandSource;
+import dev.plex.command.ServerCommandContext;
 import dev.plex.player.PlexPlayer;
 import dev.plex.util.PlexUtils;
 
@@ -19,12 +17,18 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-@CommandPermissions(permission = "plex.tag", source = RequiredCommandSource.ANY)
-@CommandParameters(name = "tag", aliases = "prefix", description = "Set or clear your prefix", usage = "/<command> <set <prefix> | clear <player>>")
 public class TagCMD extends ServerCommand
 {
+    public TagCMD()
+    {
+        super(command("tag")
+            .description("Set or clear your prefix")
+            .usage("/<command> <set <prefix> | clear <player>>")
+            .aliases("prefix")
+            .permission("plex.tag")
+            .build());
+    }
     @Override
     protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
     {
@@ -40,40 +44,43 @@ public class TagCMD extends ServerCommand
     }
 
     @Override
-    protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
+    protected Component execute(@NotNull ServerCommandContext context)
     {
+        CommandSender sender = context.sender();
+        Player playerSender = context.player();
+        String[] args = context.args();
         if (args.length == 0)
         {
             if (sender instanceof ConsoleCommandSender)
             {
-                return usage("/tag clear <player>");
+                return context.usage("/tag clear <player>");
             }
-            return usage();
+            return context.usage();
         }
 
         if (args[0].equalsIgnoreCase("set"))
         {
             if (sender instanceof ConsoleCommandSender)
             {
-                return messageComponent("noPermissionConsole");
+                return context.messageComponent("noPermissionConsole");
             }
             assert playerSender != null;
             PlexPlayer player = plugin.getPlayerService().getPlayer(playerSender.getUniqueId());
             if (args.length < 2)
             {
-                return usage("/tag set <prefix>");
+                return context.usage("/tag set <prefix>");
             }
 
             Component convertedComponent = PlexUtils.stringToComponent(StringUtils.join(args, " ", 1, args.length));
 
             if (PlainTextComponentSerializer.plainText().serialize(convertedComponent).length() > plugin.config.getInt("chat.max-tag-length", 16))
             {
-                return messageComponent("maximumPrefixLength", plugin.config.getInt("chat.max-tag-length", 16));
+                return context.messageComponent("maximumPrefixLength", plugin.config.getInt("chat.max-tag-length", 16));
             }
 
             player.setPrefix(MiniMessage.miniMessage().serialize(convertedComponent));
             plugin.getPlayerService().update(player);
-            return messageComponent("prefixSetTo", MiniMessage.miniMessage().serialize(convertedComponent));
+            return context.messageComponent("prefixSetTo", MiniMessage.miniMessage().serialize(convertedComponent));
         }
 
         if (args[0].equalsIgnoreCase("clear"))
@@ -82,7 +89,7 @@ public class TagCMD extends ServerCommand
             {
                 if (sender instanceof ConsoleCommandSender)
                 {
-                    return messageComponent("noPermissionConsole");
+                    return context.messageComponent("noPermissionConsole");
                 }
 
                 if (playerSender == null)
@@ -93,16 +100,16 @@ public class TagCMD extends ServerCommand
                 PlexPlayer player = plugin.getPlayerService().getPlayer(playerSender.getUniqueId());
                 player.setPrefix(null);
                 plugin.getPlayerService().update(player);
-                return messageComponent("prefixCleared");
+                return context.messageComponent("prefixCleared");
             }
-            checkPermission(sender, "plex.tag.clear.others");
-            Player target = getNonNullPlayer(args[1]);
+            context.checkPermission(sender, "plex.tag.clear.others");
+            Player target = context.getNonNullPlayer(args[1]);
             PlexPlayer plexTarget = plugin.getPlayerService().getPlayer(target.getUniqueId());
             plexTarget.setPrefix(null);
             plugin.getPlayerService().update(plexTarget);
-            return messageComponent("otherPrefixCleared", target.getName());
+            return context.messageComponent("otherPrefixCleared", target.getName());
         }
-        return usage();
+        return context.usage();
     }
 
 }

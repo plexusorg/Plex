@@ -3,8 +3,7 @@ package dev.plex.command.impl;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
-import dev.plex.command.annotation.CommandParameters;
-import dev.plex.command.annotation.CommandPermissions;
+import dev.plex.command.ServerCommandContext;
 import dev.plex.command.exception.CommandFailException;
 import dev.plex.command.exception.PlayerNotFoundException;
 import dev.plex.player.PlexPlayer;
@@ -17,12 +16,18 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-@CommandPermissions(permission = "plex.unmute")
-@CommandParameters(name = "unmute", description = "Unmute a player", usage = "/<command> <player>", aliases = "eunmute")
 public class UnmuteCMD extends ServerCommand
 {
+    public UnmuteCMD()
+    {
+        super(command("unmute")
+            .description("Unmute a player")
+            .usage("/<command> <player>")
+            .aliases("eunmute")
+            .permission("plex.unmute")
+            .build());
+    }
     @Override
     protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
     {
@@ -32,11 +37,14 @@ public class UnmuteCMD extends ServerCommand
     }
 
     @Override
-    protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
+    protected Component execute(@NotNull ServerCommandContext context)
     {
+        CommandSender sender = context.sender();
+        Player playerSender = context.player();
+        String[] args = context.args();
         if (args.length != 1)
         {
-            return usage();
+            return context.usage();
         }
         PlexPlayer punishedPlayer = plugin.getPlayerService().getPlayer(args[0]);
         if (punishedPlayer == null)
@@ -54,7 +62,7 @@ public class UnmuteCMD extends ServerCommand
             punishment.setActive(false);
             plugin.getPunishmentRepository().updatePunishment(punishment.getType(), false, punishment.getPunished());
         });
-        PlexUtils.broadcast(messageComponent("unmutedPlayer", sender.getName(), punishedPlayer.getName()));
+        PlexUtils.broadcast(context.messageComponent("unmutedPlayer", sender.getName(), punishedPlayer.getName()));
         return null;
     }
 

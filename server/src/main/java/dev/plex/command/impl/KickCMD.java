@@ -3,10 +3,8 @@ package dev.plex.command.impl;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
-import dev.plex.command.annotation.CommandParameters;
-import dev.plex.command.annotation.CommandPermissions;
+import dev.plex.command.ServerCommandContext;
 import dev.plex.command.exception.PlayerNotFoundException;
-import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.Punishment;
 import dev.plex.punishment.PunishmentType;
@@ -24,12 +22,18 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-@CommandParameters(name = "kick", description = "Kicks a player", usage = "/<command> <player>", aliases = "ekick")
-@CommandPermissions(permission = "plex.kick", source = RequiredCommandSource.ANY)
 public class KickCMD extends ServerCommand
 {
+    public KickCMD()
+    {
+        super(command("kick")
+            .description("Kicks a player")
+            .usage("/<command> <player>")
+            .aliases("ekick")
+            .permission("plex.kick")
+            .build());
+    }
     @Override
     protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
     {
@@ -41,15 +45,18 @@ public class KickCMD extends ServerCommand
     }
 
     @Override
-    protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
+    protected Component execute(@NotNull ServerCommandContext context)
     {
+        CommandSender sender = context.sender();
+        Player playerSender = context.player();
+        String[] args = context.args();
         if (args.length == 0)
         {
-            return usage();
+            return context.usage();
         }
 
         PlexPlayer plexPlayer = plugin.getPlayerService().getPlayer(args[0]);
-        String reason = messageString("noReasonProvided");
+        String reason = context.messageString("noReasonProvided");
 
         if (plexPlayer == null)
         {
@@ -61,7 +68,7 @@ public class KickCMD extends ServerCommand
         {
             throw new PlayerNotFoundException();
         }
-        Punishment punishment = new Punishment(plexPlayer.getUuid(), getUUID(sender));
+        Punishment punishment = new Punishment(plexPlayer.getUuid(), context.getUUID(sender));
         punishment.setType(PunishmentType.KICK);
         if (args.length > 1)
         {
@@ -75,7 +82,7 @@ public class KickCMD extends ServerCommand
         punishment.setActive(false);
         punishment.setIp(player.getAddress().getAddress().getHostAddress().trim());
         plugin.getPunishmentManager().punish(plexPlayer, punishment);
-        PlexUtils.broadcast(messageComponent("kickedPlayer", sender.getName(), plexPlayer.getName()));
+        PlexUtils.broadcast(context.messageComponent("kickedPlayer", sender.getName(), plexPlayer.getName()));
         BungeeUtil.kickPlayer(plugin, player, Punishment.generateKickMessage(punishment, plugin.getPlayerService()));
         return null;
     }

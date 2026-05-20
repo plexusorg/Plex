@@ -3,8 +3,7 @@ package dev.plex.command.impl;
 import com.google.common.collect.Lists;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
-import dev.plex.command.annotation.CommandParameters;
-import dev.plex.command.annotation.CommandPermissions;
+import dev.plex.command.ServerCommandContext;
 import dev.plex.command.source.RequiredCommandSource;
 
 import java.util.List;
@@ -18,12 +17,18 @@ import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-@CommandPermissions(permission = "plex.world", source = RequiredCommandSource.IN_GAME)
-@CommandParameters(name = "world", description = "Teleport to a world.", usage = "/<command> <world>")
 public class WorldCMD extends ServerCommand
 {
+    public WorldCMD()
+    {
+        super(command("world")
+            .description("Teleport to a world.")
+            .usage("/<command> <world>")
+            .permission("plex.world")
+            .source(RequiredCommandSource.IN_GAME)
+            .build());
+    }
     private static final Pattern UUID_PATTERN = Pattern.compile("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}");
 
     @Override
@@ -44,7 +49,7 @@ public class WorldCMD extends ServerCommand
                         try
                         {
                             UUID uuid = UUID.fromString(worldName);
-                            if (uuid.equals(player.getUniqueId()) || silentCheckPermission(player, "plex.world.playerworlds"))
+                            if (uuid.equals(player.getUniqueId()) || player.hasPermission("plex.world.playerworlds"))
                             {
                                 completions.add(worldName);
                             }
@@ -60,22 +65,25 @@ public class WorldCMD extends ServerCommand
     }
 
     @Override
-    protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
+    protected Component execute(@NotNull ServerCommandContext context)
     {
+        CommandSender sender = context.sender();
+        Player playerSender = context.player();
+        String[] args = context.args();
         assert playerSender != null;
         if (args.length != 1)
         {
-            return usage();
+            return context.usage();
         }
 
-        World world = getNonNullWorld(args[0]);
+        World world = context.getNonNullWorld(args[0]);
         boolean playerWorld = args[0].matches("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}");
         if (playerWorld && plugin.getModuleManager().getModules().stream().anyMatch(plexModule -> plexModule.getPlexModuleFile().getName().equalsIgnoreCase("Module-TFMExtras")))
         {
-            checkPermission(playerSender, "plex.world.playerworlds");
+            context.checkPermission(playerSender, "plex.world.playerworlds");
         }
         playerSender.teleportAsync(world.getSpawnLocation());
-        return messageComponent("playerWorldTeleport", world.getName());
+        return context.messageComponent("playerWorldTeleport", world.getName());
     }
 
 }

@@ -106,6 +106,13 @@ public abstract class PlexModule
     /**
      * Registers and tracks a command owned by this module.
      *
+     * <p>Paper Brigadier commands are lifecycle-registered. Commands registered
+     * during module load before Plex's command handler initializes are active for
+     * the current startup. Commands registered after the Paper command lifecycle
+     * has already run are tracked by Plex but are not guaranteed to appear in the
+     * live dispatcher until Paper rebuilds lifecycle commands, normally on a full
+     * server restart.</p>
+     *
      * @param command command to register
      */
     public void registerCommand(PlexCommand command)
@@ -119,6 +126,10 @@ public abstract class PlexModule
 
     /**
      * Unregisters and stops tracking a command owned by this module.
+     *
+     * <p>Unregistration removes the command from this module and Plex's registry.
+     * If Paper has already built the active Brigadier dispatcher, the command may
+     * remain callable until Paper rebuilds lifecycle commands.</p>
      *
      * @param command command to unregister
      */

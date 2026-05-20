@@ -182,5 +182,9 @@ public class ModuleManager
         loadAllModules();
         loadModules();
         enableModules();
+        if (plugin.getCommandHandler() != null && plugin.getCommandHandler().requiresLifecycleReload())
+        {
+            PlexLog.warn("Module command changes were staged after Paper's Brigadier command lifecycle. Restart the server for the live command dispatcher to match the loaded modules.");
+        }
     }
 }

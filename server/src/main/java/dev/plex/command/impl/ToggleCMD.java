@@ -2,9 +2,7 @@ package dev.plex.command.impl;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
-import dev.plex.command.annotation.CommandParameters;
-import dev.plex.command.annotation.CommandPermissions;
-import dev.plex.command.source.RequiredCommandSource;
+import dev.plex.command.ServerCommandContext;
 import dev.plex.menu.impl.ToggleMenu;
 import dev.plex.util.PlexUtils;
 
@@ -14,12 +12,17 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-@CommandParameters(name = "toggle", description = "Allows toggling various server aspects through a GUI", aliases = "toggles")
-@CommandPermissions(permission = "plex.toggle", source = RequiredCommandSource.ANY)
 public class ToggleCMD extends ServerCommand
 {
+    public ToggleCMD()
+    {
+        super(command("toggle")
+            .description("Allows toggling various server aspects through a GUI")
+            .aliases("toggles")
+            .permission("plex.toggle")
+            .build());
+    }
     @Override
     protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
     {
@@ -39,51 +42,54 @@ public class ToggleCMD extends ServerCommand
     }
 
     @Override
-    protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
+    protected Component execute(@NotNull ServerCommandContext context)
     {
-        if (isConsole(sender) || playerSender == null)
+        CommandSender sender = context.sender();
+        Player playerSender = context.player();
+        String[] args = context.args();
+        if (context.isConsole(sender) || playerSender == null)
         {
             if (args.length == 0)
             {
-                sender.sendMessage(messageComponent("toggleAvailable"));
-                sender.sendMessage(toggleListItem("toggleExplosions", "explosions"));
-                sender.sendMessage(toggleListItem("toggleFluidSpread", "fluidspread"));
-                sender.sendMessage(toggleListItem("toggleDrops", "drops"));
-                sender.sendMessage(toggleListItem("toggleRedstone", "redstone"));
-                sender.sendMessage(toggleListItem("togglePvp", "pvp"));
-                sender.sendMessage(toggleListItem("toggleChat", "chat"));
+                sender.sendMessage(context.messageComponent("toggleAvailable"));
+                sender.sendMessage(toggleListItem(context, "toggleExplosions", "explosions"));
+                sender.sendMessage(toggleListItem(context, "toggleFluidSpread", "fluidspread"));
+                sender.sendMessage(toggleListItem(context, "toggleDrops", "drops"));
+                sender.sendMessage(toggleListItem(context, "toggleRedstone", "redstone"));
+                sender.sendMessage(toggleListItem(context, "togglePvp", "pvp"));
+                sender.sendMessage(toggleListItem(context, "toggleChat", "chat"));
                 return null;
             }
             switch (args[0].toLowerCase())
             {
                 case "explosions" ->
                 {
-                    return toggle("explosions");
+                    return toggle(context, "explosions");
                 }
                 case "fluidspread" ->
                 {
-                    return toggle("fluidspread");
+                    return toggle(context, "fluidspread");
                 }
                 case "drops" ->
                 {
-                    return toggle("drops");
+                    return toggle(context, "drops");
                 }
                 case "redstone" ->
                 {
-                    return toggle("redstone");
+                    return toggle(context, "redstone");
                 }
                 case "pvp" ->
                 {
-                    return toggle("pvp");
+                    return toggle(context, "pvp");
                 }
                 case "chat" ->
                 {
-                    PlexUtils.broadcast(PlexUtils.messageComponent("chatToggled", sender.getName(), messageString(plugin.toggles.getBoolean("chat") ? "stateOff" : "stateOn")));
-                    return toggle("chat");
+                    PlexUtils.broadcast(PlexUtils.messageComponent("chatToggled", sender.getName(), context.messageString(plugin.toggles.getBoolean("chat") ? "stateOff" : "stateOn")));
+                    return toggle(context, "chat");
                 }
                 default ->
                 {
-                    return messageComponent("invalidToggle");
+                    return context.messageComponent("invalidToggle");
                 }
             }
         }
@@ -91,20 +97,20 @@ public class ToggleCMD extends ServerCommand
         return null;
     }
 
-    private Component toggleListItem(String nameKey, String toggle)
+    private Component toggleListItem(ServerCommandContext context, String nameKey, String toggle)
     {
-        return messageComponent("toggleListItem", messageString(nameKey), status(toggle));
+        return context.messageComponent("toggleListItem", context.messageString(nameKey), status(context, toggle));
     }
 
-    private Component toggle(String toggle)
+    private Component toggle(ServerCommandContext context, String toggle)
     {
         plugin.toggles.set(toggle, !plugin.getToggles().getBoolean(toggle));
-        return messageComponent("toggleCommandResult", messageString(toggleNameKey(toggle)), status(toggle));
+        return context.messageComponent("toggleCommandResult", context.messageString(toggleNameKey(toggle)), status(context, toggle));
     }
 
-    private String status(String toggle)
+    private String status(ServerCommandContext context, String toggle)
     {
-        return messageString(plugin.toggles.getBoolean(toggle) ? "stateEnabled" : "stateDisabled");
+        return context.messageString(plugin.toggles.getBoolean(toggle) ? "stateEnabled" : "stateDisabled");
     }
 
     private String toggleNameKey(String toggle)

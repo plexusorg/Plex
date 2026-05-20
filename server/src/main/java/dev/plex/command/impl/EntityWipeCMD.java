@@ -2,9 +2,7 @@ package dev.plex.command.impl;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
-import dev.plex.command.annotation.CommandParameters;
-import dev.plex.command.annotation.CommandPermissions;
-import dev.plex.command.source.RequiredCommandSource;
+import dev.plex.command.ServerCommandContext;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 
@@ -23,12 +21,18 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-@CommandPermissions(permission = "plex.entitywipe", source = RequiredCommandSource.ANY)
-@CommandParameters(name = "entitywipe", description = "Remove various server entities that may cause lag, such as dropped items, minecarts, and boats.", usage = "/<command> [entity] [radius]", aliases = "ew,rd")
 public class EntityWipeCMD extends ServerCommand
 {
+    public EntityWipeCMD()
+    {
+        super(command("entitywipe")
+            .description("Remove various server entities that may cause lag, such as dropped items, minecarts, and boats.")
+            .usage("/<command> [entity] [radius]")
+            .aliases("ew,rd")
+            .permission("plex.entitywipe")
+            .build());
+    }
     @Override
     protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
     {
@@ -53,8 +57,11 @@ public class EntityWipeCMD extends ServerCommand
     }
 
     @Override
-    protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, @NotNull String[] args)
+    protected Component execute(@NotNull ServerCommandContext context)
     {
+        CommandSender sender = context.sender();
+        Player playerSender = context.player();
+        String[] args = context.args();
         List<String> entityBlacklist = plugin.config.getStringList("entitywipe_list");
 
         List<String> entityWhitelist = new LinkedList<>(Arrays.asList(args));
@@ -68,7 +75,7 @@ public class EntityWipeCMD extends ServerCommand
 
         if (radiusSpecified)
         {
-            radius = parseInt(sender, entityWhitelist.getLast()); // get the args length as the size of the list
+            radius = parseInt(context, sender, entityWhitelist.getLast()); // get the args length as the size of the list
             radius *= radius;
             entityWhitelist.removeLast(); // remove the radius from the list
         }
@@ -81,7 +88,7 @@ public class EntityWipeCMD extends ServerCommand
             boolean res = Arrays.stream(entityTypes).noneMatch(entityType -> name.equalsIgnoreCase(entityType.name()));
             if (res)
             {
-                sender.sendMessage(messageComponent("invalidEntityType", name));
+                sender.sendMessage(context.messageComponent("invalidEntityType", name));
             }
             return res;
         });
@@ -120,23 +127,23 @@ public class EntityWipeCMD extends ServerCommand
 
         if (useBlacklist)
         {
-            PlexUtils.broadcast(messageComponent("removedEntities", sender.getName(), entityCount));
+            PlexUtils.broadcast(context.messageComponent("removedEntities", sender.getName(), entityCount));
         }
         else
         {
             if (entityCount == 0)
             {
-                sender.sendMessage(messageComponent("noRemovedEntities"));
+                sender.sendMessage(context.messageComponent("noRemovedEntities"));
                 return null;
             }
             String list = String.join(", ", entityCounts.keySet());
             list = list.replaceAll("(, )(?!.*\1)", (list.indexOf(", ") == list.lastIndexOf(", ") ? "" : ",") + " and ");
-            PlexUtils.broadcast(messageComponent("removedEntitiesOfTypes", sender.getName(), entityCount, list));
+            PlexUtils.broadcast(context.messageComponent("removedEntitiesOfTypes", sender.getName(), entityCount, list));
         }
         return null;
     }
 
-        private Integer parseInt(CommandSender sender, String string)
+    private Integer parseInt(ServerCommandContext context, CommandSender sender, String string)
     {
         try
         {
@@ -144,7 +151,7 @@ public class EntityWipeCMD extends ServerCommand
         }
         catch (NumberFormatException ex)
         {
-            sender.sendMessage(messageComponent("notANumber", string));
+            sender.sendMessage(context.messageComponent("notANumber", string));
         }
         return null;
     }

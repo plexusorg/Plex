@@ -31,4 +31,10 @@ final class DefaultCommandApi implements CommandApi
             plugin.getCommandHandler().unregisterCommand(command);
         }
     }
+
+    @Override
+    public boolean requiresLifecycleReload()
+    {
+        return plugin.getCommandHandler() != null && plugin.getCommandHandler().requiresLifecycleReload();
+    }
 }

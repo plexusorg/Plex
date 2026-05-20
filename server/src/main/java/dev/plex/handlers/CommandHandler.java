@@ -15,6 +15,7 @@ public class CommandHandler
 {
     private final List<PlexCommand> commands = new ArrayList<>();
     private boolean lifecycleRegistered;
+    private boolean lifecycleReloadRequired;
 
     public CommandHandler(Plex plugin)
     {
@@ -29,13 +30,24 @@ public class CommandHandler
         commands.add(command);
         if (lifecycleRegistered)
         {
-            PlexLog.warn("Command {0} was registered after the Brigadier command lifecycle event; it will be included on the next command reload.", command.getName());
+            lifecycleReloadRequired = true;
+            PlexLog.warn("Command {0} was registered after the Brigadier command lifecycle event; it will be included on the next command lifecycle rebuild.", command.getName());
         }
     }
 
     public void unregisterCommand(PlexCommand command)
     {
-        commands.remove(command);
+        boolean removed = commands.remove(command);
+        if (removed && lifecycleRegistered)
+        {
+            lifecycleReloadRequired = true;
+            PlexLog.warn("Command {0} was unregistered after the Brigadier command lifecycle event; Paper may keep the active Brigadier node until the next command lifecycle rebuild.", command.getName());
+        }
+    }
+
+    public boolean requiresLifecycleReload()
+    {
+        return lifecycleReloadRequired;
     }
 
     public @Nullable PlexCommand getCommand(String name)
@@ -75,6 +87,7 @@ public class CommandHandler
             }
         }
         lifecycleRegistered = true;
+        lifecycleReloadRequired = false;
         PlexLog.log("Registered {0} Brigadier commands with {1} root labels.", commands.size(), labels);
     }
 

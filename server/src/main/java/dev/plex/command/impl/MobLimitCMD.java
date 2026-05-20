@@ -2,9 +2,7 @@ package dev.plex.command.impl;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
-import dev.plex.command.annotation.CommandParameters;
-import dev.plex.command.annotation.CommandPermissions;
-import dev.plex.command.source.RequiredCommandSource;
+import dev.plex.command.ServerCommandContext;
 import dev.plex.util.PlexUtils;
 
 import java.util.Arrays;
@@ -17,12 +15,18 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-@CommandParameters(name = "moblimit", usage = "/<command> [on | off | setmax <limit>]", aliases = "entitylimit", description = "Manages the mob limit per chunk.")
-@CommandPermissions(permission = "plex.moblimit", source = RequiredCommandSource.ANY)
 public class MobLimitCMD extends ServerCommand
 {
+    public MobLimitCMD()
+    {
+        super(command("moblimit")
+            .description("Manages the mob limit per chunk.")
+            .usage("/<command> [on | off | setmax <limit>]")
+            .aliases("entitylimit")
+            .permission("plex.moblimit")
+            .build());
+    }
     @Override
     protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
     {
@@ -37,8 +41,11 @@ public class MobLimitCMD extends ServerCommand
     }
 
     @Override
-    protected Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, String[] args)
+    protected Component execute(@NotNull ServerCommandContext context)
     {
+        CommandSender sender = context.sender();
+        Player playerSender = context.player();
+        String[] args = context.args();
         if (args.length == 0)
         {
             Chunk chunk = playerSender != null ? playerSender.getLocation().getChunk() : Bukkit.getWorlds().getFirst().getChunkAt(0, 0);
@@ -67,7 +74,7 @@ public class MobLimitCMD extends ServerCommand
                 {
                     if (args.length != 2)
                     {
-                        return usage();
+                        return context.usage();
                     }
 
                     int newLimit = Integer.parseInt(args[1]);
@@ -92,7 +99,7 @@ public class MobLimitCMD extends ServerCommand
                     return PlexUtils.messageComponent("unableToParseNumber", args[1]);
                 }
             default:
-                return usage();
+                return context.usage();
         }
     }
 

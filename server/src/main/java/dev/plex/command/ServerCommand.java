@@ -18,27 +18,20 @@ import dev.plex.command.exception.PlayerNotBannedException;
 import dev.plex.command.exception.PlayerNotFoundException;
 import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.player.PlexPlayer;
-import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import java.util.Collection;
-import java.util.Locale;
 import java.util.List;
-import java.util.UUID;
+import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
-import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
-import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Brigadier-backed superclass for Plex's built-in server commands.
@@ -48,6 +41,7 @@ public abstract class ServerCommand implements PlexCommand
     private static Runtime runtime;
 
     protected final Plex plugin;
+    private final CommandSpec commandSpec;
     private final RequiredCommandSource commandSource;
 
     public static void setRuntime(Runtime runtime)
@@ -55,13 +49,25 @@ public abstract class ServerCommand implements PlexCommand
         ServerCommand.runtime = runtime;
     }
 
-    protected ServerCommand()
+    protected ServerCommand(CommandSpec commandSpec)
     {
         this.plugin = requireRuntime().plugin();
-        this.commandSource = permissions().source();
+        this.commandSpec = commandSpec;
+        this.commandSource = commandSpec.requiredSource();
     }
 
-    protected abstract Component execute(@NotNull CommandSender sender, @Nullable Player playerSender, @NotNull String[] args);
+    protected static CommandSpec.Builder command(String name)
+    {
+        return CommandSpec.builder(name);
+    }
+
+    @Override
+    public final CommandSpec commandSpec()
+    {
+        return commandSpec;
+    }
+
+    protected abstract Component execute(@NotNull ServerCommandContext context);
 
     @Override
     public final LiteralCommandNode<CommandSourceStack> buildCommand()
@@ -227,7 +233,7 @@ public abstract class ServerCommand implements PlexCommand
     {
         return (context, builder) ->
         {
-            if (!silentCheckPermission(context.getSource().getSender(), permission))
+            if (!canUsePermission(context.getSource(), permission))
             {
                 return builder.buildFuture();
             }
@@ -235,6 +241,15 @@ public abstract class ServerCommand implements PlexCommand
             suggestions.add("-a");
             return suggestMatching(builder, suggestions);
         };
+    }
+
+    protected boolean canUsePermission(CommandSourceStack source, String permission)
+    {
+        if (permission.isEmpty())
+        {
+            return true;
+        }
+        return !(source.getSender() instanceof Player player) || player.hasPermission(permission);
     }
 
     private boolean canUse(CommandSourceStack source)
@@ -271,41 +286,42 @@ public abstract class ServerCommand implements PlexCommand
         return true;
     }
 
-    private int dispatchCommand(CommandContext<CommandSourceStack> context, String[] args)
+    private int dispatchCommand(CommandContext<CommandSourceStack> brigadierContext, String[] args)
     {
-        CommandSender sender = context.getSource().getSender();
-        if (!validateSourceAndPermission(sender))
+        ServerCommandContext context = new ServerCommandContext(plugin, this, brigadierContext, args);
+        CommandSender sender = context.sender();
+        if (!validateSourceAndPermission(sender, context))
         {
             return com.mojang.brigadier.Command.SINGLE_SUCCESS;
         }
 
         try
         {
-            Component component = this.execute(sender, isConsole(sender) ? null : (Player)sender, args);
+            Component component = this.execute(context);
             if (component != null)
             {
-                send(sender, component);
+                context.send(sender, component);
             }
         }
         catch (PlayerNotFoundException | CommandFailException | ConsoleOnlyException |
                ConsoleMustDefinePlayerException | PlayerNotBannedException | NumberFormatException ex)
         {
-            send(sender, exceptionComponent(ex));
+            context.send(sender, context.exceptionComponent(ex));
         }
         return com.mojang.brigadier.Command.SINGLE_SUCCESS;
     }
 
-    private boolean validateSourceAndPermission(CommandSender sender)
+    private boolean validateSourceAndPermission(CommandSender sender, ServerCommandContext context)
     {
         if (commandSource == RequiredCommandSource.CONSOLE && sender instanceof Player)
         {
-            send(sender, messageComponent("noPermissionInGame"));
+            context.send(sender, context.messageComponent("noPermissionInGame"));
             return false;
         }
 
         if (commandSource == RequiredCommandSource.IN_GAME && sender instanceof ConsoleCommandSender)
         {
-            send(sender, messageComponent("noPermissionConsole"));
+            context.send(sender, context.messageComponent("noPermissionConsole"));
             return false;
         }
 
@@ -323,7 +339,7 @@ public abstract class ServerCommand implements PlexCommand
             }
             if (!player.hasPermission(permission))
             {
-                send(sender, messageComponent("noPermissionNode", permission));
+                context.send(sender, context.messageComponent("noPermissionNode", permission));
                 return false;
             }
             return true;
@@ -335,7 +351,7 @@ public abstract class ServerCommand implements PlexCommand
             Player player = plexPlayer == null ? null : Bukkit.getPlayer(plexPlayer.getName());
             if (player == null || !plugin.getPermissions().playerHas(null, player, permission))
             {
-                send(sender, messageComponent("noPermissionNode", permission));
+                context.send(sender, context.messageComponent("noPermissionNode", permission));
                 return false;
             }
         }
@@ -357,183 +373,9 @@ public abstract class ServerCommand implements PlexCommand
         return rawArgs.trim().split("\\s+");
     }
 
-    protected PlexPlayer getPlexPlayer(@NotNull Player player)
-    {
-        return plugin.getPlayerService().getPlayer(player.getUniqueId());
-    }
-
-    protected void send(Audience audience, String s)
-    {
-        audience.sendMessage(componentFromString(s));
-    }
-
-    protected void send(Audience audience, Component component)
-    {
-        audience.sendMessage(component);
-    }
-
-    protected boolean checkPermission(CommandSender sender, String permission)
-    {
-        if (!isConsole(sender))
-        {
-            return checkPermission((Player)sender, permission);
-        }
-        return true;
-    }
-
-    protected boolean silentCheckPermission(CommandSender sender, String permission)
-    {
-        PlexLog.debug("Checking {0} with {1}", sender.getName(), permission);
-        if (!isConsole(sender))
-        {
-            return silentCheckPermission((Player)sender, permission);
-        }
-        return true;
-    }
-
-    protected boolean checkPermission(Player player, String permission)
-    {
-        if (!permission.isEmpty() && !player.hasPermission(permission))
-        {
-            throw new CommandFailException(PlexUtils.messageString("noPermissionNode", permission));
-        }
-        return true;
-    }
-
-    protected boolean silentCheckPermission(Player player, String permission)
-    {
-        return permission.isEmpty() || player.hasPermission(permission);
-    }
-
-    protected UUID getUUID(CommandSender sender)
-    {
-        if (!(sender instanceof Player player))
-        {
-            return null;
-        }
-        return player.getUniqueId();
-    }
-
     public @NotNull Plex getPlugin()
     {
         return plugin;
-    }
-
-    protected boolean isConsole(CommandSender sender)
-    {
-        return !(sender instanceof Player);
-    }
-
-    protected Component messageComponent(String s, Object... objects)
-    {
-        return PlexUtils.messageComponent(s, objects);
-    }
-
-    protected Component messageComponent(String s, Component... objects)
-    {
-        return PlexUtils.messageComponent(s, objects);
-    }
-
-    protected String messageString(String s, Object... objects)
-    {
-        return PlexUtils.messageString(s, objects);
-    }
-
-    protected Component usage()
-    {
-        return messageComponent("correctUsagePrefix").append(componentFromString(this.getUsage()).color(NamedTextColor.GRAY));
-    }
-
-    protected Component usage(String s)
-    {
-        return messageComponent("correctUsagePrefix").append(componentFromString(s).color(NamedTextColor.GRAY));
-    }
-
-    private Component exceptionComponent(RuntimeException ex)
-    {
-        if (ex instanceof PlayerNotFoundException && "PlayerNotFoundException".equals(ex.getMessage()))
-        {
-            return messageComponent("playerNotFound");
-        }
-        if (ex instanceof PlayerNotBannedException && "PlayerNotBannedException".equals(ex.getMessage()))
-        {
-            return messageComponent("playerNotBanned");
-        }
-        if (ex instanceof ConsoleOnlyException && "ConsoleOnlyException".equals(ex.getMessage()))
-        {
-            return messageComponent("consoleOnly");
-        }
-        if (ex instanceof ConsoleMustDefinePlayerException && "ConsoleMustDefinePlayerException".equals(ex.getMessage()))
-        {
-            return messageComponent("consoleMustDefinePlayer");
-        }
-        String message = ex.getMessage();
-        return message == null ? componentFromString(ex.getClass().getSimpleName()) : PlexUtils.mmDeserialize(message);
-    }
-
-    protected Player getNonNullPlayer(String name)
-    {
-        try
-        {
-            UUID uuid = UUID.fromString(name);
-            return Bukkit.getPlayer(uuid);
-        }
-        catch (IllegalArgumentException ignored)
-        {
-        }
-
-        Player player = Bukkit.getPlayer(name);
-        if (player == null)
-        {
-            throw new PlayerNotFoundException();
-        }
-        return player;
-    }
-
-    protected PlexPlayer getOnlinePlexPlayer(String name)
-    {
-        Player player = getNonNullPlayer(name);
-        PlexPlayer plexPlayer = plugin.getPlayerCache().getPlexPlayer(player.getUniqueId());
-        if (plexPlayer == null)
-        {
-            throw new PlayerNotFoundException();
-        }
-        return plexPlayer;
-    }
-
-    protected PlexPlayer getOfflinePlexPlayer(UUID uuid)
-    {
-        PlexPlayer plexPlayer = plugin.getPlayerService().getPlayer(uuid);
-        if (plexPlayer == null)
-        {
-            throw new PlayerNotFoundException();
-        }
-        return plexPlayer;
-    }
-
-    protected World getNonNullWorld(String name)
-    {
-        World world = Bukkit.getWorld(name);
-        if (world == null)
-        {
-            throw new CommandFailException(PlexUtils.messageString("worldNotFound"));
-        }
-        return world;
-    }
-
-    protected Component componentFromString(String s)
-    {
-        return LegacyComponentSerializer.legacyAmpersand().deserialize(s).colorIfAbsent(NamedTextColor.GRAY);
-    }
-
-    protected Component noColorComponentFromString(String s)
-    {
-        return LegacyComponentSerializer.legacyAmpersand().deserialize(s);
-    }
-
-    protected Component mmString(String s)
-    {
-        return PlexUtils.mmDeserialize(s);
     }
 
     private static Runtime requireRuntime()
