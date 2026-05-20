@@ -1,7 +1,9 @@
 package dev.plex.module;
 
 import dev.plex.api.PlexApi;
+import dev.plex.api.config.ModuleConfiguration;
 import dev.plex.command.PlexCommand;
+import dev.plex.config.ModuleConfig;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,10 +11,10 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
+import net.kyori.adventure.text.Component;
 import org.apache.logging.log4j.Logger;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
@@ -31,6 +33,7 @@ public abstract class PlexModule
     private final List<Listener> listeners = new ArrayList<>();
 
     private PlexApi api;
+    private ModuleConfiguration messages;
     private PlexModuleFile plexModuleFile;
     private File dataFolder;
     private Logger logger;
@@ -159,41 +162,6 @@ public abstract class PlexModule
     }
 
     /**
-     * Adds a default message if the message key is not already configured.
-     *
-     * @param message message key
-     * @param initValue default value to write
-     */
-    public void addDefaultMessage(String message, Object initValue)
-    {
-        if (api.configuration().messages().getString(message) == null)
-        {
-            api.configuration().messages().set(message, initValue);
-            api.configuration().messages().save();
-            logger.debug("'{}' message added from {}", message, plexModuleFile.getName());
-        }
-    }
-
-    /**
-     * Adds a default message and comments if the message key is not already configured.
-     *
-     * @param message message key
-     * @param initValue default value to write
-     * @param comments comments to write above the message key
-     */
-    public void addDefaultMessage(String message, Object initValue, String... comments)
-    {
-        if (api.configuration().messages().getString(message) == null)
-        {
-            api.configuration().messages().set(message, initValue);
-            api.configuration().messages().save();
-            api.configuration().messages().setComments(message, Arrays.asList(comments));
-            api.configuration().messages().save();
-            logger.debug("'{}' message added from {}", message, plexModuleFile.getName());
-        }
-    }
-
-    /**
      * Opens a resource from this module's class loader.
      *
      * @param filename resource path
@@ -271,6 +239,90 @@ public abstract class PlexModule
     }
 
     /**
+     * Loads this module's message file.
+     *
+     * @param from resource path to copy defaults from
+     */
+    public void loadMessages(String from)
+    {
+        loadMessages(from, "messages.yml");
+    }
+
+    /**
+     * Loads this module's message file.
+     *
+     * @param from resource path to copy defaults from
+     * @param to destination file path relative to the module data folder
+     */
+    public void loadMessages(String from, String to)
+    {
+        messages = new ModuleConfig(this, from, to);
+        messages.load();
+    }
+
+    /**
+     * Returns this module's loaded messages, if any.
+     *
+     * @return module messages, or {@code null} when this module has no messages
+     */
+    @Nullable
+    public ModuleConfiguration messages()
+    {
+        return messages;
+    }
+
+    /**
+     * Resolves a module message into a component, falling back to Plex messages.
+     *
+     * @param entry message key
+     * @param objects replacement values
+     * @return resolved component
+     */
+    public Component messageComponent(String entry, Object... objects)
+    {
+        return api.messages().miniMessage(messageString(entry, objects));
+    }
+
+    /**
+     * Resolves a module message into a component using component replacements.
+     *
+     * @param entry message key
+     * @param objects component replacement values
+     * @return resolved component
+     */
+    public Component messageComponent(String entry, Component... objects)
+    {
+        Component component = api.messages().miniMessage(messageString(entry));
+        for (int i = 0; i < objects.length; i++)
+        {
+            int finalI = i;
+            component = component.replaceText(builder -> builder.matchLiteral("{" + finalI + "}").replacement(objects[finalI]).build());
+        }
+        return component;
+    }
+
+    /**
+     * Resolves a module message into a string, falling back to Plex messages.
+     *
+     * @param entry message key
+     * @param objects replacement values
+     * @return resolved message string
+     */
+    public String messageString(String entry, Object... objects)
+    {
+        String message = messages == null ? null : messages.getString(entry);
+        if (message == null)
+        {
+            return api.messages().messageString(entry, objects);
+        }
+        for (int i = 0; i < objects.length; i++)
+        {
+            message = message.replace("{" + i + "}", String.valueOf(objects[i]));
+        }
+        return message;
+    }
+
+    /**
      * Sets the Plex API facade for this module.
      *
      * @param api Plex API facade
@@ -287,6 +339,7 @@ public abstract class PlexModule
         {
             command.bindApi(api);
         }
+        command.bindModule(this);
     }
 
     /**

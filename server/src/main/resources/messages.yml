@@ -356,3 +356,4 @@ updateDownloadFailed: "<red>Something went wrong while downloading {0}. Please c
 updateMetadataNotFound: "<red>No compatible update is available on the {0} channel."
 # 0 - The error message
 updateMetadataError: "<red>There was an error checking update metadata: {0}"
+moduleUpdateDisabled: "<yellow>Skipping {0}; module updates are disabled."

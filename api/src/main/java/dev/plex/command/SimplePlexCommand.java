@@ -13,6 +13,7 @@ import dev.plex.command.exception.ConsoleOnlyException;
 import dev.plex.command.exception.PlayerNotBannedException;
 import dev.plex.command.exception.PlayerNotFoundException;
 import dev.plex.command.source.RequiredCommandSource;
+import dev.plex.module.PlexModule;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import java.util.Collection;
@@ -42,6 +43,7 @@ public abstract class SimplePlexCommand implements PlexCommand
 {
     private final CommandSpec commandSpec;
     private PlexApi api;
+    private PlexModule module;
 
     protected SimplePlexCommand(CommandSpec commandSpec)
     {
@@ -63,6 +65,12 @@ public abstract class SimplePlexCommand implements PlexCommand
     public final void bindApi(PlexApi api)
     {
         this.api = api;
+    }
+
+    @Override
+    public final void bindModule(PlexModule module)
+    {
+        this.module = module;
     }
 
     @Override
@@ -124,7 +132,7 @@ public abstract class SimplePlexCommand implements PlexCommand
         {
             return true;
         }
-        throw new CommandFailException(api().messages().messageString("noPermissionNode", permission));
+        throw new CommandFailException(messageString("noPermissionNode", permission));
     }
 
     protected boolean silentCheckPermission(CommandSender sender, String permission)
@@ -154,16 +162,28 @@ public abstract class SimplePlexCommand implements PlexCommand
 
     protected Component messageComponent(String key, Object... objects)
     {
+        if (module != null)
+        {
+            return module.messageComponent(key, objects);
+        }
         return api().messages().messageComponent(key, objects);
     }
 
     protected Component messageComponent(String key, Component... objects)
     {
+        if (module != null)
+        {
+            return module.messageComponent(key, objects);
+        }
         return api().messages().messageComponent(key, objects);
     }
 
     protected String messageString(String key, Object... objects)
     {
+        if (module != null)
+        {
+            return module.messageString(key, objects);
+        }
         return api().messages().messageString(key, objects);
     }
 

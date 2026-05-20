@@ -14,6 +14,8 @@ public final class PlexModuleFile
     private final int apiCompatibility;
     private List<String> libraries = List.of();
     private List<String> repositories = List.of();
+    private boolean updaterEnabled = true;
+    private List<String> updateUrls = List.of();
 
     /**
      * Creates module metadata.
@@ -121,5 +123,48 @@ public final class PlexModuleFile
     public void setRepositories(List<String> repositories)
     {
         this.repositories = List.copyOf(repositories);
+    }
+
+    /**
+     * Returns whether Plex should include this module in module update commands.
+     *
+     * @return {@code true} when module updates are enabled
+     */
+    public boolean isUpdaterEnabled()
+    {
+        return updaterEnabled;
+    }
+
+    /**
+     * Sets whether Plex should include this module in module update commands.
+     *
+     * @param updaterEnabled whether module updates are enabled
+     */
+    public void setUpdaterEnabled(boolean updaterEnabled)
+    {
+        this.updaterEnabled = updaterEnabled;
+    }
+
+    /**
+     * Returns custom updater base URLs declared by the module.
+     *
+     * <p>An empty list means Plex should use the built-in first-party updater
+     * endpoints.</p>
+     *
+     * @return custom updater base URLs
+     */
+    public List<String> getUpdateUrls()
+    {
+        return updateUrls;
+    }
+
+    /**
+     * Sets custom updater base URLs declared by the module.
+     *
+     * @param updateUrls custom updater base URLs
+     */
+    public void setUpdateUrls(List<String> updateUrls)
+    {
+        this.updateUrls = updateUrls == null ? List.of() : List.copyOf(updateUrls);
     }
 }

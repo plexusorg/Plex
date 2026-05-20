@@ -3,6 +3,7 @@ package dev.plex.command;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import dev.plex.api.PlexApi;
 import dev.plex.command.source.RequiredCommandSource;
+import dev.plex.module.PlexModule;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import java.util.List;
 
@@ -34,6 +35,15 @@ public interface PlexCommand
      * @param api running Plex API
      */
     default void bindApi(PlexApi api)
+    {
+    }
+
+    /**
+     * Supplies the owning module to commands that need module-owned resources.
+     *
+     * @param module owning module
+     */
+    default void bindModule(PlexModule module)
     {
     }
 

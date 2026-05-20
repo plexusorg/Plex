@@ -124,7 +124,7 @@ public class PlexCMD extends ServerCommand
                 }
                 for (PlexModule module : plugin.getModuleManager().getModules())
                 {
-                    plugin.getUpdateChecker().updateJar(sender, module.getPlexModuleFile().getName(), true);
+                    plugin.getUpdateChecker().updateModuleJar(sender, module);
                 }
                 plugin.getModuleManager().reloadModules();
                 return context.mmString("<green>All modules updated and reloaded!");

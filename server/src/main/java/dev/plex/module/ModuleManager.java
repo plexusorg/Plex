@@ -14,6 +14,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -95,10 +96,22 @@ public class ModuleManager
                                     .map(id -> internalModuleConfig.getConfigurationSection("repositories").getString(id, ""))
                                     .filter(repository -> !repository.isBlank())
                                     .toList();
+                    boolean updaterEnabled = internalModuleConfig.getBoolean("updater.enabled", true);
+                    List<String> updateUrls = new ArrayList<>();
+                    String updateUrl = internalModuleConfig.getString("updater.url", "");
+                    if (!updateUrl.isBlank())
+                    {
+                        updateUrls.add(updateUrl);
+                    }
+                    updateUrls.addAll(internalModuleConfig.getStringList("updater.urls").stream()
+                            .filter(url -> !url.isBlank())
+                            .toList());
 
                     PlexModuleFile plexModuleFile = new PlexModuleFile(name, main, description, version, apiCompatibility);
                     plexModuleFile.setLibraries(libraries);
                     plexModuleFile.setRepositories(repositories);
+                    plexModuleFile.setUpdaterEnabled(updaterEnabled);
+                    plexModuleFile.setUpdateUrls(updateUrls);
                     Class<? extends PlexModule> module = (Class<? extends PlexModule>) Class.forName(main, true, loader);
 
                     PlexModule plexModule = module.getConstructor().newInstance();

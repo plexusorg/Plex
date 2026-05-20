@@ -15,7 +15,7 @@ import java.util.Optional;
 
 public final class UpdateMetadataClient
 {
-    private static final List<String> BASE_URLS = List.of("https://updater.plex.us.org", "https://plex-updater.com");
+    private static final List<String> DEFAULT_BASE_URLS = List.of("https://updater.plex.us.org", "https://plex-updater.com");
 
     private final Gson gson = new Gson();
     private final UpdateChannel channel;
@@ -39,8 +39,13 @@ public final class UpdateMetadataClient
 
     public ArtifactMetadata fetchModuleLatest(String moduleName, int apiCompatibility) throws MetadataException
     {
+        return fetchModuleLatest(moduleName, apiCompatibility, List.of());
+    }
+
+    public ArtifactMetadata fetchModuleLatest(String moduleName, int apiCompatibility, List<String> baseUrls) throws MetadataException
+    {
         String path = "/api/v1/projects/" + encodePathSegment(moduleName) + "/channels/" + channel.id() + "/latest/api/" + apiCompatibility + ".json";
-        ArtifactMetadata metadata = fetch(path);
+        ArtifactMetadata metadata = fetch(path, baseUrls);
         Optional<String> validationError = metadata.validateModule(channel, moduleName, apiCompatibility);
         if (validationError.isPresent())
         {
@@ -51,9 +56,14 @@ public final class UpdateMetadataClient
 
     private ArtifactMetadata fetch(String path) throws MetadataException
     {
+        return fetch(path, DEFAULT_BASE_URLS);
+    }
+
+    private ArtifactMetadata fetch(String path, List<String> baseUrls) throws MetadataException
+    {
         MetadataException notFound = null;
         MetadataException failure = null;
-        for (String baseUrl : BASE_URLS)
+        for (String baseUrl : normalizeBaseUrls(baseUrls))
         {
             try
             {
@@ -131,6 +141,17 @@ public final class UpdateMetadataClient
     private static String encodePathSegment(String value)
     {
         return URLEncoder.encode(value, StandardCharsets.UTF_8).replace("+", "%20");
+    }
+
+    private static List<String> normalizeBaseUrls(List<String> baseUrls)
+    {
+        List<String> urls = baseUrls == null || baseUrls.isEmpty() ? DEFAULT_BASE_URLS : baseUrls;
+        return urls.stream()
+                .map(String::trim)
+                .filter(url -> !url.isBlank())
+                .map(url -> url.endsWith("/") ? url.substring(0, url.length() - 1) : url)
+                .distinct()
+                .toList();
     }
 
     public static final class MetadataException extends Exception

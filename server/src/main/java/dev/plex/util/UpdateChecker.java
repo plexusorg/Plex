@@ -1,6 +1,8 @@
 package dev.plex.util;
 
 import dev.plex.Plex;
+import dev.plex.module.PlexModule;
+import dev.plex.module.PlexModuleFile;
 import dev.plex.updater.ArtifactMetadata;
 import dev.plex.updater.UpdateChannel;
 import dev.plex.updater.UpdateMetadataClient;
@@ -17,6 +19,7 @@ import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HexFormat;
+import java.util.List;
 
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -85,10 +88,26 @@ public class UpdateChecker
 
     public void updateJar(CommandSender sender, String name, boolean module)
     {
+        updateJar(sender, name, module, List.of());
+    }
+
+    public void updateModuleJar(CommandSender sender, PlexModule module)
+    {
+        PlexModuleFile moduleFile = module.getPlexModuleFile();
+        if (!moduleFile.isUpdaterEnabled())
+        {
+            sendMessage(sender, PlexUtils.messageComponent("moduleUpdateDisabled", moduleFile.getName()));
+            return;
+        }
+        updateJar(sender, moduleFile.getName(), true, moduleFile.getUpdateUrls());
+    }
+
+    private void updateJar(CommandSender sender, String name, boolean module, List<String> moduleUpdateUrls)
+    {
         try
         {
             ArtifactMetadata metadata = module
-                    ? metadataClient.fetchModuleLatest(name, plugin.getApi().compatibility().version())
+                    ? metadataClient.fetchModuleLatest(name, plugin.getApi().compatibility().version(), moduleUpdateUrls)
                     : fetchLatestPlexMetadata(false);
 
             if (!module && metadata.matchesCurrentBuild(plugin.getPluginMeta().getVersion(), BuildInfo.getNumber(), BuildInfo.getCommit()))
