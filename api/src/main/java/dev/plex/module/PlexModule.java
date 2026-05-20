@@ -117,6 +117,7 @@ public abstract class PlexModule
      */
     public void registerCommand(PlexCommand command)
     {
+        bindCommand(command);
         commands.add(command);
         if (api != null)
         {
@@ -277,6 +278,15 @@ public abstract class PlexModule
     public void setApi(PlexApi api)
     {
         this.api = api;
+        commands.forEach(this::bindCommand);
+    }
+
+    private void bindCommand(PlexCommand command)
+    {
+        if (api != null)
+        {
+            command.bindApi(api);
+        }
     }
 
     /**

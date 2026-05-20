@@ -1,6 +1,7 @@
 package dev.plex.api.command;
 
 import dev.plex.command.PlexCommand;
+import java.util.List;
 
 /**
  * Registers and unregisters Plex commands with the running platform.
@@ -30,6 +31,13 @@ public interface CommandApi
      * @param command command to unregister
      */
     void unregister(PlexCommand command);
+
+    /**
+     * Returns the commands currently tracked by Plex.
+     *
+     * @return registered commands
+     */
+    List<PlexCommand> registeredCommands();
 
     /**
      * Returns whether command changes are staged for the next Paper command

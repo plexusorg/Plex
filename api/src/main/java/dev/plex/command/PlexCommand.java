@@ -1,6 +1,7 @@
 package dev.plex.command;
 
 import com.mojang.brigadier.tree.LiteralCommandNode;
+import dev.plex.api.PlexApi;
 import dev.plex.command.source.RequiredCommandSource;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import java.util.List;
@@ -23,6 +24,18 @@ public interface PlexCommand
      * @return root literal command node
      */
     LiteralCommandNode<CommandSourceStack> buildCommand();
+
+    /**
+     * Supplies the running Plex API to commands that need API helpers.
+     *
+     * <p>Most commands do not need to store the API directly, so the default
+     * implementation is intentionally empty.</p>
+     *
+     * @param api running Plex API
+     */
+    default void bindApi(PlexApi api)
+    {
+    }
 
     /**
      * Returns the primary command name.

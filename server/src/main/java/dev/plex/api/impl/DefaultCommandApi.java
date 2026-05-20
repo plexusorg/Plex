@@ -4,6 +4,7 @@ import dev.plex.Plex;
 import dev.plex.api.command.CommandApi;
 import dev.plex.command.PlexCommand;
 import dev.plex.util.PlexLog;
+import java.util.List;
 
 final class DefaultCommandApi implements CommandApi
 {
@@ -14,6 +15,7 @@ final class DefaultCommandApi implements CommandApi
     @Override
     public void register(PlexCommand command)
     {
+        command.bindApi(plugin.getApi());
         if (plugin.getCommandHandler() == null)
         {
             plugin.getPendingCommands().add(command);
@@ -30,6 +32,16 @@ final class DefaultCommandApi implements CommandApi
         {
             plugin.getCommandHandler().unregisterCommand(command);
         }
+    }
+
+    @Override
+    public List<PlexCommand> registeredCommands()
+    {
+        if (plugin.getCommandHandler() == null)
+        {
+            return List.copyOf(plugin.getPendingCommands());
+        }
+        return plugin.getCommandHandler().getCommands();
     }
 
     @Override

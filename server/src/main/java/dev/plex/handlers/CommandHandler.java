@@ -50,6 +50,11 @@ public class CommandHandler
         return lifecycleReloadRequired;
     }
 
+    public List<PlexCommand> getCommands()
+    {
+        return List.copyOf(commands);
+    }
+
     public @Nullable PlexCommand getCommand(String name)
     {
         String normalized = name.toLowerCase(Locale.ROOT);
