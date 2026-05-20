@@ -26,7 +26,7 @@ public class AdminChatCMD extends ServerCommand
         super(command("adminchat")
             .description("Talk privately with other admins")
             .usage("/<command> <message>")
-            .aliases("o,ac,sc,staffchat")
+            .aliases("o,sc,staffchat")
             .permission("plex.adminchat")
             .build());
     }

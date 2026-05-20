@@ -26,7 +26,6 @@ public class BlockEditCMD extends ServerCommand
             .permission("plex.blockedit")
             .build());
     }
-    private final BlockListener bl = new BlockListener();
 
     @Override
     protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
@@ -58,7 +57,7 @@ public class BlockEditCMD extends ServerCommand
             context.send(sender, context.messageComponent("listOfPlayersBlocked"));
 
             int count = 0;
-            for (String player : bl.blockedPlayers.stream().toList())
+            for (String player : BlockListener.blockedPlayers.stream().toList())
             {
                 context.send(sender, context.messageComponent("blockeditListEntry", player));
                 ++count;
@@ -73,11 +72,11 @@ public class BlockEditCMD extends ServerCommand
         {
             PlexUtils.broadcast(context.messageComponent("unblockingEdits", sender.getName(), context.messageString("blockeditAllPlayers")));
             int count = 0;
-            for (String player : bl.blockedPlayers.stream().toList())
+            for (String player : BlockListener.blockedPlayers.stream().toList())
             {
-                if (bl.blockedPlayers.contains(player))
+                if (BlockListener.blockedPlayers.contains(player))
                 {
-                    bl.blockedPlayers.remove(player);
+                    BlockListener.blockedPlayers.remove(player);
                     ++count;
                 }
             }
@@ -91,7 +90,7 @@ public class BlockEditCMD extends ServerCommand
             {
                 if (!context.silentCheckPermission(player, "plex.blockedit"))
                 {
-                    bl.blockedPlayers.add(player.getName());
+                    BlockListener.blockedPlayers.add(player.getName());
                     ++count;
                 }
             }
@@ -100,7 +99,7 @@ public class BlockEditCMD extends ServerCommand
         }
 
         final Player player = context.getNonNullPlayer(args[0]);
-        if (!bl.blockedPlayers.contains(player.getName()))
+        if (!BlockListener.blockedPlayers.contains(player.getName()))
         {
             if (context.silentCheckPermission(player, "plex.blockedit"))
             {
@@ -108,14 +107,14 @@ public class BlockEditCMD extends ServerCommand
                 return null;
             }
             PlexUtils.broadcast(context.messageComponent("blockingEdits", sender.getName(), player.getName()));
-            bl.blockedPlayers.add(player.getName());
+            BlockListener.blockedPlayers.add(player.getName());
             context.send(player, context.messageComponent("editsModified", context.messageString("blockeditBlockedState")));
             context.send(sender, context.messageComponent("editsBlocked", player.getName()));
         }
         else
         {
             PlexUtils.broadcast(context.messageComponent("unblockingEdits", sender.getName(), player.getName()));
-            bl.blockedPlayers.remove(player.getName());
+            BlockListener.blockedPlayers.remove(player.getName());
             context.send(player, context.messageComponent("editsModified", context.messageString("blockeditUnblockedState")));
             context.send(sender, context.messageComponent("editsUnblocked", player.getName()));
         }

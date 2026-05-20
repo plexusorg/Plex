@@ -1,5 +1,6 @@
 package dev.plex.listener.impl;
 
+import dev.plex.Plex;
 import dev.plex.listener.ServerListenerBase;
 import dev.plex.util.BlockUtils;
 import dev.plex.util.PlexUtils;
@@ -30,6 +31,11 @@ import java.util.List;
 
 public class MobListener extends ServerListenerBase
 {
+    public MobListener(Plex plugin)
+    {
+        super(plugin);
+    }
+
     private static final List<Material> SPAWN_EGGS = Arrays.stream(Material.values()).filter((mat) -> mat.name().endsWith("_SPAWN_EGG")).toList();
 
     private static EntityType spawnEggToEntityType(Material mat)

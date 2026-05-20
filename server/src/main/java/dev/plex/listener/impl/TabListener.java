@@ -1,5 +1,6 @@
 package dev.plex.listener.impl;
 
+import dev.plex.Plex;
 
 import dev.plex.hook.VaultHook;
 import dev.plex.listener.ServerListenerBase;
@@ -14,6 +15,11 @@ import org.bukkit.event.player.PlayerJoinEvent;
 
 public class TabListener extends ServerListenerBase
 {
+    public TabListener(Plex plugin)
+    {
+        super(plugin);
+    }
+
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerJoin(PlayerJoinEvent event)
     {

@@ -7,11 +7,6 @@ public abstract class ServerListenerBase implements Listener
 {
     protected final Plex plugin;
 
-    public ServerListenerBase()
-    {
-        this(Plex.get());
-    }
-
     protected ServerListenerBase(Plex plugin)
     {
         this.plugin = plugin;

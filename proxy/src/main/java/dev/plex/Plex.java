@@ -45,6 +45,7 @@ public class Plex
         this.server = server;
         this.logger = logger;
         this.dataFolder = folder.toFile();
+        PlexLog.configure(server, () -> config != null && config.settings().getServer().isDebug());
         if (!dataFolder.exists())
         {
             dataFolder.mkdir();
@@ -58,7 +59,7 @@ public class Plex
         this.config = loadConfig("config.yml");
         this.messages = loadConfig("messages.yml");
         this.api = new DefaultPlexApi(this, MODULE_API_COMPATIBILITY_VERSION);
-        new ListenerHandler();
+        new ListenerHandler(this);
     }
 
     private YamlConfig loadConfig(String name)

@@ -1,5 +1,6 @@
 package dev.plex.listener.impl;
 
+import dev.plex.Plex;
 
 import de.myzelyam.api.vanish.PlayerShowEvent;
 import dev.plex.listener.ServerListenerBase;
@@ -11,6 +12,11 @@ import org.bukkit.event.EventPriority;
 
 public class VanishListener extends ServerListenerBase
 {
+    public VanishListener(Plex plugin)
+    {
+        super(plugin);
+    }
+
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerUnvanish(PlayerShowEvent event)
     {

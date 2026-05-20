@@ -1,5 +1,6 @@
 package dev.plex.listener.impl;
 
+import dev.plex.Plex;
 import dev.plex.listener.ServerListenerBase;
 import dev.plex.util.PlexUtils;
 
@@ -19,10 +20,15 @@ import org.bukkit.event.block.BlockPlaceEvent;
 
 public class BlockListener extends ServerListenerBase
 {
+    public BlockListener(Plex plugin)
+    {
+        super(plugin);
+    }
+
     private static final List<Material> blockedBlocks = new ArrayList<>();
     private static final List<Material> SIGNS = Arrays.stream(Material.values()).filter((mat) -> mat.name().endsWith("_SIGN")).toList();
     private static List<String> cachedBlockedBlocksConfig = null;
-    public List<String> blockedPlayers = new ArrayList<>();
+    public static final List<String> blockedPlayers = new ArrayList<>();
 
     @EventHandler(priority = EventPriority.LOW)
     public void onBlockPlace(BlockPlaceEvent event)

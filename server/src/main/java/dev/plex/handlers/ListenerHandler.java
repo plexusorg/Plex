@@ -1,49 +1,76 @@
 package dev.plex.handlers;
 
-import com.google.common.collect.Lists;
 import dev.plex.Plex;
 import dev.plex.listener.ServerListenerBase;
-import dev.plex.listener.annotation.Toggleable;
+import dev.plex.listener.impl.AntiNukerListener;
+import dev.plex.listener.impl.AntiSpamListener;
+import dev.plex.listener.impl.BanListener;
+import dev.plex.listener.impl.BlockListener;
+import dev.plex.listener.impl.BookListener;
+import dev.plex.listener.impl.ChatListener;
+import dev.plex.listener.impl.CommandListener;
+import dev.plex.listener.impl.DropListener;
+import dev.plex.listener.impl.FreezeListener;
+import dev.plex.listener.impl.GameModeListener;
+import dev.plex.listener.impl.MenuListener;
+import dev.plex.listener.impl.MobListener;
+import dev.plex.listener.impl.MuteListener;
+import dev.plex.listener.impl.PlayerListener;
+import dev.plex.listener.impl.ServerListener;
+import dev.plex.listener.impl.TabListener;
+import dev.plex.listener.impl.TogglesListener;
+import dev.plex.listener.impl.VanishListener;
+import dev.plex.listener.impl.WorldListener;
 import dev.plex.util.PlexLog;
-import dev.plex.util.ReflectionsUtil;
-
-import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
+import java.util.function.Supplier;
 
 public class ListenerHandler
 {
     private final Plex plugin;
+    private final List<ServerListenerBase> listeners = new ArrayList<>();
 
     public ListenerHandler(Plex plugin)
     {
         this.plugin = plugin;
-        Set<Class<? extends ServerListenerBase>> listenerSet = ReflectionsUtil.getClassesBySubType("dev.plex.listener.impl", ServerListenerBase.class);
-        List<ServerListenerBase> listeners = Lists.newArrayList();
+        registerBuiltInListeners();
+        PlexLog.log("Registered " + listeners.size() + " listeners.");
+    }
 
-        listenerSet.forEach(clazz ->
+    private void registerBuiltInListeners()
+    {
+        register(() -> new AntiNukerListener(plugin));
+        register(() -> new AntiSpamListener(plugin));
+        register(() -> new BanListener(plugin));
+        register(() -> new BlockListener(plugin));
+        register(() -> new BookListener(plugin));
+        registerIfEnabled("chat.enabled", () -> new ChatListener(plugin));
+        register(() -> new CommandListener(plugin));
+        register(() -> new DropListener(plugin));
+        register(() -> new FreezeListener(plugin));
+        register(() -> new GameModeListener(plugin));
+        register(() -> new MenuListener(plugin));
+        register(() -> new MobListener(plugin));
+        register(() -> new MuteListener(plugin));
+        register(() -> new PlayerListener(plugin));
+        register(() -> new ServerListener(plugin));
+        register(() -> new TabListener(plugin));
+        register(() -> new TogglesListener(plugin));
+        register(() -> new VanishListener(plugin));
+        register(() -> new WorldListener(plugin));
+    }
+
+    private void register(Supplier<ServerListenerBase> listener)
+    {
+        listeners.add(listener.get());
+    }
+
+    private void registerIfEnabled(String configPath, Supplier<ServerListenerBase> listener)
+    {
+        if (plugin.config.get(configPath) != null && plugin.config.getBoolean(configPath))
         {
-            try
-            {
-                if (clazz.isAnnotationPresent(Toggleable.class))
-                {
-                    Toggleable annotation = clazz.getDeclaredAnnotation(Toggleable.class);
-                    if (plugin.config.get(annotation.value()) != null && plugin.config.getBoolean(annotation.value()))
-                    {
-                        listeners.add(clazz.getConstructor().newInstance());
-                    }
-                }
-                else
-                {
-                    listeners.add(clazz.getConstructor().newInstance());
-                }
-            }
-            catch (InvocationTargetException | InstantiationException | IllegalAccessException |
-                   NoSuchMethodException ex)
-            {
-                PlexLog.error("Failed to register " + clazz.getSimpleName() + " as a listener!");
-            }
-        });
-        PlexLog.log(String.format("Registered %s listeners from %s classes!", listeners.size(), listenerSet.size()));
+            register(listener);
+        }
     }
 }

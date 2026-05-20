@@ -1,5 +1,6 @@
 package dev.plex.listener.impl;
 
+import dev.plex.Plex;
 import dev.plex.listener.ServerListenerBase;
 import dev.plex.util.PlexUtils;
 import io.papermc.paper.event.player.AsyncChatEvent;
@@ -25,6 +26,11 @@ import org.bukkit.projectiles.ProjectileSource;
 
 public class TogglesListener extends ServerListenerBase
 {
+    public TogglesListener(Plex plugin)
+    {
+        super(plugin);
+    }
+
     List<String> commands = plugin.config.getStringList("block_on_mute");
 
     @EventHandler

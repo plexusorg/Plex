@@ -1,5 +1,6 @@
 package dev.plex.listener.impl;
 
+import dev.plex.Plex;
 import dev.plex.listener.ServerListenerBase;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
@@ -15,6 +16,11 @@ import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 
 public class MuteListener extends ServerListenerBase
 {
+    public MuteListener(Plex plugin)
+    {
+        super(plugin);
+    }
+
     List<String> commands = plugin.config.getStringList("block_on_mute");
 
     @EventHandler(priority = EventPriority.HIGHEST)

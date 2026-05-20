@@ -1,5 +1,6 @@
 package dev.plex.listener.impl;
 
+import dev.plex.Plex;
 import dev.plex.listener.ServerListenerBase;
 import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.Punishment;
@@ -11,6 +12,11 @@ import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 
 public class BanListener extends ServerListenerBase
 {
+    public BanListener(Plex plugin)
+    {
+        super(plugin);
+    }
+
     @EventHandler
     public void onPreLogin(AsyncPlayerPreLoginEvent event)
     {

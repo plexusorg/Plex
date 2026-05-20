@@ -1,5 +1,6 @@
 package dev.plex.listener.impl;
 
+import dev.plex.Plex;
 import dev.plex.listener.ServerListenerBase;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.minimessage.SafeMiniMessage;
@@ -14,6 +15,11 @@ import java.util.List;
 
 public class BookListener extends ServerListenerBase
 {
+    public BookListener(Plex plugin)
+    {
+        super(plugin);
+    }
+
     @EventHandler(priority = EventPriority.LOW)
     public void onBookEdit(PlayerEditBookEvent event)
     {

@@ -1,5 +1,6 @@
 package dev.plex.listener.impl;
 
+import dev.plex.Plex;
 
 import dev.plex.listener.ServerListenerBase;
 import dev.plex.player.PlexPlayer;
@@ -9,6 +10,11 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 
 public class FreezeListener extends ServerListenerBase
 {
+    public FreezeListener(Plex plugin)
+    {
+        super(plugin);
+    }
+
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent e)
     {

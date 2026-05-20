@@ -1,5 +1,6 @@
 package dev.plex.listener.impl;
 
+import dev.plex.Plex;
 
 import dev.plex.listener.ServerListenerBase;
 import dev.plex.meta.PlayerMeta;
@@ -19,6 +20,11 @@ import org.bukkit.event.player.PlayerQuitEvent;
 
 public class PlayerListener extends ServerListenerBase
 {
+    public PlayerListener(Plex plugin)
+    {
+        super(plugin);
+    }
+
     // setting up a player's data
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerSetup(PlayerJoinEvent event)

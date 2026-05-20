@@ -1,5 +1,6 @@
 package dev.plex.listener.impl;
 
+import dev.plex.Plex;
 import dev.plex.listener.ServerListenerBase;
 
 import java.util.Arrays;
@@ -27,6 +28,11 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 
 public class WorldListener extends ServerListenerBase
 {
+    public WorldListener(Plex plugin)
+    {
+        super(plugin);
+    }
+
     private final List<String> EDIT_COMMANDS = Arrays.asList("bigtree", "ebigtree", "largetree", "elargetree", "break", "ebreak", "antioch", "nuke", "editsign", "tree", "etree");
 
     @EventHandler(priority = EventPriority.LOWEST)

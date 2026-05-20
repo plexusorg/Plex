@@ -1,5 +1,6 @@
 package dev.plex.listener.impl;
 
+import dev.plex.Plex;
 import dev.plex.listener.ServerListenerBase;
 import dev.plex.menu.AbstractMenu;
 import dev.plex.menu.pagination.PageableMenu;
@@ -15,6 +16,11 @@ import org.bukkit.inventory.meta.ItemMeta;
  */
 public class MenuListener extends ServerListenerBase
 {
+    public MenuListener(Plex plugin)
+    {
+        super(plugin);
+    }
+
     @EventHandler(priority = EventPriority.LOWEST)
     public void onClick(InventoryClickEvent event)
     {

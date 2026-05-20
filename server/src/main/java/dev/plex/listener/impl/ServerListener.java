@@ -1,5 +1,6 @@
 package dev.plex.listener.impl;
 
+import dev.plex.Plex;
 import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
 import com.destroystokyo.paper.event.server.PaperServerListPingEvent.ListedPlayerInfo;
 import dev.plex.listener.ServerListenerBase;
@@ -16,6 +17,11 @@ import org.bukkit.event.EventHandler;
 
 public class ServerListener extends ServerListenerBase
 {
+    public ServerListener(Plex plugin)
+    {
+        super(plugin);
+    }
+
     @EventHandler
     public void onServerPing(PaperServerListPingEvent event)
     {

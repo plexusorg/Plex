@@ -19,16 +19,6 @@ public abstract class ProxyCommand implements SimpleCommand
     private final RequiredCommandSource commandSource;
 
     /**
-     * Creates and registers a proxy command using the current proxy plugin.
-     *
-     * @param commandSpec explicit command metadata
-     */
-    protected ProxyCommand(CommandSpec commandSpec)
-    {
-        this(Plex.get(), commandSpec);
-    }
-
-    /**
      * Creates and registers a proxy command.
      *
      * @param plugin running proxy plugin

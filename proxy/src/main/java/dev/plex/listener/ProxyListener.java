@@ -4,10 +4,11 @@ import dev.plex.Plex;
 
 public class ProxyListener
 {
-    protected final Plex plugin = Plex.get();
+    protected final Plex plugin;
 
-    public ProxyListener()
+    protected ProxyListener(Plex plugin)
     {
-        Plex.get().getServer().getEventManager().register(Plex.get(), this);
+        this.plugin = plugin;
+        plugin.getServer().getEventManager().register(plugin, this);
     }
 }

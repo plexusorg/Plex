@@ -1,5 +1,6 @@
 package dev.plex.listener.impl;
 
+import dev.plex.Plex;
 import dev.plex.listener.ServerListenerBase;
 import dev.plex.player.PlexPlayer;
 import dev.plex.util.PlexUtils;
@@ -11,6 +12,11 @@ import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 
 public class CommandListener extends ServerListenerBase
 {
+    public CommandListener(Plex plugin)
+    {
+        super(plugin);
+    }
+
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event)
     {

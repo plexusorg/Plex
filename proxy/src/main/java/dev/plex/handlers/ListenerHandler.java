@@ -1,32 +1,28 @@
 package dev.plex.handlers;
 
-import com.google.common.collect.Lists;
+import dev.plex.Plex;
 import dev.plex.listener.ProxyListener;
+import dev.plex.listener.impl.ConnectionListener;
+import dev.plex.listener.impl.ServerListener;
 import dev.plex.util.PlexLog;
-import dev.plex.util.ReflectionsUtil;
-import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 public class ListenerHandler
 {
-    public ListenerHandler()
-    {
-        Set<Class<? extends ProxyListener>> listenerSet = ReflectionsUtil.getClassesBySubType("dev.plex.listener.impl", ProxyListener.class);
-        List<ProxyListener> listeners = Lists.newArrayList();
+    private final Plex plugin;
+    private final List<ProxyListener> listeners = new ArrayList<>();
 
-        listenerSet.forEach(clazz ->
-        {
-            try
-            {
-                listeners.add(clazz.getConstructor().newInstance());
-            }
-            catch (InvocationTargetException | InstantiationException | IllegalAccessException |
-                   NoSuchMethodException ex)
-            {
-                PlexLog.error("Failed to register " + clazz.getSimpleName() + " as a listener!");
-            }
-        });
-        PlexLog.log(String.format("Registered %s listeners from %s classes!", listeners.size(), listenerSet.size()));
+    public ListenerHandler(Plex plugin)
+    {
+        this.plugin = plugin;
+        registerBuiltInListeners();
+        PlexLog.log("Registered " + listeners.size() + " proxy listeners.");
+    }
+
+    private void registerBuiltInListeners()
+    {
+        listeners.add(new ConnectionListener(plugin));
+        listeners.add(new ServerListener(plugin));
     }
 }

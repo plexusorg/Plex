@@ -1,5 +1,6 @@
 package dev.plex.listener.impl;
 
+import dev.plex.Plex;
 import dev.plex.event.GameModeUpdateEvent;
 import dev.plex.listener.ServerListenerBase;
 import dev.plex.util.PlexUtils;
@@ -9,6 +10,11 @@ import org.bukkit.event.EventHandler;
 
 public class GameModeListener extends ServerListenerBase
 {
+    public GameModeListener(Plex plugin)
+    {
+        super(plugin);
+    }
+
     @EventHandler
     public void onGameModeUpdate(GameModeUpdateEvent event)
     {

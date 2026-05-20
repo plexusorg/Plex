@@ -4,12 +4,18 @@ import com.velocitypowered.api.event.PostOrder;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.DisconnectEvent;
 import com.velocitypowered.api.event.player.ServerConnectedEvent;
+import dev.plex.Plex;
 import dev.plex.listener.ProxyListener;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 
 public class ConnectionListener extends ProxyListener
 {
+    public ConnectionListener(Plex plugin)
+    {
+        super(plugin);
+    }
+
     @Subscribe(order = PostOrder.FIRST)
     public void onPlayerJoin(ServerConnectedEvent event)
     {

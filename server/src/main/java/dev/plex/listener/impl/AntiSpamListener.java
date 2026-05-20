@@ -1,5 +1,6 @@
 package dev.plex.listener.impl;
 
+import dev.plex.Plex;
 import dev.plex.listener.ServerListenerBase;
 import dev.plex.services.impl.TimingService;
 import dev.plex.util.PlexUtils;
@@ -13,6 +14,11 @@ import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 
 public class AntiSpamListener extends ServerListenerBase
 {
+    public AntiSpamListener(Plex plugin)
+    {
+        super(plugin);
+    }
+
     @EventHandler
     public void onChat(AsyncChatEvent event)
     {
