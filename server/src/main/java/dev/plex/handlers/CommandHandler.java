@@ -16,6 +16,7 @@ public class CommandHandler
     private final List<PlexCommand> commands = new ArrayList<>();
     private boolean lifecycleRegistered;
     private boolean lifecycleReloadRequired;
+    private boolean suppressLifecycleWarnings;
 
     public CommandHandler(Plex plugin)
     {
@@ -31,7 +32,10 @@ public class CommandHandler
         if (lifecycleRegistered)
         {
             lifecycleReloadRequired = true;
-            PlexLog.warn("Command {0} was registered after the Brigadier command lifecycle event; it will be included on the next command lifecycle rebuild.", command.getName());
+            if (!suppressLifecycleWarnings)
+            {
+                PlexLog.warn("Command {0} was registered after the Brigadier command lifecycle event; it will be included on the next command lifecycle rebuild.", command.getName());
+            }
         }
     }
 
@@ -41,8 +45,18 @@ public class CommandHandler
         if (removed && lifecycleRegistered)
         {
             lifecycleReloadRequired = true;
-            PlexLog.warn("Command {0} was unregistered after the Brigadier command lifecycle event; Paper may keep the active Brigadier node until the next command lifecycle rebuild.", command.getName());
+            if (!suppressLifecycleWarnings)
+            {
+                PlexLog.warn("Command {0} was unregistered after the Brigadier command lifecycle event; Paper may keep the active Brigadier node until the next command lifecycle rebuild.", command.getName());
+            }
         }
+    }
+
+    public boolean setSuppressLifecycleWarnings(boolean suppress)
+    {
+        boolean previous = suppressLifecycleWarnings;
+        suppressLifecycleWarnings = suppress;
+        return previous;
     }
 
     public boolean requiresLifecycleReload()
