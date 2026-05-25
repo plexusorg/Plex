@@ -13,17 +13,17 @@ public class PunishmentEntity
     @DatabaseField(generatedId = true, columnName = "id")
     private long id;
 
-    @DatabaseField(columnName = "punished", canBeNull = false, index = true, width = 46)
-    private String punished;
+    @DatabaseField(columnName = "punished_uuid", canBeNull = false, index = true, width = 46)
+    private String punishedUuid;
 
-    @DatabaseField(columnName = "punisher", width = 46)
-    private String punisher;
+    @DatabaseField(columnName = "punisher_uuid", width = 46)
+    private String punisherUuid;
 
-    @DatabaseField(columnName = "punisherName", width = 64)
-    private String punisherName;
+    @DatabaseField(columnName = "source", width = 20)
+    private String source;
 
-    @DatabaseField(columnName = "punishedUsername", width = 16)
-    private String punishedUsername;
+    @DatabaseField(columnName = "punisher_reference", width = 200)
+    private String punisherReference;
 
     @DatabaseField(columnName = "ip", width = 2000, index = true)
     private String ip;

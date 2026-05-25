@@ -5,6 +5,7 @@ import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.stmt.UpdateBuilder;
+import dev.plex.api.punishment.PunishmentSource;
 import dev.plex.punishment.Punishment;
 import dev.plex.punishment.PunishmentType;
 import dev.plex.storage.database.entity.PunishmentEntity;
@@ -59,7 +60,7 @@ public class SQLPunishment implements PunishmentRepository
     {
         try
         {
-            return punishments.queryForEq("punished", uuid.toString()).stream().map(this::toPunishment).toList();
+            return punishments.queryForEq("punished_uuid", uuid.toString()).stream().map(this::toPunishment).toList();
         }
         catch (SQLException e)
         {
@@ -119,7 +120,7 @@ public class SQLPunishment implements PunishmentRepository
         {
             UpdateBuilder<PunishmentEntity, Long> update = punishments.updateBuilder();
             update.updateColumnValue("active", active);
-            update.where().eq("punished", punished.toString()).and().eq("type", type.name());
+            update.where().eq("punished_uuid", punished.toString()).and().eq("type", type.name());
             update.update();
         }
         catch (SQLException e)
@@ -130,13 +131,13 @@ public class SQLPunishment implements PunishmentRepository
 
     private Punishment toPunishment(PunishmentEntity entity)
     {
-        UUID punisher = entity.getPunisher() == null || entity.getPunisher().isBlank() ? null : UUID.fromString(entity.getPunisher());
-        Punishment punishment = new Punishment(UUID.fromString(entity.getPunished()), punisher);
+        UUID punisher = entity.getPunisherUuid() == null || entity.getPunisherUuid().isBlank() ? null : UUID.fromString(entity.getPunisherUuid());
+        Punishment punishment = new Punishment(UUID.fromString(entity.getPunishedUuid()), punisher);
         punishment.setActive(entity.isActive());
         punishment.setType(PunishmentType.valueOf(entity.getType()));
         punishment.setCustomTime(entity.isCustomTime());
-        punishment.setPunishedUsername(entity.getPunishedUsername());
-        punishment.setPunisherName(entity.getPunisherName());
+        punishment.setSource(entity.getSource() == null ? punishment.getSource() : PunishmentSource.valueOf(entity.getSource()));
+        punishment.setPunisherReference(entity.getPunisherReference());
         punishment.setIssueDate(ZonedDateTime.ofInstant(Instant.ofEpochMilli(entity.getIssueDate()), ZoneId.of(TimeUtils.TIMEZONE)));
         punishment.setEndDate(ZonedDateTime.ofInstant(Instant.ofEpochMilli(entity.getEndDate()), ZoneId.of(TimeUtils.TIMEZONE)));
         punishment.setReason(entity.getReason());
@@ -147,10 +148,11 @@ public class SQLPunishment implements PunishmentRepository
     private PunishmentEntity toEntity(Punishment punishment)
     {
         PunishmentEntity entity = new PunishmentEntity();
-        entity.setPunished(punishment.getPunished().toString());
-        entity.setPunisher(punishment.getPunisher() == null ? null : punishment.getPunisher().toString());
-        entity.setPunisherName(punishment.getPunisherName());
-        entity.setPunishedUsername(punishment.getPunishedUsername());
+        entity.setPunishedUuid(punishment.getPunished().toString());
+        entity.setPunisherUuid(punishment.getPunisher() == null ? null : punishment.getPunisher().toString());
+        PunishmentSource source = punishment.getSource() == null ? (punishment.getPunisher() == null ? PunishmentSource.CONSOLE : PunishmentSource.PLAYER) : punishment.getSource();
+        entity.setSource(source.name());
+        entity.setPunisherReference(punishment.getPunisherReference());
         entity.setIp(punishment.getIp());
         entity.setType(punishment.getType().name());
         entity.setReason(punishment.getReason());

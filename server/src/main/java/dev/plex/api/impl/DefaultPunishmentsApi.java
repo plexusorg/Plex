@@ -27,9 +27,9 @@ final class DefaultPunishmentsApi implements PunishmentsApi
         PlexPlayer player = DefaultPlayersApi.unwrap(playerView);
         if (player == null) player = plugin.getPlayerService().getPlayer(playerView.uuid());
         Punishment punishment = new Punishment(request.punished(), request.punisher());
-        punishment.setPunisherName(request.punisherName());
+        punishment.setSource(request.source());
+        punishment.setPunisherReference(request.punisherReference());
         punishment.setIp(request.ip());
-        punishment.setPunishedUsername(request.punishedUsername());
         punishment.setType(PunishmentType.valueOf(request.type().name()));
         punishment.setReason(request.reason());
         punishment.setCustomTime(request.customTime());

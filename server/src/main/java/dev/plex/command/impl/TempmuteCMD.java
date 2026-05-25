@@ -93,7 +93,6 @@ public class TempmuteCMD extends ServerCommand
         punishment.setCustomTime(true);
         punishment.setEndDate(endDate);
         punishment.setType(PunishmentType.MUTE);
-        punishment.setPunishedUsername(player.getName());
         punishment.setIp(player.getAddress().getAddress().getHostAddress().trim());
         punishment.setReason(reason);
         punishment.setActive(true);

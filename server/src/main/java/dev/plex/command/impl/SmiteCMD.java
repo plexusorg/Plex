@@ -128,7 +128,6 @@ public class SmiteCMD extends ServerCommand
         punishment.setCustomTime(false);
         punishment.setEndDate(ZonedDateTime.now(ZoneId.of(TimeUtils.TIMEZONE)));
         punishment.setType(PunishmentType.SMITE);
-        punishment.setPunishedUsername(player.getName());
         punishment.setIp(player.getAddress().getAddress().getHostAddress().trim());
 
         if (reason != null)

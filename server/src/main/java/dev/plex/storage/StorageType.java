@@ -2,6 +2,7 @@ package dev.plex.storage;
 
 import com.zaxxer.hikari.HikariConfig;
 import dev.plex.Plex;
+import dev.plex.api.storage.SqlDialect;
 
 import java.io.File;
 import java.util.Arrays;
@@ -24,7 +25,7 @@ public enum StorageType
                 @Override
                 public String migrationHistoryTableSql(String tableName)
                 {
-                    return "CREATE TABLE IF NOT EXISTS " + tableName + " (version VARCHAR(100) NOT NULL PRIMARY KEY, installed_at INTEGER NOT NULL DEFAULT (strftime('%s','now') * 1000))";
+                    return "CREATE TABLE IF NOT EXISTS " + quoteIdentifier(tableName) + " (scope VARCHAR(100) NOT NULL, version VARCHAR(100) NOT NULL, installed_at INTEGER NOT NULL DEFAULT (strftime('%s','now') * 1000), PRIMARY KEY (scope, version))";
                 }
             },
 
@@ -42,7 +43,7 @@ public enum StorageType
                 @Override
                 public String migrationHistoryTableSql(String tableName)
                 {
-                    return "CREATE TABLE IF NOT EXISTS `" + tableName + "` (`version` VARCHAR(100) NOT NULL PRIMARY KEY, `installed_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP)";
+                    return "CREATE TABLE IF NOT EXISTS " + quoteIdentifier(tableName) + " (`scope` VARCHAR(100) NOT NULL, `version` VARCHAR(100) NOT NULL, `installed_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (`scope`, `version`))";
                 }
             },
 
@@ -81,9 +82,56 @@ public enum StorageType
 
     public abstract void configure(HikariConfig config, Plex plugin);
 
+    public SqlDialect dialect()
+    {
+        return switch (this)
+        {
+            case SQLITE -> SqlDialect.SQLITE;
+            case MARIADB -> SqlDialect.MARIADB;
+            case POSTGRES -> SqlDialect.POSTGRES;
+        };
+    }
+
+    public String quoteIdentifier(String identifier)
+    {
+        return switch (this)
+        {
+            case MARIADB -> "`" + identifier + "`";
+            case SQLITE, POSTGRES -> "\"" + identifier + "\"";
+        };
+    }
+
     public String migrationHistoryTableSql(String tableName)
     {
-        return "CREATE TABLE IF NOT EXISTS " + tableName + " (version VARCHAR(100) NOT NULL PRIMARY KEY, installed_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP)";
+        return "CREATE TABLE IF NOT EXISTS " + quoteIdentifier(tableName) + " (scope VARCHAR(100) NOT NULL, version VARCHAR(100) NOT NULL, installed_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (scope, version))";
+    }
+
+    public String playerModuleDataUpsertSql()
+    {
+        return switch (this)
+        {
+            case SQLITE -> """
+                    INSERT INTO player_module_data (player_uuid, module, data_key, value_json, updated_at)
+                    VALUES (?, ?, ?, ?, ?)
+                    ON CONFLICT(player_uuid, module, data_key) DO UPDATE SET
+                        value_json = excluded.value_json,
+                        updated_at = excluded.updated_at
+                    """;
+            case MARIADB -> """
+                    INSERT INTO `player_module_data` (`player_uuid`, `module`, `data_key`, `value_json`, `updated_at`)
+                    VALUES (?, ?, ?, ?, ?)
+                    ON DUPLICATE KEY UPDATE
+                        `value_json` = VALUES(`value_json`),
+                        `updated_at` = VALUES(`updated_at`)
+                    """;
+            case POSTGRES -> """
+                    INSERT INTO player_module_data (player_uuid, module, data_key, value_json, updated_at)
+                    VALUES (?, ?, ?, ?, ?)
+                    ON CONFLICT(player_uuid, module, data_key) DO UPDATE SET
+                        value_json = excluded.value_json,
+                        updated_at = excluded.updated_at
+                    """;
+        };
     }
 
     public String getDisplayName()

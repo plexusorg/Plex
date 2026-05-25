@@ -2,6 +2,7 @@ package dev.plex.api.storage;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import dev.plex.module.PlexModule;
 
 /**
  * Provides controlled access to Plex SQL storage.
@@ -17,6 +18,21 @@ public interface StorageApi
      * @throws SQLException if a connection or callback SQL operation fails
      */
     <T> T withConnection(SqlFunction<T> function) throws SQLException;
+
+    /**
+     * Returns storage operations scoped to a module namespace.
+     *
+     * @param module module requesting storage
+     * @return module-scoped storage operations
+     */
+    ModuleStorage forModule(PlexModule module);
+
+    /**
+     * Returns the configured SQL dialect.
+     *
+     * @return configured SQL dialect
+     */
+    SqlDialect dialect();
 
     /**
      * SQL callback used by {@link #withConnection(SqlFunction)}.

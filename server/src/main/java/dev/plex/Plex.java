@@ -13,6 +13,7 @@ import dev.plex.hook.CoreProtectHook;
 import dev.plex.hook.PrismHook;
 import dev.plex.hook.RollbackManager;
 import dev.plex.module.ModuleManager;
+import dev.plex.player.PlayerNameResolver;
 import dev.plex.player.PlayerService;
 import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.PunishmentManager;
@@ -21,6 +22,8 @@ import dev.plex.storage.RedisConnection;
 import dev.plex.storage.SQLConnection;
 import dev.plex.storage.StorageType;
 import dev.plex.storage.player.SQLPlayerData;
+import dev.plex.storage.player.PlayerModuleDataRepository;
+import dev.plex.storage.player.SQLPlayerModuleData;
 import dev.plex.storage.punishment.SQLNotes;
 import dev.plex.storage.punishment.SQLPunishment;
 import dev.plex.storage.repository.NoteRepository;
@@ -65,7 +68,9 @@ public class Plex extends JavaPlugin
 
     private PlayerCache playerCache;
     private PlayerRepository playerRepository;
+    private PlayerModuleDataRepository playerModuleDataRepository;
     private PlayerService playerService;
+    private PlayerNameResolver playerNameResolver;
 
     private PunishmentRepository punishmentRepository;
     private NoteRepository noteRepository;
@@ -217,8 +222,10 @@ public class Plex extends JavaPlugin
 
         punishmentRepository = new SQLPunishment(sqlConnection.getConnectionSource(), api.scheduler().asyncExecutor());
         playerRepository = new SQLPlayerData(sqlConnection.getConnectionSource(), punishmentRepository);
+        playerModuleDataRepository = new SQLPlayerModuleData(sqlConnection, storageType);
         noteRepository = new SQLNotes(sqlConnection.getConnectionSource(), api.scheduler().asyncExecutor());
         playerService = new PlayerService(playerCache, playerRepository);
+        playerNameResolver = new PlayerNameResolver(playerService);
 
         new ListenerHandler(this);
         commandHandler = new CommandHandler(this);

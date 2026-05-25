@@ -66,7 +66,6 @@ public class MuteCMD extends ServerCommand
         ZonedDateTime date = ZonedDateTime.now(ZoneId.of(TimeUtils.TIMEZONE));
         punishment.setEndDate(date.plusSeconds(plugin.config.getInt("punishments.mute-timer", 300)));
         punishment.setType(PunishmentType.MUTE);
-        punishment.setPunishedUsername(player.getName());
         punishment.setIp(player.getAddress().getAddress().getHostAddress().trim());
         punishment.setReason("");
         punishment.setActive(true);

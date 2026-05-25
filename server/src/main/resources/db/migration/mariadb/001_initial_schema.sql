@@ -1,23 +1,21 @@
 CREATE TABLE IF NOT EXISTS `players` (
     `uuid` VARCHAR(46) NOT NULL,
-    `name` VARCHAR(18),
+    `last_known_name` VARCHAR(18),
     `login_msg` VARCHAR(2000),
     `prefix` VARCHAR(2000),
     `staffChat` BOOLEAN,
     `ips` VARCHAR(2000),
-    `coins` BIGINT,
-    `vanished` BOOLEAN,
     `commandspy` BOOLEAN,
     PRIMARY KEY (`uuid`),
-    INDEX `idx_players_name` (`name`)
+    INDEX `idx_players_last_known_name` (`last_known_name`)
 );
 
 CREATE TABLE IF NOT EXISTS `punishments` (
     `id` BIGINT NOT NULL AUTO_INCREMENT,
-    `punished` VARCHAR(46) NOT NULL,
-    `punisher` VARCHAR(46),
-    `punisherName` VARCHAR(64),
-    `punishedUsername` VARCHAR(16),
+    `punished_uuid` VARCHAR(46) NOT NULL,
+    `punisher_uuid` VARCHAR(46),
+    `source` VARCHAR(30),
+    `punisher_reference` VARCHAR(200),
     `ip` VARCHAR(2000),
     `type` VARCHAR(30),
     `reason` VARCHAR(2000),
@@ -26,7 +24,7 @@ CREATE TABLE IF NOT EXISTS `punishments` (
     `issueDate` BIGINT NOT NULL,
     `endDate` BIGINT,
     PRIMARY KEY (`id`),
-    INDEX `idx_punishments_punished` (`punished`),
+    INDEX `idx_punishments_punished` (`punished_uuid`),
     INDEX `idx_punishments_ip` (`ip`(64))
 );
 
@@ -34,7 +32,7 @@ CREATE TABLE IF NOT EXISTS `notes` (
     `row_id` BIGINT NOT NULL AUTO_INCREMENT,
     `id` INT NOT NULL,
     `uuid` VARCHAR(46) NOT NULL,
-    `written_by` VARCHAR(46),
+    `written_by_uuid` VARCHAR(46),
     `note` VARCHAR(2000),
     `timestamp` BIGINT,
     PRIMARY KEY (`row_id`),
@@ -48,4 +46,13 @@ CREATE TABLE IF NOT EXISTS `player_ips` (
     PRIMARY KEY (`id`),
     UNIQUE KEY `uq_player_ips_player_ip` (`player_uuid`, `ip`),
     INDEX `idx_player_ips_ip` (`ip`)
+);
+
+CREATE TABLE IF NOT EXISTS `player_module_data` (
+    `player_uuid` VARCHAR(46) NOT NULL,
+    `module` VARCHAR(100) NOT NULL,
+    `data_key` VARCHAR(64) NOT NULL,
+    `value_json` LONGTEXT NOT NULL,
+    `updated_at` BIGINT NOT NULL,
+    PRIMARY KEY (`player_uuid`, `module`, `data_key`)
 );

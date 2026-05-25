@@ -45,11 +45,22 @@ public abstract class SimplePlexCommand implements PlexCommand
     private PlexApi api;
     private PlexModule module;
 
+    /**
+     * Creates a command using explicit command metadata.
+     *
+     * @param commandSpec command metadata
+     */
     protected SimplePlexCommand(CommandSpec commandSpec)
     {
         this.commandSpec = commandSpec;
     }
 
+    /**
+     * Starts a command spec builder for the given command name.
+     *
+     * @param name primary command name
+     * @return command spec builder
+     */
     protected static CommandSpec.Builder command(String name)
     {
         return CommandSpec.builder(name);
@@ -82,6 +93,14 @@ public abstract class SimplePlexCommand implements PlexCommand
         return command.build();
     }
 
+    /**
+     * Configures the Brigadier command tree for this command.
+     *
+     * <p>The default tree accepts optional greedy string arguments and dispatches
+     * them to {@link #execute(CommandSender, Player, String[])}.</p>
+     *
+     * @param command root command literal builder
+     */
     protected void configureCommand(LiteralArgumentBuilder<CommandSourceStack> command)
     {
         command.executes(context -> dispatchCommand(context, new String[0]));
@@ -90,13 +109,36 @@ public abstract class SimplePlexCommand implements PlexCommand
                 .executes(context -> dispatchCommand(context, splitExecutionArgs(StringArgumentType.getString(context, "args")))));
     }
 
+    /**
+     * Executes this command.
+     *
+     * @param sender command sender
+     * @param player player sender, or {@code null} when the sender is not a player
+     * @param args command arguments
+     * @return component to send to the sender, or {@code null} to send no response
+     */
     protected abstract Component execute(@NotNull CommandSender sender, @Nullable Player player, @NotNull String[] args);
 
+    /**
+     * Returns tab-completion suggestions for this command.
+     *
+     * @param sender command sender
+     * @param alias command alias used by the sender
+     * @param args current command arguments
+     * @return suggested completions
+     * @throws IllegalArgumentException when suggestions cannot be produced for the supplied arguments
+     */
     protected @NotNull List<String> suggestions(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
     {
         return List.of();
     }
 
+    /**
+     * Returns the bound Plex API.
+     *
+     * @return bound Plex API
+     * @throws IllegalStateException when the command has not been bound to the API
+     */
     protected PlexApi api()
     {
         if (api == null)
@@ -106,26 +148,56 @@ public abstract class SimplePlexCommand implements PlexCommand
         return api;
     }
 
+    /**
+     * Sends an ampersand-colorized legacy message to an audience.
+     *
+     * @param audience message recipient
+     * @param message legacy message text
+     */
     protected void send(Audience audience, String message)
     {
         audience.sendMessage(componentFromString(message));
     }
 
+    /**
+     * Sends a component to an audience.
+     *
+     * @param audience message recipient
+     * @param component component to send
+     */
     protected void send(Audience audience, Component component)
     {
         audience.sendMessage(component);
     }
 
+    /**
+     * Broadcasts a MiniMessage-formatted message.
+     *
+     * @param miniMessage MiniMessage-formatted message
+     */
     protected void broadcast(String miniMessage)
     {
         api().messages().broadcast(miniMessage);
     }
 
+    /**
+     * Broadcasts a component.
+     *
+     * @param component component to broadcast
+     */
     protected void broadcast(Component component)
     {
         api().messages().broadcast(component);
     }
 
+    /**
+     * Checks whether a sender has a permission node.
+     *
+     * @param sender command sender
+     * @param permission permission node to check
+     * @return {@code true} when the sender can use the permission
+     * @throws CommandFailException when the sender lacks the permission
+     */
     protected boolean checkPermission(CommandSender sender, String permission)
     {
         if (permission.isEmpty() || isConsole(sender) || sender.hasPermission(permission))
@@ -135,31 +207,68 @@ public abstract class SimplePlexCommand implements PlexCommand
         throw new CommandFailException(messageString("noPermissionNode", permission));
     }
 
+    /**
+     * Checks whether a sender has a permission node without throwing an exception.
+     *
+     * @param sender command sender
+     * @param permission permission node to check
+     * @return {@code true} when the sender can use the permission
+     */
     protected boolean silentCheckPermission(CommandSender sender, String permission)
     {
         return permission.isEmpty() || isConsole(sender) || sender.hasPermission(permission);
     }
 
+    /**
+     * Returns the standard no-permission message for this command's permission node.
+     *
+     * @return no-permission component
+     */
     protected Component permissionMessage()
     {
         return permissionMessage(getPermission());
     }
 
+    /**
+     * Returns the standard no-permission message for a permission node.
+     *
+     * @param permission permission node
+     * @return no-permission component
+     */
     protected Component permissionMessage(String permission)
     {
         return messageComponent("noPermissionNode", permission);
     }
 
+    /**
+     * Returns a sender's UUID when the sender is a player.
+     *
+     * @param sender command sender
+     * @return player UUID, or {@code null} for non-player senders
+     */
     protected @Nullable UUID getUUID(CommandSender sender)
     {
         return sender instanceof Player player ? player.getUniqueId() : null;
     }
 
+    /**
+     * Returns whether a sender is not a player.
+     *
+     * @param sender command sender
+     * @return {@code true} when the sender is not a player
+     */
     protected boolean isConsole(CommandSender sender)
     {
         return !(sender instanceof Player);
     }
 
+    /**
+     * Resolves a configured message as a component.
+     *
+     * @param key message key
+     * @param objects replacement values
+     * @return resolved message component
+     */
     protected Component messageComponent(String key, Object... objects)
     {
         if (module != null)
@@ -169,6 +278,13 @@ public abstract class SimplePlexCommand implements PlexCommand
         return api().messages().messageComponent(key, objects);
     }
 
+    /**
+     * Resolves a configured message as a component using component replacements.
+     *
+     * @param key message key
+     * @param objects replacement components
+     * @return resolved message component
+     */
     protected Component messageComponent(String key, Component... objects)
     {
         if (module != null)
@@ -178,6 +294,13 @@ public abstract class SimplePlexCommand implements PlexCommand
         return api().messages().messageComponent(key, objects);
     }
 
+    /**
+     * Resolves a configured message as plain text.
+     *
+     * @param key message key
+     * @param objects replacement values
+     * @return resolved message text
+     */
     protected String messageString(String key, Object... objects)
     {
         if (module != null)
@@ -187,16 +310,34 @@ public abstract class SimplePlexCommand implements PlexCommand
         return api().messages().messageString(key, objects);
     }
 
+    /**
+     * Returns this command's formatted usage component.
+     *
+     * @return formatted usage component
+     */
     protected Component usage()
     {
         return usage(getUsage());
     }
 
+    /**
+     * Formats command usage text with the standard usage prefix.
+     *
+     * @param usage usage text
+     * @return formatted usage component
+     */
     protected Component usage(String usage)
     {
         return messageComponent("correctUsagePrefix").append(componentFromString(usage).color(NamedTextColor.GRAY));
     }
 
+    /**
+     * Returns an online player by UUID string or name.
+     *
+     * @param name UUID string or player name
+     * @return matching online player
+     * @throws PlayerNotFoundException when no matching online player exists
+     */
     protected Player getNonNullPlayer(String name)
     {
         try
@@ -220,21 +361,44 @@ public abstract class SimplePlexCommand implements PlexCommand
         return player;
     }
 
+    /**
+     * Returns the names of currently online players.
+     *
+     * @return online player names
+     */
     protected List<String> onlinePlayerNames()
     {
         return api().players().onlineNames();
     }
 
+    /**
+     * Converts ampersand-colorized legacy text to a gray-default component.
+     *
+     * @param value legacy text
+     * @return deserialized component
+     */
     protected Component componentFromString(String value)
     {
         return LegacyComponentSerializer.legacyAmpersand().deserialize(value).colorIfAbsent(NamedTextColor.GRAY);
     }
 
+    /**
+     * Converts ampersand-colorized legacy text to a component without adding a default color.
+     *
+     * @param value legacy text
+     * @return deserialized component
+     */
     protected Component noColorComponentFromString(String value)
     {
         return LegacyComponentSerializer.legacyAmpersand().deserialize(value);
     }
 
+    /**
+     * Converts MiniMessage-formatted text to a component.
+     *
+     * @param value MiniMessage-formatted text
+     * @return deserialized component
+     */
     protected Component mmString(String value)
     {
         return api().messages().miniMessage(value);

@@ -60,7 +60,6 @@ public class FreezeCMD extends ServerCommand
         ZonedDateTime date = ZonedDateTime.now(ZoneId.of(TimeUtils.TIMEZONE));
         punishment.setEndDate(date.plusSeconds(plugin.config.getInt("punishments.freeze-timer", 300)));
         punishment.setType(PunishmentType.FREEZE);
-        punishment.setPunishedUsername(player.getName());
         punishment.setIp(player.getAddress().getAddress().getHostAddress().trim());
         punishment.setReason("");
         punishment.setActive(true);

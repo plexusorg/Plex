@@ -54,7 +54,7 @@ public class BanListener extends ServerListenerBase
             PlexPlayer player = plugin.getPlayerService().getPlayer(event.getUniqueId());
             player.getPunishments().stream().filter(punishment -> (punishment.getType() == PunishmentType.BAN || punishment.getType() == PunishmentType.TEMPBAN) && punishment.isActive()).findFirst().ifPresent(punishment ->
                     event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED,
-                            Punishment.generateBanMessage(punishment, plugin.config.getString("banning.ban_url"), plugin.getPlayerService())));
+                            Punishment.generateBanMessage(punishment, plugin.config.getString("banning.ban_url"), plugin.getPlayerNameResolver())));
             return;
         }
         Punishment ipBannedPunishment = plugin.getPunishmentManager().getBanByIP(event.getAddress().getHostAddress());
@@ -66,7 +66,7 @@ public class BanListener extends ServerListenerBase
                 return;
             }
             event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED,
-                    Punishment.generateBanMessage(ipBannedPunishment, plugin.config.getString("banning.ban_url"), plugin.getPlayerService()));
+                    Punishment.generateBanMessage(ipBannedPunishment, plugin.config.getString("banning.ban_url"), plugin.getPlayerNameResolver()));
         }
     }
 }

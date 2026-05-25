@@ -150,7 +150,8 @@ public class NotesCMD extends ServerCommand
         AtomicReference<Component> noteList = new AtomicReference<>(context.messageComponent("notesHeader", plexPlayer.getName()));
         for (Note note : notes)
         {
-            Component noteLine = context.messageComponent("notePrefix", note.getId(), plugin.getPlayerService().getPlayer(note.getWrittenBy()).getName(), TimeUtils.useTimezone(note.getTimestamp()));
+            String author = plugin.getPlayerNameResolver().resolve(note.getWrittenBy());
+            Component noteLine = context.messageComponent("notePrefix", note.getId(), author, TimeUtils.useTimezone(note.getTimestamp()));
             noteLine = noteLine.append(context.messageComponent("noteLine", note.getNote()));
             noteList.set(noteList.get().append(Component.newline()));
             noteList.set(noteList.get().append(noteLine));

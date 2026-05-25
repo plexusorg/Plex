@@ -34,15 +34,12 @@ public class PlexPlayer
     private String prefix;
 
     private boolean staffChat;
-    private boolean vanished;
     private boolean commandSpy;
 
     // These fields are transient so MongoDB doesn't automatically drop them in.
     private transient boolean frozen;
     private transient boolean muted;
     private transient boolean lockedUp;
-
-    private long coins;
 
     private List<String> ips = Lists.newArrayList();
 
@@ -62,10 +59,7 @@ public class PlexPlayer
         this.loginMessage = "";
         this.prefix = "";
 
-        this.vanished = false;
         this.commandSpy = false;
-
-        this.coins = 0;
 
         if (loadPunishments)
         {

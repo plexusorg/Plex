@@ -97,7 +97,6 @@ public class BanCMD extends ServerCommand
                 {
                     punishment.setReason(context.messageString("noReasonProvided"));
                 }
-                punishment.setPunishedUsername(plexPlayer.getName());
                 ZonedDateTime date = ZonedDateTime.now(ZoneId.of(TimeUtils.TIMEZONE));
                 punishment.setEndDate(date.plusDays(1));
                 punishment.setCustomTime(false);
@@ -107,7 +106,7 @@ public class BanCMD extends ServerCommand
                 PlexUtils.broadcast(context.messageComponent("banningPlayer", sender.getName(), plexPlayer.getName()));
                 if (player != null)
                 {
-                    plugin.getApi().scheduler().runEntity(player, () -> BungeeUtil.kickPlayer(plugin, player, Punishment.generateBanMessage(punishment, plugin.config.getString("banning.ban_url"), plugin.getPlayerService())));
+                    plugin.getApi().scheduler().runEntity(player, () -> BungeeUtil.kickPlayer(plugin, player, Punishment.generateBanMessage(punishment, plugin.config.getString("banning.ban_url"), plugin.getPlayerNameResolver())));
                 }
                 PlexLog.debug("(From /ban command) PunishedPlayer UUID: " + plexPlayer.getUuid());
 

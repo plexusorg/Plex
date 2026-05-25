@@ -3,9 +3,6 @@ package dev.plex.command.impl;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
 import dev.plex.command.ServerCommandContext;
-import dev.plex.punishment.Punishment;
-
-import java.util.stream.Collectors;
 
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
@@ -44,7 +41,7 @@ public class BanListCommand extends ServerCommand
         {
             plugin.getPunishmentManager().getActiveBans().whenComplete((punishments, throwable) ->
             {
-                context.send(sender, context.messageComponent("activeBansList", punishments.size(), StringUtils.join(punishments.stream().map(Punishment::getPunishedUsername).collect(Collectors.toList()), ", ")));
+                context.send(sender, context.messageComponent("activeBansList", punishments.size(), StringUtils.join(punishments.stream().map(punishment -> plugin.getPlayerNameResolver().resolve(punishment.getPunished())).toList(), ", ")));
             });
             return null;
         }

@@ -9,24 +9,16 @@ import dev.plex.storage.StorageType;
 import dev.plex.util.PlexLog;
 import lombok.Getter;
 
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.List;
 
 @Getter
 public class Database
 {
-    private static final String MIGRATION_TABLE = "plex_schema_history";
-
     protected final Plex plugin;
     private final HikariDataSource dataSource;
     private final ConnectionSource connectionSource;
     private final StorageType storageType;
+    private final MigrationRunner migrationRunner;
 
     public Database(Plex plugin)
     {
@@ -48,7 +40,8 @@ public class Database
         try
         {
             this.connectionSource = new DataSourceConnectionSource(dataSource, config.getJdbcUrl());
-            runMigrations();
+            this.migrationRunner = new MigrationRunner(storageType);
+            this.migrationRunner.runCore(dataSource, getClass().getClassLoader(), List.of("001_initial_schema"));
         }
         catch (Exception e)
         {
@@ -57,105 +50,7 @@ public class Database
         }
     }
 
-    private void runMigrations() throws Exception
-    {
-        try (Connection connection = dataSource.getConnection())
-        {
-            ensureMigrationTable(connection);
-            for (String migration : List.of("001_initial_schema"))
-            {
-                if (hasMigration(connection, migration))
-                {
-                    continue;
-                }
-
-                executeMigration(connection, migration);
-                try (Statement statement = connection.createStatement())
-                {
-                    statement.executeUpdate("INSERT INTO " + MIGRATION_TABLE + " (version) VALUES ('" + migration + "')");
-                }
-                PlexLog.log("Applied database migration " + migration);
-            }
-        }
-    }
-
-    private void ensureMigrationTable(Connection connection) throws SQLException
-    {
-        try (Statement statement = connection.createStatement())
-        {
-            statement.execute(storageType.migrationHistoryTableSql(MIGRATION_TABLE));
-        }
-    }
-
-    private boolean hasMigration(Connection connection, String migration) throws SQLException
-    {
-        try (Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery("SELECT version FROM " + MIGRATION_TABLE + " WHERE version = '" + migration + "'"))
-        {
-            return resultSet.next();
-        }
-    }
-
-    private void executeMigration(Connection connection, String migration) throws Exception
-    {
-        String resource = "db/migration/" + storageType.getMigrationDirectory() + "/" + migration + ".sql";
-        try (InputStream stream = getClass().getClassLoader().getResourceAsStream(resource))
-        {
-            if (stream == null)
-            {
-                throw new IllegalStateException("Missing database migration resource: " + resource);
-            }
-
-            for (String sql : splitStatements(new String(stream.readAllBytes(), StandardCharsets.UTF_8)))
-            {
-                try (Statement statement = connection.createStatement())
-                {
-                    statement.execute(sql);
-                }
-            }
-        }
-    }
-
-    private List<String> splitStatements(String script)
-    {
-        List<String> statements = new ArrayList<>();
-        StringBuilder current = new StringBuilder();
-        boolean inSingleQuote = false;
-        boolean inDoubleQuote = false;
-
-        for (int i = 0; i < script.length(); i++)
-        {
-            char c = script.charAt(i);
-            if (c == '\'' && !inDoubleQuote)
-            {
-                inSingleQuote = !inSingleQuote;
-            }
-            else if (c == '"' && !inSingleQuote)
-            {
-                inDoubleQuote = !inDoubleQuote;
-            }
-
-            if (c == ';' && !inSingleQuote && !inDoubleQuote)
-            {
-                addStatement(statements, current);
-                current.setLength(0);
-                continue;
-            }
-            current.append(c);
-        }
-        addStatement(statements, current);
-        return statements;
-    }
-
-    private void addStatement(List<String> statements, StringBuilder statement)
-    {
-        String sql = statement.toString().replaceAll("(?m)^\\s*--.*$", "").trim();
-        if (!sql.isEmpty())
-        {
-            statements.add(sql);
-        }
-    }
-
-    public Connection getConnection() throws SQLException
+    public java.sql.Connection getConnection() throws java.sql.SQLException
     {
         return dataSource.getConnection();
     }

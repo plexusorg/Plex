@@ -55,7 +55,6 @@ public class TimingService extends AbstractService
         punishment.setReason(PlexUtils.messageString("nukerTempbanReason"));
         if (player != null)
         {
-            punishment.setPunishedUsername(player.getName());
             punishment.setIp(player.getAddress().getAddress().getHostAddress());
         }
         punishment.setEndDate(TimeUtils.createDate("5m"));

@@ -57,7 +57,7 @@ public class SQLPlayerData implements PlayerRepository
     {
         try
         {
-            return players.queryBuilder().where().eq("name", username).queryForFirst() != null;
+            return players.queryBuilder().where().eq("last_known_name", username).queryForFirst() != null;
         }
         catch (SQLException e)
         {
@@ -84,7 +84,7 @@ public class SQLPlayerData implements PlayerRepository
         try
         {
             PlayerEntity entity = players.queryForId(uuid.toString());
-            return entity == null ? null : entity.getName();
+            return entity == null ? null : entity.getLastKnownName();
         }
         catch (SQLException e)
         {
@@ -102,7 +102,7 @@ public class SQLPlayerData implements PlayerRepository
     {
         try
         {
-            return toPlayer(players.queryBuilder().limit(1L).where().eq("name", username).queryForFirst(), loadExtraData);
+            return toPlayer(players.queryBuilder().limit(1L).where().eq("last_known_name", username).queryForFirst(), loadExtraData);
         }
         catch (SQLException e)
         {
@@ -169,13 +169,11 @@ public class SQLPlayerData implements PlayerRepository
         }
 
         PlexPlayer plexPlayer = new PlexPlayer(UUID.fromString(entity.getUuid()), false);
-        plexPlayer.setName(entity.getName());
+        plexPlayer.setName(entity.getLastKnownName());
         plexPlayer.setLoginMessage(entity.getLoginMessage());
         plexPlayer.setPrefix(entity.getPrefix());
         plexPlayer.setStaffChat(entity.isStaffChat());
         plexPlayer.setIps(parseIps(entity.getIps()));
-        plexPlayer.setCoins(entity.getCoins());
-        plexPlayer.setVanished(entity.isVanished());
         plexPlayer.setCommandSpy(entity.isCommandSpy());
         if (loadExtraData)
         {
@@ -189,13 +187,11 @@ public class SQLPlayerData implements PlayerRepository
     {
         PlayerEntity entity = new PlayerEntity();
         entity.setUuid(player.getUuid().toString());
-        entity.setName(player.getName());
+        entity.setLastKnownName(player.getName());
         entity.setLoginMessage(player.getLoginMessage());
         entity.setPrefix(player.getPrefix());
         entity.setStaffChat(player.isStaffChat());
         entity.setIps(GSON.toJson(player.getIps()));
-        entity.setCoins(player.getCoins());
-        entity.setVanished(player.isVanished());
         entity.setCommandSpy(player.isCommandSpy());
         return entity;
     }

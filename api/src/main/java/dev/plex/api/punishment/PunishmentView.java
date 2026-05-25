@@ -23,11 +23,25 @@ public interface PunishmentView
     UUID punisher();
 
     /**
-     * Returns the display name of the actor who issued the punishment.
+     * Returns the source that issued the punishment.
      *
-     * @return display name of the actor who issued the punishment
+     * @return punishment source
      */
-    String punisherName();
+    PunishmentSource source();
+
+    /**
+     * Returns the source-specific punisher reference.
+     *
+     * @return punisher reference, or {@code null} when not applicable
+     */
+    String punisherReference();
+
+    /**
+     * Returns the resolved display name for the punishment actor.
+     *
+     * @return display name for the punishment actor
+     */
+    String punisherDisplayName();
 
     /**
      * Returns the IP address associated with the punished player.
@@ -35,13 +49,6 @@ public interface PunishmentView
      * @return IP address associated with the punished player
      */
     String ip();
-
-    /**
-     * Returns the username of the punished player.
-     *
-     * @return username of the punished player
-     */
-    String punishedUsername();
 
     /**
      * Returns the punishment type.

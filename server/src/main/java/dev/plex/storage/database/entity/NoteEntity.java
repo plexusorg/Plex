@@ -19,8 +19,8 @@ public class NoteEntity
     @DatabaseField(columnName = "uuid", canBeNull = false, index = true, width = 46)
     private String uuid;
 
-    @DatabaseField(columnName = "written_by", width = 46)
-    private String writtenBy;
+    @DatabaseField(columnName = "written_by_uuid", width = 46)
+    private String writtenByUuid;
 
     @DatabaseField(columnName = "note", width = 2000)
     private String note;

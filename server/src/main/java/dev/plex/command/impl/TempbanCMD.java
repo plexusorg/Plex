@@ -83,7 +83,6 @@ public class TempbanCMD extends ServerCommand
         {
             punishment.setReason(context.messageString("noReasonProvided"));
         }
-        punishment.setPunishedUsername(target.getName());
         punishment.setEndDate(TimeUtils.createDate(args[1]));
         punishment.setCustomTime(false);
         punishment.setActive(true);
@@ -92,7 +91,7 @@ public class TempbanCMD extends ServerCommand
         PlexUtils.broadcast(context.messageComponent("banningPlayer", sender.getName(), target.getName()));
         if (player != null)
         {
-            plugin.getApi().scheduler().runEntity(player, () -> BungeeUtil.kickPlayer(plugin, player, Punishment.generateBanMessage(punishment, plugin.config.getString("banning.ban_url"), plugin.getPlayerService())));
+            plugin.getApi().scheduler().runEntity(player, () -> BungeeUtil.kickPlayer(plugin, player, Punishment.generateBanMessage(punishment, plugin.config.getString("banning.ban_url"), plugin.getPlayerNameResolver())));
         }
         if (rollBack)
         {

@@ -76,14 +76,13 @@ public class KickCMD extends ServerCommand
         }
 
         punishment.setReason(reason);
-        punishment.setPunishedUsername(plexPlayer.getName());
         punishment.setEndDate(ZonedDateTime.now(ZoneId.of(TimeUtils.TIMEZONE)));
         punishment.setCustomTime(false);
         punishment.setActive(false);
         punishment.setIp(player.getAddress().getAddress().getHostAddress().trim());
         plugin.getPunishmentManager().punish(plexPlayer, punishment);
         PlexUtils.broadcast(context.messageComponent("kickedPlayer", sender.getName(), plexPlayer.getName()));
-        BungeeUtil.kickPlayer(plugin, player, Punishment.generateKickMessage(punishment, plugin.getPlayerService()));
+        BungeeUtil.kickPlayer(plugin, player, Punishment.generateKickMessage(punishment, plugin.getPlayerNameResolver()));
         return null;
     }
 

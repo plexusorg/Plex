@@ -16,6 +16,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
@@ -47,6 +48,7 @@ public class SQLNotes implements NoteRepository
                 return notes.queryForEq("uuid", uuid.toString()).stream()
                         .sorted(Comparator.comparingInt(NoteEntity::getId))
                         .map(this::toNote)
+                        .flatMap(Optional::stream)
                         .toList();
             }
             catch (SQLException e)
@@ -96,16 +98,23 @@ public class SQLNotes implements NoteRepository
         }, executor);
     }
 
-    private Note toNote(NoteEntity entity)
+    private Optional<Note> toNote(NoteEntity entity)
     {
-        Note note = new Note(
-                UUID.fromString(entity.getUuid()),
-                entity.getNote(),
-                UUID.fromString(entity.getWrittenBy()),
-                ZonedDateTime.ofInstant(Instant.ofEpochMilli(entity.getTimestamp()), ZoneId.of(TimeUtils.TIMEZONE))
-        );
-        note.setId(entity.getId());
-        return note;
+        try
+        {
+            Note note = new Note(
+                    UUID.fromString(entity.getUuid()),
+                    entity.getNote(),
+                    UUID.fromString(entity.getWrittenByUuid()),
+                    ZonedDateTime.ofInstant(Instant.ofEpochMilli(entity.getTimestamp()), ZoneId.of(TimeUtils.TIMEZONE))
+            );
+            note.setId(entity.getId());
+            return Optional.of(note);
+        }
+        catch (IllegalArgumentException | NullPointerException e)
+        {
+            return Optional.empty();
+        }
     }
 
     private NoteEntity toEntity(Note note)
@@ -113,7 +122,7 @@ public class SQLNotes implements NoteRepository
         NoteEntity entity = new NoteEntity();
         entity.setId(note.getId());
         entity.setUuid(note.getUuid().toString());
-        entity.setWrittenBy(note.getWrittenBy().toString());
+        entity.setWrittenByUuid(note.getWrittenBy().toString());
         entity.setNote(note.getNote());
         entity.setTimestamp(note.getTimestamp().toInstant().toEpochMilli());
         return entity;

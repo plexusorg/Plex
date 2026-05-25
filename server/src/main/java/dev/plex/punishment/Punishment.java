@@ -2,7 +2,8 @@ package dev.plex.punishment;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import dev.plex.player.PlayerService;
+import dev.plex.api.punishment.PunishmentSource;
+import dev.plex.player.PlayerNameResolver;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.TimeUtils;
 import dev.plex.util.adapter.ZonedDateTimeAdapter;
@@ -24,12 +25,9 @@ public class Punishment
     @NotNull
     private final UUID punished;
     private final UUID punisher;
-    // Optional display attribution for punishers without a Minecraft UUID
-    // (e.g. web staff signed in via XenForo). When non-null, render this in
-    // place of the UUID-based name lookup.
-    private String punisherName;
+    private PunishmentSource source;
+    private String punisherReference;
     private String ip;
-    private String punishedUsername;
     private PunishmentType type;
     private String reason;
     private boolean customTime;
@@ -41,32 +39,33 @@ public class Punishment
     {
         this.punished = punished;
         this.punisher = punisher;
+        this.source = punisher == null ? PunishmentSource.CONSOLE : PunishmentSource.PLAYER;
         this.issueDate = ZonedDateTime.now(ZoneId.of(TimeUtils.TIMEZONE));
     }
 
-    public static Component generateBanMessage(Punishment punishment, String banUrl, PlayerService playerService)
+    public static Component generateBanMessage(Punishment punishment, String banUrl, PlayerNameResolver playerNameResolver)
     {
-        return PlexUtils.messageComponent("banMessage", banUrl, punishment.getReason(), TimeUtils.useTimezone(punishment.getEndDate()), punisherDisplayName(punishment, playerService));
+        return PlexUtils.messageComponent("banMessage", banUrl, punishment.getReason(), TimeUtils.useTimezone(punishment.getEndDate()), punisherDisplayName(punishment, playerNameResolver));
     }
 
-    public static Component generateKickMessage(Punishment punishment, PlayerService playerService)
+    public static Component generateKickMessage(Punishment punishment, PlayerNameResolver playerNameResolver)
     {
-        return PlexUtils.messageComponent("kickMessage", punishment.getReason(), punisherDisplayName(punishment, playerService));
+        return PlexUtils.messageComponent("kickMessage", punishment.getReason(), punisherDisplayName(punishment, playerNameResolver));
     }
 
-    /**
-     * Resolves the human-readable punisher attribution for display.
-     * Prefers the explicit {@link #punisherName} (used for off-server
-     * sources such as XenForo staff acting via the web HTTPD), falling
-     * back to a UUID lookup, and finally "CONSOLE" when the punisher is
-     * truly unknown.
-     */
-    public static String punisherDisplayName(Punishment punishment, PlayerService playerService)
+    public static String punisherDisplayName(Punishment punishment, PlayerNameResolver playerNameResolver)
     {
-        String explicit = punishment.getPunisherName();
-        if (explicit != null && !explicit.isEmpty()) return explicit;
-        if (punishment.getPunisher() == null) return "CONSOLE";
-        return playerService.getNameByUUID(punishment.getPunisher());
+        PunishmentSource source = punishment.getSource();
+        if (source == null)
+        {
+            source = punishment.getPunisher() == null ? PunishmentSource.CONSOLE : PunishmentSource.PLAYER;
+        }
+        return switch (source)
+        {
+            case PLAYER -> punishment.getPunisher() == null ? "CONSOLE" : playerNameResolver.resolve(punishment.getPunisher());
+            case CONSOLE -> "CONSOLE";
+            case WEB -> punishment.getPunisherReference() == null || punishment.getPunisherReference().isBlank() ? "WEB" : punishment.getPunisherReference();
+        };
     }
 
     public static Component generateIndefBanMessageWithReason(String type, String banUrl, String reason)

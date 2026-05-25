@@ -54,7 +54,7 @@ public class PlayerListener extends ServerListenerBase
             }
             if (!plexPlayer.getName().equals(player.getName()))
             {
-                PlexLog.log(plexPlayer.getName() + " has a new name. Changing it to " + player.getName());
+                PlexLog.log(plexPlayer.getName() + " has a new last known name. Changing it to " + player.getName());
                 plexPlayer.setName(player.getName());
                 plugin.getPlayerService().update(plexPlayer);
             }
