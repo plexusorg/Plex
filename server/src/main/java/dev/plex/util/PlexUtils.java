@@ -88,9 +88,9 @@ public class PlexUtils
 
     public static void testConnections(Plex plugin)
     {
-        if (plugin.getSqlConnection().getDataSource() != null)
+        if (plugin.getDatabase().getDataSource() != null)
         {
-            try (Connection ignored = plugin.getSqlConnection().getCon())
+            try (Connection ignored = plugin.getDatabase().getConnection())
             {
                 PlexLog.log("Successfully enabled " + plugin.getStorageType().getDisplayName() + "!");
             }

@@ -4,7 +4,6 @@ CREATE TABLE IF NOT EXISTS `players` (
     `login_msg` VARCHAR(2000),
     `prefix` VARCHAR(2000),
     `staffChat` BOOLEAN,
-    `ips` VARCHAR(2000),
     `commandspy` BOOLEAN,
     PRIMARY KEY (`uuid`),
     INDEX `idx_players_last_known_name` (`last_known_name`)

@@ -1,14 +1,10 @@
 package dev.plex.storage.module;
 
-import com.j256.ormlite.misc.TransactionManager;
 import dev.plex.Plex;
 import dev.plex.api.storage.ModuleMigrations;
-import dev.plex.api.storage.ModuleOrm;
 import dev.plex.api.storage.ModuleStorage;
-import dev.plex.api.storage.SqlCallable;
 import dev.plex.module.PlexModule;
-
-import java.sql.SQLException;
+import org.jdbi.v3.core.Jdbi;
 
 public class ServerModuleStorage implements ModuleStorage
 {
@@ -16,7 +12,6 @@ public class ServerModuleStorage implements ModuleStorage
     private final PlexModule module;
     private final String prefix;
     private final ModuleMigrations migrations;
-    private final ModuleOrm orm;
 
     public ServerModuleStorage(Plex plugin, PlexModule module)
     {
@@ -24,7 +19,6 @@ public class ServerModuleStorage implements ModuleStorage
         this.module = module;
         this.prefix = ModuleNames.prefix(module);
         this.migrations = new ServerModuleMigrations(plugin, module, this);
-        this.orm = new ServerModuleOrm(plugin.getSqlConnection().getConnectionSource(), this);
     }
 
     @Override
@@ -56,14 +50,8 @@ public class ServerModuleStorage implements ModuleStorage
     }
 
     @Override
-    public ModuleOrm orm()
+    public Jdbi jdbi()
     {
-        return orm;
-    }
-
-    @Override
-    public <T> T transaction(SqlCallable<T> callable) throws SQLException
-    {
-        return TransactionManager.callInTransaction(plugin.getSqlConnection().getConnectionSource(), callable::call);
+        return plugin.getDatabase().getJdbi();
     }
 }

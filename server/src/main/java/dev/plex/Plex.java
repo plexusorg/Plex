@@ -19,8 +19,8 @@ import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.PunishmentManager;
 import dev.plex.services.ServiceManager;
 import dev.plex.storage.RedisConnection;
-import dev.plex.storage.SQLConnection;
 import dev.plex.storage.StorageType;
+import dev.plex.storage.database.Database;
 import dev.plex.storage.player.SQLPlayerData;
 import dev.plex.storage.player.PlayerModuleDataRepository;
 import dev.plex.storage.player.SQLPlayerModuleData;
@@ -63,7 +63,7 @@ public class Plex extends JavaPlugin
     public Config toggles;
     public File modulesFolder;
     private StorageType storageType = StorageType.SQLITE;
-    private SQLConnection sqlConnection;
+    private Database database;
     private RedisConnection redisConnection;
 
     private PlayerCache playerCache;
@@ -146,7 +146,7 @@ public class Plex extends JavaPlugin
         // Don't add default entries to these files
         indefBans.load(false);
 
-        sqlConnection = new SQLConnection(this);
+        database = new Database(this);
         redisConnection = new RedisConnection(this);
 
         playerCache = new PlayerCache();
@@ -220,10 +220,10 @@ public class Plex extends JavaPlugin
             PlexLog.log("Redis is disabled in the configuration file, not connecting.");
         }
 
-        punishmentRepository = new SQLPunishment(sqlConnection.getConnectionSource(), api.scheduler().asyncExecutor());
-        playerRepository = new SQLPlayerData(sqlConnection.getConnectionSource(), punishmentRepository);
-        playerModuleDataRepository = new SQLPlayerModuleData(sqlConnection, storageType);
-        noteRepository = new SQLNotes(sqlConnection.getConnectionSource(), api.scheduler().asyncExecutor());
+        punishmentRepository = new SQLPunishment(database.getJdbi(), api.scheduler().asyncExecutor());
+        playerRepository = new SQLPlayerData(database.getJdbi(), punishmentRepository, storageType);
+        playerModuleDataRepository = new SQLPlayerModuleData(database.getJdbi(), storageType);
+        noteRepository = new SQLNotes(database.getJdbi(), api.scheduler().asyncExecutor());
         playerService = new PlayerService(playerCache, playerRepository);
         playerNameResolver = new PlayerNameResolver(playerService);
 
@@ -275,9 +275,9 @@ public class Plex extends JavaPlugin
 
         moduleManager.disableModules();
 
-        if (sqlConnection != null)
+        if (database != null)
         {
-            sqlConnection.close();
+            database.close();
         }
     }
 

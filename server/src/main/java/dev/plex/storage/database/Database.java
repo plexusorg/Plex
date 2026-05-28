@@ -1,13 +1,11 @@
 package dev.plex.storage.database;
 
-import com.j256.ormlite.jdbc.DataSourceConnectionSource;
-import com.j256.ormlite.support.ConnectionSource;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import dev.plex.Plex;
 import dev.plex.storage.StorageType;
-import dev.plex.util.PlexLog;
 import lombok.Getter;
+import org.jdbi.v3.core.Jdbi;
 
 import java.util.List;
 
@@ -16,7 +14,7 @@ public class Database
 {
     protected final Plex plugin;
     private final HikariDataSource dataSource;
-    private final ConnectionSource connectionSource;
+    private final Jdbi jdbi;
     private final StorageType storageType;
     private final MigrationRunner migrationRunner;
 
@@ -39,9 +37,9 @@ public class Database
         this.dataSource = new HikariDataSource(config);
         try
         {
-            this.connectionSource = new DataSourceConnectionSource(dataSource, config.getJdbcUrl());
             this.migrationRunner = new MigrationRunner(storageType);
             this.migrationRunner.runCore(dataSource, getClass().getClassLoader(), List.of("001_initial_schema"));
+            this.jdbi = Jdbi.create(dataSource);
         }
         catch (Exception e)
         {
@@ -57,14 +55,6 @@ public class Database
 
     public void close()
     {
-        try
-        {
-            connectionSource.close();
-        }
-        catch (Exception e)
-        {
-            PlexLog.warn("Failed to close ORMLite connection source: " + e.getMessage());
-        }
         dataSource.close();
     }
 }

@@ -3,48 +3,41 @@ package dev.plex.storage.player;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
-import dev.plex.storage.SQLConnection;
 import dev.plex.storage.StorageType;
+import dev.plex.util.PlexLog;
+import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.JdbiException;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Optional;
 import java.util.UUID;
 
 public class SQLPlayerModuleData implements PlayerModuleDataRepository
 {
-    private final SQLConnection sqlConnection;
+    private final Jdbi jdbi;
     private final StorageType storageType;
 
-    public SQLPlayerModuleData(SQLConnection sqlConnection, StorageType storageType)
+    public SQLPlayerModuleData(Jdbi jdbi, StorageType storageType)
     {
-        this.sqlConnection = sqlConnection;
+        this.jdbi = jdbi;
         this.storageType = storageType;
     }
 
     @Override
     public Optional<JsonElement> get(UUID playerUuid, String module, String key)
     {
-        String sql = "SELECT value_json FROM player_module_data WHERE player_uuid = ? AND module = ? AND data_key = ?";
-        try (Connection connection = sqlConnection.getConnection(); PreparedStatement statement = connection.prepareStatement(sql))
+        try
         {
-            statement.setString(1, playerUuid.toString());
-            statement.setString(2, module);
-            statement.setString(3, key);
-            try (ResultSet resultSet = statement.executeQuery())
-            {
-                if (!resultSet.next())
-                {
-                    return Optional.empty();
-                }
-                return Optional.of(JsonParser.parseString(resultSet.getString("value_json")));
-            }
+            return jdbi.withHandle(h -> h.createQuery(
+                            "SELECT value_json FROM player_module_data WHERE player_uuid = :p AND module = :m AND data_key = :k")
+                    .bind("p", playerUuid.toString())
+                    .bind("m", module)
+                    .bind("k", key)
+                    .mapTo(String.class).findFirst())
+                    .map(JsonParser::parseString);
         }
-        catch (SQLException | JsonSyntaxException e)
+        catch (JdbiException | JsonSyntaxException e)
         {
-            e.printStackTrace();
+            PlexLog.warn("Failed to load player module data {0}/{1}/{2}: {3}", playerUuid, module, key, e.getMessage());
             return Optional.empty();
         }
     }
@@ -52,35 +45,37 @@ public class SQLPlayerModuleData implements PlayerModuleDataRepository
     @Override
     public void set(UUID playerUuid, String module, String key, JsonElement value)
     {
-        try (Connection connection = sqlConnection.getConnection(); PreparedStatement statement = connection.prepareStatement(storageType.playerModuleDataUpsertSql()))
+        try
         {
-            statement.setString(1, playerUuid.toString());
-            statement.setString(2, module);
-            statement.setString(3, key);
-            statement.setString(4, value.toString());
-            statement.setLong(5, System.currentTimeMillis());
-            statement.executeUpdate();
+            jdbi.useHandle(h -> h.createUpdate(storageType.playerModuleDataUpsertSql())
+                    .bind(0, playerUuid.toString())
+                    .bind(1, module)
+                    .bind(2, key)
+                    .bind(3, value.toString())
+                    .bind(4, System.currentTimeMillis())
+                    .execute());
         }
-        catch (SQLException e)
+        catch (JdbiException e)
         {
-            e.printStackTrace();
+            PlexLog.warn("Failed to save player module data {0}/{1}/{2}: {3}", playerUuid, module, key, e.getMessage());
         }
     }
 
     @Override
     public void remove(UUID playerUuid, String module, String key)
     {
-        String sql = "DELETE FROM player_module_data WHERE player_uuid = ? AND module = ? AND data_key = ?";
-        try (Connection connection = sqlConnection.getConnection(); PreparedStatement statement = connection.prepareStatement(sql))
+        try
         {
-            statement.setString(1, playerUuid.toString());
-            statement.setString(2, module);
-            statement.setString(3, key);
-            statement.executeUpdate();
+            jdbi.useHandle(h -> h.createUpdate(
+                            "DELETE FROM player_module_data WHERE player_uuid = :p AND module = :m AND data_key = :k")
+                    .bind("p", playerUuid.toString())
+                    .bind("m", module)
+                    .bind("k", key)
+                    .execute());
         }
-        catch (SQLException e)
+        catch (JdbiException e)
         {
-            e.printStackTrace();
+            PlexLog.warn("Failed to remove player module data {0}/{1}/{2}: {3}", playerUuid, module, key, e.getMessage());
         }
     }
 }

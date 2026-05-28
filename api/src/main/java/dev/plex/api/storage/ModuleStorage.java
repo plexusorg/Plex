@@ -1,6 +1,6 @@
 package dev.plex.api.storage;
 
-import java.sql.SQLException;
+import org.jdbi.v3.core.Jdbi;
 
 /**
  * Module-scoped storage namespace.
@@ -30,19 +30,10 @@ public interface ModuleStorage
     ModuleMigrations migrations();
 
     /**
-     * Returns module ORMLite DAO operations.
+     * Returns the shared JDBI instance. Build SQL with {@link #table(String)} for
+     * physical-table resolution; use {@code jdbi().inTransaction(...)} for multi-statement transactions.
      *
-     * @return module ORMLite DAO operations
+     * @return shared JDBI instance
      */
-    ModuleOrm orm();
-
-    /**
-     * Runs work inside a storage transaction.
-     *
-     * @param callable work to run
-     * @param <T> callback result type
-     * @return callback result
-     * @throws SQLException if the transaction cannot complete
-     */
-    <T> T transaction(SqlCallable<T> callable) throws SQLException;
+    Jdbi jdbi();
 }

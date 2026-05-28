@@ -28,8 +28,7 @@ dependencies {
     library("org.postgresql:postgresql:42.7.11")
     library("org.xerial:sqlite-jdbc:3.53.1.0")
     library("com.zaxxer:HikariCP:7.0.2")
-    library("com.j256.ormlite:ormlite-core:6.1")
-    library("com.j256.ormlite:ormlite-jdbc:6.1")
+    library("org.jdbi:jdbi3-core:3.53.0")
     library("org.jetbrains:annotations:26.1.0")
     compileOnly("io.papermc.paper:paper-api:${paperApiVersion}.build.+")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7.1") {

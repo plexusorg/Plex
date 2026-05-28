@@ -134,6 +134,33 @@ public enum StorageType
         };
     }
 
+    public String playerUpsertSql()
+    {
+        return switch (this)
+        {
+            case SQLITE, POSTGRES -> """
+                    INSERT INTO players (uuid, last_known_name, login_msg, prefix, staffChat, commandspy)
+                    VALUES (:uuid, :name, :login, :prefix, :staffChat, :commandSpy)
+                    ON CONFLICT(uuid) DO UPDATE SET
+                        last_known_name = excluded.last_known_name,
+                        login_msg = excluded.login_msg,
+                        prefix = excluded.prefix,
+                        staffChat = excluded.staffChat,
+                        commandspy = excluded.commandspy
+                    """;
+            case MARIADB -> """
+                    INSERT INTO `players` (`uuid`, `last_known_name`, `login_msg`, `prefix`, `staffChat`, `commandspy`)
+                    VALUES (:uuid, :name, :login, :prefix, :staffChat, :commandSpy)
+                    ON DUPLICATE KEY UPDATE
+                        `last_known_name` = VALUES(`last_known_name`),
+                        `login_msg` = VALUES(`login_msg`),
+                        `prefix` = VALUES(`prefix`),
+                        `staffChat` = VALUES(`staffChat`),
+                        `commandspy` = VALUES(`commandspy`)
+                    """;
+        };
+    }
+
     public String getDisplayName()
     {
         return displayName;

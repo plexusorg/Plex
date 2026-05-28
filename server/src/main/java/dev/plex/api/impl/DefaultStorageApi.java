@@ -18,7 +18,7 @@ final class DefaultStorageApi implements StorageApi
     @Override
     public <T> T withConnection(SqlFunction<T> function) throws SQLException
     {
-        try (Connection connection = plugin.getSqlConnection().getCon())
+        try (Connection connection = plugin.getDatabase().getConnection())
         {
             return function.apply(connection);
         }

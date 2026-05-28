@@ -1,10 +1,6 @@
 package dev.plex.storage.punishment;
 
 import com.google.common.collect.Lists;
-import com.j256.ormlite.dao.Dao;
-import com.j256.ormlite.dao.DaoManager;
-import com.j256.ormlite.support.ConnectionSource;
-import com.j256.ormlite.stmt.UpdateBuilder;
 import dev.plex.api.punishment.PunishmentSource;
 import dev.plex.punishment.Punishment;
 import dev.plex.punishment.PunishmentType;
@@ -12,8 +8,9 @@ import dev.plex.storage.database.entity.PunishmentEntity;
 import dev.plex.storage.repository.PunishmentRepository;
 import dev.plex.util.PlexLog;
 import dev.plex.util.TimeUtils;
+import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.JdbiException;
 
-import java.sql.SQLException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -24,20 +21,13 @@ import java.util.concurrent.Executor;
 
 public class SQLPunishment implements PunishmentRepository
 {
-    private final Dao<PunishmentEntity, Long> punishments;
+    private final Jdbi jdbi;
     private final Executor executor;
 
-    public SQLPunishment(ConnectionSource connectionSource, Executor executor)
+    public SQLPunishment(Jdbi jdbi, Executor executor)
     {
-        try
-        {
-            this.punishments = DaoManager.createDao(connectionSource, PunishmentEntity.class);
-            this.executor = executor;
-        }
-        catch (SQLException e)
-        {
-            throw new IllegalStateException("Failed to create punishment DAO", e);
-        }
+        this.jdbi = jdbi;
+        this.executor = executor;
     }
 
     public CompletableFuture<List<Punishment>> getPunishments()
@@ -46,11 +36,12 @@ public class SQLPunishment implements PunishmentRepository
         {
             try
             {
-                return punishments.queryForAll().stream().map(this::toPunishment).toList();
+                return jdbi.withHandle(h -> h.createQuery("SELECT * FROM punishments")
+                        .map((rs, ctx) -> mapRow(rs)).list()).stream().map(this::toPunishment).toList();
             }
-            catch (SQLException e)
+            catch (JdbiException e)
             {
-                e.printStackTrace();
+                PlexLog.warn("Failed to load punishments: {0}", e.getMessage());
                 return Lists.newArrayList();
             }
         }, executor);
@@ -60,11 +51,13 @@ public class SQLPunishment implements PunishmentRepository
     {
         try
         {
-            return punishments.queryForEq("punished_uuid", uuid.toString()).stream().map(this::toPunishment).toList();
+            return jdbi.withHandle(h -> h.createQuery("SELECT * FROM punishments WHERE punished_uuid = :u")
+                    .bind("u", uuid.toString()).map((rs, ctx) -> mapRow(rs)).list())
+                    .stream().map(this::toPunishment).toList();
         }
-        catch (SQLException e)
+        catch (JdbiException e)
         {
-            e.printStackTrace();
+            PlexLog.warn("Failed to load punishments for {0}: {1}", uuid, e.getMessage());
             return Lists.newArrayList();
         }
     }
@@ -73,11 +66,13 @@ public class SQLPunishment implements PunishmentRepository
     {
         try
         {
-            return punishments.queryForEq("ip", ip).stream().map(this::toPunishment).toList();
+            return jdbi.withHandle(h -> h.createQuery("SELECT * FROM punishments WHERE ip = :ip")
+                    .bind("ip", ip).map((rs, ctx) -> mapRow(rs)).list())
+                    .stream().map(this::toPunishment).toList();
         }
-        catch (SQLException e)
+        catch (JdbiException e)
         {
-            e.printStackTrace();
+            PlexLog.warn("Failed to load punishments for IP {0}: {1}", ip, e.getMessage());
             return Lists.newArrayList();
         }
     }
@@ -89,11 +84,26 @@ public class SQLPunishment implements PunishmentRepository
             try
             {
                 PlexLog.debug("Persisting punishment for " + punishment.getPunished());
-                punishments.create(toEntity(punishment));
+                PunishmentEntity e = toEntity(punishment);
+                jdbi.useHandle(h -> h.createUpdate(
+                                "INSERT INTO punishments (punished_uuid, punisher_uuid, source, punisher_reference, ip, type, reason, customTime, active, issueDate, endDate) " +
+                                        "VALUES (:punishedUuid, :punisherUuid, :source, :punisherReference, :ip, :type, :reason, :customTime, :active, :issueDate, :endDate)")
+                        .bind("punishedUuid", e.getPunishedUuid())
+                        .bind("punisherUuid", e.getPunisherUuid())
+                        .bind("source", e.getSource())
+                        .bind("punisherReference", e.getPunisherReference())
+                        .bind("ip", e.getIp())
+                        .bind("type", e.getType())
+                        .bind("reason", e.getReason())
+                        .bind("customTime", e.isCustomTime())
+                        .bind("active", e.isActive())
+                        .bind("issueDate", e.getIssueDate())
+                        .bind("endDate", e.getEndDate())
+                        .execute());
             }
-            catch (SQLException e)
+            catch (JdbiException e)
             {
-                e.printStackTrace();
+                PlexLog.warn("Failed to persist punishment for {0}: {1}", punishment.getPunished(), e.getMessage());
             }
         }, executor);
     }
@@ -118,15 +128,35 @@ public class SQLPunishment implements PunishmentRepository
     {
         try
         {
-            UpdateBuilder<PunishmentEntity, Long> update = punishments.updateBuilder();
-            update.updateColumnValue("active", active);
-            update.where().eq("punished_uuid", punished.toString()).and().eq("type", type.name());
-            update.update();
+            jdbi.useHandle(h -> h.createUpdate(
+                            "UPDATE punishments SET active = :active WHERE punished_uuid = :u AND type = :t")
+                    .bind("active", active)
+                    .bind("u", punished.toString())
+                    .bind("t", type.name())
+                    .execute());
         }
-        catch (SQLException e)
+        catch (JdbiException e)
         {
-            e.printStackTrace();
+            PlexLog.warn("Failed to update punishment state for {0}: {1}", punished, e.getMessage());
         }
+    }
+
+    private static PunishmentEntity mapRow(java.sql.ResultSet rs) throws java.sql.SQLException
+    {
+        PunishmentEntity e = new PunishmentEntity();
+        e.setId(rs.getLong("id"));
+        e.setPunishedUuid(rs.getString("punished_uuid"));
+        e.setPunisherUuid(rs.getString("punisher_uuid"));
+        e.setSource(rs.getString("source"));
+        e.setPunisherReference(rs.getString("punisher_reference"));
+        e.setIp(rs.getString("ip"));
+        e.setType(rs.getString("type"));
+        e.setReason(rs.getString("reason"));
+        e.setCustomTime(rs.getBoolean("customTime"));
+        e.setActive(rs.getBoolean("active"));
+        e.setIssueDate(rs.getLong("issueDate"));
+        e.setEndDate(rs.getLong("endDate"));
+        return e;
     }
 
     private Punishment toPunishment(PunishmentEntity entity)

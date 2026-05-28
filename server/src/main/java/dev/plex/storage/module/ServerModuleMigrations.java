@@ -29,8 +29,8 @@ public class ServerModuleMigrations implements ModuleMigrations
     @Override
     public void run(String resourceRoot, List<String> versions) throws SQLException
     {
-        plugin.getSqlConnection().getMigrationRunner().runModule(
-                plugin.getSqlConnection().getDataSource(),
+        plugin.getDatabase().getMigrationRunner().runModule(
+                plugin.getDatabase().getDataSource(),
                 module,
                 storage.scope(),
                 resourceRoot,

@@ -1,16 +1,14 @@
 package dev.plex.storage.punishment;
 
 import com.google.common.collect.Lists;
-import com.j256.ormlite.dao.Dao;
-import com.j256.ormlite.dao.DaoManager;
-import com.j256.ormlite.support.ConnectionSource;
-import com.j256.ormlite.stmt.DeleteBuilder;
 import dev.plex.punishment.extra.Note;
 import dev.plex.storage.database.entity.NoteEntity;
 import dev.plex.storage.repository.NoteRepository;
+import dev.plex.util.PlexLog;
 import dev.plex.util.TimeUtils;
+import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.JdbiException;
 
-import java.sql.SQLException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -23,20 +21,13 @@ import java.util.concurrent.Executor;
 
 public class SQLNotes implements NoteRepository
 {
-    private final Dao<NoteEntity, Long> notes;
+    private final Jdbi jdbi;
     private final Executor executor;
 
-    public SQLNotes(ConnectionSource connectionSource, Executor executor)
+    public SQLNotes(Jdbi jdbi, Executor executor)
     {
-        try
-        {
-            this.notes = DaoManager.createDao(connectionSource, NoteEntity.class);
-            this.executor = executor;
-        }
-        catch (SQLException e)
-        {
-            throw new IllegalStateException("Failed to create note DAO", e);
-        }
+        this.jdbi = jdbi;
+        this.executor = executor;
     }
 
     public CompletableFuture<List<Note>> getNotes(UUID uuid)
@@ -45,15 +36,16 @@ public class SQLNotes implements NoteRepository
         {
             try
             {
-                return notes.queryForEq("uuid", uuid.toString()).stream()
+                return jdbi.withHandle(h -> h.createQuery("SELECT * FROM notes WHERE uuid = :u")
+                        .bind("u", uuid.toString()).map((rs, ctx) -> mapRow(rs)).list()).stream()
                         .sorted(Comparator.comparingInt(NoteEntity::getId))
                         .map(this::toNote)
                         .flatMap(Optional::stream)
                         .toList();
             }
-            catch (SQLException e)
+            catch (JdbiException e)
             {
-                e.printStackTrace();
+                PlexLog.warn("Failed to load notes for {0}: {1}", uuid, e.getMessage());
                 return Lists.newArrayList();
             }
         }, executor);
@@ -65,13 +57,14 @@ public class SQLNotes implements NoteRepository
         {
             try
             {
-                DeleteBuilder<NoteEntity, Long> delete = notes.deleteBuilder();
-                delete.where().eq("uuid", uuid.toString()).and().eq("id", id);
-                delete.delete();
+                jdbi.useHandle(h -> h.createUpdate("DELETE FROM notes WHERE uuid = :u AND id = :id")
+                        .bind("u", uuid.toString())
+                        .bind("id", id)
+                        .execute());
             }
-            catch (SQLException e)
+            catch (JdbiException e)
             {
-                e.printStackTrace();
+                PlexLog.warn("Failed to delete note {0} for {1}: {2}", id, uuid, e.getMessage());
             }
         }, executor);
     }
@@ -82,20 +75,38 @@ public class SQLNotes implements NoteRepository
         {
             try
             {
-                int nextId = notes.queryForEq("uuid", note.getUuid().toString()).stream()
-                        .map(NoteEntity::getId)
-                        .max(Integer::compareTo)
-                        .orElse(0) + 1;
+                int nextId = jdbi.withHandle(h -> h.createQuery("SELECT COALESCE(MAX(id), 0) FROM notes WHERE uuid = :u")
+                        .bind("u", note.getUuid().toString()).mapTo(Integer.class).one()) + 1;
                 NoteEntity entity = toEntity(note);
                 entity.setId(nextId);
-                notes.create(entity);
+                jdbi.useHandle(h -> h.createUpdate(
+                                "INSERT INTO notes (id, uuid, written_by_uuid, note, timestamp) " +
+                                        "VALUES (:id, :uuid, :writtenBy, :note, :ts)")
+                        .bind("id", entity.getId())
+                        .bind("uuid", entity.getUuid())
+                        .bind("writtenBy", entity.getWrittenByUuid())
+                        .bind("note", entity.getNote())
+                        .bind("ts", entity.getTimestamp())
+                        .execute());
                 note.setId(nextId);
             }
-            catch (SQLException e)
+            catch (JdbiException e)
             {
-                e.printStackTrace();
+                PlexLog.warn("Failed to add note for {0}: {1}", note.getUuid(), e.getMessage());
             }
         }, executor);
+    }
+
+    private static NoteEntity mapRow(java.sql.ResultSet rs) throws java.sql.SQLException
+    {
+        NoteEntity e = new NoteEntity();
+        e.setRowId(rs.getLong("row_id"));
+        e.setId(rs.getInt("id"));
+        e.setUuid(rs.getString("uuid"));
+        e.setWrittenByUuid(rs.getString("written_by_uuid"));
+        e.setNote(rs.getString("note"));
+        e.setTimestamp(rs.getLong("timestamp"));
+        return e;
     }
 
     private Optional<Note> toNote(NoteEntity entity)

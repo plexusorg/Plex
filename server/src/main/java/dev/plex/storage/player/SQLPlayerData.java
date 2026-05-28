@@ -1,54 +1,44 @@
 package dev.plex.storage.player;
 
-import com.google.common.reflect.TypeToken;
-import com.google.gson.Gson;
-import com.j256.ormlite.dao.Dao;
-import com.j256.ormlite.dao.DaoManager;
-import com.j256.ormlite.support.ConnectionSource;
-import com.j256.ormlite.stmt.DeleteBuilder;
 import dev.plex.player.PlexPlayer;
+import dev.plex.storage.StorageType;
 import dev.plex.storage.database.entity.PlayerEntity;
-import dev.plex.storage.database.entity.PlayerIpEntity;
 import dev.plex.storage.repository.PlayerRepository;
 import dev.plex.storage.repository.PunishmentRepository;
+import dev.plex.util.PlexLog;
+import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.JdbiException;
 
-import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
 
 /**
- * Player persistence backed by ORMLite.
+ * Player persistence backed by JDBI.
  */
 public class SQLPlayerData implements PlayerRepository
 {
-    private static final Gson GSON = new Gson();
-    private final Dao<PlayerEntity, String> players;
-    private final Dao<PlayerIpEntity, Long> playerIps;
+    private final Jdbi jdbi;
     private final PunishmentRepository punishmentRepository;
+    private final StorageType storageType;
 
-    public SQLPlayerData(ConnectionSource connectionSource, PunishmentRepository punishmentRepository)
+    public SQLPlayerData(Jdbi jdbi, PunishmentRepository punishmentRepository, StorageType storageType)
     {
+        this.jdbi = jdbi;
         this.punishmentRepository = punishmentRepository;
-        try
-        {
-            this.players = DaoManager.createDao(connectionSource, PlayerEntity.class);
-            this.playerIps = DaoManager.createDao(connectionSource, PlayerIpEntity.class);
-        }
-        catch (SQLException e)
-        {
-            throw new IllegalStateException("Failed to create player DAOs", e);
-        }
+        this.storageType = storageType;
     }
 
     public boolean exists(UUID uuid)
     {
         try
         {
-            return players.idExists(uuid.toString());
+            return jdbi.withHandle(h -> h.createQuery("SELECT 1 FROM players WHERE uuid = :u")
+                    .bind("u", uuid.toString()).mapTo(Integer.class).findFirst().isPresent());
         }
-        catch (SQLException e)
+        catch (JdbiException e)
         {
-            e.printStackTrace();
+            PlexLog.warn("Failed to check player existence for {0}: {1}", uuid, e.getMessage());
             return false;
         }
     }
@@ -57,11 +47,12 @@ public class SQLPlayerData implements PlayerRepository
     {
         try
         {
-            return players.queryBuilder().where().eq("last_known_name", username).queryForFirst() != null;
+            return jdbi.withHandle(h -> h.createQuery("SELECT 1 FROM players WHERE last_known_name = :n")
+                    .bind("n", username).mapTo(Integer.class).findFirst().isPresent());
         }
-        catch (SQLException e)
+        catch (JdbiException e)
         {
-            e.printStackTrace();
+            PlexLog.warn("Failed to check player existence for {0}: {1}", username, e.getMessage());
             return false;
         }
     }
@@ -70,11 +61,16 @@ public class SQLPlayerData implements PlayerRepository
     {
         try
         {
-            return toPlayer(players.queryForId(uuid.toString()), loadExtraData);
+            return jdbi.withHandle(h ->
+            {
+                PlayerEntity e = h.createQuery("SELECT * FROM players WHERE uuid = :u")
+                        .bind("u", uuid.toString()).map((rs, ctx) -> mapRow(rs)).findFirst().orElse(null);
+                return toPlayer(h, e, loadExtraData);
+            });
         }
-        catch (SQLException e)
+        catch (JdbiException e)
         {
-            e.printStackTrace();
+            PlexLog.warn("Failed to load player by UUID {0}: {1}", uuid, e.getMessage());
             return null;
         }
     }
@@ -83,12 +79,12 @@ public class SQLPlayerData implements PlayerRepository
     {
         try
         {
-            PlayerEntity entity = players.queryForId(uuid.toString());
-            return entity == null ? null : entity.getLastKnownName();
+            return jdbi.withHandle(h -> h.createQuery("SELECT last_known_name FROM players WHERE uuid = :u")
+                    .bind("u", uuid.toString()).mapTo(String.class).findFirst().orElse(null));
         }
-        catch (SQLException e)
+        catch (JdbiException e)
         {
-            e.printStackTrace();
+            PlexLog.warn("Failed to load player name by UUID {0}: {1}", uuid, e.getMessage());
             return null;
         }
     }
@@ -102,11 +98,16 @@ public class SQLPlayerData implements PlayerRepository
     {
         try
         {
-            return toPlayer(players.queryBuilder().limit(1L).where().eq("last_known_name", username).queryForFirst(), loadExtraData);
+            return jdbi.withHandle(h ->
+            {
+                PlayerEntity e = h.createQuery("SELECT * FROM players WHERE last_known_name = :n LIMIT 1")
+                        .bind("n", username).map((rs, ctx) -> mapRow(rs)).findFirst().orElse(null);
+                return toPlayer(h, e, loadExtraData);
+            });
         }
-        catch (SQLException e)
+        catch (JdbiException e)
         {
-            e.printStackTrace();
+            PlexLog.warn("Failed to load player by name {0}: {1}", username, e.getMessage());
             return null;
         }
     }
@@ -120,39 +121,46 @@ public class SQLPlayerData implements PlayerRepository
     {
         try
         {
-            PlayerIpEntity playerIp = playerIps.queryBuilder().limit(1L).where().eq("ip", ip).queryForFirst();
-            if (playerIp != null)
+            return jdbi.withHandle(h ->
             {
-                return toPlayer(players.queryForId(playerIp.getPlayerUuid()), true);
-            }
-
-            for (PlayerEntity entity : players.queryForAll())
-            {
-                List<String> ips = parseIps(entity.getIps());
-                if (ips.contains(ip))
+                String uuid = h.createQuery("SELECT player_uuid FROM player_ips WHERE ip = :ip LIMIT 1")
+                        .bind("ip", ip).mapTo(String.class).findFirst().orElse(null);
+                if (uuid == null)
                 {
-                    syncIps(entity.getUuid(), ips);
-                    return toPlayer(entity, true);
+                    return null;
                 }
-            }
+                PlayerEntity e = h.createQuery("SELECT * FROM players WHERE uuid = :u")
+                        .bind("u", uuid).map((rs, ctx) -> mapRow(rs)).findFirst().orElse(null);
+                return toPlayer(h, e, true);
+            });
         }
-        catch (SQLException e)
+        catch (JdbiException e)
         {
-            e.printStackTrace();
+            PlexLog.warn("Failed to load player by IP {0}: {1}", ip, e.getMessage());
+            return null;
         }
-        return null;
     }
 
     public void update(PlexPlayer player)
     {
         try
         {
-            players.createOrUpdate(toEntity(player));
-            syncIps(player.getUuid().toString(), player.getIps());
+            jdbi.useTransaction(h ->
+            {
+                h.createUpdate(storageType.playerUpsertSql())
+                        .bind("uuid", player.getUuid().toString())
+                        .bind("name", player.getName())
+                        .bind("login", player.getLoginMessage())
+                        .bind("prefix", player.getPrefix())
+                        .bind("staffChat", player.isStaffChat())
+                        .bind("commandSpy", player.isCommandSpy())
+                        .execute();
+                syncIps(h, player.getUuid().toString(), player.getIps());
+            });
         }
-        catch (SQLException e)
+        catch (JdbiException e)
         {
-            e.printStackTrace();
+            PlexLog.warn("Failed to update player {0}: {1}", player.getUuid(), e.getMessage());
         }
     }
 
@@ -161,7 +169,35 @@ public class SQLPlayerData implements PlayerRepository
         update(player);
     }
 
-    private PlexPlayer toPlayer(PlayerEntity entity, boolean loadExtraData)
+    private static PlayerEntity mapRow(java.sql.ResultSet rs) throws java.sql.SQLException
+    {
+        PlayerEntity e = new PlayerEntity();
+        e.setUuid(rs.getString("uuid"));
+        e.setLastKnownName(rs.getString("last_known_name"));
+        e.setLoginMessage(rs.getString("login_msg"));
+        e.setPrefix(rs.getString("prefix"));
+        e.setStaffChat(rs.getBoolean("staffChat"));
+        e.setCommandSpy(rs.getBoolean("commandspy"));
+        return e;
+    }
+
+    private List<String> loadIps(Handle h, String uuid)
+    {
+        return h.createQuery("SELECT ip FROM player_ips WHERE player_uuid = :u")
+                .bind("u", uuid).mapTo(String.class).list();
+    }
+
+    private void syncIps(Handle h, String playerUuid, List<String> ips)
+    {
+        h.createUpdate("DELETE FROM player_ips WHERE player_uuid = :u").bind("u", playerUuid).execute();
+        for (String ip : ips.stream().distinct().toList())
+        {
+            h.createUpdate("INSERT INTO player_ips (player_uuid, ip) VALUES (:u, :ip)")
+                    .bind("u", playerUuid).bind("ip", ip).execute();
+        }
+    }
+
+    private PlexPlayer toPlayer(Handle h, PlayerEntity entity, boolean loadExtraData)
     {
         if (entity == null)
         {
@@ -173,7 +209,7 @@ public class SQLPlayerData implements PlayerRepository
         plexPlayer.setLoginMessage(entity.getLoginMessage());
         plexPlayer.setPrefix(entity.getPrefix());
         plexPlayer.setStaffChat(entity.isStaffChat());
-        plexPlayer.setIps(parseIps(entity.getIps()));
+        plexPlayer.setIps(loadIps(h, entity.getUuid()));
         plexPlayer.setCommandSpy(entity.isCommandSpy());
         if (loadExtraData)
         {
@@ -181,42 +217,5 @@ public class SQLPlayerData implements PlayerRepository
             plexPlayer.checkMutesAndFreeze();
         }
         return plexPlayer;
-    }
-
-    private PlayerEntity toEntity(PlexPlayer player)
-    {
-        PlayerEntity entity = new PlayerEntity();
-        entity.setUuid(player.getUuid().toString());
-        entity.setLastKnownName(player.getName());
-        entity.setLoginMessage(player.getLoginMessage());
-        entity.setPrefix(player.getPrefix());
-        entity.setStaffChat(player.isStaffChat());
-        entity.setIps(GSON.toJson(player.getIps()));
-        entity.setCommandSpy(player.isCommandSpy());
-        return entity;
-    }
-
-    private List<String> parseIps(String ips)
-    {
-        if (ips == null || ips.isBlank())
-        {
-            return List.of();
-        }
-        List<String> parsed = GSON.fromJson(ips, new TypeToken<List<String>>()
-        {
-        }.getType());
-        return parsed == null ? List.of() : parsed;
-    }
-
-    private void syncIps(String playerUuid, List<String> ips) throws SQLException
-    {
-        DeleteBuilder<PlayerIpEntity, Long> delete = playerIps.deleteBuilder();
-        delete.where().eq("player_uuid", playerUuid);
-        delete.delete();
-
-        for (String ip : ips.stream().distinct().toList())
-        {
-            playerIps.create(new PlayerIpEntity(playerUuid, ip));
-        }
     }
 }
