@@ -4,7 +4,7 @@ plugins {
 }
 
 dependencies {
-    api("com.j256.ormlite:ormlite-core:6.1")
+    compileOnlyApi("com.j256.ormlite:ormlite-core:6.1")
     api("com.google.code.gson:gson:2.13.2")
 
     compileOnly("io.papermc.paper:paper-api:26.1.2.build.+")
