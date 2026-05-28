@@ -36,6 +36,7 @@ public abstract class PlexModule
     private ModuleConfiguration messages;
     private PlexModuleFile plexModuleFile;
     private File dataFolder;
+    private File moduleJar;
     private Logger logger;
 
     /**
@@ -229,6 +230,16 @@ public abstract class PlexModule
     }
 
     /**
+     * Returns the JAR file this module was loaded from.
+     *
+     * @return the JAR file this module was loaded from
+     */
+    public File getModuleJar()
+    {
+        return moduleJar;
+    }
+
+    /**
      * Returns the module logger.
      *
      * @return module logger
@@ -360,6 +371,16 @@ public abstract class PlexModule
     public void setDataFolder(File dataFolder)
     {
         this.dataFolder = dataFolder;
+    }
+
+    /**
+     * Sets the JAR file this module was loaded from.
+     *
+     * @param moduleJar JAR file this module was loaded from
+     */
+    public void setModuleJar(File moduleJar)
+    {
+        this.moduleJar = moduleJar;
     }
 
     /**

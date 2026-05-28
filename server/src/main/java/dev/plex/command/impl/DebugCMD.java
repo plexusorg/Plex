@@ -4,6 +4,7 @@ import dev.plex.command.PlexCommand;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
 import dev.plex.command.ServerCommandContext;
+import dev.plex.command.exception.CommandFailException;
 import dev.plex.menu.impl.MaterialMenu;
 import dev.plex.util.GameRuleUtil;
 import dev.plex.util.PlexLog;
@@ -26,7 +27,7 @@ public class DebugCMD extends ServerCommand
     {
         super(command("pdebug")
             .description("Plex's debug command")
-            .usage("/<command> <aliases <command> | redis-reset <player> | gamerules>")
+            .usage("/<command> <aliases <command> | redis | redis-reset <player> | gamerules>")
             .permission("plex.debug")
             .build());
     }
@@ -34,6 +35,8 @@ public class DebugCMD extends ServerCommand
     protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
     {
         command.executes(context -> executeCommand(context));
+        command.then(literal("redis")
+                .executes(context -> executeCommand(context, "redis")));
         command.then(literal("redis-reset")
                 .then(playerArgument("player")
                         .executes(context -> executeCommand(context, "redis-reset", string(context, "player")))));
@@ -55,6 +58,18 @@ public class DebugCMD extends ServerCommand
         if (args.length == 0)
         {
             return context.usage();
+        }
+        if (args[0].equalsIgnoreCase("redis"))
+        {
+            if (!plugin.getRedisConnection().isEnabled())
+            {
+                throw new CommandFailException("&cRedis is not enabled.");
+            }
+            plugin.getRedisConnection().execute(jedis -> jedis.set("test", "123"));
+            context.send(sender, "Set test to 123. Now outputting key test...");
+            String test = plugin.getRedisConnection().query(jedis -> jedis.get("test"));
+            context.send(sender, test);
+            return null;
         }
         if (args[0].equalsIgnoreCase("redis-reset"))
         {

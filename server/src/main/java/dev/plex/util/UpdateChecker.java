@@ -91,6 +91,15 @@ public class UpdateChecker
         updateJar(sender, name, module, List.of());
     }
 
+    public void installModuleJar(CommandSender sender, String name)
+    {
+        updateJar(sender, name, true, List.of(), () -> plugin.getApi().scheduler().runGlobal(() ->
+        {
+            plugin.getModuleManager().reloadModules();
+            sendMessage(sender, PlexUtils.messageComponent("moduleRestartRequired"));
+        }));
+    }
+
     public void updateModuleJar(CommandSender sender, PlexModule module)
     {
         PlexModuleFile moduleFile = module.getPlexModuleFile();
@@ -103,6 +112,11 @@ public class UpdateChecker
     }
 
     private void updateJar(CommandSender sender, String name, boolean module, List<String> moduleUpdateUrls)
+    {
+        updateJar(sender, name, module, moduleUpdateUrls, null);
+    }
+
+    private void updateJar(CommandSender sender, String name, boolean module, List<String> moduleUpdateUrls, Runnable onSuccess)
     {
         try
         {
@@ -121,7 +135,7 @@ public class UpdateChecker
                     : new File(Bukkit.getUpdateFolderFile(), metadata.fileName());
 
             sendMessage(sender, PlexUtils.messageComponent("updateDownloading", metadata.fileName()));
-            plugin.getApi().scheduler().runAsync(() -> downloadAndInstall(sender, metadata, copyTo));
+            plugin.getApi().scheduler().runAsync(() -> downloadAndInstall(sender, metadata, copyTo, onSuccess));
         }
         catch (UpdateMetadataClient.MetadataException e)
         {
@@ -174,7 +188,7 @@ public class UpdateChecker
         return System.currentTimeMillis() - latestPlexMetadataFailureAtMillis < PLEX_METADATA_FAILURE_CACHE_MILLIS;
     }
 
-    private void downloadAndInstall(CommandSender sender, ArtifactMetadata metadata, File copyTo)
+    private void downloadAndInstall(CommandSender sender, ArtifactMetadata metadata, File copyTo, Runnable onSuccess)
     {
         File parent = copyTo.getParentFile();
         if (parent != null && !parent.exists() && !parent.mkdirs())
@@ -190,6 +204,10 @@ public class UpdateChecker
             validateDownloadedFile(metadata, temporaryFile);
             Files.move(temporaryFile.toPath(), copyTo.toPath(), StandardCopyOption.REPLACE_EXISTING);
             sendMessage(sender, PlexUtils.messageComponent("updateDownloaded"));
+            if (onSuccess != null)
+            {
+                onSuccess.run();
+            }
         }
         catch (IOException e)
         {

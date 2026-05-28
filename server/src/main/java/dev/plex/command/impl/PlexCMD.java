@@ -3,7 +3,7 @@ package dev.plex.command.impl;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
 import dev.plex.command.ServerCommandContext;
-import dev.plex.command.exception.CommandFailException;
+import dev.plex.module.ModuleManager;
 import dev.plex.module.PlexModule;
 import dev.plex.module.PlexModuleFile;
 import dev.plex.util.BuildInfo;
@@ -17,10 +17,7 @@ import java.util.stream.Collectors;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
 import org.apache.commons.lang3.StringUtils;
-import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 public class PlexCMD extends ServerCommand
@@ -29,7 +26,7 @@ public class PlexCMD extends ServerCommand
     {
         super(command("plex")
             .description("Show information about Plex or reload it")
-            .usage("/<command> [reload | redis | update | modules [reload | update]]")
+            .usage("/<command> [reload | update | modules [reload | update | install <name> | uninstall <name> [-rmdir]]]")
             .build());
     }
     // Don't modify this command
@@ -39,8 +36,6 @@ public class PlexCMD extends ServerCommand
         command.executes(context -> executeCommand(context));
         command.then(literal("reload")
                 .executes(context -> executeCommand(context, "reload")));
-        command.then(literal("redis")
-                .executes(context -> executeCommand(context, "redis")));
         command.then(literal("update")
                 .executes(context -> executeCommand(context, "update")));
         command.then(literal("modules")
@@ -48,14 +43,24 @@ public class PlexCMD extends ServerCommand
                 .then(literal("reload")
                         .executes(context -> executeCommand(context, "modules", "reload")))
                 .then(literal("update")
-                        .executes(context -> executeCommand(context, "modules", "update"))));
+                        .executes(context -> executeCommand(context, "modules", "update")))
+                .then(literal("install")
+                        .then(word("name")
+                                .executes(context -> executeCommand(context, "modules", "install", string(context, "name")))))
+                .then(literal("uninstall")
+                        .then(word("name")
+                                .suggests(suggest(() -> plugin.getModuleManager().getModules().stream()
+                                        .map(module -> module.getPlexModuleFile().getName())
+                                        .collect(Collectors.toList())))
+                                .executes(context -> executeCommand(context, "modules", "uninstall", string(context, "name")))
+                                .then(literal("-rmdir")
+                                        .executes(context -> executeCommand(context, "modules", "uninstall", string(context, "name"), "-rmdir"))))));
     }
 
     @Override
     protected Component execute(@NotNull ServerCommandContext context)
     {
         CommandSender sender = context.sender();
-        Player playerSender = context.player();
         String[] args = context.args();
         if (args.length == 0)
         {
@@ -91,19 +96,6 @@ public class PlexCMD extends ServerCommand
             context.send(sender, "Plex successfully reloaded.");
             return null;
         }
-        else if (args[0].equalsIgnoreCase("redis"))
-        {
-            context.checkPermission(sender, "plex.redis");
-            if (!plugin.getRedisConnection().isEnabled())
-            {
-                throw new CommandFailException("&cRedis is not enabled.");
-            }
-            plugin.getRedisConnection().execute(jedis -> jedis.set("test", "123"));
-            context.send(sender, "Set test to 123. Now outputting key test...");
-            String test = plugin.getRedisConnection().query(jedis -> jedis.get("test"));
-            context.send(sender, test);
-            return null;
-        }
         else if (args[0].equalsIgnoreCase("modules"))
         {
             if (args.length == 1)
@@ -118,10 +110,7 @@ public class PlexCMD extends ServerCommand
             }
             else if (args[1].equalsIgnoreCase("update"))
             {
-                if (!hasUpdateAccess(context, playerSender, sender))
-                {
-                    return context.mmString("<red>You must be a Developer to use this command.");
-                }
+                context.checkPermission(sender, "plex.modules.update");
                 for (PlexModule module : plugin.getModuleManager().getModules())
                 {
                     plugin.getUpdateChecker().updateModuleJar(sender, module);
@@ -129,13 +118,42 @@ public class PlexCMD extends ServerCommand
                 plugin.getModuleManager().reloadModules();
                 return context.mmString("<green>All modules updated and reloaded!");
             }
+            else if (args[1].equalsIgnoreCase("install"))
+            {
+                context.checkPermission(sender, "plex.modules.install");
+                if (args.length < 3)
+                {
+                    return context.usage();
+                }
+                String moduleName = args[2];
+                plugin.getUpdateChecker().installModuleJar(sender, moduleName);
+                return context.mmString("<green>Installing module <yellow>" + moduleName + "<green>...");
+            }
+            else if (args[1].equalsIgnoreCase("uninstall"))
+            {
+                context.checkPermission(sender, "plex.modules.uninstall");
+                if (args.length < 3)
+                {
+                    return context.usage();
+                }
+                String moduleName = args[2];
+                boolean removeData = args.length >= 4 && args[3].equalsIgnoreCase("-rmdir");
+                ModuleManager.UninstallResult result = plugin.getModuleManager().uninstallModule(moduleName, removeData);
+                switch (result)
+                {
+                    case NOT_FOUND:
+                        return context.mmString("<red>No installed module named <yellow>" + moduleName + "<red> was found.");
+                    case FAILED:
+                        return context.mmString("<red>Failed to delete the JAR for <yellow>" + moduleName + "<red>. Check the server log.");
+                    case REMOVED:
+                        context.send(sender, context.mmString("<green>Uninstalled module <yellow>" + moduleName + "<green>" + (removeData ? " and its data folder" : "") + "."));
+                        return context.messageComponent("moduleRestartRequired");
+                }
+            }
         }
         else if (args[0].equalsIgnoreCase("update"))
         {
-            if (!hasUpdateAccess(context, playerSender, sender))
-            {
-                return context.mmString("<red>You must be a Developer to use this command.");
-            }
+            context.checkPermission(sender, "plex.update");
             if (!plugin.getUpdateChecker().getUpdateStatusMessage(sender, false, 0))
             {
                 return context.mmString("<red>Plex is already up to date!");
@@ -148,26 +166,5 @@ public class PlexCMD extends ServerCommand
             return context.usage();
         }
         return null;
-    }
-
-    // Owners and developers only have access
-    private boolean hasUpdateAccess(ServerCommandContext context, Player player, CommandSender sender)
-    {
-        // Allow CONSOLE, get OfflinePlayer for Telnet
-        if (context.isConsole(sender))
-        {
-            if (sender.getName().equalsIgnoreCase("CONSOLE"))
-            {
-                return true;
-            }
-            OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(sender.getName());
-            if (offlinePlayer.hasPlayedBefore())
-            {
-                return PlexUtils.DEVELOPERS.contains(offlinePlayer.getUniqueId().toString());
-            }
-            return false;
-        }
-        assert player != null;
-        return PlexUtils.DEVELOPERS.contains(player.getUniqueId().toString());
     }
 }

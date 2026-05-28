@@ -118,6 +118,7 @@ public class ModuleManager
                     PlexModule plexModule = module.getConstructor().newInstance();
                     plexModule.setApi(plugin.getApi());
                     plexModule.setPlexModuleFile(plexModuleFile);
+                    plexModule.setModuleJar(file);
 
                     plexModule.setDataFolder(new File(plugin.getModulesFolder() + File.separator + plexModuleFile.getName()));
                     if (!plexModule.getDataFolder().exists())
@@ -217,12 +218,78 @@ public class ModuleManager
     public void reloadModules()
     {
         unloadModules();
+        reloadFromDisk();
+    }
+
+    private void reloadFromDisk()
+    {
         loadAllModules();
         loadModules();
         enableModules();
         if (plugin.getCommandHandler() != null && plugin.getCommandHandler().requiresLifecycleReload())
         {
             PlexLog.warn("Module command changes were staged after Paper's Brigadier command lifecycle. Restart the server for the live command dispatcher to match the loaded modules.");
+        }
+    }
+
+    /**
+     * Outcome of an uninstall request.
+     */
+    public enum UninstallResult
+    {
+        NOT_FOUND,
+        REMOVED,
+        FAILED
+    }
+
+    /**
+     * Uninstalls a loaded module by name: deletes its JAR and, optionally, its data
+     * folder, then reloads the remaining modules.
+     *
+     * @param name module name as declared in the module's module.yml
+     * @param removeData whether to also delete the module's data folder
+     * @return the outcome of the uninstall request
+     */
+    public UninstallResult uninstallModule(String name, boolean removeData)
+    {
+        PlexModule target = modules.stream()
+                .filter(module -> module.getPlexModuleFile().getName().equalsIgnoreCase(name))
+                .findFirst()
+                .orElse(null);
+        if (target == null)
+        {
+            return UninstallResult.NOT_FOUND;
+        }
+
+        File moduleJar = target.getModuleJar();
+        File dataFolder = target.getDataFolder();
+
+        unloadModules();
+
+        boolean deleted = moduleJar.delete();
+        if (deleted && removeData && dataFolder.isDirectory())
+        {
+            deleteRecursively(dataFolder);
+        }
+
+        reloadFromDisk();
+
+        return deleted ? UninstallResult.REMOVED : UninstallResult.FAILED;
+    }
+
+    private void deleteRecursively(File file)
+    {
+        File[] children = file.listFiles();
+        if (children != null)
+        {
+            for (File child : children)
+            {
+                deleteRecursively(child);
+            }
+        }
+        if (!file.delete())
+        {
+            PlexLog.warn("Unable to delete " + file.getAbsolutePath());
         }
     }
 }
