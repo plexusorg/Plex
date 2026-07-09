@@ -3,6 +3,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 val paperApiVersion = "26.1.2"
+val supportedMinecraftVersions = listOf("26.1", "26.1.1", "26.1.2", "26.2")
 
 plugins {
     java
@@ -132,7 +133,7 @@ tasks {
                     property("buildNumber", if (System.getenv("BUILD_NUMBER") != null) System.getenv("BUILD_NUMBER") else getBuildNumber())
                     property("date", SimpleDateFormat("MM/dd/yyyy '<light_purple>at<gold>' hh:mm:ss a z").format(Date()))
                     property("gitCommit", indraGit.commit().get().name)
-                    property("minecraftVersion", paperApiVersion)
+                    property("minecraftVersion", supportedMinecraftVersions.joinToString(","))
                 }
             }
         }

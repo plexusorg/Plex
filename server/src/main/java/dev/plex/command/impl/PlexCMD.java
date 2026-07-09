@@ -10,6 +10,7 @@ import dev.plex.util.BuildInfo;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.TimeUtils;
+import dev.plex.util.UpdateChecker;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,6 +19,7 @@ import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
 import org.apache.commons.lang3.StringUtils;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 public class PlexCMD extends ServerCommand
@@ -69,7 +71,7 @@ public class PlexCMD extends ServerCommand
             context.send(sender, context.mmString("<light_purple>Authors: <gold>Telesphoreo, Taahh"));
             context.send(sender, context.mmString("<light_purple>Built by: <gold>" + BuildInfo.getAuthor() + " <light_purple>on <gold>" + BuildInfo.getDate()));
             context.send(sender, context.mmString("<light_purple>Run <gold>/plex modules <light_purple>to see a list of modules."));
-            plugin.getUpdateChecker().getUpdateStatusMessage(sender, true, 2);
+            plugin.getApi().scheduler().runAsync(() -> plugin.getUpdateChecker().getUpdateStatusMessage(sender, true, 2));
             return null;
         }
         if (args[0].equalsIgnoreCase("reload"))
@@ -111,12 +113,19 @@ public class PlexCMD extends ServerCommand
             else if (args[1].equalsIgnoreCase("update"))
             {
                 context.checkPermission(sender, "plex.modules.update");
-                for (PlexModule module : plugin.getModuleManager().getModules())
+                plugin.getApi().scheduler().runAsync(() ->
                 {
-                    plugin.getUpdateChecker().updateModuleJar(sender, module);
-                }
-                plugin.getModuleManager().reloadModules();
-                return context.mmString("<green>All modules updated and reloaded!");
+                    for (PlexModule module : plugin.getModuleManager().getModules())
+                    {
+                        plugin.getUpdateChecker().updateModuleJar(sender, module);
+                    }
+                    plugin.getApi().scheduler().runGlobal(() ->
+                    {
+                        plugin.getModuleManager().reloadModules();
+                        sender.sendMessage(context.mmString("<green>All modules updated and reloaded!"));
+                    });
+                });
+                return null;
             }
             else if (args[1].equalsIgnoreCase("install"))
             {
@@ -126,7 +135,7 @@ public class PlexCMD extends ServerCommand
                     return context.usage();
                 }
                 String moduleName = args[2];
-                plugin.getUpdateChecker().installModuleJar(sender, moduleName);
+                plugin.getApi().scheduler().runAsync(() -> plugin.getUpdateChecker().installModuleJar(sender, moduleName));
                 return context.mmString("<green>Installing module <yellow>" + moduleName + "<green>...");
             }
             else if (args[1].equalsIgnoreCase("uninstall"))
@@ -154,17 +163,37 @@ public class PlexCMD extends ServerCommand
         else if (args[0].equalsIgnoreCase("update"))
         {
             context.checkPermission(sender, "plex.update");
-            if (!plugin.getUpdateChecker().getUpdateStatusMessage(sender, false, 0))
+            plugin.getApi().scheduler().runAsync(() ->
             {
-                return context.mmString("<red>Plex is already up to date!");
-            }
-            plugin.getUpdateChecker().updateJar(sender, "Plex", false);
-            return context.mmString("<red>Alert: Restart the server for the new JAR file to be applied.");
+                UpdateChecker.UpdateCheckResult result = plugin.getUpdateChecker().checkForUpdates(false);
+                if (result.status() == UpdateChecker.UpdateCheckStatus.UPDATE_AVAILABLE)
+                {
+                    plugin.getUpdateChecker().updateJar(sender, result.metadata(), () -> sendMessage(sender, context.mmString("<red>Alert: Restart the server for the new JAR file to be applied.")));
+                    return;
+                }
+                if (result.status() == UpdateChecker.UpdateCheckStatus.UP_TO_DATE)
+                {
+                    sendMessage(sender, context.mmString("<red>Plex is already up to date!"));
+                    return;
+                }
+                plugin.getUpdateChecker().sendResultMessage(sender, result, 2);
+            });
+            return null;
         }
         else
         {
             return context.usage();
         }
         return null;
+    }
+
+    private void sendMessage(CommandSender sender, Component message)
+    {
+        if (sender instanceof Player player)
+        {
+            plugin.getApi().scheduler().runEntity(player, () -> sender.sendMessage(message));
+            return;
+        }
+        plugin.getApi().scheduler().runGlobal(() -> sender.sendMessage(message));
     }
 }

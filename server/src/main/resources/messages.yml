@@ -220,24 +220,6 @@ togglePvp: "PVP"
 togglePvpLower: "PVP"
 toggleChat: "Chat"
 toggleChatLower: "chat"
-toggleMenuExplosionsName: "<!italic><light_purple>Toggle explosions"
-# 0 - The toggle status
-toggleMenuExplosionsLore: "<!italic><yellow>Explosions are {0}"
-toggleMenuFluidSpreadName: "<!italic><light_purple>Toggle fluid spread"
-# 0 - The toggle status
-toggleMenuFluidSpreadLore: "<!italic><yellow>Fluid spread is {0}"
-toggleMenuDropsName: "<!italic><light_purple>Toggle drops"
-# 0 - The toggle status
-toggleMenuDropsLore: "<!italic><yellow>Drops are {0}"
-toggleMenuRedstoneName: "<!italic><light_purple>Redstone"
-# 0 - The toggle status
-toggleMenuRedstoneLore: "<!italic><yellow>Redstone is {0}"
-toggleMenuPvpName: "<!italic><light_purple>PVP"
-# 0 - The toggle status
-toggleMenuPvpLore: "<!italic><yellow>PVP is {0}"
-toggleMenuChatName: "<!italic><light_purple>Toggle chat"
-# 0 - The toggle status
-toggleMenuChatLore: "<!italic><yellow>Chat is currently {0}"
 specifyLoginMessage: "<red>Please specify a login message."
 # 0 - The login message
 setOwnLoginMessage: "<gray>Your login message is now:<newline><gray>> <reset>{0}"
@@ -312,27 +294,10 @@ prismRollbackMessage: "<gray>Rolled back {0} activities"
 # 0 - Error message returned from Prism
 prismRollbackError: "<red>Rollback failed: {0}"
 prismNoResult: "<gray>No activities have been rolled back"
-pageNext: "<light_purple>Next Page"
-pagePrevious: "<light_purple>Previous Page"
-pageClose: "<red>Close"
-pageableNotInitialized: "<red>Looks like this inventory was not initialized! Please contact a developer to report this."
-pageNotFound: "<red>Could not find a page to open"
 punishmentMenuTitle: "<aqua><bold>Punishments"
-# 0 - The player
-punishmentPlayerItem: "<!italic><yellow>{0}"
 # 0 - The player
 punishedPlayerMenuTitle: "<red><bold>Punishments - {0}"
 punishmentPlayerNotFound: '<red>This player does not exist. Try doing /punishments \<player> instead.'
-# 0 - The punishment type
-punishmentItemTitle: "<!italic><red>{0}"
-# 0 - The punisher
-punishmentItemPunisher: "<!italic><red>By: <gold>{0}"
-# 0 - The issue date
-punishmentItemIssued: "<!italic><red>Issued: <gold>{0}"
-# 0 - The expiration date
-punishmentItemExpires: "<!italic><red>Expire(d/s): <gold>{0}"
-# 0 - The reason
-punishmentItemReason: "<!italic><red>Reason: <gold>{0}"
 # 0 - The amount of active bans
 # 1 - The active ban list
 activeBansList: "<gold>Active Bans ({0}): <yellow>{1}"
@@ -343,8 +308,6 @@ updateUpToDate: "<green>Plex is up to date on the {0} channel."
 # 1 - The channel
 updateAvailable: "<red>Plex {0} is available on the {1} channel."
 updateRunCommand: "<red>Run: /plex update"
-# 0 - The channel
-updateAlreadyUpToDate: "<red>Plex is already up to date on the {0} channel."
 # 0 - The file name
 updateDownloading: "<green>Downloading latest JAR file: {0}"
 updateDownloaded: "<green>New JAR file downloaded and verified successfully."
@@ -354,6 +317,23 @@ updateDirectoryFailed: "<red>Unable to create update directory: {0}"
 updateDownloadFailed: "<red>Something went wrong while downloading {0}. Please check the log for more information."
 # 0 - The channel
 updateMetadataNotFound: "<red>No compatible update is available on the {0} channel."
+# 0 - The Plex version
+# 1 - The channel
+# 2 - The supported Minecraft versions
+# 3 - The running Minecraft version
+updateRequiresMinecraftVersion: "<yellow>No Plex build exists for Minecraft {3}. Plex {0} on the {1} channel supports Minecraft: {2}."
+# 0 - The Plex version
+# 1 - The channel
+# 2 - The oldest supported Minecraft version
+# 3 - The running Minecraft version
+# 4 - The supported Minecraft versions
+updateRequiresNewerMinecraft: "<yellow>Your server is running Minecraft {3}, which is older than any version supported by Plex {0} on the {1} channel (oldest supported: {2}). Supported versions: {4}."
+# 0 - The Plex version
+# 1 - The channel
+# 2 - The newest supported Minecraft version
+# 3 - The running Minecraft version
+# 4 - The supported Minecraft versions
+updateUnsupportedNewerMinecraft: "<yellow>No Plex build exists yet for Minecraft {3}. Plex {0} on the {1} channel supports up to Minecraft {2}. Supported versions: {4}."
 # 0 - The error message
 updateMetadataError: "<red>There was an error checking update metadata: {0}"
 moduleUpdateDisabled: "<yellow>Skipping {0}; module updates are disabled."

@@ -73,7 +73,12 @@ public final class ArtifactMetadata
         return publishedAt;
     }
 
-    public Optional<String> validatePlex(UpdateChannel requestedChannel, String minecraftVersion)
+    public List<String> minecraftVersions()
+    {
+        return minecraftVersions == null ? List.of() : List.copyOf(minecraftVersions);
+    }
+
+    public Optional<String> validatePlex(UpdateChannel requestedChannel)
     {
         Optional<String> commonError = validateCommon(requestedChannel);
         if (commonError.isPresent())
@@ -84,13 +89,27 @@ public final class ArtifactMetadata
         {
             return Optional.of("Plex metadata has unexpected artifact name " + name);
         }
-        if (minecraftVersions == null || !minecraftVersions.contains(minecraftVersion))
+        if (minecraftVersions == null || minecraftVersions.isEmpty())
         {
-            return Optional.of("metadata does not include Minecraft version " + minecraftVersion);
+            return Optional.of("Plex metadata is missing minecraftVersions");
         }
         if (apiCompatibility == null)
         {
             return Optional.of("Plex metadata is missing apiCompatibility");
+        }
+        return Optional.empty();
+    }
+
+    public Optional<String> validatePlex(UpdateChannel requestedChannel, String minecraftVersion)
+    {
+        Optional<String> plexError = validatePlex(requestedChannel);
+        if (plexError.isPresent())
+        {
+            return plexError;
+        }
+        if (!supportsMinecraftVersion(minecraftVersion))
+        {
+            return Optional.of("metadata does not include Minecraft version " + minecraftVersion);
         }
         return Optional.empty();
     }
@@ -183,6 +202,11 @@ public final class ArtifactMetadata
             return Optional.of("metadata is missing a valid sha256");
         }
         return Optional.empty();
+    }
+
+    private boolean supportsMinecraftVersion(String minecraftVersion)
+    {
+        return minecraftVersions != null && minecraftVersions.contains(minecraftVersion);
     }
 
     private static boolean isBlank(String value)

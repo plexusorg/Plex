@@ -3,7 +3,7 @@ package dev.plex.command.impl;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
 import dev.plex.command.ServerCommandContext;
-import dev.plex.menu.impl.ToggleMenu;
+import dev.plex.menu.dialog.ToggleDialog;
 import dev.plex.util.PlexUtils;
 
 
@@ -47,19 +47,8 @@ public class ToggleCMD extends ServerCommand
         CommandSender sender = context.sender();
         Player playerSender = context.player();
         String[] args = context.args();
-        if (context.isConsole(sender) || playerSender == null)
+        if (args.length > 0)
         {
-            if (args.length == 0)
-            {
-                sender.sendMessage(context.messageComponent("toggleAvailable"));
-                sender.sendMessage(toggleListItem(context, "toggleExplosions", "explosions"));
-                sender.sendMessage(toggleListItem(context, "toggleFluidSpread", "fluidspread"));
-                sender.sendMessage(toggleListItem(context, "toggleDrops", "drops"));
-                sender.sendMessage(toggleListItem(context, "toggleRedstone", "redstone"));
-                sender.sendMessage(toggleListItem(context, "togglePvp", "pvp"));
-                sender.sendMessage(toggleListItem(context, "toggleChat", "chat"));
-                return null;
-            }
             switch (args[0].toLowerCase())
             {
                 case "explosions" ->
@@ -93,7 +82,18 @@ public class ToggleCMD extends ServerCommand
                 }
             }
         }
-        new ToggleMenu(plugin).open(playerSender);
+        if (context.isConsole(sender) || playerSender == null)
+        {
+            sender.sendMessage(context.messageComponent("toggleAvailable"));
+            sender.sendMessage(toggleListItem(context, "toggleExplosions", "explosions"));
+            sender.sendMessage(toggleListItem(context, "toggleFluidSpread", "fluidspread"));
+            sender.sendMessage(toggleListItem(context, "toggleDrops", "drops"));
+            sender.sendMessage(toggleListItem(context, "toggleRedstone", "redstone"));
+            sender.sendMessage(toggleListItem(context, "togglePvp", "pvp"));
+            sender.sendMessage(toggleListItem(context, "toggleChat", "chat"));
+            return null;
+        }
+        new ToggleDialog(plugin).open(playerSender);
         return null;
     }
 

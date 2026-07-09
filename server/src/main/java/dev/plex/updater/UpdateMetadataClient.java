@@ -37,6 +37,18 @@ public final class UpdateMetadataClient
         return metadata;
     }
 
+    public ArtifactMetadata fetchPlexChannelLatest() throws MetadataException
+    {
+        String path = "/api/v1/projects/Plex/channels/" + channel.id() + "/latest.json";
+        ArtifactMetadata metadata = fetch(path);
+        Optional<String> validationError = metadata.validatePlex(channel);
+        if (validationError.isPresent())
+        {
+            throw new MetadataException(validationError.get(), false);
+        }
+        return metadata;
+    }
+
     public ArtifactMetadata fetchModuleLatest(String moduleName, int apiCompatibility) throws MetadataException
     {
         return fetchModuleLatest(moduleName, apiCompatibility, List.of());
@@ -157,6 +169,11 @@ public final class UpdateMetadataClient
     public static final class MetadataException extends Exception
     {
         private final boolean notFound;
+
+        public static MetadataException localError(String message)
+        {
+            return new MetadataException(message, false);
+        }
 
         private MetadataException(String message, boolean notFound)
         {

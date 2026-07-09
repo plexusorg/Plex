@@ -5,7 +5,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
 import dev.plex.command.ServerCommandContext;
 import dev.plex.command.exception.CommandFailException;
-import dev.plex.menu.impl.MaterialMenu;
+import dev.plex.menu.dialog.MaterialDialog;
 import dev.plex.util.GameRuleUtil;
 import dev.plex.util.PlexLog;
 
@@ -126,7 +126,7 @@ public class DebugCMD extends ServerCommand
             {
                 return context.messageComponent("noPermissionConsole");
             }
-            new MaterialMenu().open(playerSender);
+            new MaterialDialog().open(playerSender);
             return null;
         }
         return context.usage();

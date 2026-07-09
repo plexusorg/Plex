@@ -6,8 +6,7 @@ import dev.plex.command.ServerCommand;
 import dev.plex.command.ServerCommandContext;
 import dev.plex.command.exception.PlayerNotFoundException;
 import dev.plex.command.source.RequiredCommandSource;
-import dev.plex.menu.impl.PunishedPlayerMenu;
-import dev.plex.menu.impl.PunishmentMenu;
+import dev.plex.menu.dialog.PunishmentDialog;
 import dev.plex.player.PlexPlayer;
 
 
@@ -45,9 +44,10 @@ public class PunishmentsCMD extends ServerCommand
         CommandSender sender = context.sender();
         Player playerSender = context.player();
         String[] args = context.args();
+        PunishmentDialog dialog = new PunishmentDialog(plugin.getPlayerService());
         if (args.length == 0)
         {
-            new PunishmentMenu(plugin.getPlayerService()).open(playerSender);
+            dialog.open(playerSender);
         }
         else
         {
@@ -59,7 +59,7 @@ public class PunishmentsCMD extends ServerCommand
             final OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(args[0]);
             final PlexPlayer player = offlinePlayer.isOnline() ? context.getOnlinePlexPlayer(args[0]) : context.getOfflinePlexPlayer(offlinePlayer.getUniqueId());
 
-            new PunishedPlayerMenu(player, plugin.getPlayerService()).open(playerSender);
+            dialog.open(playerSender, player);
         }
 
         return null;
