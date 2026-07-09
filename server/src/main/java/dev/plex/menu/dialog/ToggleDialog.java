@@ -47,7 +47,7 @@ public class ToggleDialog
                                 DialogBody.plainMessage(statusLine("toggleDrops", "drops", false)),
                                 DialogBody.plainMessage(statusLine("toggleRedstone", "redstone", false)),
                                 DialogBody.plainMessage(statusLine("togglePvp", "pvp", false)),
-                                DialogBody.plainMessage(Component.text(PlexUtils.messageString("toggleChat") + ": " + PlexUtils.messageString(plugin.toggles.getBoolean("chat") ? "stateOn" : "stateOff")))))
+                                DialogBody.plainMessage(statusLine("toggleChat", PlexUtils.messageComponent(plugin.toggles.getBoolean("chat") ? "stateOn" : "stateOff")))))
                         .build())
                 .type(DialogType.multiAction(List.of(
                                 toggleButton("toggleExplosions", "toggleExplosionsLower", "explosions"),
@@ -61,8 +61,8 @@ public class ToggleDialog
 
     private ActionButton toggleButton(String nameKey, String lowerNameKey, String toggle)
     {
-        return ActionButton.builder(Component.text(PlexUtils.messageString(nameKey)))
-                .tooltip(Component.text(PlexUtils.messageString(plugin.toggles.getBoolean(toggle) ? "stateEnabled" : "stateDisabled")))
+        return ActionButton.builder(PlexUtils.messageComponent(nameKey))
+                .tooltip(PlexUtils.messageComponent(plugin.toggles.getBoolean(toggle) ? "stateEnabled" : "stateDisabled"))
                 .width(150)
                 .action(DialogAction.customClick((response, audience) -> toggle(audience, lowerNameKey, toggle), CALLBACK_OPTIONS))
                 .build();
@@ -93,15 +93,22 @@ public class ToggleDialog
 
     private Component statusLine(String nameKey, String toggle, boolean enabledIsUnsafe)
     {
-        return Component.text(PlexUtils.messageString(nameKey) + ": " + status(toggle, enabledIsUnsafe));
+        return statusLine(nameKey, status(toggle, enabledIsUnsafe));
     }
 
-    private String status(String toggle, boolean enabledIsUnsafe)
+    private Component statusLine(String nameKey, Component status)
+    {
+        return PlexUtils.messageComponent(nameKey)
+                .append(Component.text(": "))
+                .append(status);
+    }
+
+    private Component status(String toggle, boolean enabledIsUnsafe)
     {
         if (enabledIsUnsafe)
         {
-            return PlexUtils.messageString(plugin.toggles.getBoolean(toggle) ? "stateEnabledUnsafe" : "stateDisabledSafe");
+            return PlexUtils.messageComponent(plugin.toggles.getBoolean(toggle) ? "stateEnabledUnsafe" : "stateDisabledSafe");
         }
-        return PlexUtils.messageString(plugin.toggles.getBoolean(toggle) ? "stateEnabled" : "stateDisabled");
+        return PlexUtils.messageComponent(plugin.toggles.getBoolean(toggle) ? "stateEnabled" : "stateDisabled");
     }
 }
