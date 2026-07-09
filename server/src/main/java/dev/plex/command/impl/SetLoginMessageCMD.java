@@ -74,44 +74,42 @@ public class SetLoginMessageCMD extends ServerCommand
         {
             return context.usage();
         }
-        if (playerSender != null)
+        if (args[0].equals("-o"))
         {
-            if (args[0].equals("-o"))
-            {
-                context.checkPermission(sender, "plex.setloginmessage.others");
+            context.checkPermission(sender, "plex.setloginmessage.others");
 
-                if (args.length < 2)
-                {
-                    return context.messageComponent("specifyPlayer");
-                }
-                if (args.length < 3)
-                {
-                    return context.messageComponent("specifyLoginMessage");
-                }
-                PlexPlayer plexPlayer = plugin.getPlayerService().getPlayer(args[1]);
-                if (plexPlayer == null)
-                {
-                    return context.messageComponent("playerNotFound");
-                }
-                String message = StringUtils.join(args, " ", 2, args.length);
-                message = message.replace(plexPlayer.getName(), "%player%");
-                validateMessage(context, message);
-                plexPlayer.setLoginMessage(message);
-                return context.messageComponent("setOtherPlayersLoginMessage", plexPlayer.getName(),
-                        MiniMessage.miniMessage().serialize(PlexUtils.stringToComponent(message.replace("%player%", plexPlayer.getName()))));
-            }
-            if (context.isConsole(sender))
+            if (args.length < 2)
             {
-                return context.messageComponent("noPermissionConsole");
+                return context.messageComponent("specifyPlayer");
             }
-            PlexPlayer plexPlayer = plugin.getPlayerCache().getPlexPlayer(playerSender.getUniqueId());
-            String message = StringUtils.join(args, " ", 0, args.length)
-                    .replace(plexPlayer.getName(), "%player%");
+            if (args.length < 3)
+            {
+                return context.messageComponent("specifyLoginMessage");
+            }
+            PlexPlayer plexPlayer = plugin.getPlayerService().getPlayer(args[1]);
+            if (plexPlayer == null)
+            {
+                return context.messageComponent("playerNotFound");
+            }
+            String message = StringUtils.join(args, " ", 2, args.length);
+            message = message.replace(plexPlayer.getName(), "%player%");
             validateMessage(context, message);
             plexPlayer.setLoginMessage(message);
-            return context.messageComponent("setOwnLoginMessage", PlexUtils.stringToComponent(message.replace("%player%", plexPlayer.getName())));
+            plugin.getPlayerService().update(plexPlayer);
+            return context.messageComponent("setOtherPlayersLoginMessage", plexPlayer.getName(),
+                    MiniMessage.miniMessage().serialize(PlexUtils.stringToComponent(message.replace("%player%", plexPlayer.getName()))));
         }
-        return null;
+        if (context.isConsole(sender))
+        {
+            return context.messageComponent("noPermissionConsole");
+        }
+        PlexPlayer plexPlayer = plugin.getPlayerCache().getPlexPlayer(playerSender.getUniqueId());
+        String message = StringUtils.join(args, " ", 0, args.length)
+                .replace(plexPlayer.getName(), "%player%");
+        validateMessage(context, message);
+        plexPlayer.setLoginMessage(message);
+        plugin.getPlayerService().update(plexPlayer);
+        return context.messageComponent("setOwnLoginMessage", PlexUtils.stringToComponent(message.replace("%player%", plexPlayer.getName())));
     }
 
     private void validateMessage(ServerCommandContext context, String message)

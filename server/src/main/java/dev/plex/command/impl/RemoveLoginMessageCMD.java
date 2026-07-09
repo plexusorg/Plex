@@ -47,6 +47,7 @@ public class RemoveLoginMessageCMD extends ServerCommand
             {
                 PlexPlayer plexPlayer = plugin.getPlayerCache().getPlexPlayer(playerSender.getUniqueId());
                 plexPlayer.setLoginMessage("");
+                plugin.getPlayerService().update(plexPlayer);
                 return context.messageComponent("removedOwnLoginMessage");
             }
         }
@@ -65,6 +66,7 @@ public class RemoveLoginMessageCMD extends ServerCommand
                 return context.messageComponent("playerNotFound");
             }
             plexPlayer.setLoginMessage("");
+            plugin.getPlayerService().update(plexPlayer);
             return context.messageComponent("removedOtherLoginMessage", plexPlayer.getName());
         }
         else
