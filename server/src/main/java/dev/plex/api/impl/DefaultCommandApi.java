@@ -3,7 +3,6 @@ package dev.plex.api.impl;
 import dev.plex.Plex;
 import dev.plex.api.command.CommandApi;
 import dev.plex.command.PlexCommand;
-import dev.plex.util.PlexLog;
 import java.util.List;
 
 final class DefaultCommandApi implements CommandApi
@@ -19,7 +18,6 @@ final class DefaultCommandApi implements CommandApi
         if (plugin.getCommandHandler() == null)
         {
             plugin.getPendingCommands().add(command);
-            PlexLog.warn("Command {0} was registered before the command handler initialized; queueing it for Brigadier registration.", command.getName());
             return;
         }
         plugin.getCommandHandler().registerCommand(command);

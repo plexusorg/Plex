@@ -115,14 +115,25 @@ public class PlexCMD extends ServerCommand
                 context.checkPermission(sender, "plex.modules.update");
                 plugin.getApi().scheduler().runAsync(() ->
                 {
+                    int updated = 0;
+                    int skipped = 0;
+                    int failed = 0;
                     for (PlexModule module : plugin.getModuleManager().getModules())
                     {
-                        plugin.getUpdateChecker().updateModuleJar(sender, module);
+                        switch (plugin.getUpdateChecker().updateModuleJar(sender, module))
+                        {
+                            case UPDATED -> updated++;
+                            case SKIPPED -> skipped++;
+                            case FAILED -> failed++;
+                        }
                     }
+                    int updatedCount = updated;
+                    int skippedCount = skipped;
+                    int failedCount = failed;
                     plugin.getApi().scheduler().runGlobal(() ->
                     {
                         plugin.getModuleManager().reloadModules();
-                        sender.sendMessage(context.mmString("<green>All modules updated and reloaded!"));
+                        sender.sendMessage(context.messageComponent("moduleUpdateSummary", updatedCount, skippedCount, failedCount));
                     });
                 });
                 return null;

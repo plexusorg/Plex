@@ -2,7 +2,6 @@ package dev.plex.module;
 
 import com.google.common.collect.Lists;
 import dev.plex.Plex;
-import dev.plex.handlers.CommandHandler;
 import dev.plex.module.exception.ModuleLoadException;
 import dev.plex.util.PlexLog;
 
@@ -154,49 +153,25 @@ public class ModuleManager
 
     public void enableModules()
     {
-        CommandHandler handler = plugin.getCommandHandler();
-        boolean previous = handler != null && handler.setSuppressLifecycleWarnings(true);
-        try
+        this.modules.forEach(module ->
         {
-            this.modules.forEach(module ->
-            {
-                PlexLog.log("Enabling module " + module.getPlexModuleFile().getName() + " with version " + module.getPlexModuleFile().getVersion());
-                module.enable();
-            });
-        }
-        finally
-        {
-            if (handler != null)
-            {
-                handler.setSuppressLifecycleWarnings(previous);
-            }
-        }
+            PlexLog.log("Enabling module " + module.getPlexModuleFile().getName() + " with version " + module.getPlexModuleFile().getVersion());
+            module.enable();
+        });
     }
 
     public void disableModules()
     {
-        CommandHandler handler = plugin.getCommandHandler();
-        boolean previous = handler != null && handler.setSuppressLifecycleWarnings(true);
-        try
+        this.modules.forEach(module ->
         {
-            this.modules.forEach(module ->
+            PlexLog.log("Disabling module " + module.getPlexModuleFile().getName() + " with version " + module.getPlexModuleFile().getVersion());
+            module.getCommands().stream().toList().forEach(plexCommand ->
             {
-                PlexLog.log("Disabling module " + module.getPlexModuleFile().getName() + " with version " + module.getPlexModuleFile().getVersion());
-                module.getCommands().stream().toList().forEach(plexCommand ->
-                {
-                    module.unregisterCommand(plexCommand);
-                });
-                module.getListeners().stream().toList().forEach(module::unregisterListener);
-                module.disable();
+                module.unregisterCommand(plexCommand);
             });
-        }
-        finally
-        {
-            if (handler != null)
-            {
-                handler.setSuppressLifecycleWarnings(previous);
-            }
-        }
+            module.getListeners().stream().toList().forEach(module::unregisterListener);
+            module.disable();
+        });
     }
 
     public void unloadModules()

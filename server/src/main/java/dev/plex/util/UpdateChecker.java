@@ -50,6 +50,11 @@ public class UpdateChecker
     {
     }
 
+    public enum ModuleUpdateResult
+    {
+        UPDATED, SKIPPED, FAILED
+    }
+
     public UpdateChecker(Plex plugin)
     {
         this.plugin = plugin;
@@ -204,20 +209,33 @@ public class UpdateChecker
         }));
     }
 
-    public void updateModuleJar(CommandSender sender, PlexModule module)
+    public ModuleUpdateResult updateModuleJar(CommandSender sender, PlexModule module)
     {
         PlexModuleFile moduleFile = module.getPlexModuleFile();
         if (!moduleFile.isUpdaterEnabled())
         {
             sendMessage(sender, PlexUtils.messageComponent("moduleUpdateDisabled", moduleFile.getName()));
-            return;
+            return ModuleUpdateResult.SKIPPED;
         }
-        updateJar(sender, moduleFile.getName(), moduleFile.getUpdateUrls());
-    }
+        try
+        {
+            ArtifactMetadata metadata = metadataClient.fetchModuleLatest(moduleFile.getName(), plugin.getApi().compatibility().version(), moduleFile.getUpdateUrls());
+            File copyTo = new File(plugin.getModulesFolder(), metadata.fileName());
 
-    private void updateJar(CommandSender sender, String name, List<String> moduleUpdateUrls)
-    {
-        updateJar(sender, name, moduleUpdateUrls, null);
+            sendMessage(sender, PlexUtils.messageComponent("updateDownloading", metadata.fileName()));
+            return downloadAndInstall(sender, metadata, copyTo, null)
+                    ? ModuleUpdateResult.UPDATED
+                    : ModuleUpdateResult.FAILED;
+        }
+        catch (UpdateMetadataClient.MetadataException e)
+        {
+            sendMessage(sender, updateMetadataErrorComponent(e));
+            if (!e.notFound())
+            {
+                PlexLog.error("Unable to update {0}: {1}", moduleFile.getName(), e.getMessage());
+            }
+            return ModuleUpdateResult.FAILED;
+        }
     }
 
     private void updateJar(CommandSender sender, String name, List<String> moduleUpdateUrls, Runnable onSuccess)
@@ -236,10 +254,6 @@ public class UpdateChecker
             if (!e.notFound())
             {
                 PlexLog.error("Unable to update {0}: {1}", name, e.getMessage());
-                if (e.getCause() != null)
-                {
-                    e.getCause().printStackTrace();
-                }
             }
         }
     }
@@ -388,13 +402,13 @@ public class UpdateChecker
         return buildMinecraftVersion;
     }
 
-    private void downloadAndInstall(CommandSender sender, ArtifactMetadata metadata, File copyTo, Runnable onSuccess)
+    private boolean downloadAndInstall(CommandSender sender, ArtifactMetadata metadata, File copyTo, Runnable onSuccess)
     {
         File parent = copyTo.getParentFile();
         if (parent != null && !parent.exists() && !parent.mkdirs())
         {
             sendMessage(sender, PlexUtils.messageComponent("updateDirectoryFailed", parent.getAbsolutePath()));
-            return;
+            return false;
         }
 
         File temporaryFile = new File(parent, copyTo.getName() + ".download");
@@ -408,12 +422,14 @@ public class UpdateChecker
             {
                 onSuccess.run();
             }
+            return true;
         }
         catch (IOException e)
         {
             sendMessage(sender, PlexUtils.messageComponent("updateDownloadFailed", metadata.name()));
             PlexLog.error("Unable to download update {0}: {1}", metadata.name(), e.getMessage());
             e.printStackTrace();
+            return false;
         }
         finally
         {

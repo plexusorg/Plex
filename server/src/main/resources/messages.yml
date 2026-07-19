@@ -337,4 +337,8 @@ updateUnsupportedNewerMinecraft: "<yellow>No Plex build exists yet for Minecraft
 # 0 - The error message
 updateMetadataError: "<red>There was an error checking update metadata: {0}"
 moduleUpdateDisabled: "<yellow>Skipping {0}; module updates are disabled."
+# 0 - The number of modules updated
+# 1 - The number of modules skipped
+# 2 - The number of modules that failed to update
+moduleUpdateSummary: "<green>Module updates finished: <yellow>{0} updated<gray>, <yellow>{1} skipped<gray>, <red>{2} failed<gray>. Modules were reloaded after all update attempts completed."
 moduleRestartRequired: "<yellow>Module changes applied. Restart the server if module commands do not appear or disappear."
