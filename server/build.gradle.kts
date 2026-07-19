@@ -16,7 +16,7 @@ plugins {
 repositories {
     maven(url = uri("https://maven.playpro.com"))
     maven(url = uri("https://nexus.telesphoreo.me/repository/plex-modules/"))
-    maven(url = uri("https://nexus.prism-mc.org/repository/maven-snapshots/"))
+    maven(url = uri("https://nexus.prism-mc.org/repository/maven-public/"))
 }
 
 dependencies {
@@ -54,7 +54,7 @@ paper {
     loader = "dev.plex.PlexLibraryManager"
     website = "https://plex.us.org"
     authors = listOf("Telesphoreo", "taahanis", "supernt")
-    apiVersion = "26.0"
+    apiVersion = "26.1"
     foliaSupported = true
     generateLibrariesJson = true
     // Load BukkitTelnet and LibsDisguises before Plex so the modules register properly

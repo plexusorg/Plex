@@ -3,7 +3,7 @@ plugins {
     id("maven-publish")
     id("org.jetbrains.gradle.plugin.idea-ext") version "1.4.1" apply false
     id("net.kyori.blossom") version "2.2.0" apply false
-    id("com.gradleup.shadow") version "9.4.1" apply false
+    id("com.gradleup.shadow") version "9.6.0" apply false
 }
 
 group = "dev.plex"
