@@ -35,7 +35,7 @@ dependencies {
         exclude("org.bukkit", "bukkit")
     }
     compileOnly("net.coreprotect:coreprotect:24.0")
-    compileOnly("org.prism_mc.prism:prism-paper-api:4.4-SNAPSHOT")
+    compileOnly("org.prism_mc.prism:prism-paper-api:4.4")
     compileOnly("com.github.LeonMangler:SuperVanish:6.2.19")
     implementation("org.bstats:bstats-base:3.2.1")
     implementation("org.bstats:bstats-bukkit:3.2.1")
