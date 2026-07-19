@@ -2,7 +2,6 @@ import net.minecrell.pluginyml.paper.PaperPluginDescription
 import java.text.SimpleDateFormat
 import java.util.*
 
-val paperApiVersion = "26.1.2"
 val supportedMinecraftVersions = listOf("26.1", "26.1.1", "26.1.2", "26.2")
 
 plugins {
@@ -24,19 +23,19 @@ dependencies {
     implementation(project(":api"))
     library("org.projectlombok:lombok:1.18.46")
     library("commons-io:commons-io:2.22.0")
-    library("redis.clients:jedis:7.5.0")
-    library("org.mariadb.jdbc:mariadb-java-client:3.5.8")
-    library("org.postgresql:postgresql:42.7.11")
-    library("org.xerial:sqlite-jdbc:3.53.1.0")
-    library("com.zaxxer:HikariCP:7.0.2")
-    library("org.jdbi:jdbi3-core:3.53.0")
+    library("redis.clients:jedis:7.5.3")
+    library("org.mariadb.jdbc:mariadb-java-client:3.5.9")
+    library("org.postgresql:postgresql:42.7.13")
+    library("org.xerial:sqlite-jdbc:3.53.2.0")
+    library("com.zaxxer:HikariCP:7.1.0")
+    library("org.jdbi:jdbi3-core:3.54.0")
     library("org.jetbrains:annotations:26.1.0")
-    compileOnly("io.papermc.paper:paper-api:${paperApiVersion}.build.+")
+    compileOnly("io.papermc.paper:paper-api:26.2.build.+")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7.1") {
         exclude("org.bukkit", "bukkit")
     }
-    compileOnly("net.coreprotect:coreprotect:23.2")
-    compileOnly("org.prism_mc.prism:prism-paper-api:4.3-SNAPSHOT")
+    compileOnly("net.coreprotect:coreprotect:24.0")
+    compileOnly("org.prism_mc.prism:prism-paper-api:4.4-SNAPSHOT")
     compileOnly("com.github.LeonMangler:SuperVanish:6.2.19")
     implementation("org.bstats:bstats-base:3.2.1")
     implementation("org.bstats:bstats-bukkit:3.2.1")
@@ -55,7 +54,7 @@ paper {
     loader = "dev.plex.PlexLibraryManager"
     website = "https://plex.us.org"
     authors = listOf("Telesphoreo", "taahanis", "supernt")
-    apiVersion = paperApiVersion
+    apiVersion = "26.0"
     foliaSupported = true
     generateLibrariesJson = true
     // Load BukkitTelnet and LibsDisguises before Plex so the modules register properly
