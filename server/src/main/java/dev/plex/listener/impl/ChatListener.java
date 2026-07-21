@@ -1,6 +1,7 @@
 package dev.plex.listener.impl;
 
 import dev.plex.Plex;
+import dev.plex.api.event.StaffChatMessageEvent;
 import dev.plex.hook.VaultHook;
 import dev.plex.listener.ServerListenerBase;
 import dev.plex.meta.PlayerMeta;
@@ -50,9 +51,20 @@ public class ChatListener extends ServerListenerBase
         if (plexPlayer.isStaffChat())
         {
             String prefix = PlexUtils.mmSerialize(VaultHook.getPrefix(event.getPlayer())); // Don't use PlexPlayer#getPrefix because that returns their custom set prefix and not their group's
-            MessageUtil.sendStaffChat(plugin, event.getPlayer(), event.message(), PlexUtils.adminChat(event.getPlayer().getName(), prefix, SafeMiniMessage.mmSerialize(event.message())).toArray(UUID[]::new));
-            plugin.getServer().getConsoleSender().sendMessage(PlexUtils.messageComponent("adminChatFormat", event.getPlayer().getName(), prefix, SafeMiniMessage.mmSerialize(event.message().replaceText(URL_REPLACEMENT_CONFIG))));
+            StaffChatMessageEvent staffChatEvent = new StaffChatMessageEvent(
+                    event.getPlayer(),
+                    event.message(),
+                    StaffChatMessageEvent.Source.TOGGLED_CHAT,
+                    event.isAsynchronous());
+            plugin.getServer().getPluginManager().callEvent(staffChatEvent);
             event.setCancelled(true);
+            if (staffChatEvent.isCancelled())
+            {
+                return;
+            }
+            Component message = staffChatEvent.getMessage();
+            MessageUtil.sendStaffChat(plugin, event.getPlayer(), message, PlexUtils.adminChat(event.getPlayer().getName(), prefix, SafeMiniMessage.mmSerialize(message)).toArray(UUID[]::new));
+            plugin.getServer().getConsoleSender().sendMessage(PlexUtils.messageComponent("adminChatFormat", event.getPlayer().getName(), prefix, SafeMiniMessage.mmSerialize(message.replaceText(URL_REPLACEMENT_CONFIG))));
             return;
         }
         Component prefix = PlayerMeta.getPrefix(plexPlayer);

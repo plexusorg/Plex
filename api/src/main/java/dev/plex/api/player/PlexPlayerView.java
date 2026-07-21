@@ -60,6 +60,20 @@ public interface PlexPlayerView
     boolean lockedUp();
 
     /**
+     * Returns whether the player currently has staff-chat mode enabled.
+     *
+     * <p>When enabled, the player's normal chat input is routed to Plex staff
+     * chat and exposed through
+     * {@link dev.plex.api.event.StaffChatMessageEvent}.</p>
+     *
+     * @return whether staff-chat mode is enabled
+     */
+    default boolean staffChat()
+    {
+        return false;
+    }
+
+    /**
      * Returns the Bukkit player instance.
      *
      * @return Bukkit player instance, or {@code null} when the player is offline
