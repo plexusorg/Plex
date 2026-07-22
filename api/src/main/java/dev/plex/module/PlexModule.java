@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
@@ -163,7 +164,11 @@ public abstract class PlexModule
     }
 
     /**
-     * Opens a resource from this module's class loader.
+     * Opens a resource owned by this module.
+     *
+     * <p>Plex module class loaders delegate to Plex's class loader. This method
+     * searches the module class loader itself first so common paths such as
+     * {@code config.yml} cannot resolve to a resource bundled by Plex.</p>
      *
      * @param filename resource path
      * @return resource stream, or {@code null} when the resource cannot be opened
@@ -173,7 +178,10 @@ public abstract class PlexModule
     {
         try
         {
-            URL url = this.getClass().getClassLoader().getResource(filename);
+            ClassLoader classLoader = this.getClass().getClassLoader();
+            URL url = classLoader instanceof URLClassLoader moduleClassLoader
+                    ? moduleClassLoader.findResource(filename)
+                    : classLoader.getResource(filename);
             if (url == null)
             {
                 return null;
