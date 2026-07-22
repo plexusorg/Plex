@@ -1,6 +1,7 @@
 package dev.plex.command.impl;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import dev.plex.api.event.StaffChatMessageEvent;
 import dev.plex.command.ServerCommand;
 import dev.plex.command.ServerCommandContext;
 import dev.plex.hook.VaultHook;
@@ -15,6 +16,7 @@ import java.util.UUID;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
 import org.apache.commons.lang3.StringUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -68,8 +70,20 @@ public class AdminChatCMD extends ServerCommand
         }
         PlexLog.debug("admin chat prefix: {0}", prefix);
         String message = StringUtils.join(args, " ");
-        plugin.getServer().getConsoleSender().sendMessage(context.messageComponent("adminChatFormat", sender.getName(), prefix, message));
-        MessageUtil.sendStaffChat(plugin, sender, SafeMiniMessage.mmDeserialize(message), PlexUtils.adminChat(sender.getName(), prefix, message).toArray(UUID[]::new));
+        StaffChatMessageEvent staffChatEvent = new StaffChatMessageEvent(
+                sender,
+                SafeMiniMessage.mmDeserialize(message),
+                StaffChatMessageEvent.Source.COMMAND,
+                !Bukkit.isPrimaryThread());
+        plugin.getServer().getPluginManager().callEvent(staffChatEvent);
+        if (staffChatEvent.isCancelled())
+        {
+            return null;
+        }
+        Component eventMessage = staffChatEvent.getMessage();
+        String serializedMessage = SafeMiniMessage.mmSerialize(eventMessage);
+        plugin.getServer().getConsoleSender().sendMessage(context.messageComponent("adminChatFormat", sender.getName(), prefix, serializedMessage));
+        MessageUtil.sendStaffChat(plugin, sender, eventMessage, PlexUtils.adminChat(sender.getName(), prefix, serializedMessage).toArray(UUID[]::new));
         return null;
     }
 

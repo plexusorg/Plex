@@ -17,5 +17,6 @@ record DefaultPlexPlayerView(PlexPlayer player, PlayerNameResolver playerNameRes
     @Override public boolean frozen() { return player.isFrozen(); }
     @Override public boolean muted() { return player.isMuted(); }
     @Override public boolean lockedUp() { return player.isLockedUp(); }
+    @Override public boolean staffChat() { return player.isStaffChat(); }
     @Override public Player bukkitPlayer() { return player.getPlayer(); }
 }
