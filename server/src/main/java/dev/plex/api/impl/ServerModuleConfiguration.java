@@ -31,7 +31,7 @@ final class ServerModuleConfiguration extends ModuleConfiguration
     {
         try
         {
-            ConfigDefaultsMerger.Result result = ConfigDefaultsMerger.merge(file, module.getClass().getResourceAsStream("/" + from), to);
+            ConfigDefaultsMerger.Result result = ConfigDefaultsMerger.merge(file, module.getResource(from), to);
             if (!result.addedKeys().isEmpty())
             {
                 PlexLog.log("Merged default key(s) into " + to + ": " + String.join(", ", result.addedKeys()));
@@ -57,7 +57,7 @@ final class ServerModuleConfiguration extends ModuleConfiguration
         {
             File parent = file.getParentFile();
             if (parent != null) parent.mkdirs();
-            try (InputStream stream = module.getClass().getResourceAsStream("/" + from))
+            try (InputStream stream = module.getResource(from))
             {
                 if (stream == null)
                 {
