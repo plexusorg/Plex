@@ -7,9 +7,6 @@ import dev.plex.util.PlexLog;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -131,7 +128,7 @@ public class MigrationRunner
     private String readModule(PlexModule module, String resourceRoot, String version) throws SQLException
     {
         String resource = resourceRoot + "/" + storageType.dialect().migrationDirectory() + "/" + version + ".sql";
-        try (InputStream stream = openModuleResource(module, resource))
+        try (InputStream stream = module.getResource(resource))
         {
             if (stream == null)
             {
@@ -143,32 +140,6 @@ public class MigrationRunner
         {
             throw new SQLException("Failed to read module migration resource: " + resource, e);
         }
-    }
-
-    /**
-     * Opens a migration resource from the module's own jar.
-     *
-     * <p>A module class loader is parent-first with the Plex class loader as its
-     * parent, and core ships migration scripts at the same
-     * {@code db/migration/<dialect>/<version>.sql} paths a module uses. A plain
-     * {@link PlexModule#getResource(String)} lookup therefore resolves to Plex's
-     * core script instead of the module's own. {@link URLClassLoader#findResource}
-     * searches only the module jar, so the module always reads its own migration.</p>
-     */
-    private InputStream openModuleResource(PlexModule module, String resource) throws IOException
-    {
-        if (module.getClass().getClassLoader() instanceof URLClassLoader moduleClassLoader)
-        {
-            URL url = moduleClassLoader.findResource(resource);
-            if (url == null)
-            {
-                return null;
-            }
-            URLConnection connection = url.openConnection();
-            connection.setUseCaches(false);
-            return connection.getInputStream();
-        }
-        return module.getResource(resource);
     }
 
     private String replaceTableTokens(String script, Function<String, String> tableResolver) throws SQLException
