@@ -61,7 +61,7 @@ public class SpectatorCMD extends ServerCommand
                     targetPlayer.setGameMode(GameMode.SPECTATOR);
                     context.messageComponent("gameModeSetTo", "spectator");
                 }
-                PlexUtils.broadcast(context.messageComponent("setEveryoneGameMode", sender.getName(), "spectator"));
+                PlexUtils.broadcast(context.messageComponent("setEveryoneGameMode", context.senderName(), "spectator"));
                 return null;
             }
 

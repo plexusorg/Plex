@@ -88,7 +88,7 @@ public class TempbanCMD extends ServerCommand
         punishment.setActive(true);
         punishment.setIp(target.getIps().getLast());
         plugin.getPunishmentManager().punish(target, punishment);
-        PlexUtils.broadcast(context.messageComponent("banningPlayer", sender.getName(), target.getName()));
+        PlexUtils.broadcast(context.messageComponent("banningPlayer", context.senderName(), target.getName()));
         if (player != null)
         {
             plugin.getApi().scheduler().runEntity(player, () -> BungeeUtil.kickPlayer(plugin, player, Punishment.generateBanMessage(punishment, plugin.config.getString("banning.ban_url"), plugin.getPlayerNameResolver())));

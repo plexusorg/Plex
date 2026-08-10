@@ -61,7 +61,7 @@ public class UnfreezeCMD extends ServerCommand
             punishment.setActive(false);
             plugin.getPunishmentRepository().updatePunishment(punishment.getType(), false, punishment.getPunished());
         });
-        PlexUtils.broadcast(context.messageComponent("unfrozePlayer", sender.getName(), punishedPlayer.getName()));
+        PlexUtils.broadcast(context.messageComponent("unfrozePlayer", context.senderName(), punishedPlayer.getName()));
         return null;
     }
 

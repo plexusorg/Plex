@@ -61,7 +61,7 @@ public class SurvivalCMD extends ServerCommand
                     targetPlayer.setGameMode(GameMode.SURVIVAL);
                     context.send(targetPlayer, context.messageComponent("gameModeSetTo", "survival"));
                 }
-                PlexUtils.broadcast(context.messageComponent("setEveryoneGameMode", sender.getName(), "survival"));
+                PlexUtils.broadcast(context.messageComponent("setEveryoneGameMode", context.senderName(), "survival"));
                 return null;
             }
 

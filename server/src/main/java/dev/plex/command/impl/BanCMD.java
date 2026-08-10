@@ -103,7 +103,7 @@ public class BanCMD extends ServerCommand
                 punishment.setActive(true);
                 punishment.setIp(plexPlayer.getIps().getLast());
                 plugin.getPunishmentManager().punish(plexPlayer, punishment);
-                PlexUtils.broadcast(context.messageComponent("banningPlayer", sender.getName(), plexPlayer.getName()));
+                PlexUtils.broadcast(context.messageComponent("banningPlayer", context.senderName(), plexPlayer.getName()));
                 if (player != null)
                 {
                     plugin.getApi().scheduler().runEntity(player, () -> BungeeUtil.kickPlayer(plugin, player, Punishment.generateBanMessage(punishment, plugin.config.getString("banning.ban_url"), plugin.getPlayerNameResolver())));

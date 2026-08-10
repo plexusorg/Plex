@@ -88,12 +88,12 @@ public class SmiteCMD extends ServerCommand
         final Player player = context.getNonNullPlayer(args[0]);
         final PlexPlayer plexPlayer = context.getPlexPlayer(player);
 
-        Title title = Title.title(context.messageComponent("smiteTitleHeader"), context.messageComponent("smiteTitleMessage", reason, sender.getName()));
+        Title title = Title.title(context.messageComponent("smiteTitleHeader"), context.messageComponent("smiteTitleMessage", reason, context.senderName()));
         player.showTitle(title);
 
         if (!silent)
         {
-            PlexUtils.broadcast(context.messageComponent("smiteBroadcast", player.getName(), reason != null ? reason : context.messageString("noReasonProvided"), sender.getName()));
+            PlexUtils.broadcast(context.messageComponent("smiteBroadcast", player.getName(), reason != null ? reason : context.messageString("noReasonProvided"), context.senderName()));
         }
         else
         {

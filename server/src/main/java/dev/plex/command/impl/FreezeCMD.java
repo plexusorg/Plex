@@ -65,7 +65,7 @@ public class FreezeCMD extends ServerCommand
         punishment.setActive(true);
 
         plugin.getPunishmentManager().punish(punishedPlayer, punishment);
-        PlexUtils.broadcast(context.messageComponent("frozePlayer", sender.getName(), player.getName()));
+        PlexUtils.broadcast(context.messageComponent("frozePlayer", context.senderName(), player.getName()));
         return null;
     }
 

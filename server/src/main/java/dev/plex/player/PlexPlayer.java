@@ -8,6 +8,7 @@ import dev.plex.punishment.extra.Note;
 import dev.plex.util.adapter.ZonedDateTimeAdapter;
 
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -43,6 +44,7 @@ public class PlexPlayer
 
     private List<String> ips = Lists.newArrayList();
 
+    @Setter(AccessLevel.NONE)
     private List<Punishment> punishments = Lists.newArrayList();
 
     private List<Note> notes = Lists.newArrayList();
@@ -70,6 +72,11 @@ public class PlexPlayer
     public PlexPlayer(UUID playerUUID)
     {
         this(playerUUID, true);
+    }
+
+    public void setPunishments(List<Punishment> punishments)
+    {
+        this.punishments = new ArrayList<>(punishments);
     }
 
     public String displayName()

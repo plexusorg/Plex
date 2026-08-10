@@ -49,7 +49,7 @@ public class LockupCMD extends ServerCommand
         {
             player.openInventory(player.getInventory());
         }
-        PlexUtils.broadcast(context.messageComponent(punishedPlayer.isLockedUp() ? "lockedUpPlayer" : "unlockedPlayer", sender.getName(), player.getName()));
+        PlexUtils.broadcast(context.messageComponent(punishedPlayer.isLockedUp() ? "lockedUpPlayer" : "unlockedPlayer", context.senderName(), player.getName()));
         return null;
     }
 

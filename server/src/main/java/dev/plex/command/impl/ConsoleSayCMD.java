@@ -45,7 +45,7 @@ public class ConsoleSayCMD extends ServerCommand
             return context.usage();
         }
 
-        PlexUtils.broadcast(PlexUtils.messageComponent("consoleSayMessage", sender.getName(), PlexUtils.mmStripColor(StringUtils.join(args, " "))));
+        PlexUtils.broadcast(PlexUtils.messageComponent("consoleSayMessage", context.senderName(), PlexUtils.mmStripColor(StringUtils.join(args, " "))));
         return null;
     }
 

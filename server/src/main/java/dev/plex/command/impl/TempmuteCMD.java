@@ -98,7 +98,7 @@ public class TempmuteCMD extends ServerCommand
         punishment.setActive(true);
 
         plugin.getPunishmentManager().punish(punishedPlayer, punishment);
-        PlexUtils.broadcast(context.messageComponent("tempMutedPlayer", sender.getName(), player.getName(), TimeUtils.formatRelativeTime(endDate)));
+        PlexUtils.broadcast(context.messageComponent("tempMutedPlayer", context.senderName(), player.getName(), TimeUtils.formatRelativeTime(endDate)));
         return null;
     }
 

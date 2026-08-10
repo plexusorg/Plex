@@ -80,12 +80,12 @@ public class MobPurgeCMD extends ServerCommand
         int count = purgeMobs(type);
         if (type != null)
         {
-            PlexUtils.broadcast(context.messageComponent("removedEntitiesOfTypes", sender.getName(), count, mobName));
+            PlexUtils.broadcast(context.messageComponent("removedEntitiesOfTypes", context.senderName(), count, mobName));
             PlexLog.debug("All " + count + " of " + mobName + " were removed");
         }
         else
         {
-            PlexUtils.broadcast(context.messageComponent("removedMobs", sender.getName(), count));
+            PlexUtils.broadcast(context.messageComponent("removedMobs", context.senderName(), count));
             PlexLog.debug("All " + count + " valid mobs were removed");
         }
         sender.sendMessage(context.messageComponent("amountOfMobsRemoved", count, type != null ? mobName + multipleS(count) : context.messageString(count == 1 ? "mobSingular" : "mobPlural")));

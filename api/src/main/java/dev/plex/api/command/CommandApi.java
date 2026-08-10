@@ -2,6 +2,9 @@ package dev.plex.api.command;
 
 import dev.plex.command.PlexCommand;
 import java.util.List;
+import java.util.UUID;
+import java.util.function.Consumer;
+import net.kyori.adventure.text.Component;
 
 /**
  * Registers and unregisters Plex commands with the running platform.
@@ -47,4 +50,16 @@ public interface CommandApi
      *         after the active command lifecycle was built
      */
     boolean requiresLifecycleReload();
+
+    /**
+     * Dispatches a console-capable command with a human-readable audit identity.
+     * The command must be invoked from the server's global command thread.
+     *
+     * @param identityId UUID exposed as the command actor
+     * @param identityName name exposed by Plex command contexts
+     * @param command command line without a leading slash
+     * @param feedback receiver for command feedback
+     * @return whether the command was accepted by the dispatcher
+     */
+    boolean dispatchAsConsole(UUID identityId, String identityName, String command, Consumer<? super Component> feedback);
 }

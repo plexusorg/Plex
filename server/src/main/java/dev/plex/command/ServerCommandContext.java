@@ -2,6 +2,7 @@ package dev.plex.command;
 
 import com.mojang.brigadier.context.CommandContext;
 import dev.plex.Plex;
+import dev.plex.api.command.CommandExecutionIdentity;
 import dev.plex.command.exception.CommandFailException;
 import dev.plex.command.exception.ConsoleMustDefinePlayerException;
 import dev.plex.command.exception.ConsoleOnlyException;
@@ -32,6 +33,8 @@ public final class ServerCommandContext
     private final PlexCommand command;
     private final CommandContext<CommandSourceStack> brigadierContext;
     private final CommandSender sender;
+    private final String senderName;
+    private final UUID senderUuid;
     private final Player player;
     private final String[] args;
 
@@ -41,6 +44,10 @@ public final class ServerCommandContext
         this.command = command;
         this.brigadierContext = brigadierContext;
         this.sender = brigadierContext.getSource().getSender();
+        this.senderName = CommandExecutionIdentity.currentName(sender.getName());
+        this.senderUuid = sender instanceof Player playerSender
+                ? playerSender.getUniqueId()
+                : CommandExecutionIdentity.currentUniqueId();
         this.player = sender instanceof Player playerSender ? playerSender : null;
         this.args = args;
     }
@@ -83,6 +90,26 @@ public final class ServerCommandContext
     public CommandSender sender()
     {
         return sender;
+    }
+
+    /**
+     * Returns the attributed sender name for messages and audit logs.
+     *
+     * @return attributed sender name
+     */
+    public String senderName()
+    {
+        return senderName;
+    }
+
+    /**
+     * Returns the attributed sender UUID, if available.
+     *
+     * @return attributed sender UUID, or {@code null}
+     */
+    public @Nullable UUID senderUuid()
+    {
+        return senderUuid;
     }
 
     /**
@@ -131,7 +158,7 @@ public final class ServerCommandContext
 
     public boolean silentCheckPermission(CommandSender sender, String permission)
     {
-        PlexLog.debug("Checking {0} with {1}", sender.getName(), permission);
+        PlexLog.debug("Checking {0} with {1}", senderName, permission);
         if (!isConsole(sender))
         {
             return silentCheckPermission((Player)sender, permission);
@@ -155,11 +182,11 @@ public final class ServerCommandContext
 
     public @Nullable UUID getUUID(CommandSender sender)
     {
-        if (!(sender instanceof Player player))
+        if (sender instanceof Player player)
         {
-            return null;
+            return player.getUniqueId();
         }
-        return player.getUniqueId();
+        return sender == this.sender ? senderUuid : null;
     }
 
     public boolean isConsole(CommandSender sender)

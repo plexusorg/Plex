@@ -70,7 +70,7 @@ public class BlockEditCMD extends ServerCommand
         }
         else if (args[0].equalsIgnoreCase("purge"))
         {
-            PlexUtils.broadcast(context.messageComponent("unblockingEdits", sender.getName(), context.messageString("blockeditAllPlayers")));
+            PlexUtils.broadcast(context.messageComponent("unblockingEdits", context.senderName(), context.messageString("blockeditAllPlayers")));
             int count = 0;
             for (String player : BlockListener.blockedPlayers.stream().toList())
             {
@@ -84,7 +84,7 @@ public class BlockEditCMD extends ServerCommand
         }
         else if (args[0].equalsIgnoreCase("all"))
         {
-            PlexUtils.broadcast(context.messageComponent("blockingEdits", sender.getName(), context.messageString("blockeditAllNonAdmins")));
+            PlexUtils.broadcast(context.messageComponent("blockingEdits", context.senderName(), context.messageString("blockeditAllNonAdmins")));
             int count = 0;
             for (final Player player : Bukkit.getOnlinePlayers())
             {
@@ -106,14 +106,14 @@ public class BlockEditCMD extends ServerCommand
                 context.send(sender, context.messageComponent("higherRankThanYou"));
                 return null;
             }
-            PlexUtils.broadcast(context.messageComponent("blockingEdits", sender.getName(), player.getName()));
+            PlexUtils.broadcast(context.messageComponent("blockingEdits", context.senderName(), player.getName()));
             BlockListener.blockedPlayers.add(player.getName());
             context.send(player, context.messageComponent("editsModified", context.messageString("blockeditBlockedState")));
             context.send(sender, context.messageComponent("editsBlocked", player.getName()));
         }
         else
         {
-            PlexUtils.broadcast(context.messageComponent("unblockingEdits", sender.getName(), player.getName()));
+            PlexUtils.broadcast(context.messageComponent("unblockingEdits", context.senderName(), player.getName()));
             BlockListener.blockedPlayers.remove(player.getName());
             context.send(player, context.messageComponent("editsModified", context.messageString("blockeditUnblockedState")));
             context.send(sender, context.messageComponent("editsUnblocked", player.getName()));

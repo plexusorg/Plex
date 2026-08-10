@@ -260,7 +260,7 @@ public abstract class ServerCommand implements PlexCommand
             return false;
         }
 
-        if (commandSource == RequiredCommandSource.IN_GAME && sender instanceof ConsoleCommandSender)
+        if (commandSource == RequiredCommandSource.IN_GAME && !(sender instanceof Player))
         {
             return false;
         }
@@ -319,7 +319,7 @@ public abstract class ServerCommand implements PlexCommand
             return false;
         }
 
-        if (commandSource == RequiredCommandSource.IN_GAME && sender instanceof ConsoleCommandSender)
+        if (commandSource == RequiredCommandSource.IN_GAME && context.isConsole())
         {
             context.send(sender, context.messageComponent("noPermissionConsole"));
             return false;
