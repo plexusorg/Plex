@@ -24,8 +24,7 @@ public class CoreProtectHook
 
         // Check that the API is enabled
         CoreProtectAPI coreProtectAPI = ((CoreProtect) plugin).getAPI();
-        this.hasApi = coreProtectAPI.isEnabled();
-        if (!hasApi)
+        if (!coreProtectAPI.isEnabled())
         {
             PlexLog.debug("CoreProtect API was disabled.");
             return;
@@ -39,6 +38,7 @@ public class CoreProtectHook
         }
         this.coreProtectAPI = coreProtectAPI;
         this.coreProtectAPI.testAPI();
+        this.hasApi = true;
     }
 
     public boolean hasCoreProtect()

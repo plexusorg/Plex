@@ -73,6 +73,7 @@ paper {
         }
         register("prism") {
             required = false
+            joinClasspath = true
             load = PaperPluginDescription.RelativeLoadOrder.BEFORE
         }
         register("CoreProtect") {

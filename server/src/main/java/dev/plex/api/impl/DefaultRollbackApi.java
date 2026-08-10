@@ -2,7 +2,7 @@ package dev.plex.api.impl;
 
 import dev.plex.Plex;
 import dev.plex.api.rollback.RollbackApi;
-import dev.plex.hook.RollbackManager;
+import dev.plex.hook.PrismHook;
 import org.bukkit.command.CommandSender;
 
 final class DefaultRollbackApi implements RollbackApi
@@ -17,14 +17,20 @@ final class DefaultRollbackApi implements RollbackApi
     @Override
     public boolean isAvailable()
     {
-        RollbackManager rollbackManager = plugin.getRollbackManager();
-        return rollbackManager != null && rollbackManager.isAvailable();
+        RollbackApi rollbackApi = rollbackApi();
+        return rollbackApi != null && rollbackApi.isAvailable();
     }
 
     @Override
     public boolean rollback(CommandSender sender, String playerName, int seconds)
     {
-        RollbackManager rollbackManager = plugin.getRollbackManager();
-        return rollbackManager != null && rollbackManager.rollback(sender, playerName, seconds);
+        RollbackApi rollbackApi = rollbackApi();
+        return rollbackApi != null && rollbackApi.rollback(sender, playerName, seconds);
+    }
+
+    private RollbackApi rollbackApi()
+    {
+        PrismHook prismHook = plugin.getPrismHook();
+        return prismHook == null ? null : prismHook.getRollbackApi();
     }
 }

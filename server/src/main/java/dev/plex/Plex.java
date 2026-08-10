@@ -11,7 +11,6 @@ import dev.plex.handlers.CommandHandler;
 import dev.plex.handlers.ListenerHandler;
 import dev.plex.hook.CoreProtectHook;
 import dev.plex.hook.PrismHook;
-import dev.plex.hook.RollbackManager;
 import dev.plex.module.ModuleManager;
 import dev.plex.player.PlayerNameResolver;
 import dev.plex.player.PlayerService;
@@ -90,7 +89,6 @@ public class Plex extends JavaPlugin
 
     private CoreProtectHook coreProtectHook;
     private PrismHook prismHook;
-    private RollbackManager rollbackManager;
 
     public static Plex get()
     {
@@ -175,17 +173,31 @@ public class Plex extends JavaPlugin
 
         if (plugin.getServer().getPluginManager().isPluginEnabled("CoreProtect"))
         {
-            PlexLog.log("Hooked into CoreProtect!");
             coreProtectHook = new CoreProtectHook(this);
+            if (coreProtectHook.hasCoreProtect())
+            {
+                PlexLog.log("Hooked into CoreProtect!");
+            }
+            else
+            {
+                PlexLog.debug("CoreProtect was enabled, but no compatible API was available");
+            }
         }
         else
         {
             PlexLog.debug("Not hooking into CoreProtect");
         }
-        if (plugin.getServer().getPluginManager().isPluginEnabled("Prism"))
+        if (plugin.getServer().getPluginManager().isPluginEnabled("prism"))
         {
-            PlexLog.log("Hooked into Prism!");
             prismHook = new PrismHook(this);
+            if (prismHook.hasPrism())
+            {
+                PlexLog.log("Hooked into Prism!");
+            }
+            else
+            {
+                PlexLog.debug("Prism was enabled, but no Prism API provider was available");
+            }
         }
         else
         {
@@ -200,8 +212,6 @@ public class Plex extends JavaPlugin
         {
             PlexLog.debug("Not hooking into SuperVanish / PremiumVanish");
         }
-
-        rollbackManager = new RollbackManager(this);
 
         updateChecker = new UpdateChecker(this);
         PlexLog.log("Update checking enabled");

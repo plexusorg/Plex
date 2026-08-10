@@ -1,14 +1,13 @@
 package dev.plex.hook;
 
 import dev.plex.Plex;
+import dev.plex.api.rollback.RollbackApi;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import java.time.Instant;
 import java.util.List;
-import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.prism_mc.prism.api.activities.ActivityQuery;
@@ -20,20 +19,24 @@ public class PrismHook
     private static final List<String> ROLLBACK_ACTIONS = List.of("block-place", "block-break", "block-burn", "entity-spawn", "entity-kill", "entity-explode");
 
     private final Plex plex;
+    private RollbackManager rollbackManager;
     private RegisteredServiceProvider<PrismPaperApi> provider;
 
     public PrismHook(Plex plex)
     {
         this.plex = plex;
-        Plugin plugin = plex.getServer().getPluginManager().getPlugin("Prism");
+        Plugin plugin = plex.getServer().getPluginManager().getPlugin("prism");
 
-        // Check that Prism is loaded
-        if (plugin != null && !plugin.isEnabled())
+        if (plugin == null || !plugin.isEnabled())
         {
             return;
         }
 
         provider = Bukkit.getServicesManager().getRegistration(PrismPaperApi.class);
+        if (provider != null)
+        {
+            rollbackManager = new RollbackManager(plex);
+        }
     }
 
     public boolean hasPrism()
@@ -44,6 +47,11 @@ public class PrismHook
     public PrismPaperApi getPrism()
     {
         return provider.getProvider();
+    }
+
+    public RollbackApi getRollbackApi()
+    {
+        return rollbackManager;
     }
 
     public void rollback(CommandSender sender, String playerName, int seconds)
@@ -62,7 +70,7 @@ public class PrismHook
                 {
                     if (error != null)
                     {
-                        sendMessage(sender, PlexUtils.messageComponent("prismRollbackError", error.getMessage()));
+                        sender.sendMessage(PlexUtils.messageComponent("prismRollbackError", error.getMessage()));
                         PlexLog.error("Unable to rollback: {0}", error);
                         return;
                     }
@@ -70,24 +78,13 @@ public class PrismHook
                     int count = result.applied();
                     if (count == 0)
                     {
-                        sendMessage(sender, PlexUtils.messageComponent("prismNoResult", count));
+                        sender.sendMessage(PlexUtils.messageComponent("prismNoResult", count));
                         PlexLog.debug("No activities are available to rollback");
                         return;
                     }
 
-                    sendMessage(sender, PlexUtils.messageComponent("prismRollbackMessage", count));
+                    sender.sendMessage(PlexUtils.messageComponent("prismRollbackMessage", count));
                     PlexLog.debug("Rolled back {0} activities", count);
                 }));
     }
-
-    private void sendMessage(CommandSender sender, Component message)
-    {
-        if (sender instanceof Player player)
-        {
-            plex.getApi().scheduler().runEntity(player, () -> sender.sendMessage(message));
-            return;
-        }
-        sender.sendMessage(message);
-    }
 }
-

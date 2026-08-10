@@ -2,9 +2,7 @@ package dev.plex.hook;
 
 import dev.plex.Plex;
 import dev.plex.api.rollback.RollbackApi;
-
 import java.util.Collections;
-
 import org.bukkit.command.CommandSender;
 
 public class RollbackManager implements RollbackApi
