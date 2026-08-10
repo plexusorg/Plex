@@ -36,6 +36,7 @@ import dev.plex.util.PlexUtils;
 import dev.plex.util.UpdateChecker;
 import dev.plex.util.redis.MessageUtil;
 import dev.plex.world.CustomWorld;
+import dev.plex.world.WorldSpawnSignManager;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -82,6 +83,7 @@ public class Plex extends JavaPlugin
     private PunishmentManager punishmentManager;
     private UpdateChecker updateChecker;
     private PlexApi api;
+    private WorldSpawnSignManager worldSpawnSignManager;
 
     private Permission permissions;
     private Chat chat;
@@ -227,6 +229,7 @@ public class Plex extends JavaPlugin
         playerService = new PlayerService(playerCache, playerRepository);
         playerNameResolver = new PlayerNameResolver(playerService);
 
+        worldSpawnSignManager = new WorldSpawnSignManager(this);
         new ListenerHandler(this);
         commandHandler = new CommandHandler(this);
 
@@ -239,6 +242,7 @@ public class Plex extends JavaPlugin
             // World generation is not supported on Folia yet
             generateWorlds();
         }
+        worldSpawnSignManager.start();
 
         serviceManager = new ServiceManager(this);
         PlexLog.log("Service Manager initialized");
@@ -267,6 +271,11 @@ public class Plex extends JavaPlugin
         }
 
         this.getServer().getMessenger().unregisterOutgoingPluginChannel(this);
+
+        if (worldSpawnSignManager != null)
+        {
+            worldSpawnSignManager.stop();
+        }
 
         if (serviceManager != null)
         {

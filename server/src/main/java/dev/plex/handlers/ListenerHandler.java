@@ -20,6 +20,7 @@ import dev.plex.listener.impl.TabListener;
 import dev.plex.listener.impl.TogglesListener;
 import dev.plex.listener.impl.VanishListener;
 import dev.plex.listener.impl.WorldListener;
+import dev.plex.listener.impl.WorldSpawnSignListener;
 import dev.plex.util.PlexLog;
 import java.util.ArrayList;
 import java.util.List;
@@ -57,6 +58,7 @@ public class ListenerHandler
         register(() -> new TogglesListener(plugin));
         register(() -> new VanishListener(plugin));
         register(() -> new WorldListener(plugin));
+        register(() -> new WorldSpawnSignListener(plugin));
     }
 
     private void register(Supplier<ServerListenerBase> listener)
