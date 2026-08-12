@@ -2,18 +2,25 @@ package dev.plex.world;
 
 import dev.plex.Plex;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
+import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.Sign;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.Rotatable;
 import org.bukkit.block.sign.Side;
+import org.bukkit.block.sign.SignSide;
 import org.bukkit.configuration.ConfigurationSection;
 
 public final class WorldSpawnSignManager
@@ -149,6 +156,19 @@ public final class WorldSpawnSignManager
         {
             signY = world.getHighestBlockYAt(SIGN_X, SIGN_Z) + 1;
         }
+        else
+        {
+            int highestSignY = signY;
+            while (signY > world.getMinHeight()
+                    && world.getBlockAt(SIGN_X, signY - 1, SIGN_Z).getState() instanceof Sign)
+            {
+                signY--;
+            }
+            for (int y = signY + 1; y <= highestSignY; y++)
+            {
+                world.getBlockAt(SIGN_X, y, SIGN_Z).setType(Material.AIR, false);
+            }
+        }
         Block support = world.getBlockAt(SIGN_X, signY - 1, SIGN_Z);
         BlockData supportData = support.getType().isSolid()
                 ? support.getBlockData().clone()
@@ -184,27 +204,45 @@ public final class WorldSpawnSignManager
             block.setType(Material.OAK_SIGN, false);
             changed = true;
         }
+        if (block.getBlockData() instanceof Rotatable rotatable && rotatable.getRotation() != BlockFace.SOUTH)
+        {
+            rotatable.setRotation(BlockFace.SOUTH);
+            block.setBlockData(rotatable, false);
+            changed = true;
+        }
         BlockState state = block.getState();
         if (!(state instanceof Sign sign))
         {
             return;
         }
-        Component[] frontLines = {
-                Component.empty(),
-                Component.text(protectedSign.displayName()),
-                Component.text("- 0, 0 -"),
-                Component.empty()
+        String shortName = protectedSign.displayName()
+                .replaceFirst("(?i)\\s+world$", "")
+                .toUpperCase(Locale.ROOT);
+        Component[] lines = {
+                Component.text("✦ PLEX ✦", NamedTextColor.GOLD, TextDecoration.BOLD),
+                Component.text(shortName, NamedTextColor.YELLOW, TextDecoration.BOLD),
+                Component.text("WORLD SPAWN", NamedTextColor.GRAY),
+                Component.text("0  •  0", NamedTextColor.WHITE)
         };
-        for (int line = 0; line < frontLines.length; line++)
+        for (Side side : Side.values())
         {
-            if (!sign.getSide(Side.FRONT).line(line).equals(frontLines[line]))
+            SignSide signSide = sign.getSide(side);
+            for (int line = 0; line < lines.length; line++)
             {
-                sign.getSide(Side.FRONT).line(line, frontLines[line]);
+                if (!signSide.line(line).equals(lines[line]))
+                {
+                    signSide.line(line, lines[line]);
+                    changed = true;
+                }
+            }
+            if (signSide.getColor() != DyeColor.YELLOW)
+            {
+                signSide.setColor(DyeColor.YELLOW);
                 changed = true;
             }
-            if (!sign.getSide(Side.BACK).line(line).equals(Component.empty()))
+            if (!signSide.isGlowingText())
             {
-                sign.getSide(Side.BACK).line(line, Component.empty());
+                signSide.setGlowingText(true);
                 changed = true;
             }
         }

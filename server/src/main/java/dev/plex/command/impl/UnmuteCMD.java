@@ -62,7 +62,7 @@ public class UnmuteCMD extends ServerCommand
             punishment.setActive(false);
             plugin.getPunishmentRepository().updatePunishment(punishment.getType(), false, punishment.getPunished());
         });
-        PlexUtils.broadcast(context.messageComponent("unmutedPlayer", sender.getName(), punishedPlayer.getName()));
+        PlexUtils.broadcast(context.messageComponent("unmutedPlayer", context.senderName(), punishedPlayer.getName()));
         return null;
     }
 

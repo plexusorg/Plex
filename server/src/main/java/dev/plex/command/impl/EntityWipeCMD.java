@@ -127,7 +127,7 @@ public class EntityWipeCMD extends ServerCommand
 
         if (useBlacklist)
         {
-            PlexUtils.broadcast(context.messageComponent("removedEntities", sender.getName(), entityCount));
+            PlexUtils.broadcast(context.messageComponent("removedEntities", context.senderName(), entityCount));
         }
         else
         {
@@ -138,7 +138,7 @@ public class EntityWipeCMD extends ServerCommand
             }
             String list = String.join(", ", entityCounts.keySet());
             list = list.replaceAll("(, )(?!.*\1)", (list.indexOf(", ") == list.lastIndexOf(", ") ? "" : ",") + " and ");
-            PlexUtils.broadcast(context.messageComponent("removedEntitiesOfTypes", sender.getName(), entityCount, list));
+            PlexUtils.broadcast(context.messageComponent("removedEntitiesOfTypes", context.senderName(), entityCount, list));
         }
         return null;
     }

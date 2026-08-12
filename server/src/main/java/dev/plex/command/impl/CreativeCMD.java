@@ -63,7 +63,7 @@ public class CreativeCMD extends ServerCommand
                 targetPlayer.setGameMode(GameMode.CREATIVE);
                 context.messageComponent("gameModeSetTo", "creative");
             }
-            PlexUtils.broadcast(context.messageComponent("setEveryoneGameMode", sender.getName(), "creative"));
+            PlexUtils.broadcast(context.messageComponent("setEveryoneGameMode", context.senderName(), "creative"));
             return null;
         }
 

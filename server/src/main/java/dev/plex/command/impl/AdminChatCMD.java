@@ -82,8 +82,8 @@ public class AdminChatCMD extends ServerCommand
         }
         Component eventMessage = staffChatEvent.getMessage();
         String serializedMessage = SafeMiniMessage.mmSerialize(eventMessage);
-        plugin.getServer().getConsoleSender().sendMessage(context.messageComponent("adminChatFormat", sender.getName(), prefix, serializedMessage));
-        MessageUtil.sendStaffChat(plugin, sender, eventMessage, PlexUtils.adminChat(sender.getName(), prefix, serializedMessage).toArray(UUID[]::new));
+        plugin.getServer().getConsoleSender().sendMessage(context.messageComponent("adminChatFormat", context.senderName(), prefix, serializedMessage));
+        MessageUtil.sendStaffChat(plugin, sender, eventMessage, PlexUtils.adminChat(context.senderName(), prefix, serializedMessage).toArray(UUID[]::new));
         return null;
     }
 

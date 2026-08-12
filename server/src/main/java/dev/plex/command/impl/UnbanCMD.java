@@ -62,7 +62,7 @@ public class UnbanCMD extends ServerCommand
                     return;
                 }
                 plugin.getPunishmentManager().unban(target.getUuid());
-                PlexUtils.broadcast(context.messageComponent("unbanningPlayer", sender.getName(), target.getName()));
+                PlexUtils.broadcast(context.messageComponent("unbanningPlayer", context.senderName(), target.getName()));
             });
         }
         return null;

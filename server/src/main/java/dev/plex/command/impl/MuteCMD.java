@@ -71,7 +71,7 @@ public class MuteCMD extends ServerCommand
         punishment.setActive(true);
 
         plugin.getPunishmentManager().punish(punishedPlayer, punishment);
-        PlexUtils.broadcast(context.messageComponent("mutedPlayer", sender.getName(), player.getName()));
+        PlexUtils.broadcast(context.messageComponent("mutedPlayer", context.senderName(), player.getName()));
         return null;
     }
 

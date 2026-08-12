@@ -60,7 +60,7 @@ public class AdventureCMD extends ServerCommand
                 targetPlayer.setGameMode(GameMode.ADVENTURE);
                 context.messageComponent("gameModeSetTo", "adventure");
             }
-            PlexUtils.broadcast(context.messageComponent("setEveryoneGameMode", sender.getName(), "adventure"));
+            PlexUtils.broadcast(context.messageComponent("setEveryoneGameMode", context.senderName(), "adventure"));
             return null;
         }
 
