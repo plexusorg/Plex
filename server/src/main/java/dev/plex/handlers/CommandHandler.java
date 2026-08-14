@@ -143,5 +143,9 @@ public class CommandHandler
         {
             commands.add(new DebugCMD());
         }
+        if (Plex.get().getWorldGuardHook() != null)
+        {
+            commands.add(new ProtectCMD(Plex.get().getWorldGuardHook()));
+        }
     }
 }

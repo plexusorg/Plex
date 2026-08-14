@@ -11,6 +11,7 @@ import dev.plex.handlers.CommandHandler;
 import dev.plex.handlers.ListenerHandler;
 import dev.plex.hook.CoreProtectHook;
 import dev.plex.hook.PrismHook;
+import dev.plex.hook.WorldGuardHook;
 import dev.plex.module.ModuleManager;
 import dev.plex.player.PlayerNameResolver;
 import dev.plex.player.PlayerService;
@@ -89,6 +90,7 @@ public class Plex extends JavaPlugin
 
     private CoreProtectHook coreProtectHook;
     private PrismHook prismHook;
+    private WorldGuardHook worldGuardHook;
 
     public static Plex get()
     {
@@ -213,6 +215,24 @@ public class Plex extends JavaPlugin
             PlexLog.debug("Not hooking into SuperVanish / PremiumVanish");
         }
 
+        if (plugin.getServer().getPluginManager().isPluginEnabled("WorldGuard"))
+        {
+            try
+            {
+                worldGuardHook = new WorldGuardHook(this);
+                PlexLog.log("Hooked into WorldGuard!");
+            }
+            catch (LinkageError | RuntimeException ex)
+            {
+                worldGuardHook = null;
+                PlexLog.warn("WorldGuard was found, but its API was unavailable. The protect command will not be registered.");
+                PlexLog.debug("WorldGuard hook failure: {0}", ex.getMessage());
+            }
+        }
+        else
+        {
+            PlexLog.debug("Not hooking into WorldGuard");
+        }
         updateChecker = new UpdateChecker(this);
         PlexLog.log("Update checking enabled");
 

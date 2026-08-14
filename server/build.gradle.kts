@@ -15,6 +15,7 @@ plugins {
 
 repositories {
     maven(url = uri("https://maven.playpro.com"))
+    maven(url = uri("https://maven.enginehub.org/repo/"))
     maven(url = uri("https://nexus.telesphoreo.me/repository/plex-modules/"))
     maven(url = uri("https://nexus.prism-mc.org/repository/maven-public/"))
 }
@@ -37,6 +38,7 @@ dependencies {
     compileOnly("net.coreprotect:coreprotect:24.0")
     compileOnly("org.prism_mc.prism:prism-paper-api:4.4")
     compileOnly("com.github.LeonMangler:SuperVanish:6.2.19")
+    compileOnly("com.sk89q.worldguard:worldguard-bukkit:7.1.0-SNAPSHOT")
     implementation("org.bstats:bstats-base:3.2.1")
     implementation("org.bstats:bstats-bukkit:3.2.1")
     annotationProcessor("org.projectlombok:lombok:1.18.46")
@@ -96,6 +98,11 @@ paper {
         }
         register("Vault") {
             required = false
+            load = PaperPluginDescription.RelativeLoadOrder.BEFORE
+        }
+        register("WorldGuard") {
+            required = false
+            joinClasspath = true
             load = PaperPluginDescription.RelativeLoadOrder.BEFORE
         }
     }

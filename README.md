@@ -12,6 +12,7 @@ independent project and a flexible alternative to TotalFreedomMod, not a rewrite
   need a rank system.
 - Player data storage in SQLite, MariaDB, or PostgreSQL.
 - Optional Redis support for indefinite bans and cross-server messages.
+- Optional WorldGuard integration for turnkey protected regions and reusable flag presets.
 - Customizable messages, chat format, and custom worlds.
 - A module system to add or remove features.
 

@@ -1,0 +1,127 @@
+# Plex WorldGuard protection presets and managed regions.
+#
+# /protect create <region> <preset>        uses your current WorldEdit selection
+# /protect create <region> <preset> <r>    creates a full-height square around you
+# /protect apply <region> <preset>         changes a region to another preset
+#
+# Any WorldGuard flag may be used in a preset. Values use WorldGuard's YAML
+# format. To restrict a flag to a region group, use:
+#   entry:
+#     value: deny
+#     group: nonmembers
+
+presets:
+  spawn:
+    description: "Locks building and most player interactions for a safe spawn."
+    flags:
+      pvp: deny
+      block-break: deny
+      block-place: deny
+      use: deny
+      interact: deny
+      chest-access: deny
+      damage-animals: deny
+      vehicle-place: deny
+      vehicle-destroy: deny
+      item-pickup: deny
+      item-drop: deny
+      lighter: deny
+      tnt: deny
+      potion-splash: deny
+      item-frame-rotation: deny
+      block-trampling: deny
+      firework-damage: deny
+      use-anvil: deny
+      use-dripleaf: deny
+      wind-charge-burst: deny
+      mob-damage: deny
+      creeper-explosion: deny
+      enderdragon-block-damage: deny
+      ghast-fireball: deny
+      other-explosion: deny
+      breeze-charge-explosion: deny
+      wither-damage: deny
+      enderman-grief: deny
+      ravager-grief: deny
+      entity-painting-destroy: deny
+      entity-item-frame-destroy: deny
+      pistons: deny
+      fire-spread: deny
+      lava-fire: deny
+
+  pvp:
+    description: "Protects the build while explicitly allowing PvP."
+    flags:
+      pvp: allow
+
+  safe-zone:
+    description: "Creates a protected, peaceful area where players cannot take damage or lose hunger."
+    flags:
+      pvp: deny
+      mob-damage: deny
+      fall-damage: deny
+      firework-damage: deny
+      natural-hunger-drain: deny
+      invincible: allow
+
+  town:
+    description: "Protects town builds and blocks PvP, fire, explosions, and mob griefing while leaving containers and doors usable."
+    flags:
+      pvp: deny
+      tnt: deny
+      creeper-explosion: deny
+      enderdragon-block-damage: deny
+      ghast-fireball: deny
+      other-explosion: deny
+      breeze-charge-explosion: deny
+      wither-damage: deny
+      enderman-grief: deny
+      ravager-grief: deny
+      fire-spread: deny
+      lava-fire: deny
+
+  protected-build:
+    description: "Protects blocks using normal WorldGuard membership rules without changing gameplay."
+    flags: {}
+
+  mob-free:
+    description: "Protects the build, prevents mob spawning, and disables mob or explosion damage."
+    flags:
+      mob-spawning: deny
+      mob-damage: deny
+      creeper-explosion: deny
+      enderdragon-block-damage: deny
+      ghast-fireball: deny
+      other-explosion: deny
+      breeze-charge-explosion: deny
+      wither-damage: deny
+      enderman-grief: deny
+      ravager-grief: deny
+
+  private:
+    description: "Protects the build and prevents non-members from entering the region."
+    flags:
+      entry:
+        value: deny
+        group: nonmembers
+
+  creative-zone:
+    description: "Allows everyone to build while blocking PvP, fire, explosions, and mob griefing."
+    flags:
+      passthrough: allow
+      pvp: deny
+      tnt: deny
+      creeper-explosion: deny
+      enderdragon-block-damage: deny
+      ghast-fireball: deny
+      other-explosion: deny
+      breeze-charge-explosion: deny
+      wither-damage: deny
+      enderman-grief: deny
+      ravager-grief: deny
+      fire-spread: deny
+      lava-fire: deny
+
+# Regions created or adopted with /protect are persisted here. Plex restores
+# these cuboids and their exact managed flags through the WorldGuard API.
+regions: {}
