@@ -4,6 +4,7 @@ import dev.plex.Plex;
 import dev.plex.listener.ServerListenerBase;
 import dev.plex.player.PlexPlayer;
 import dev.plex.util.PlexUtils;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -30,7 +31,7 @@ public class CommandListener extends ServerListenerBase
             String command = event.getMessage();
             if (!pl.getUniqueId().equals(player.getUniqueId()))
             {
-                pl.sendMessage(PlexUtils.messageComponent("commandSpyFormat", player.getName(), command));
+                pl.sendMessage(PlexUtils.messageComponent("commandSpyFormat", Component.text(player.getName()), Component.text(command)));
             }
         });
     }
