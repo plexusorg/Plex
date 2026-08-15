@@ -102,11 +102,10 @@ public class ChatListener extends ServerListenerBase
                 component = component.append(before.get());
             }
 
-            // Substitute the prefix from the config
-            if (hasPrefix)
-            {
-                component = component.replaceText(TextReplacementConfig.builder().matchLiteral("{prefix}").replacement(prefix).build());
-            }
+            // Always consume the placeholder so players without a prefix do not
+            // get the literal "{prefix}" in front of their name.
+            Component renderedPrefix = hasPrefix && prefix != null ? prefix : Component.empty();
+            component = component.replaceText(TextReplacementConfig.builder().matchLiteral("{prefix}").replacement(renderedPrefix).build());
 
             // Substitute the display name from the config
             component = component.replaceText(TextReplacementConfig.builder().matchLiteral("{name}")
