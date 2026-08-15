@@ -25,6 +25,7 @@ import java.util.List;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 
 public class UpdateChecker
@@ -172,12 +173,15 @@ public class UpdateChecker
                 }
                 if (verbosity >= 1)
                 {
-                    sendMessage(sender, updateMetadataErrorComponent(error));
-                    PlexLog.error("Unable to check for updates: {0}", error.getMessage());
-                    if (error.getCause() != null)
+                    if (sender instanceof ConsoleCommandSender)
                     {
-                        error.getCause().printStackTrace();
+                        PlexLog.warn("Unable to check for updates right now; the updater will try again later.");
                     }
+                    else
+                    {
+                        sendMessage(sender, updateMetadataErrorComponent(error));
+                    }
+                    PlexLog.debug("Update metadata check failed: {0}", error.getMessage());
                 }
                 break;
         }
