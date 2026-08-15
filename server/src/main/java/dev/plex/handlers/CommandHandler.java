@@ -1,9 +1,12 @@
 package dev.plex.handlers;
 
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.tree.LiteralCommandNode;
 import dev.plex.Plex;
 import dev.plex.command.PlexCommand;
 import dev.plex.command.impl.*;
 import dev.plex.util.PlexLog;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import java.util.ArrayList;
@@ -79,11 +82,17 @@ public class CommandHandler
         int labels = 0;
         for (PlexCommand command : commands)
         {
-            var registeredLabels = registrar.register(command.buildCommand(), command.getDescription(), command.getAliases());
+            LiteralCommandNode<CommandSourceStack> commandNode = command.buildCommand();
+            var registeredLabels = registrar.register(commandNode, command.getDescription(), List.of());
             labels += registeredLabels.size();
+
             for (String alias : command.getAliases())
             {
-                if (!registeredLabels.contains(alias) && !registeredLabels.contains("plex:" + alias))
+                // Paper does not let aliases replace an existing command. Register each
+                // Plex alias as a primary command node so Plex deliberately takes priority.
+                var registeredAliasLabels = registrar.register(copyWithLabel(commandNode, alias), command.getDescription(), List.of());
+                labels += registeredAliasLabels.size();
+                if (!registeredAliasLabels.contains(alias) && !registeredAliasLabels.contains("plex:" + alias))
                 {
                     PlexLog.warn("Command alias {0} for {1} was not registered, likely because another command already owns it.", alias, command.getName());
                 }
@@ -92,6 +101,25 @@ public class CommandHandler
         lifecycleRegistered = true;
         lifecycleReloadRequired = false;
         PlexLog.log("Registered {0} Brigadier commands with {1} root labels.", commands.size(), labels);
+    }
+
+    private LiteralCommandNode<CommandSourceStack> copyWithLabel(LiteralCommandNode<CommandSourceStack> commandNode, String label)
+    {
+        LiteralArgumentBuilder<CommandSourceStack> builder = Commands.literal(label)
+                .requires(commandNode.getRequirement());
+        if (commandNode.getCommand() != null)
+        {
+            builder.executes(commandNode.getCommand());
+        }
+        if (commandNode.getRedirect() != null)
+        {
+            builder.forward(commandNode.getRedirect(), commandNode.getRedirectModifier(), commandNode.isFork());
+        }
+        else
+        {
+            commandNode.getChildren().forEach(builder::then);
+        }
+        return builder.build();
     }
 
     private void registerBuiltInCommands(boolean debugEnabled)
