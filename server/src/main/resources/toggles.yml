@@ -1,12 +1,12 @@
 # Plex Toggles
 
-# Should explosions be enabled?
+# Should explosions be allowed to damage blocks?
 explosions: false
 
 # Should fluid spread be enabled?
 fluidspread: true
 
-# Should drops be enabled?
+# Should players be allowed to drop items?
 drops: true
 
 # Should redstone be enabled?

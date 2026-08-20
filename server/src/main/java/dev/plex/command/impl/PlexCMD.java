@@ -83,6 +83,8 @@ public class PlexCMD extends ServerCommand
             plugin.messages.load();
             PlexUtils.configure(plugin.config, plugin.messages);
             context.send(sender, "Reloaded messages file");
+            plugin.toggles.load();
+            context.send(sender, "Reloaded toggles file");
             plugin.indefBans.load(false);
             plugin.getPunishmentManager().mergeIndefiniteBans();
             context.send(sender, "Reloaded indefinite bans");

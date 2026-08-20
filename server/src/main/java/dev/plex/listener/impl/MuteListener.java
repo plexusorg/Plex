@@ -2,14 +2,10 @@ package dev.plex.listener.impl;
 
 import dev.plex.Plex;
 import dev.plex.listener.ServerListenerBase;
-import dev.plex.util.PlexLog;
+import dev.plex.util.CommandUtils;
 import dev.plex.util.PlexUtils;
 import io.papermc.paper.event.player.AsyncChatEvent;
 
-import java.util.List;
-
-import org.bukkit.Bukkit;
-import org.bukkit.command.Command;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
@@ -20,8 +16,6 @@ public class MuteListener extends ServerListenerBase
     {
         super(plugin);
     }
-
-    List<String> commands = plugin.config.getStringList("block_on_mute");
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onChat(AsyncChatEvent event)
@@ -38,43 +32,12 @@ public class MuteListener extends ServerListenerBase
     {
         if (plugin.getPlayerCache().getPlexPlayer(event.getPlayer().getUniqueId()).isMuted())
         {
-            String message = event.getMessage();
-            // Don't check the arguments
-            message = message.replaceAll("\\s.*", "").replaceFirst("/", "");
-            PlexLog.debug("message: " + message);
-
-            // Check regular command
-            if (commands.contains(message.toLowerCase()))
+            if (CommandUtils.matchesCommand(plugin, event.getMessage(), plugin.config.getStringList("block_on_mute")))
             {
-                PlexLog.debug("Matches command");
                 event.getPlayer().sendMessage(PlexUtils.messageComponent("muted"));
                 event.setCancelled(true);
-                return;
-            }
-
-            for (String command : commands)
-            {
-                if (plugin.getCommandHandler() != null && plugin.getCommandHandler().isAliasFor(command, message))
-                {
-                    PlexLog.debug("Matches Brigadier alias");
-                    event.getPlayer().sendMessage(PlexUtils.messageComponent("muted"));
-                    event.setCancelled(true);
-                    return;
-                }
-                Command cmd = Bukkit.getCommandMap().getCommand(command);
-                if (cmd == null)
-                {
-                    PlexLog.debug("Null command");
-                    return;
-                }
-                if (cmd.getAliases().contains(message.toLowerCase()))
-                {
-                    PlexLog.debug("Matches alias");
-                    event.getPlayer().sendMessage(PlexUtils.messageComponent("muted"));
-                    event.setCancelled(true);
-                    return;
-                }
             }
         }
     }
+
 }

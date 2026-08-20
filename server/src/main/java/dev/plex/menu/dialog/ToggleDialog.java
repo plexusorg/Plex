@@ -83,6 +83,7 @@ public class ToggleDialog
         }
 
         plugin.toggles.set(toggle, !plugin.toggles.getBoolean(toggle));
+        plugin.toggles.save();
         if ("chat".equals(toggle))
         {
             PlexUtils.broadcast(PlexUtils.messageComponent("chatToggled", player.getName(), PlexUtils.messageString(plugin.toggles.getBoolean("chat") ? "stateOn" : "stateOff")));

@@ -105,6 +105,7 @@ public class ToggleCMD extends ServerCommand
     private Component toggle(ServerCommandContext context, String toggle)
     {
         plugin.toggles.set(toggle, !plugin.getToggles().getBoolean(toggle));
+        plugin.toggles.save();
         return context.messageComponent("toggleCommandResult", context.messageString(toggleNameKey(toggle)), status(context, toggle));
     }
 
