@@ -9,6 +9,7 @@ import io.papermc.paper.event.player.PrePlayerAttackEntityEvent;
 import io.papermc.paper.event.entity.EntityPushedByEntityAttackEvent;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ExplosionResult;
 import org.bukkit.entity.AreaEffectCloud;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -40,7 +41,7 @@ public class TogglesListener extends ServerListenerBase
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onBlockExplode(BlockExplodeEvent event)
     {
-        if (!plugin.toggles.getBoolean("explosions"))
+        if (!plugin.toggles.getBoolean("explosions") && event.getExplosionResult() != ExplosionResult.TRIGGER_BLOCK)
         {
             event.blockList().clear();
         }
@@ -49,7 +50,7 @@ public class TogglesListener extends ServerListenerBase
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onEntityExplode(EntityExplodeEvent event)
     {
-        if (!plugin.toggles.getBoolean("explosions"))
+        if (!plugin.toggles.getBoolean("explosions") && event.getExplosionResult() != ExplosionResult.TRIGGER_BLOCK)
         {
             event.blockList().clear();
         }
