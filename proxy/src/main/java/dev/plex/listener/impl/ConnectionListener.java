@@ -1,6 +1,5 @@
 package dev.plex.listener.impl;
 
-import com.velocitypowered.api.event.PostOrder;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.DisconnectEvent;
 import com.velocitypowered.api.event.player.ServerConnectedEvent;
@@ -16,7 +15,7 @@ public class ConnectionListener extends ProxyListener
         super(plugin);
     }
 
-    @Subscribe(order = PostOrder.FIRST)
+    @Subscribe(priority = Short.MAX_VALUE - 1)
     public void onPlayerJoin(ServerConnectedEvent event)
     {
         if (event.getPreviousServer().isPresent())
@@ -34,7 +33,7 @@ public class ConnectionListener extends ProxyListener
         }
     }
 
-    @Subscribe(order = PostOrder.FIRST)
+    @Subscribe(priority = Short.MAX_VALUE - 1)
     public void onPlayerLeave(DisconnectEvent event)
     {
         if (event.getPlayer().getCurrentServer().isPresent())

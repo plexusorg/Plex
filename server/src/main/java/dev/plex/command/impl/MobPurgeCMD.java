@@ -9,10 +9,11 @@ import dev.plex.util.PlexUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
+import java.util.stream.Collectors;
 
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
-import org.apache.commons.lang3.text.WordUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
@@ -74,7 +75,9 @@ public class MobPurgeCMD extends ServerCommand
         }
         if (type != null)
         {
-            mobName = WordUtils.capitalizeFully(type.name().replace("_", " "));
+            mobName = Arrays.stream(type.name().split("_"))
+                    .map(word -> word.substring(0, 1) + word.substring(1).toLowerCase(Locale.ROOT))
+                    .collect(Collectors.joining(" "));
             PlexLog.debug("The args aren't null so the mob is: " + mobName);
         }
         int count = purgeMobs(type);

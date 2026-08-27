@@ -1,5 +1,6 @@
 package dev.plex.meta;
 
+import de.myzelyam.api.vanish.VanishAPI;
 import dev.plex.config.Config;
 import dev.plex.hook.VaultHook;
 import dev.plex.player.PlexPlayer;
@@ -10,20 +11,12 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.metadata.MetadataValue;
 
 public class PlayerMeta
 {
     public static boolean isVanished(Player player)
     {
-        for (MetadataValue meta : player.getMetadata("vanished"))
-        {
-            if (meta.asBoolean())
-            {
-                return true;
-            }
-        }
-        return false;
+        return PlexUtils.hasVanishPlugin() && VanishAPI.isInvisible(player);
     }
 
     public static boolean isVanished(PlexPlayer player)

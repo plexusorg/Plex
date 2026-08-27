@@ -1,6 +1,5 @@
 package dev.plex.listener.impl;
 
-import com.velocitypowered.api.event.PostOrder;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyPingEvent;
 import com.velocitypowered.api.proxy.server.ServerPing;
@@ -24,7 +23,7 @@ public class ServerListener extends ProxyListener
         super(plugin);
     }
 
-    @Subscribe(order = PostOrder.FIRST)
+    @Subscribe(priority = Short.MAX_VALUE - 1)
     public void onPing(ProxyPingEvent event)
     {
         ServerSettings.Server config = plugin.getConfig().settings().getServer();

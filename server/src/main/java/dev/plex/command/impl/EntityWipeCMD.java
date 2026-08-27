@@ -88,7 +88,7 @@ public class EntityWipeCMD extends ServerCommand
             boolean res = Arrays.stream(entityTypes).noneMatch(entityType -> name.equalsIgnoreCase(entityType.name()));
             if (res)
             {
-                sender.sendMessage(context.messageComponent("invalidEntityType", name));
+                context.send(sender, context.messageComponent("invalidEntityType", name));
             }
             return res;
         });

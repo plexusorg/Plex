@@ -48,6 +48,6 @@ dependencies {
     compileOnly("org.projectlombok:lombok:1.18.46")
     annotationProcessor("org.projectlombok:lombok:1.18.46")
     compileOnly("org.json:json:20260522")
-    compileOnly("com.velocitypowered:velocity-api:3.5.0-SNAPSHOT")
-    annotationProcessor("com.velocitypowered:velocity-api:3.5.0-SNAPSHOT")
+    compileOnly("com.velocitypowered:velocity-api:4.1.1")
+    annotationProcessor("com.velocitypowered:velocity-api:4.1.1")
 }
