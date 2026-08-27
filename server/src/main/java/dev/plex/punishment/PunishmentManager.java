@@ -42,7 +42,7 @@ public class PunishmentManager
         this.indefiniteBans.clear();
         plugin.indefBans.getKeys(false).forEach(key ->
         {
-            IndefiniteBan ban = new IndefiniteBan(plugin.getIndefBans().getString("reason", ""));
+            IndefiniteBan ban = new IndefiniteBan(plugin.getIndefBans().getString(key + ".reason", ""));
             ban.ips.addAll(plugin.getIndefBans().getStringList(key + ".ips"));
             ban.usernames.addAll(plugin.getIndefBans().getStringList(key + ".users"));
             ban.uuids.addAll(plugin.getIndefBans().getStringList(key + ".uuids").stream().map(UUID::fromString).toList());

@@ -3,6 +3,8 @@
 
 # If you want to get someone's UUID, use https://api.ashcon.app/mojang/v2/user/<username>
 griefers:
+  # The reason is optional. If set, it is shown on the ban screen and in the HTTPD's indefinite bans page.
+  reason: "Repeated griefing"
   users:
     - "badplayer123"
     - "badplayer321"
