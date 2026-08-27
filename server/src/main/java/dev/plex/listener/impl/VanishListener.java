@@ -2,6 +2,8 @@ package dev.plex.listener.impl;
 
 import dev.plex.Plex;
 
+import de.myzelyam.api.vanish.PlayerShowEvent;
+import de.myzelyam.api.vanish.PostPlayerHideEvent;
 import de.myzelyam.api.vanish.PostPlayerShowEvent;
 import dev.plex.listener.ServerListenerBase;
 import dev.plex.meta.PlayerMeta;
@@ -18,8 +20,8 @@ public class VanishListener extends ServerListenerBase
         super(plugin);
     }
 
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void onPlayerUnvanish(PostPlayerShowEvent event)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onPlayerUnvanish(PlayerShowEvent event)
     {
         if (event.isSilent())
         {
@@ -37,7 +39,18 @@ public class VanishListener extends ServerListenerBase
         if (!loginMessage.isEmpty())
         {
             PlexUtils.broadcast(PlexUtils.stringToComponent(loginMessage));
-            PlexUtils.broadcast(PlexUtils.messageComponent("loginMessage", plexPlayer.getName()));
         }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onPlayerHidden(PostPlayerHideEvent event)
+    {
+        plugin.getProxyVanishBridge().hide(event.getPlayer(), event.isSilent());
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onPlayerShown(PostPlayerShowEvent event)
+    {
+        plugin.getProxyVanishBridge().show(event.getPlayer(), event.isSilent());
     }
 }
