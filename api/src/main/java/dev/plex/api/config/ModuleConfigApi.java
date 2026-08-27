@@ -11,9 +11,8 @@ public interface ModuleConfigApi
      * Creates or opens a module configuration.
      *
      * @param module module that owns the configuration
-     * @param from resource path to copy defaults from
-     * @param to destination file path relative to the module data folder
+     * @param fileName resource path and module data file path
      * @return module configuration
      */
-    ModuleConfiguration create(PlexModule module, String from, String to);
+    ModuleConfiguration create(PlexModule module, String fileName);
 }

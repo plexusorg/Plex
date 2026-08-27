@@ -7,8 +7,8 @@ import dev.plex.module.PlexModule;
 final class DefaultModuleConfigApi implements ModuleConfigApi
 {
     @Override
-    public ModuleConfiguration create(PlexModule module, String from, String to)
+    public ModuleConfiguration create(PlexModule module, String fileName)
     {
-        return new ServerModuleConfiguration(module, from, to);
+        return new ServerModuleConfiguration(module, fileName);
     }
 }

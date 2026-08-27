@@ -8,21 +8,37 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Objects;
 import org.bukkit.configuration.InvalidConfigurationException;
 
 final class ServerModuleConfiguration extends ModuleConfiguration
 {
     private final PlexModule module;
     private final File file;
-    private final String from;
-    private final String to;
+    private final String fileName;
 
-    ServerModuleConfiguration(PlexModule module, String from, String to)
+    ServerModuleConfiguration(PlexModule module, String fileName)
     {
-        this.module = module;
-        this.file = new File(module.getDataFolder(), to);
-        this.from = from;
-        this.to = to;
+        this.module = Objects.requireNonNull(module, "module");
+        Objects.requireNonNull(fileName, "fileName");
+        if (fileName.isBlank())
+        {
+            throw new IllegalArgumentException("Module configuration path must not be blank");
+        }
+        Path relativePath = Path.of(fileName).normalize();
+        if (relativePath.isAbsolute() || relativePath.getNameCount() == 0 || relativePath.startsWith(".."))
+        {
+            throw new IllegalArgumentException("Module configuration path must stay in the module data folder");
+        }
+        Path dataFolder = module.getDataFolder().toPath().toAbsolutePath().normalize();
+        Path configPath = dataFolder.resolve(relativePath).normalize();
+        if (configPath.equals(dataFolder) || !configPath.startsWith(dataFolder))
+        {
+            throw new IllegalArgumentException("Module configuration path must stay in the module data folder");
+        }
+        this.file = configPath.toFile();
+        this.fileName = relativePath.toString().replace('\\', '/');
         if (!file.exists()) saveDefault();
     }
 
@@ -31,10 +47,10 @@ final class ServerModuleConfiguration extends ModuleConfiguration
     {
         try
         {
-            ConfigDefaultsMerger.Result result = ConfigDefaultsMerger.merge(file, module.getResource(from), to);
+            ConfigDefaultsMerger.Result result = ConfigDefaultsMerger.merge(file, module.getResource(fileName), fileName);
             if (!result.addedKeys().isEmpty())
             {
-                PlexLog.log("Merged default key(s) into " + to + ": " + String.join(", ", result.addedKeys()));
+                PlexLog.log("Merged default key(s) into " + fileName + ": " + String.join(", ", result.addedKeys()));
             }
             options().parseComments(true);
             super.load(file);
@@ -57,11 +73,11 @@ final class ServerModuleConfiguration extends ModuleConfiguration
         {
             File parent = file.getParentFile();
             if (parent != null) parent.mkdirs();
-            try (InputStream stream = module.getResource(from))
+            try (InputStream stream = module.getResource(fileName))
             {
                 if (stream == null)
                 {
-                    PlexLog.warn("Unable to save default module config " + to + ": missing resource " + from);
+                    PlexLog.warn("Unable to save default module config " + fileName + ": missing resource " + fileName);
                     return;
                 }
                 Files.copy(stream, file.toPath());

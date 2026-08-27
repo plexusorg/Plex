@@ -7,6 +7,7 @@ import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import dev.plex.api.PlexApi;
+import dev.plex.api.scheduler.SchedulerApi;
 import dev.plex.command.exception.CommandFailException;
 import dev.plex.command.exception.ConsoleMustDefinePlayerException;
 import dev.plex.command.exception.ConsoleOnlyException;
@@ -146,6 +147,17 @@ public abstract class SimplePlexCommand implements PlexCommand
             throw new IllegalStateException("Command " + getName() + " has not been bound to the Plex API");
         }
         return api;
+    }
+
+    /**
+     * Returns the task scheduler for this command.
+     * Plex tracks tasks from module commands with their module.
+     *
+     * @return command task scheduler
+     */
+    protected SchedulerApi scheduler()
+    {
+        return module == null ? api().scheduler() : module.scheduler();
     }
 
     /**

@@ -311,22 +311,11 @@ public abstract class PlexModule
     /**
      * Loads this module's message file.
      *
-     * @param from resource path to copy defaults from
+     * @param fileName resource path and module data file path
      */
-    public void loadMessages(String from)
+    public void loadMessages(String fileName)
     {
-        loadMessages(from, "messages.yml");
-    }
-
-    /**
-     * Loads this module's message file.
-     *
-     * @param from resource path to copy defaults from
-     * @param to destination file path relative to the module data folder
-     */
-    public void loadMessages(String from, String to)
-    {
-        messages = requireApi().moduleConfigs().create(this, from, to);
+        messages = requireApi().moduleConfigs().create(this, fileName);
         messages.load();
     }
 
