@@ -230,7 +230,6 @@ removedOwnLoginMessage: "<gray>Your login message has been removed."
 # 0 - The player
 removedOtherLoginMessage: "<gray>You removed {0}'s login message."
 nameRequired: "<red>Policy requires that you must state your player name in your login message. You can either do this by inserting your name or %player%."
-playerHasNoLoginMessage: "<red>This player does not have a login message."
 # 0 - The material name
 # 1 - The players who have the material in their inventory
 playersWithMaterial: "<gray>Players with {0} in their inventory: {1}"

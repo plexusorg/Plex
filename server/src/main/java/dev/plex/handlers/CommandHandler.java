@@ -130,7 +130,6 @@ public class CommandHandler
                 new AdventureCMD(),
                 new BanCMD(),
                 new BanListCommand(),
-                new BcastLoginMessageCMD(),
                 new BlockEditCMD(),
                 new CommandSpyCMD(),
                 new ConsoleSayCMD(),

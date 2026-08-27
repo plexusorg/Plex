@@ -21,6 +21,7 @@ import dev.plex.listener.impl.VanishListener;
 import dev.plex.listener.impl.WorldListener;
 import dev.plex.listener.impl.WorldSpawnSignListener;
 import dev.plex.util.PlexLog;
+import dev.plex.util.PlexUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
@@ -54,7 +55,10 @@ public class ListenerHandler
         register(() -> new ServerListener(plugin));
         register(() -> new TabListener(plugin));
         register(() -> new TogglesListener(plugin));
-        register(() -> new VanishListener(plugin));
+        if (PlexUtils.hasVanishPlugin())
+        {
+            register(() -> new VanishListener(plugin));
+        }
         register(() -> new WorldListener(plugin));
         register(() -> new WorldSpawnSignListener(plugin));
     }
