@@ -260,8 +260,7 @@ worlds:
 
 # Static updater metadata. The metadata can be hosted as plain JSON on Cloudflare Pages.
 updater:
-  # Update channel to use. stable only serves non-SNAPSHOT releases; dev serves development builds.
-  channel: "stable"
+  channel: "dev"
 
 # Additional logging for debugging
 debug: false

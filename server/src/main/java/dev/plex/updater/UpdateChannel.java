@@ -33,4 +33,9 @@ public enum UpdateChannel
             default -> STABLE;
         };
     }
+
+    public static UpdateChannel forVersion(String version)
+    {
+        return version != null && version.toUpperCase(Locale.ROOT).endsWith("-SNAPSHOT") ? DEV : STABLE;
+    }
 }

@@ -29,6 +29,7 @@ import dev.plex.storage.punishment.SQLPunishment;
 import dev.plex.storage.repository.NoteRepository;
 import dev.plex.storage.repository.PlayerRepository;
 import dev.plex.storage.repository.PunishmentRepository;
+import dev.plex.updater.UpdateChannel;
 import dev.plex.util.BuildInfo;
 import dev.plex.util.BungeeUtil;
 import dev.plex.util.PlexLog;
@@ -140,6 +141,7 @@ public class Plex extends JavaPlugin
     public void onEnable()
     {
         config.load();
+        updateConfiguredChannel();
         PlexLog.setDebugEnabled(config.getBoolean("debug"));
         messages.load();
         PlexUtils.configure(config, messages);
@@ -286,6 +288,16 @@ public class Plex extends JavaPlugin
         this.getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
 
         moduleManager.enableModules();
+    }
+
+    private void updateConfiguredChannel()
+    {
+        String channel = UpdateChannel.forVersion(getPluginMeta().getVersion()).id();
+        if (!channel.equals(config.getString("updater.channel")))
+        {
+            config.set("updater.channel", channel);
+            config.save();
+        }
     }
 
     @Override
