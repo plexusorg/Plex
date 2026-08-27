@@ -1,7 +1,7 @@
 package dev.plex.api.logging;
 
 /**
- * Logging facade exposed through the Plex API.
+ * Writes messages to the Plex log.
  */
 public interface LoggingApi
 {

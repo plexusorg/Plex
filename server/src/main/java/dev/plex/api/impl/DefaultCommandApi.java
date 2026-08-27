@@ -31,6 +31,7 @@ final class DefaultCommandApi implements CommandApi
     @Override
     public void unregister(PlexCommand command)
     {
+        plugin.getPendingCommands().remove(command);
         if (plugin.getCommandHandler() != null)
         {
             plugin.getCommandHandler().unregisterCommand(command);
@@ -44,7 +45,7 @@ final class DefaultCommandApi implements CommandApi
         {
             return List.copyOf(plugin.getPendingCommands());
         }
-        return plugin.getCommandHandler().getCommands();
+        return List.copyOf(plugin.getCommandHandler().getCommands());
     }
 
     @Override

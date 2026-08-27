@@ -14,7 +14,12 @@ public final class ModuleNames
 
     public static String prefix(PlexModule module)
     {
-        String name = module.getPlexModuleFile().getName().toLowerCase(Locale.ROOT);
+        return prefix(module.getPlexModuleFile().getName());
+    }
+
+    public static String prefix(String moduleName)
+    {
+        String name = moduleName.toLowerCase(Locale.ROOT);
         if (name.startsWith("module-"))
         {
             name = name.substring("module-".length());

@@ -11,6 +11,7 @@ import dev.plex.util.PlexUtils;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.Objects;
 
 final class DefaultPlayersApi implements PlayersApi
 {
@@ -18,10 +19,10 @@ final class DefaultPlayersApi implements PlayersApi
 
     DefaultPlayersApi(Plex plugin) { this.plugin = plugin; }
 
-    @Override public Optional<? extends PlexPlayerView> player(UUID uuid) { return Optional.ofNullable(plugin.getPlayerService().getPlayer(uuid)).map(player -> new DefaultPlexPlayerView(player, plugin.getPlayerNameResolver())); }
-    @Override public Optional<? extends PlexPlayerView> byName(String name) { return Optional.ofNullable(plugin.getPlayerService().getPlayer(name)).map(player -> new DefaultPlexPlayerView(player, plugin.getPlayerNameResolver())); }
-    @Override public List<String> onlineNames() { return PlexUtils.getPlayerNameList(); }
-    @Override public PlayerModuleData moduleData(PlexModule module, UUID playerUuid) { return new DefaultPlayerModuleData(plugin.getPlayerModuleDataRepository(), ModuleNames.prefix(module), playerUuid); }
+    @Override public Optional<? extends PlexPlayerView> player(UUID uuid) { return Optional.ofNullable(plugin.getPlayerService().getPlayer(Objects.requireNonNull(uuid, "uuid"))).map(player -> new DefaultPlexPlayerView(player, plugin.getPlayerNameResolver())); }
+    @Override public Optional<? extends PlexPlayerView> byName(String name) { return Optional.ofNullable(plugin.getPlayerService().getPlayer(Objects.requireNonNull(name, "name"))).map(player -> new DefaultPlexPlayerView(player, plugin.getPlayerNameResolver())); }
+    @Override public List<String> onlineNames() { return List.copyOf(PlexUtils.getPlayerNameList()); }
+    @Override public PlayerModuleData moduleData(PlexModule module, UUID playerUuid) { return new DefaultPlayerModuleData(plugin.getPlayerModuleDataRepository(), ModuleNames.prefix(Objects.requireNonNull(module, "module")), Objects.requireNonNull(playerUuid, "playerUuid")); }
 
     static PlexPlayer unwrap(PlexPlayerView view)
     {

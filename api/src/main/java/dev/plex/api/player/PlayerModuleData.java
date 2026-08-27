@@ -4,7 +4,10 @@ import com.google.gson.JsonElement;
 import java.util.Optional;
 
 /**
- * Typed key-value JSON storage for a player's module data.
+ * Stores JSON data for one player and one module.
+ *
+ * <p>A key must start with a lowercase letter. It can contain lowercase
+ * letters, digits, and underscores. Its maximum length is 64 characters.</p>
  */
 public interface PlayerModuleData
 {
@@ -22,7 +25,7 @@ public interface PlayerModuleData
      * @param key data key
      * @param type target type
      * @param <T> target type
-     * @return mapped value, if present
+     * @return mapped value, or an empty result if the value is absent or has a different type
      */
     <T> Optional<T> get(String key, Class<T> type);
 
@@ -65,7 +68,7 @@ public interface PlayerModuleData
      * Stores a Java value as JSON.
      *
      * @param key data key
-     * @param value value to serialize and store
+     * @param value value to convert to JSON and store
      */
     void set(String key, Object value);
 

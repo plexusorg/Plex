@@ -7,6 +7,7 @@ import dev.plex.module.PlexModuleFile;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.Objects;
 
 final class DefaultModulesApi implements ModulesApi
 {
@@ -28,7 +29,7 @@ final class DefaultModulesApi implements ModulesApi
     @Override
     public Optional<PlexModuleFile> module(String name)
     {
-        String normalizedName = name.toLowerCase(Locale.ROOT);
+        String normalizedName = Objects.requireNonNull(name, "name").toLowerCase(Locale.ROOT);
         return loadedModules().stream()
                 .filter(module -> module.getName().toLowerCase(Locale.ROOT).equals(normalizedName))
                 .findFirst();

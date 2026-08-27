@@ -1,13 +1,15 @@
 package dev.plex.listener.impl;
 
 import dev.plex.Plex;
+import dev.plex.api.listener.EventRule;
 import dev.plex.listener.ServerListenerBase;
 import dev.plex.services.impl.TimingService;
 import dev.plex.util.PlexUtils;
 
 import java.util.UUID;
 
-import org.bukkit.event.EventHandler;
+import org.bukkit.entity.Player;
+import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
@@ -17,28 +19,19 @@ public class AntiNukerListener extends ServerListenerBase
     public AntiNukerListener(Plex plugin)
     {
         super(plugin);
+        plugin.getApi().listeners().register(this,
+                EventRule.of(BlockPlaceEvent.class, EventPriority.HIGH, event -> checkForNuker(event.getPlayer(), event)),
+                EventRule.of(BlockBreakEvent.class, EventPriority.HIGH, event -> checkForNuker(event.getPlayer(), event)));
     }
 
-    @EventHandler(priority = EventPriority.HIGH)
-    public void onBlockPlace(BlockPlaceEvent event)
+    private void checkForNuker(Player player, Cancellable event)
     {
-        TimingService.nukerCooldown.merge(event.getPlayer().getUniqueId(), 1L, Long::sum);
-        if (getCount(event.getPlayer().getUniqueId()) > 200L)
+        UUID uuid = player.getUniqueId();
+        TimingService.nukerCooldown.merge(uuid, 1L, Long::sum);
+        if (getCount(uuid) > 200L)
         {
-            TimingService.strikes.merge(event.getPlayer().getUniqueId(), 1L, Long::sum);
-            event.getPlayer().kick(PlexUtils.messageComponent("nukerKickMessage"));
-            event.setCancelled(true);
-        }
-    }
-
-    @EventHandler(priority = EventPriority.HIGH)
-    public void onBlockBreak(BlockBreakEvent event)
-    {
-        TimingService.nukerCooldown.merge(event.getPlayer().getUniqueId(), 1L, Long::sum);
-        if (getCount(event.getPlayer().getUniqueId()) > 200L)
-        {
-            TimingService.strikes.merge(event.getPlayer().getUniqueId(), 1L, Long::sum);
-            event.getPlayer().kick(PlexUtils.messageComponent("nukerKickMessage"));
+            TimingService.strikes.merge(uuid, 1L, Long::sum);
+            player.kick(PlexUtils.messageComponent("nukerKickMessage"));
             event.setCancelled(true);
         }
     }

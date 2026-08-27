@@ -1,24 +1,29 @@
 package dev.plex.module;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.regex.Pattern;
 
 /**
- * Metadata read from a module's module.yml file.
+ * Information read from a module's module.yml file.
+ * A module name can contain letters, digits, periods, underscores, and hyphens.
+ * Its maximum length is 64 characters.
  */
 public final class PlexModuleFile
 {
+    private static final Pattern NAME_PATTERN = Pattern.compile("[A-Za-z0-9][A-Za-z0-9._-]{0,63}");
     private final String name;
     private final String main;
     private final String description;
     private final String version;
     private final int apiCompatibility;
-    private List<String> libraries = List.of();
-    private List<String> repositories = List.of();
-    private boolean updaterEnabled = true;
-    private List<String> updateUrls = List.of();
+    private final List<String> libraries;
+    private final List<String> repositories;
+    private final boolean updaterEnabled;
+    private final List<String> updateUrls;
 
     /**
-     * Creates module metadata.
+     * Creates module information.
      *
      * @param name module name
      * @param main main module class
@@ -28,11 +33,39 @@ public final class PlexModuleFile
      */
     public PlexModuleFile(String name, String main, String description, String version, int apiCompatibility)
     {
+        this(name, main, description, version, apiCompatibility, List.of(), List.of(), true, List.of());
+    }
+
+    /**
+     * Creates module data.
+     *
+     * @param name module name
+     * @param main main module class
+     * @param description module description
+     * @param version module version
+     * @param apiCompatibility required Plex API version
+     * @param libraries dependency libraries
+     * @param repositories Maven repositories
+     * @param updaterEnabled whether module updates are enabled
+     * @param updateUrls custom update base URLs
+     */
+    public PlexModuleFile(String name, String main, String description, String version, int apiCompatibility,
+                          List<String> libraries, List<String> repositories, boolean updaterEnabled,
+                          List<String> updateUrls)
+    {
+        if (name == null || !NAME_PATTERN.matcher(name).matches())
+        {
+            throw new IllegalArgumentException("name is not a valid module name");
+        }
         this.name = name;
-        this.main = main;
-        this.description = description;
-        this.version = version;
+        this.main = Objects.requireNonNull(main, "main");
+        this.description = Objects.requireNonNull(description, "description");
+        this.version = Objects.requireNonNull(version, "version");
         this.apiCompatibility = apiCompatibility;
+        this.libraries = List.copyOf(Objects.requireNonNull(libraries, "libraries"));
+        this.repositories = List.copyOf(Objects.requireNonNull(repositories, "repositories"));
+        this.updaterEnabled = updaterEnabled;
+        this.updateUrls = updateUrls == null ? List.of() : List.copyOf(updateUrls);
     }
 
     /**
@@ -96,16 +129,6 @@ public final class PlexModuleFile
     }
 
     /**
-     * Sets dependency libraries declared by the module.
-     *
-     * @param libraries dependency libraries
-     */
-    public void setLibraries(List<String> libraries)
-    {
-        this.libraries = List.copyOf(libraries);
-    }
-
-    /**
      * Returns Maven repositories declared by the module.
      *
      * @return Maven repositories declared by the module
@@ -113,16 +136,6 @@ public final class PlexModuleFile
     public List<String> getRepositories()
     {
         return repositories;
-    }
-
-    /**
-     * Sets Maven repositories declared by the module.
-     *
-     * @param repositories Maven repositories
-     */
-    public void setRepositories(List<String> repositories)
-    {
-        this.repositories = List.copyOf(repositories);
     }
 
     /**
@@ -136,20 +149,9 @@ public final class PlexModuleFile
     }
 
     /**
-     * Sets whether Plex should include this module in module update commands.
-     *
-     * @param updaterEnabled whether module updates are enabled
-     */
-    public void setUpdaterEnabled(boolean updaterEnabled)
-    {
-        this.updaterEnabled = updaterEnabled;
-    }
-
-    /**
      * Returns custom updater base URLs declared by the module.
      *
-     * <p>An empty list means Plex should use the built-in first-party updater
-     * endpoints.</p>
+     * <p>An empty list tells Plex to use its default update URLs.</p>
      *
      * @return custom updater base URLs
      */
@@ -158,13 +160,4 @@ public final class PlexModuleFile
         return updateUrls;
     }
 
-    /**
-     * Sets custom updater base URLs declared by the module.
-     *
-     * @param updateUrls custom updater base URLs
-     */
-    public void setUpdateUrls(List<String> updateUrls)
-    {
-        this.updateUrls = updateUrls == null ? List.of() : List.copyOf(updateUrls);
-    }
 }

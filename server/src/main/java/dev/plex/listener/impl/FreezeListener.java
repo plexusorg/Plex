@@ -2,9 +2,11 @@ package dev.plex.listener.impl;
 
 import dev.plex.Plex;
 
+import dev.plex.api.listener.EventRule;
 import dev.plex.listener.ServerListenerBase;
 import dev.plex.player.PlexPlayer;
-import org.bukkit.event.EventHandler;
+import java.util.UUID;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
@@ -13,25 +15,14 @@ public class FreezeListener extends ServerListenerBase
     public FreezeListener(Plex plugin)
     {
         super(plugin);
+        plugin.getApi().listeners().register(this,
+                EventRule.blocking(PlayerMoveEvent.class, EventPriority.NORMAL, event -> isFrozen(event.getPlayer().getUniqueId())),
+                EventRule.blocking(PlayerTeleportEvent.class, EventPriority.NORMAL, event -> isFrozen(event.getPlayer().getUniqueId())));
     }
 
-    @EventHandler
-    public void onPlayerMove(PlayerMoveEvent e)
+    private boolean isFrozen(UUID uuid)
     {
-        PlexPlayer player = plugin.getPlayerService().getPlayer(e.getPlayer().getUniqueId());
-        if (player.isFrozen())
-        {
-            e.setCancelled(true);
-        }
-    }
-
-    @EventHandler
-    public void onPlayerTeleport(PlayerTeleportEvent e)
-    {
-        PlexPlayer player = plugin.getPlayerService().getPlayer(e.getPlayer().getUniqueId());
-        if (player.isFrozen())
-        {
-            e.setCancelled(true);
-        }
+        PlexPlayer plexPlayer = plugin.getPlayerService().getPlayer(uuid);
+        return plexPlayer.isFrozen();
     }
 }

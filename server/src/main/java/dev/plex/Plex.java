@@ -6,7 +6,6 @@ import dev.plex.cache.PlayerCache;
 import dev.plex.command.PlexCommand;
 import dev.plex.command.ServerCommand;
 import dev.plex.config.Config;
-import dev.plex.config.ModuleConfig;
 import dev.plex.handlers.CommandHandler;
 import dev.plex.handlers.ListenerHandler;
 import dev.plex.hook.CoreProtectHook;
@@ -135,7 +134,6 @@ public class Plex extends JavaPlugin
                 return Plex.this;
             }
         });
-        ModuleConfig.setFactory((module, from, to) -> api.moduleConfigs().create(module, from, to));
     }
 
     @Override

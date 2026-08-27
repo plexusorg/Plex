@@ -27,9 +27,9 @@ public interface PlayersApi
     Optional<? extends PlexPlayerView> byName(String name);
 
     /**
-     * Returns the names of currently online players.
+     * Returns the names of online players.
      *
-     * @return names of currently online players
+     * @return names of online players
      */
     List<String> onlineNames();
 

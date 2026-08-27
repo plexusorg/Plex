@@ -12,13 +12,20 @@ import org.bukkit.entity.Entity;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Scheduling facade for Paper and Folia-safe task execution.
+ * Runs tasks on Paper and Folia schedulers.
  */
 public interface SchedulerApi
 {
     /**
-     * Executor backed by Paper's async scheduler.
-     * Use it for blocking I/O and CPU work that does not touch Bukkit world,
+     * Creates a task group that can cancel all of its tasks.
+     *
+     * @return new task group
+     */
+    TaskScope taskScope();
+
+    /**
+     * Returns an executor that uses Paper's asynchronous scheduler.
+     * Use it for blocking I/O and CPU work that does not use Bukkit world,
      * entity, inventory, or command state.
      *
      * @return async scheduler executor
@@ -26,10 +33,8 @@ public interface SchedulerApi
     Executor asyncExecutor();
 
     /**
-     * Executes work on the global region.
-     * Use the global region for state owned by Folia's global region, such as
-     * console command dispatch, world time, weather, game rules, and plugin-level
-     * coordination work.
+     * Runs work on the global region.
+     * Use it for console commands, world time, weather, game rules, and plugin state.
      *
      * @param task task to execute
      */
@@ -126,7 +131,7 @@ public interface SchedulerApi
     }
 
     /**
-     * Runs async work after a wall-clock delay.
+     * Runs asynchronous work after a time delay.
      *
      * @param task task consumer receiving the scheduled task
      * @param delay delay amount
@@ -137,7 +142,7 @@ public interface SchedulerApi
     ScheduledTask runAsyncLater(Consumer<ScheduledTask> task, long delay, TimeUnit unit);
 
     /**
-     * Runs async work after a wall-clock delay.
+     * Runs asynchronous work after a time delay.
      *
      * @param task task to run
      * @param delay delay amount
@@ -151,7 +156,7 @@ public interface SchedulerApi
     }
 
     /**
-     * Runs repeating async work on a wall-clock interval.
+     * Runs repeating asynchronous work at a time interval.
      *
      * @param task task consumer receiving the scheduled task
      * @param delay initial delay amount
@@ -163,7 +168,7 @@ public interface SchedulerApi
     ScheduledTask runAsyncTimer(Consumer<ScheduledTask> task, long delay, long period, TimeUnit unit);
 
     /**
-     * Runs repeating async work on a wall-clock interval.
+     * Runs repeating asynchronous work at a time interval.
      *
      * @param task task to run
      * @param delay initial delay amount
@@ -178,16 +183,16 @@ public interface SchedulerApi
     }
 
     /**
-     * Executes work on the region that owns the supplied location.
+     * Runs work on the region that owns the location.
      * Use this for block, chunk, and location-bound world access.
      *
-     * @param location location whose owning region should run the task
+     * @param location location for the task region
      * @param task task to execute
      */
     void executeRegion(Location location, Runnable task);
 
     /**
-     * Executes work on the region that owns the supplied chunk.
+     * Runs work on the region that owns the chunk.
      * Use this for block, chunk, and location-bound world access.
      *
      * @param world world containing the chunk
@@ -198,9 +203,9 @@ public interface SchedulerApi
     void executeRegion(World world, int chunkX, int chunkZ, Runnable task);
 
     /**
-     * Runs work on the next tick of the region that owns the supplied location.
+     * Runs work on the next tick of the location's region.
      *
-     * @param location location whose owning region should run the task
+     * @param location location for the task region
      * @param task task consumer receiving the scheduled task
      * @return scheduled task handle
      * @see #executeRegion(Location, Runnable)
@@ -208,9 +213,9 @@ public interface SchedulerApi
     ScheduledTask runRegion(Location location, Consumer<ScheduledTask> task);
 
     /**
-     * Runs work on the next tick of the region that owns the supplied location.
+     * Runs work on the next tick of the location's region.
      *
-     * @param location location whose owning region should run the task
+     * @param location location for the task region
      * @param task task to run
      * @return scheduled task handle
      * @see #runRegion(Location, Consumer)
@@ -221,7 +226,7 @@ public interface SchedulerApi
     }
 
     /**
-     * Runs work on the next tick of the region that owns the supplied chunk.
+     * Runs work on the next tick of the chunk's region.
      *
      * @param world world containing the chunk
      * @param chunkX chunk X coordinate
@@ -233,7 +238,7 @@ public interface SchedulerApi
     ScheduledTask runRegion(World world, int chunkX, int chunkZ, Consumer<ScheduledTask> task);
 
     /**
-     * Runs work on the next tick of the region that owns the supplied chunk.
+     * Runs work on the next tick of the chunk's region.
      *
      * @param world world containing the chunk
      * @param chunkX chunk X coordinate
@@ -250,7 +255,7 @@ public interface SchedulerApi
     /**
      * Runs work on a location's owning region after a tick delay.
      *
-     * @param location location whose owning region should run the task
+     * @param location location for the task region
      * @param task task consumer receiving the scheduled task
      * @param delayTicks delay in server ticks
      * @return scheduled task handle
@@ -261,7 +266,7 @@ public interface SchedulerApi
     /**
      * Runs work on a location's owning region after a tick delay.
      *
-     * @param location location whose owning region should run the task
+     * @param location location for the task region
      * @param task task to run
      * @param delayTicks delay in server ticks
      * @return scheduled task handle
@@ -360,22 +365,21 @@ public interface SchedulerApi
     }
 
     /**
-     * Executes work on the region that currently owns the entity.
+     * Runs work on the region that owns the entity.
      * Use this for player and entity state access, inventory changes, kicks,
-     * teleports, passengers, potion effects, and other entity-bound work.
-     * Paper runs the retired callback if the entity is removed before the task
-     * can execute.
+     * teleports, passengers, potion effects, and other entity work.
+     * Paper runs the retired action if it removes the entity before the task runs.
      *
      * @param entity entity whose scheduler should run the task
      * @param task task to execute
-     * @param retired callback run if the entity retires before execution
+     * @param retired action to run if Paper removes the entity first
      * @param delayTicks delay in server ticks
      * @return true if Paper accepted the task
      */
     boolean executeEntity(Entity entity, Runnable task, @Nullable Runnable retired, long delayTicks);
 
     /**
-     * Executes work on the region that currently owns the entity.
+     * Runs work on the region that owns the entity.
      *
      * @param entity entity whose scheduler should run the task
      * @param task task to execute
@@ -393,7 +397,7 @@ public interface SchedulerApi
      *
      * @param entity entity whose scheduler should run the task
      * @param task task consumer receiving the scheduled task
-     * @param retired callback run if the entity retires before execution
+     * @param retired action to run if Paper removes the entity first
      * @return scheduled task handle, or {@code null} if the entity is retired
      * @see #executeEntity(Entity, Runnable, Runnable, long)
      */
@@ -418,7 +422,7 @@ public interface SchedulerApi
      *
      * @param entity entity whose scheduler should run the task
      * @param task task consumer receiving the scheduled task
-     * @param retired callback run if the entity retires before execution
+     * @param retired action to run if Paper removes the entity first
      * @param delayTicks delay in server ticks
      * @return scheduled task handle, or {@code null} if the entity is retired
      * @see #executeEntity(Entity, Runnable, Runnable, long)
@@ -445,7 +449,7 @@ public interface SchedulerApi
      *
      * @param entity entity whose scheduler should run the task
      * @param task task consumer receiving the scheduled task
-     * @param retired callback run if the entity retires before execution
+     * @param retired action to run if Paper removes the entity first
      * @param delayTicks initial delay in server ticks
      * @param periodTicks repeat interval in server ticks
      * @return scheduled task handle, or {@code null} if the entity is retired
@@ -469,13 +473,4 @@ public interface SchedulerApi
         return runEntityTimer(entity, scheduledTask -> task.run(), null, delayTicks, periodTicks);
     }
 
-    /**
-     * Cancels all global-region tasks owned by Plex.
-     */
-    void cancelGlobalTasks();
-
-    /**
-     * Cancels all async tasks owned by Plex.
-     */
-    void cancelAsyncTasks();
 }

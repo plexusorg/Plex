@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 import dev.plex.api.punishment.PunishmentView;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Read-only view of a Plex player.
@@ -68,15 +69,13 @@ public interface PlexPlayerView
      *
      * @return whether staff-chat mode is enabled
      */
-    default boolean staffChat()
-    {
-        return false;
-    }
+    boolean staffChat();
 
     /**
      * Returns the Bukkit player instance.
      *
      * @return Bukkit player instance, or {@code null} when the player is offline
      */
+    @Nullable
     Player bukkitPlayer();
 }

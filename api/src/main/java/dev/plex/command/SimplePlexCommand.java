@@ -37,7 +37,7 @@ import org.jetbrains.annotations.Nullable;
  *
  * <p>Commands that need a custom Brigadier tree can override
  * {@link #configureCommand(LiteralArgumentBuilder)} while keeping the same
- * metadata and helper methods.</p>
+ * command definition and helper methods.</p>
  */
 public abstract class SimplePlexCommand implements PlexCommand
 {
@@ -46,9 +46,9 @@ public abstract class SimplePlexCommand implements PlexCommand
     private PlexModule module;
 
     /**
-     * Creates a command using explicit command metadata.
+     * Creates a command from a command definition.
      *
-     * @param commandSpec command metadata
+     * @param commandSpec command definition
      */
     protected SimplePlexCommand(CommandSpec commandSpec)
     {
@@ -126,7 +126,7 @@ public abstract class SimplePlexCommand implements PlexCommand
      * @param alias command alias used by the sender
      * @param args current command arguments
      * @return suggested completions
-     * @throws IllegalArgumentException when suggestions cannot be produced for the supplied arguments
+     * @throws IllegalArgumentException if the arguments are invalid
      */
     protected @NotNull List<String> suggestions(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
     {
@@ -362,7 +362,7 @@ public abstract class SimplePlexCommand implements PlexCommand
     }
 
     /**
-     * Returns the names of currently online players.
+     * Returns the names of online players.
      *
      * @return online player names
      */
@@ -375,7 +375,7 @@ public abstract class SimplePlexCommand implements PlexCommand
      * Converts ampersand-colorized legacy text to a gray-default component.
      *
      * @param value legacy text
-     * @return deserialized component
+     * @return message component
      */
     protected Component componentFromString(String value)
     {
@@ -386,7 +386,7 @@ public abstract class SimplePlexCommand implements PlexCommand
      * Converts ampersand-colorized legacy text to a component without adding a default color.
      *
      * @param value legacy text
-     * @return deserialized component
+     * @return message component
      */
     protected Component noColorComponentFromString(String value)
     {
@@ -397,7 +397,7 @@ public abstract class SimplePlexCommand implements PlexCommand
      * Converts MiniMessage-formatted text to a component.
      *
      * @param value MiniMessage-formatted text
-     * @return deserialized component
+     * @return message component
      */
     protected Component mmString(String value)
     {

@@ -7,13 +7,14 @@ import java.util.function.Consumer;
 import net.kyori.adventure.text.Component;
 
 /**
- * Registers and unregisters Plex commands with the running platform.
+ * Registers and unregisters Plex commands.
  *
- * <p>Commands are installed through Paper's Brigadier command lifecycle. A command
- * registered before that lifecycle event is active in the current server command
- * tree. A command registered or unregistered after that lifecycle event is staged
- * in Plex's registry and takes effect the next time Paper rebuilds lifecycle
- * commands, such as on a full server restart.</p>
+ * <p>Register commands during module load. Paper can then add them to the
+ * command list for the current server run. Later changes usually require a
+ * server restart.</p>
+ *
+ * <p>Modules must use the methods on {@link dev.plex.module.PlexModule} so that
+ * Plex can unregister their commands during module unload.</p>
  */
 public interface CommandApi
 {
@@ -27,39 +28,36 @@ public interface CommandApi
     /**
      * Unregisters a command from Plex.
      *
-     * <p>If Paper's Brigadier lifecycle has already registered commands for this
-     * server run, the command may remain in the active dispatcher until Paper
-     * rebuilds lifecycle commands.</p>
+     * <p>The command can remain active until Paper rebuilds its command list.
+     * This usually happens after a server restart.</p>
      *
      * @param command command to unregister
      */
     void unregister(PlexCommand command);
 
     /**
-     * Returns the commands currently tracked by Plex.
+     * Returns the commands tracked by Plex.
      *
      * @return registered commands
      */
     List<PlexCommand> registeredCommands();
 
     /**
-     * Returns whether command changes are staged for the next Paper command
-     * lifecycle rebuild.
+     * Checks if command changes require Paper to rebuild its command list.
      *
-     * @return {@code true} when command registration or unregistration changed
-     *         after the active command lifecycle was built
+     * @return {@code true} if Paper must rebuild the command list
      */
     boolean requiresLifecycleReload();
 
     /**
-     * Dispatches a console-capable command with a human-readable audit identity.
-     * The command must be invoked from the server's global command thread.
+     * Runs a command as the console and records the given actor.
+     * Call this method from the global server thread.
      *
-     * @param identityId UUID exposed as the command actor
-     * @param identityName name exposed by Plex command contexts
+     * @param identityId actor UUID
+     * @param identityName actor name
      * @param command command line without a leading slash
      * @param feedback receiver for command feedback
-     * @return whether the command was accepted by the dispatcher
+     * @return {@code true} if Paper accepted the command
      */
     boolean dispatchAsConsole(UUID identityId, String identityName, String command, Consumer<? super Component> feedback);
 }

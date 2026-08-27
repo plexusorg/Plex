@@ -6,14 +6,14 @@ import java.util.Collection;
 import java.util.Optional;
 
 /**
- * Public module metadata access exposed to modules.
+ * Provides information about loaded modules.
  */
 public interface ModulesApi
 {
     /**
-     * Returns metadata for all currently discovered modules.
+     * Returns information about all loaded modules.
      *
-     * @return immutable metadata for all currently discovered modules
+     * @return immutable information about all loaded modules
      */
     Collection<PlexModuleFile> loadedModules();
 
@@ -21,7 +21,7 @@ public interface ModulesApi
      * Looks up a module by name.
      *
      * @param name module name from module.yml
-     * @return module metadata, if a module with this name is loaded
+     * @return module information, if a module with this name is loaded
      */
     Optional<PlexModuleFile> module(String name);
 }

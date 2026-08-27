@@ -176,7 +176,17 @@ public class PunishmentManager
 
     public CompletableFuture<Void> unban(UUID uuid)
     {
-        return plugin.getPunishmentRepository().removeBan(uuid);
+        return plugin.getPunishmentRepository().removeBan(uuid).thenRun(() ->
+        {
+            PlexPlayer player = plugin.getPlayerService().getPlayer(uuid);
+            if (player == null)
+            {
+                return;
+            }
+            player.getPunishments().stream()
+                    .filter(punishment -> punishment.getType() == PunishmentType.BAN || punishment.getType() == PunishmentType.TEMPBAN)
+                    .forEach(punishment -> punishment.setActive(false));
+        });
     }
 
     public void updateOutdatedPunishments(PlexPlayer player)

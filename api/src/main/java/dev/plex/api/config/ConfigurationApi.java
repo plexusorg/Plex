@@ -1,7 +1,7 @@
 package dev.plex.api.config;
 
 /**
- * Public configuration access exposed to modules.
+ * Provides read-only access to shared Plex configuration files.
  */
 public interface ConfigurationApi
 {

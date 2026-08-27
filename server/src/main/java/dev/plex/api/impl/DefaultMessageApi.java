@@ -13,5 +13,5 @@ final class DefaultMessageApi implements MessageApi
     @Override public Component miniMessage(String input) { return PlexUtils.mmDeserialize(input); }
     @Override public void broadcast(String miniMessage) { PlexUtils.broadcast(miniMessage); }
     @Override public void broadcast(Component component) { PlexUtils.broadcast(component); }
-    @Override public List<String> onlinePlayerNames() { return PlexUtils.getPlayerNameList(); }
+    @Override public List<String> onlinePlayerNames() { return List.copyOf(PlexUtils.getPlayerNameList()); }
 }

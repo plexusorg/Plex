@@ -13,7 +13,7 @@ public interface ModuleConfigApi
      * @param module module that owns the configuration
      * @param from resource path to copy defaults from
      * @param to destination file path relative to the module data folder
-     * @return module configuration wrapper
+     * @return module configuration
      */
     ModuleConfiguration create(PlexModule module, String from, String to);
 }

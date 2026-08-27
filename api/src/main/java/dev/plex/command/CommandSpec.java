@@ -4,9 +4,13 @@ import dev.plex.command.source.RequiredCommandSource;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+import java.util.regex.Pattern;
 
 /**
- * Explicit metadata for a Plex command.
+ * Defines a Plex command.
+ * Command names and aliases can contain lowercase letters, digits, colons,
+ * underscores, and hyphens.
  *
  * @param name primary command name
  * @param description short command description
@@ -23,6 +27,26 @@ public record CommandSpec(
         String permission,
         RequiredCommandSource requiredSource)
 {
+    private static final Pattern LABEL_PATTERN = Pattern.compile("[a-z0-9][a-z0-9:_-]*");
+
+    /**
+     * Creates and validates command data.
+     */
+    public CommandSpec
+    {
+        String commandName = requireLabel(name, "name");
+        name = commandName;
+        description = Objects.requireNonNullElse(description, "");
+        usage = Objects.requireNonNullElse(usage, "/<command>");
+        aliases = aliases == null ? List.of() : aliases.stream()
+                .map(alias -> requireLabel(alias, "alias"))
+                .filter(alias -> !alias.equals(commandName))
+                .distinct()
+                .toList();
+        permission = Objects.requireNonNullElse(permission, "");
+        requiredSource = Objects.requireNonNullElse(requiredSource, RequiredCommandSource.ANY);
+    }
+
     /**
      * Creates a command spec builder for the given primary name.
      *
@@ -148,7 +172,16 @@ public record CommandSpec(
          */
         public CommandSpec build()
         {
-            return new CommandSpec(name, description, usage, List.copyOf(aliases), permission, requiredSource);
+            return new CommandSpec(name, description, usage, aliases, permission, requiredSource);
         }
+    }
+
+    private static String requireLabel(String value, String field)
+    {
+        if (value == null || !LABEL_PATTERN.matcher(value).matches())
+        {
+            throw new IllegalArgumentException(field + " is not a valid command label");
+        }
+        return value;
     }
 }

@@ -2,6 +2,7 @@ package dev.plex.api.impl;
 
 import dev.plex.Plex;
 import dev.plex.api.scheduler.SchedulerApi;
+import dev.plex.api.scheduler.TaskScope;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 
 import java.util.concurrent.Executor;
@@ -23,6 +24,12 @@ final class DefaultSchedulerApi implements SchedulerApi
     {
         this.plugin = plugin;
         this.asyncExecutor = task -> Bukkit.getAsyncScheduler().runNow(plugin, scheduledTask -> task.run());
+    }
+
+    @Override
+    public TaskScope taskScope()
+    {
+        return new DefaultTaskScope(this);
     }
 
     @Override
@@ -145,15 +152,4 @@ final class DefaultSchedulerApi implements SchedulerApi
         return entity.getScheduler().runAtFixedRate(plugin, task, retired, delayTicks, periodTicks);
     }
 
-    @Override
-    public void cancelGlobalTasks()
-    {
-        Bukkit.getGlobalRegionScheduler().cancelTasks(plugin);
-    }
-
-    @Override
-    public void cancelAsyncTasks()
-    {
-        Bukkit.getAsyncScheduler().cancelTasks(plugin);
-    }
 }

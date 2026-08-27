@@ -1,12 +1,17 @@
 package dev.plex.listener.impl;
 
 import dev.plex.Plex;
+import dev.plex.api.listener.EventRule;
 import dev.plex.listener.ServerListenerBase;
 import dev.plex.world.WorldSpawnSignManager;
 import java.util.List;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
+import org.bukkit.event.Cancellable;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -37,84 +42,29 @@ public final class WorldSpawnSignListener extends ServerListenerBase
     {
         super(plugin);
         this.signManager = plugin.getWorldSpawnSignManager();
+        registerProtectionEvents();
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
-    public void onBlockBreak(BlockBreakEvent event)
+    private void registerProtectionEvents()
     {
-        cancelAndRestore(event.getBlock(), event);
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
-    public void onBlockDamage(BlockDamageEvent event)
-    {
-        cancelAndRestore(event.getBlock(), event);
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
-    public void onBlockPlace(BlockPlaceEvent event)
-    {
-        cancelAndRestore(event.getBlockPlaced(), event);
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
-    public void onBlockBurn(BlockBurnEvent event)
-    {
-        cancelAndRestore(event.getBlock(), event);
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
-    public void onBlockFade(BlockFadeEvent event)
-    {
-        cancelAndRestore(event.getBlock(), event);
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
-    public void onBlockForm(BlockFormEvent event)
-    {
-        cancelAndRestore(event.getBlock(), event);
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
-    public void onBlockFlow(BlockFromToEvent event)
-    {
-        cancelAndRestore(event.getToBlock(), event);
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
-    public void onBlockPhysics(BlockPhysicsEvent event)
-    {
-        if (signManager.isProtected(event.getBlock()) || signManager.isProtected(event.getSourceBlock()))
-        {
-            event.setCancelled(true);
-        }
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
-    public void onEntityChangeBlock(EntityChangeBlockEvent event)
-    {
-        cancelAndRestore(event.getBlock(), event);
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
-    public void onSignChange(SignChangeEvent event)
-    {
-        if (signManager.isSign(event.getBlock()))
-        {
-            event.setCancelled(true);
-            signManager.restore(event.getBlock().getWorld());
-        }
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
-    public void onPlayerInteract(PlayerInteractEvent event)
-    {
-        Block block = event.getClickedBlock();
-        if (block != null && signManager.isSign(block))
-        {
-            event.setCancelled(true);
-            signManager.restore(block.getWorld());
-        }
+        EventRule<?>[] rules = {
+            blockRule(BlockBreakEvent.class, BlockBreakEvent::getBlock),
+            blockRule(BlockDamageEvent.class, BlockDamageEvent::getBlock),
+            blockRule(BlockPlaceEvent.class, BlockPlaceEvent::getBlockPlaced),
+            blockRule(BlockBurnEvent.class, BlockBurnEvent::getBlock),
+            blockRule(BlockFadeEvent.class, BlockFadeEvent::getBlock),
+            blockRule(BlockFormEvent.class, BlockFormEvent::getBlock),
+            blockRule(BlockFromToEvent.class, BlockFromToEvent::getToBlock),
+            blockRule(EntityChangeBlockEvent.class, EntityChangeBlockEvent::getBlock),
+            rule(BlockPhysicsEvent.class, event -> signManager.isProtected(event.getBlock()) || signManager.isProtected(event.getSourceBlock()), event -> event.getBlock().getWorld()),
+            rule(SignChangeEvent.class, event -> signManager.isSign(event.getBlock()), event -> event.getBlock().getWorld()),
+            rule(PlayerInteractEvent.class, event -> event.getClickedBlock() != null && signManager.isSign(event.getClickedBlock()), event -> event.getClickedBlock().getWorld()),
+            blockStateRule(BlockFertilizeEvent.class, BlockFertilizeEvent::getBlocks, event -> event.getBlock().getWorld()),
+            blockStateRule(StructureGrowEvent.class, StructureGrowEvent::getBlocks, event -> event.getLocation().getWorld()),
+            blockStateRule(SpongeAbsorbEvent.class, SpongeAbsorbEvent::getBlocks, event -> event.getBlock().getWorld()),
+            blockStateRule(PortalCreateEvent.class, PortalCreateEvent::getBlocks, PortalCreateEvent::getWorld),
+        };
+        plugin.getApi().listeners().register(this, rules);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
@@ -150,30 +100,6 @@ public final class WorldSpawnSignListener extends ServerListenerBase
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
-    public void onFertilize(BlockFertilizeEvent event)
-    {
-        protectBlockStates(event.getBlocks(), event.getBlock().getWorld(), event);
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
-    public void onStructureGrow(StructureGrowEvent event)
-    {
-        protectBlockStates(event.getBlocks(), event.getLocation().getWorld(), event);
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
-    public void onSpongeAbsorb(SpongeAbsorbEvent event)
-    {
-        protectBlockStates(event.getBlocks(), event.getBlock().getWorld(), event);
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
-    public void onPortalCreate(PortalCreateEvent event)
-    {
-        protectBlockStates(event.getBlocks(), event.getWorld(), event);
-    }
-
     private void protectExplosion(List<Block> blocks, World world)
     {
         if (blocks.removeIf(signManager::isProtected))
@@ -187,21 +113,26 @@ public final class WorldSpawnSignListener extends ServerListenerBase
         return blocks.stream().anyMatch(block -> signManager.isProtected(block) || signManager.isProtected(block.getRelative(direction)));
     }
 
-    private void protectBlockStates(List<BlockState> blocks, World world, org.bukkit.event.Cancellable event)
+    private <E extends Event & Cancellable> EventRule<E> blockRule(Class<E> eventType, Function<E, Block> block)
     {
-        if (blocks.stream().map(BlockState::getBlock).anyMatch(signManager::isProtected))
-        {
-            event.setCancelled(true);
-            signManager.restore(world);
-        }
+        return rule(eventType, event -> signManager.isProtected(block.apply(event)), event -> block.apply(event).getWorld());
     }
 
-    private void cancelAndRestore(Block block, org.bukkit.event.Cancellable event)
+    private <E extends Event & Cancellable> EventRule<E> blockStateRule(Class<E> eventType, Function<E, List<BlockState>> blocks, Function<E, World> world)
     {
-        if (signManager.isProtected(block))
+        return rule(eventType, event -> blocks.apply(event).stream().map(BlockState::getBlock).anyMatch(signManager::isProtected), world);
+    }
+
+    private <E extends Event & Cancellable> EventRule<E> rule(Class<E> eventType, Predicate<E> blocked, Function<E, World> world)
+    {
+        return EventRule.blocking(eventType, EventPriority.HIGHEST, event ->
         {
-            event.setCancelled(true);
-            signManager.restore(block.getWorld());
-        }
+            if (!blocked.test(event))
+            {
+                return false;
+            }
+            signManager.restore(world.apply(event));
+            return true;
+        });
     }
 }

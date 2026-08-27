@@ -14,101 +14,100 @@ import dev.plex.api.scheduler.SchedulerApi;
 import dev.plex.api.storage.StorageApi;
 
 /**
- * Public API facade exposed to Plex modules.
- *
- * <p>Keep this interface small and deliberate; adding a method here makes it
- * part of the supported module API contract.</p>
+ * Gives Plex modules access to supported services.
  */
 public interface PlexApi
 {
     /**
-     * Returns module API compatibility information for this Plex build.
+     * Returns the API version for this Plex build.
      *
-     * @return module API compatibility information for this Plex build
+     * @return API version information
      */
     ApiCompatibility compatibility();
 
     /**
-     * Returns access to shared Plex configuration files.
+     * Returns the shared Plex configuration files.
      *
-     * @return safe access to shared Plex configuration files
+     * @return shared Plex configuration files
      */
     ConfigurationApi configuration();
 
     /**
-     * Returns access to module metadata and module-related operations.
+     * Returns information about loaded modules.
      *
-     * @return safe access to module metadata and module-related operations
+     * @return loaded module information
      */
     ModulesApi modules();
 
     /**
-     * Returns command registration operations.
+     * Returns the command service.
      *
-     * @return command registration operations for Plex commands
+     * @return command service
      */
     CommandApi commands();
 
     /**
-     * Returns listener registration operations.
+     * Returns the listener service.
      *
-     * @return listener registration operations for Bukkit listeners
+     * @return listener service
      */
     ListenerApi listeners();
 
     /**
-     * Returns module configuration creation operations.
+     * Returns the module configuration service.
      *
-     * @return module configuration creation operations
+     * @return module configuration service
      */
     ModuleConfigApi moduleConfigs();
 
     /**
-     * Returns logging operations.
+     * Returns the logging service.
      *
-     * @return Plex logging operations
+     * @return logging service
      */
     LoggingApi logging();
 
     /**
-     * Returns message formatting and broadcast operations.
+     * Returns the message service.
      *
-     * @return message formatting and broadcast operations
+     * @return message service
      */
     MessageApi messages();
 
     /**
-     * Returns player lookup operations.
+     * Returns the player service.
      *
-     * @return player lookup operations
+     * @return player service
      */
     PlayersApi players();
 
     /**
-     * Returns punishment lookup and creation operations.
+     * Returns the punishment service.
      *
-     * @return punishment lookup and creation operations
+     * @return punishment service
      */
     PunishmentsApi punishments();
 
     /**
-     * Returns CoreProtect rollback operations.
+     * Returns the rollback service.
      *
-     * @return CoreProtect rollback operations
+     * @return rollback service
      */
     RollbackApi rollback();
 
     /**
-     * Returns Paper and Folia scheduler operations.
+     * Returns the task scheduler.
+     * Modules must use {@link dev.plex.module.PlexModule#scheduler()} so that
+     * Plex can cancel their tasks during module unload.
      *
-     * @return Paper and Folia scheduler operations
+     * @return task scheduler
      */
     SchedulerApi scheduler();
 
     /**
-     * Returns SQL storage access operations.
+     * Returns the SQL storage service.
      *
-     * @return SQL storage access operations
+     * @return SQL storage service
      */
     StorageApi storage();
 }

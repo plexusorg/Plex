@@ -6,16 +6,17 @@ import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
+import java.util.Objects;
 
 /**
- * Fired before Plex delivers a locally-originated staff-chat message.
+ * Fires before Plex sends a local staff chat message.
  *
- * <p>The event covers both a player's toggled staff-chat input and the direct
- * {@code /adminchat <message>} command form. It is not fired when a staff-chat
- * message is received from another server through Plex's Redis transport.</p>
+ * <p>This event applies to staff chat mode and to the
+ * {@code /adminchat <message>} command. It does not apply to messages from
+ * other servers.</p>
  *
- * <p>This event can be asynchronous. Listeners must check
- * {@link #isAsynchronous()} before accessing APIs which require a server or
+ * <p>This event can run asynchronously. Check {@link #isAsynchronous()}
+ * before you use APIs that require a server or
  * region thread.</p>
  */
 public final class StaffChatMessageEvent extends Event implements Cancellable
@@ -32,7 +33,7 @@ public final class StaffChatMessageEvent extends Event implements Cancellable
      *
      * @param sender sender of the message
      * @param message message to be delivered
-     * @param source input path which produced the message
+     * @param source source of the message
      * @param async whether the event is asynchronous
      */
     public StaffChatMessageEvent(
@@ -42,13 +43,13 @@ public final class StaffChatMessageEvent extends Event implements Cancellable
             boolean async)
     {
         super(async);
-        this.sender = sender;
-        this.message = message;
-        this.source = source;
+        this.sender = Objects.requireNonNull(sender, "sender");
+        this.message = Objects.requireNonNull(message, "message");
+        this.source = Objects.requireNonNull(source, "source");
     }
 
     /**
-     * Returns the player or console which sent the message.
+     * Returns the player or console that sent the message.
      *
      * @return message sender
      */
@@ -58,7 +59,7 @@ public final class StaffChatMessageEvent extends Event implements Cancellable
     }
 
     /**
-     * Returns the message which Plex will deliver.
+     * Returns the message that Plex will send.
      *
      * @return staff-chat message
      */
@@ -74,7 +75,7 @@ public final class StaffChatMessageEvent extends Event implements Cancellable
      */
     public void setMessage(@NotNull Component message)
     {
-        this.message = message;
+        this.message = Objects.requireNonNull(message, "message");
     }
 
     /**
@@ -116,7 +117,7 @@ public final class StaffChatMessageEvent extends Event implements Cancellable
     }
 
     /**
-     * Identifies the Plex input path which produced a staff-chat message.
+     * Identifies the source of a staff chat message.
      */
     public enum Source
     {

@@ -53,30 +53,13 @@ final class DefaultPlexConfiguration implements PlexConfiguration
     @Override
     public List<String> getStringList(String path)
     {
-        return config.getStringList(path);
+        return List.copyOf(config.getStringList(path));
     }
 
     @Override
     public List<String> getStringList(String path, List<String> fallback)
     {
-        return config.contains(path) ? config.getStringList(path) : fallback;
+        return List.copyOf(config.contains(path) ? config.getStringList(path) : fallback);
     }
 
-    @Override
-    public void set(String path, Object value)
-    {
-        config.set(path, value);
-    }
-
-    @Override
-    public void setComments(String path, List<String> comments)
-    {
-        config.setComments(path, comments);
-    }
-
-    @Override
-    public void save()
-    {
-        config.save();
-    }
 }

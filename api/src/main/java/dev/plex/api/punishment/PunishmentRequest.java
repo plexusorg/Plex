@@ -1,7 +1,9 @@
 package dev.plex.api.punishment;
 
 import java.time.ZonedDateTime;
+import java.util.Objects;
 import java.util.UUID;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Request payload used to create a punishment for a player.
@@ -17,9 +19,31 @@ import java.util.UUID;
  * @param active whether the punishment should start active
  * @param endDate punishment end date, or {@code null} for punishments without an end date
  */
-public record PunishmentRequest(UUID punished, UUID punisher, PunishmentSource source,
-                                String punisherReference, String ip, PunishmentType type,
+public record PunishmentRequest(UUID punished, @Nullable UUID punisher, PunishmentSource source,
+                                @Nullable String punisherReference, @Nullable String ip, PunishmentType type,
                                 String reason, boolean customTime, boolean active,
-                                ZonedDateTime endDate)
+                                @Nullable ZonedDateTime endDate)
 {
+    /**
+     * Creates and validates a punishment request.
+     */
+    public PunishmentRequest
+    {
+        Objects.requireNonNull(punished, "punished");
+        Objects.requireNonNull(source, "source");
+        Objects.requireNonNull(type, "type");
+        Objects.requireNonNull(reason, "reason");
+        if (source == PunishmentSource.PLAYER && punisher == null)
+        {
+            throw new IllegalArgumentException("A player punishment must have a punisher UUID");
+        }
+        if (customTime && endDate == null)
+        {
+            throw new IllegalArgumentException("A custom-time punishment must have an end date");
+        }
+        if (!customTime && endDate != null)
+        {
+            throw new IllegalArgumentException("A punishment without custom time must not have an end date");
+        }
+    }
 }

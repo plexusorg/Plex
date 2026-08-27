@@ -3,13 +3,13 @@ package dev.plex.module;
 import com.google.common.collect.Lists;
 import dev.plex.Plex;
 import dev.plex.module.exception.ModuleLoadException;
+import dev.plex.storage.module.ModuleNames;
 import dev.plex.util.PlexLog;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -48,9 +48,10 @@ public class ModuleManager
         {
             if (file.getName().endsWith(".jar"))
             {
+                URLClassLoader loader = null;
                 try
                 {
-                    URLClassLoader loader = new URLClassLoader(
+                    loader = new URLClassLoader(
                             new URL[]{file.toURI().toURL()},
                             Plex.class.getClassLoader()
                     );
@@ -65,9 +66,18 @@ public class ModuleManager
                     YamlConfiguration internalModuleConfig = YamlConfiguration.loadConfiguration(internalModuleFile);
 
                     String name = internalModuleConfig.getString("name");
-                    if (name == null)
+                    if (name == null || !name.matches("[A-Za-z0-9][A-Za-z0-9._-]{0,63}"))
                     {
-                        throw new ModuleLoadException("Plex module name can't be null!");
+                        throw new ModuleLoadException("Plex module name is invalid");
+                    }
+                    if (modules.stream().anyMatch(loaded -> loaded.getPlexModuleFile().getName().equalsIgnoreCase(name)))
+                    {
+                        throw new ModuleLoadException("Plex module name is already in use: " + name);
+                    }
+                    String storagePrefix = ModuleNames.prefix(name);
+                    if (modules.stream().anyMatch(loaded -> ModuleNames.prefix(loaded).equals(storagePrefix)))
+                    {
+                        throw new ModuleLoadException("Plex module storage name is already in use: " + storagePrefix);
                     }
 
                     String main = internalModuleConfig.getString("main");
@@ -107,12 +117,9 @@ public class ModuleManager
                             .filter(url -> !url.isBlank())
                             .toList());
 
-                    PlexModuleFile plexModuleFile = new PlexModuleFile(name, main, description, version, apiCompatibility);
-                    plexModuleFile.setLibraries(libraries);
-                    plexModuleFile.setRepositories(repositories);
-                    plexModuleFile.setUpdaterEnabled(updaterEnabled);
-                    plexModuleFile.setUpdateUrls(updateUrls);
-                    Class<? extends PlexModule> module = (Class<? extends PlexModule>) Class.forName(main, true, loader);
+                    PlexModuleFile plexModuleFile = new PlexModuleFile(name, main, description, version,
+                            apiCompatibility, libraries, repositories, updaterEnabled, updateUrls);
+                    Class<? extends PlexModule> module = Class.forName(main, true, loader).asSubclass(PlexModule.class);
 
                     PlexModule plexModule = module.getConstructor().newInstance();
                     plexModule.setApi(plugin.getApi());
@@ -127,15 +134,29 @@ public class ModuleManager
 
                     plexModule.setLogger(LogManager.getLogger(plexModuleFile.getName()));
                     modules.add(plexModule);
+                    loader = null;
                 }
-                catch (MalformedURLException | ClassNotFoundException | InvocationTargetException |
-                       InstantiationException | IllegalAccessException | NoSuchMethodException e)
+                catch (MalformedURLException | ReflectiveOperationException | ClassCastException e)
                 {
-                    e.printStackTrace();
+                    PlexLog.warn("Skipping module " + file.getName() + ": " + e.getMessage());
                 }
                 catch (ModuleLoadException e)
                 {
                     PlexLog.warn("Skipping module " + file.getName() + ": " + e.getMessage());
+                }
+                finally
+                {
+                    if (loader != null)
+                    {
+                        try
+                        {
+                            loader.close();
+                        }
+                        catch (IOException ex)
+                        {
+                            PlexLog.warn("Could not close module file " + file.getName() + ": " + ex.getMessage());
+                        }
+                    }
                 }
             }
         });
@@ -165,12 +186,32 @@ public class ModuleManager
         this.modules.forEach(module ->
         {
             PlexLog.log("Disabling module " + module.getPlexModuleFile().getName() + " with version " + module.getPlexModuleFile().getVersion());
-            module.getCommands().stream().toList().forEach(plexCommand ->
+            try
             {
-                module.unregisterCommand(plexCommand);
-            });
-            module.getListeners().stream().toList().forEach(module::unregisterListener);
-            module.disable();
+                module.disable();
+            }
+            catch (RuntimeException ex)
+            {
+                PlexLog.error("Module " + module.getPlexModuleFile().getName() + " failed to disable: " + ex.getMessage());
+            }
+            finally
+            {
+                try
+                {
+                    module.getCommands().forEach(module::unregisterCommand);
+                }
+                finally
+                {
+                    try
+                    {
+                        module.getListeners().forEach(module::unregisterListener);
+                    }
+                    finally
+                    {
+                        module.cancelTasks();
+                    }
+                }
+            }
         });
     }
 

@@ -2,8 +2,9 @@ package dev.plex.module;
 
 import dev.plex.api.PlexApi;
 import dev.plex.api.config.ModuleConfiguration;
+import dev.plex.api.listener.EventRule;
+import dev.plex.api.scheduler.TaskScope;
 import dev.plex.command.PlexCommand;
-import dev.plex.config.ModuleConfig;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,13 +12,14 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.URLConnection;
-import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
+import java.util.Set;
 
 import net.kyori.adventure.text.Component;
 import org.apache.logging.log4j.Logger;
-import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -25,15 +27,16 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Base class for Plex modules.
  *
- * <p>This class is part of the public module API. Modules use {@link #api()} for
- * supported integration points.</p>
+ * <p>Use {@link #api()} for Plex services. Use {@link #scheduler()} for module
+ * tasks.</p>
  */
 public abstract class PlexModule
 {
-    private final List<PlexCommand> commands = new ArrayList<>();
-    private final List<Listener> listeners = new ArrayList<>();
+    private final Set<PlexCommand> commands = new LinkedHashSet<>();
+    private final Set<Listener> listeners = new LinkedHashSet<>();
 
     private PlexApi api;
+    private TaskScope scheduler;
     private ModuleConfiguration messages;
     private PlexModuleFile plexModuleFile;
     private File dataFolder;
@@ -48,13 +51,13 @@ public abstract class PlexModule
     }
 
     /**
-     * Returns the Plex API facade.
+     * Returns the Plex API.
      *
-     * @return Plex API facade for supported module integrations
+     * @return Plex API
      */
     public PlexApi api()
     {
-        return api;
+        return requireApi();
     }
 
     /**
@@ -85,11 +88,64 @@ public abstract class PlexModule
      */
     public void registerListener(Listener listener)
     {
-        listeners.add(listener);
-        if (api != null)
+        Objects.requireNonNull(listener, "listener");
+        if (listeners.contains(listener))
         {
-            api.listeners().register(listener);
+            throw new IllegalStateException("Listener is already registered");
         }
+        requireApi().listeners().register(listener);
+        listeners.add(listener);
+    }
+
+    /**
+     * Returns this module's task scheduler.
+     * Plex cancels its tasks when it unloads the module.
+     *
+     * @return module task scheduler
+     */
+    public TaskScope scheduler()
+    {
+        if (scheduler == null)
+        {
+            throw new IllegalStateException("Module task scheduler is not available");
+        }
+        return scheduler;
+    }
+
+    /**
+     * Registers and tracks event rules owned by a listener.
+     *
+     * @param listener listener that owns the registrations
+     * @param rules event rules to register
+     */
+    public void registerListener(Listener listener, EventRule<?>... rules)
+    {
+        Objects.requireNonNull(listener, "listener");
+        Objects.requireNonNull(rules, "rules");
+        for (EventRule<?> rule : rules)
+        {
+            Objects.requireNonNull(rule, "rule");
+        }
+        if (listeners.contains(listener))
+        {
+            throw new IllegalStateException("Listener is already registered");
+        }
+        requireApi().listeners().register(listener);
+        requireApi().listeners().register(listener, rules);
+        listeners.add(listener);
+    }
+
+    /**
+     * Registers event rules and tracks their listener owner.
+     *
+     * @param rules event rules to register
+     * @return listener that owns the registrations
+     */
+    public Listener registerEventRules(EventRule<?>... rules)
+    {
+        Listener listener = requireApi().listeners().register(rules);
+        listeners.add(listener);
+        return listener;
     }
 
     /**
@@ -99,53 +155,44 @@ public abstract class PlexModule
      */
     public void unregisterListener(Listener listener)
     {
+        Objects.requireNonNull(listener, "listener");
         listeners.remove(listener);
-        if (api != null)
-        {
-            api.listeners().unregister(listener);
-            return;
-        }
-        HandlerList.unregisterAll(listener);
+        requireApi().listeners().unregister(listener);
     }
 
     /**
      * Registers and tracks a command owned by this module.
      *
-     * <p>Paper Brigadier commands are lifecycle-registered. Commands registered
-     * during module load before Plex's command handler initializes are active for
-     * the current startup. Commands registered after the Paper command lifecycle
-     * has already run are tracked by Plex but are not guaranteed to appear in the
-     * live dispatcher until Paper rebuilds lifecycle commands, normally on a full
-     * server restart.</p>
+     * <p>Register commands in {@link #load()} to use them during the current
+     * server run. Later changes usually require a server restart.</p>
      *
      * @param command command to register
      */
     public void registerCommand(PlexCommand command)
     {
-        bindCommand(command);
-        commands.add(command);
-        if (api != null)
+        Objects.requireNonNull(command, "command");
+        if (commands.contains(command))
         {
-            api.commands().register(command);
+            throw new IllegalStateException("Command is already registered");
         }
+        bindCommand(command);
+        requireApi().commands().register(command);
+        commands.add(command);
     }
 
     /**
      * Unregisters and stops tracking a command owned by this module.
      *
-     * <p>Unregistration removes the command from this module and Plex's registry.
-     * If Paper has already built the active Brigadier dispatcher, the command may
-     * remain callable until Paper rebuilds lifecycle commands.</p>
+     * <p>The command can remain active until Paper rebuilds its command list.
+     * This usually happens after a server restart.</p>
      *
      * @param command command to unregister
      */
     public void unregisterCommand(PlexCommand command)
     {
+        Objects.requireNonNull(command, "command");
         commands.remove(command);
-        if (api != null)
-        {
-            api.commands().unregister(command);
-        }
+        requireApi().commands().unregister(command);
     }
 
     /**
@@ -157,8 +204,12 @@ public abstract class PlexModule
     @Nullable
     public PlexCommand getCommand(String name)
     {
+        Objects.requireNonNull(name, "name");
+        String normalizedName = name.toLowerCase(Locale.ROOT);
         return commands.stream()
-                .filter(command -> command.getName().equalsIgnoreCase(name) || command.getAliases().stream().map(String::toLowerCase).toList().contains(name.toLowerCase(Locale.ROOT)))
+                .filter(command -> command.getName().equalsIgnoreCase(name) || command.getAliases().stream()
+                        .map(alias -> alias.toLowerCase(Locale.ROOT))
+                        .anyMatch(normalizedName::equals))
                 .findFirst()
                 .orElse(null);
     }
@@ -198,29 +249,29 @@ public abstract class PlexModule
     }
 
     /**
-     * Returns commands currently tracked by this module.
+     * Returns the commands tracked by this module.
      *
-     * @return commands currently tracked by this module
+     * @return commands tracked by this module
      */
     public List<PlexCommand> getCommands()
     {
-        return commands;
+        return List.copyOf(commands);
     }
 
     /**
-     * Returns listeners currently tracked by this module.
+     * Returns the listeners tracked by this module.
      *
-     * @return listeners currently tracked by this module
+     * @return listeners tracked by this module
      */
     public List<Listener> getListeners()
     {
-        return listeners;
+        return List.copyOf(listeners);
     }
 
     /**
-     * Returns metadata read from this module's module.yml.
+     * Returns information read from this module's module.yml.
      *
-     * @return metadata read from this module's module.yml
+     * @return module information
      */
     public PlexModuleFile getPlexModuleFile()
     {
@@ -275,7 +326,7 @@ public abstract class PlexModule
      */
     public void loadMessages(String from, String to)
     {
-        messages = new ModuleConfig(this, from, to);
+        messages = requireApi().moduleConfigs().create(this, from, to);
         messages.load();
     }
 
@@ -300,6 +351,17 @@ public abstract class PlexModule
     public Component messageComponent(String entry, Object... objects)
     {
         return api.messages().miniMessage(messageString(entry, objects));
+    }
+
+    /**
+     * Gets a module message as a component.
+     *
+     * @param entry message key
+     * @return message component
+     */
+    public Component messageComponent(String entry)
+    {
+        return messageComponent(entry, new Object[0]);
     }
 
     /**
@@ -341,14 +403,10 @@ public abstract class PlexModule
         return message;
     }
 
-    /**
-     * Sets the Plex API facade for this module.
-     *
-     * @param api Plex API facade
-     */
-    public void setApi(PlexApi api)
+    void setApi(PlexApi api)
     {
         this.api = api;
+        this.scheduler = api.scheduler().taskScope();
         commands.forEach(this::bindCommand);
     }
 
@@ -361,43 +419,40 @@ public abstract class PlexModule
         command.bindModule(this);
     }
 
-    /**
-     * Sets metadata read from this module's module.yml.
-     *
-     * @param plexModuleFile module metadata
-     */
-    public void setPlexModuleFile(PlexModuleFile plexModuleFile)
+    void setPlexModuleFile(PlexModuleFile plexModuleFile)
     {
         this.plexModuleFile = plexModuleFile;
     }
 
-    /**
-     * Sets the module data folder.
-     *
-     * @param dataFolder data folder
-     */
-    public void setDataFolder(File dataFolder)
+    void setDataFolder(File dataFolder)
     {
         this.dataFolder = dataFolder;
     }
 
-    /**
-     * Sets the JAR file this module was loaded from.
-     *
-     * @param moduleJar JAR file this module was loaded from
-     */
-    public void setModuleJar(File moduleJar)
+    void setModuleJar(File moduleJar)
     {
         this.moduleJar = moduleJar;
     }
 
-    /**
-     * Sets the module logger.
-     *
-     * @param logger logger
-     */
-    public void setLogger(Logger logger)
+    void setLogger(Logger logger)
     {
         this.logger = logger;
+    }
+
+    void cancelTasks()
+    {
+        if (scheduler != null)
+        {
+            scheduler.cancelAll();
+        }
+    }
+
+    private PlexApi requireApi()
+    {
+        if (api == null)
+        {
+            throw new IllegalStateException("Plex API is not available");
+        }
+        return api;
     }
 }

@@ -3,7 +3,7 @@ package dev.plex.api.storage;
 import org.jdbi.v3.core.Jdbi;
 
 /**
- * Module-scoped storage namespace.
+ * Provides SQL storage for one module.
  */
 public interface ModuleStorage
 {
@@ -15,10 +15,11 @@ public interface ModuleStorage
     String prefix();
 
     /**
-     * Resolves a local table name to the module's physical table name.
+     * Adds the module prefix to a local table name.
      *
-     * @param localName module-local table name
-     * @return physical table name
+    * @param localName module-local table name
+     * @return full table name
+     * @throws IllegalArgumentException if the name is not a lowercase SQL name
      */
     String table(String localName);
 
@@ -30,8 +31,9 @@ public interface ModuleStorage
     ModuleMigrations migrations();
 
     /**
-     * Returns the shared JDBI instance. Build SQL with {@link #table(String)} for
-     * physical-table resolution; use {@code jdbi().inTransaction(...)} for multi-statement transactions.
+     * Returns the shared Jdbi instance.
+     * Use {@link #table(String)} for each module table. Use
+     * {@code jdbi().inTransaction(...)} for a transaction with multiple statements.
      *
      * @return shared JDBI instance
      */

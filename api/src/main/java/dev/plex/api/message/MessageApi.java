@@ -9,6 +9,17 @@ import net.kyori.adventure.text.Component;
 public interface MessageApi
 {
     /**
+     * Gets a configured message as a component.
+     *
+     * @param entry message key
+     * @return message component
+     */
+    default Component messageComponent(String entry)
+    {
+        return messageComponent(entry, new Object[0]);
+    }
+
+    /**
      * Resolves a configured message entry into a component.
      *
      * @param entry message key
@@ -36,10 +47,10 @@ public interface MessageApi
     String messageString(String entry, Object... objects);
 
     /**
-     * Deserializes MiniMessage input into a component.
+     * Converts MiniMessage text to a component.
      *
      * @param input MiniMessage input
-     * @return deserialized component
+     * @return message component
      */
     Component miniMessage(String input);
 
@@ -58,9 +69,9 @@ public interface MessageApi
     void broadcast(Component component);
 
     /**
-     * Returns the names of currently online players.
+     * Returns the names of online players.
      *
-     * @return names of currently online players
+     * @return names of online players
      */
     List<String> onlinePlayerNames();
 }

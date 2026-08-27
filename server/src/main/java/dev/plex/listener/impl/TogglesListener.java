@@ -16,6 +16,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.TNTPrimed;
 import org.bukkit.entity.Tameable;
+import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockExplodeEvent;
@@ -38,7 +39,7 @@ public class TogglesListener extends ServerListenerBase
         super(plugin);
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
     public void onBlockExplode(BlockExplodeEvent event)
     {
         if (!plugin.toggles.getBoolean("explosions") && event.getExplosionResult() != ExplosionResult.TRIGGER_BLOCK)
@@ -47,7 +48,7 @@ public class TogglesListener extends ServerListenerBase
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
     public void onEntityExplode(EntityExplodeEvent event)
     {
         if (!plugin.toggles.getBoolean("explosions") && event.getExplosionResult() != ExplosionResult.TRIGGER_BLOCK)
@@ -109,7 +110,7 @@ public class TogglesListener extends ServerListenerBase
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
     public void onPlayerDamage(EntityDamageEvent event)
     {
         if (plugin.toggles.getBoolean("pvp") || !(event.getEntity() instanceof Player victim))
@@ -125,7 +126,7 @@ public class TogglesListener extends ServerListenerBase
         cancelPvp(event, attacker, victim);
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
     public void onPlayerPotionEffect(EntityPotionEffectEvent event)
     {
         if (plugin.toggles.getBoolean("pvp") || !(event.getEntity() instanceof Player victim) ||
@@ -135,14 +136,10 @@ public class TogglesListener extends ServerListenerBase
             return;
         }
 
-        Player attacker = responsiblePlayer(event.getSource());
-        if (attacker != null && !attacker.getUniqueId().equals(victim.getUniqueId()))
-        {
-            event.setCancelled(true);
-        }
+        cancelPvpEffect(event, event.getSource(), victim);
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
     public void onPlayerCombust(EntityCombustByEntityEvent event)
     {
         if (plugin.toggles.getBoolean("pvp") || !(event.getEntity() instanceof Player victim))
@@ -150,14 +147,10 @@ public class TogglesListener extends ServerListenerBase
             return;
         }
 
-        Player attacker = responsiblePlayer(event.getCombuster());
-        if (attacker != null && !attacker.getUniqueId().equals(victim.getUniqueId()))
-        {
-            event.setCancelled(true);
-        }
+        cancelPvpEffect(event, event.getCombuster(), victim);
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
     public void onPlayerKnockback(EntityPushedByEntityAttackEvent event)
     {
         if (plugin.toggles.getBoolean("pvp") || !(event.getEntity() instanceof Player victim))
@@ -165,11 +158,7 @@ public class TogglesListener extends ServerListenerBase
             return;
         }
 
-        Player attacker = responsiblePlayer(event.getPushedBy());
-        if (attacker != null && !attacker.getUniqueId().equals(victim.getUniqueId()))
-        {
-            event.setCancelled(true);
-        }
+        cancelPvpEffect(event, event.getPushedBy(), victim);
     }
 
     private Player responsiblePlayer(Entity source)
@@ -211,6 +200,15 @@ public class TogglesListener extends ServerListenerBase
 
         event.setCancelled(true);
         attacker.sendMessage(PlexUtils.messageComponent("pvpDisabled"));
+    }
+
+    private void cancelPvpEffect(Cancellable event, Entity source, Player victim)
+    {
+        Player attacker = responsiblePlayer(source);
+        if (attacker != null && !attacker.getUniqueId().equals(victim.getUniqueId()))
+        {
+            event.setCancelled(true);
+        }
     }
 
     /* I have no idea if this is the best way to do this

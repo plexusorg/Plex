@@ -3,14 +3,14 @@ package dev.plex.api.rollback;
 import org.bukkit.command.CommandSender;
 
 /**
- * CoreProtect rollback operations exposed to modules.
+ * Provides player rollback functions.
  */
 public interface RollbackApi
 {
     /**
-     * Returns whether rollback support is currently available.
+     * Checks if Plex has an active rollback integration.
      *
-     * @return whether rollback support is currently available
+     * @return {@code true} if rollback support is available
      */
     boolean isAvailable();
 

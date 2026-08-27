@@ -1,9 +1,10 @@
 package dev.plex.api.config;
 
 import java.util.List;
+import org.jetbrains.annotations.Nullable;
 
 /**
- * Stable configuration wrapper exposed through the Plex module API.
+ * Read-only view of a Plex configuration file.
  */
 public interface PlexConfiguration
 {
@@ -13,6 +14,7 @@ public interface PlexConfiguration
      * @param path configuration path
      * @return configured string, or {@code null} if absent
      */
+    @Nullable
     String getString(String path);
 
     /**
@@ -75,24 +77,4 @@ public interface PlexConfiguration
      */
     List<String> getStringList(String path, List<String> fallback);
 
-    /**
-     * Sets a configuration value.
-     *
-     * @param path configuration path
-     * @param value value to write
-     */
-    void set(String path, Object value);
-
-    /**
-     * Sets comments above a configuration path.
-     *
-     * @param path configuration path
-     * @param comments comments to write
-     */
-    void setComments(String path, List<String> comments);
-
-    /**
-     * Saves pending configuration changes to disk.
-     */
-    void save();
 }

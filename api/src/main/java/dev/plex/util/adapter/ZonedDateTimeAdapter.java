@@ -15,7 +15,7 @@ import java.time.ZonedDateTime;
 /**
  * Gson adapter that stores {@link ZonedDateTime} values as epoch milliseconds in UTC.
  */
-public class ZonedDateTimeAdapter implements JsonSerializer<ZonedDateTime>, JsonDeserializer<ZonedDateTime>
+public final class ZonedDateTimeAdapter implements JsonSerializer<ZonedDateTime>, JsonDeserializer<ZonedDateTime>
 {
     private static final ZoneId UTC = ZoneId.of("Etc/UTC");
 

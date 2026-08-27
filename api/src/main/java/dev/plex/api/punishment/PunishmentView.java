@@ -2,6 +2,7 @@ package dev.plex.api.punishment;
 
 import java.time.ZonedDateTime;
 import java.util.UUID;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Read-only view of a Plex punishment.
@@ -20,6 +21,7 @@ public interface PunishmentView
      *
      * @return UUID of the actor who issued the punishment
      */
+    @Nullable
     UUID punisher();
 
     /**
@@ -34,6 +36,7 @@ public interface PunishmentView
      *
      * @return punisher reference, or {@code null} when not applicable
      */
+    @Nullable
     String punisherReference();
 
     /**
@@ -48,6 +51,7 @@ public interface PunishmentView
      *
      * @return IP address associated with the punished player
      */
+    @Nullable
     String ip();
 
     /**
@@ -90,5 +94,6 @@ public interface PunishmentView
      *
      * @return punishment end date, or {@code null} for punishments without an end date
      */
+    @Nullable
     ZonedDateTime endDate();
 }

@@ -13,9 +13,9 @@ import java.util.List;
 public interface PlexCommand
 {
     /**
-     * Returns explicit command metadata.
+     * Returns the command definition.
      *
-     * @return command metadata
+     * @return command definition
      */
     CommandSpec commandSpec();
 
@@ -29,8 +29,7 @@ public interface PlexCommand
     /**
      * Supplies the running Plex API to commands that need API helpers.
      *
-     * <p>Most commands do not need to store the API directly, so the default
-     * implementation is intentionally empty.</p>
+     * <p>The default implementation does not store the API.</p>
      *
      * @param api running Plex API
      */

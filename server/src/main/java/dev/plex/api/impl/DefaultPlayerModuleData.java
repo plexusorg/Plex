@@ -2,6 +2,7 @@ package dev.plex.api.impl;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
 import dev.plex.api.player.PlayerModuleData;
 import dev.plex.storage.player.PlayerModuleDataRepository;
 
@@ -35,7 +36,15 @@ public class DefaultPlayerModuleData implements PlayerModuleData
     @Override
     public <T> Optional<T> get(String key, Class<T> type)
     {
-        return get(key).map(element -> GSON.fromJson(element, type));
+        Objects.requireNonNull(type, "type");
+        try
+        {
+            return get(key).map(element -> GSON.fromJson(element, type));
+        }
+        catch (JsonParseException | ClassCastException ex)
+        {
+            return Optional.empty();
+        }
     }
 
     @Override
