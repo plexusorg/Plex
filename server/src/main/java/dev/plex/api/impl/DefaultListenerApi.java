@@ -45,7 +45,13 @@ final class DefaultListenerApi implements ListenerApi
     private <E extends Event> void register(Listener listener, EventRule<E> rule)
     {
         plugin.getServer().getPluginManager().registerEvent(rule.eventType(), listener, rule.priority(),
-                (registeredListener, event) -> rule.handler().accept(rule.eventType().cast(event)), plugin, rule.ignoreCancelled());
+                (registeredListener, event) ->
+                {
+                    if (rule.eventType().isInstance(event))
+                    {
+                        rule.handler().accept(rule.eventType().cast(event));
+                    }
+                }, plugin, rule.ignoreCancelled());
     }
 
     @Override
