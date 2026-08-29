@@ -13,6 +13,7 @@ public interface ListenerApi
      * Registers a listener with Plex.
      *
      * @param listener listener to register
+     * @throws IllegalStateException if the listener was already registered through this method
      */
     void register(Listener listener);
 
@@ -21,6 +22,7 @@ public interface ListenerApi
      *
      * @param listener listener that owns the registrations
      * @param rules event rules to register
+     * @throws IllegalStateException if a rule is duplicated or is already registered for the listener
      */
     void register(Listener listener, EventRule<?>... rules);
 
@@ -29,6 +31,7 @@ public interface ListenerApi
      *
      * @param rules event rules to register
      * @return listener that owns the registrations
+     * @throws IllegalStateException if the same rule occurs more than once
      */
     Listener register(EventRule<?>... rules);
 
