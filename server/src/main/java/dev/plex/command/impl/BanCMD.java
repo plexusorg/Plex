@@ -13,7 +13,6 @@ import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.TimeUtils;
 
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
 
@@ -97,7 +96,7 @@ public class BanCMD extends ServerCommand
                 {
                     punishment.setReason(context.messageString("noReasonProvided"));
                 }
-                ZonedDateTime date = ZonedDateTime.now(ZoneId.of(TimeUtils.TIMEZONE));
+                ZonedDateTime date = ZonedDateTime.now(TimeUtils.zoneId());
                 punishment.setEndDate(date.plusDays(1));
                 punishment.setCustomTime(false);
                 punishment.setActive(true);

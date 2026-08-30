@@ -8,7 +8,6 @@ import dev.plex.util.PlexUtils;
 import dev.plex.util.TimeUtils;
 import dev.plex.util.adapter.ZonedDateTimeAdapter;
 
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.UUID;
 
@@ -40,7 +39,7 @@ public class Punishment
         this.punished = punished;
         this.punisher = punisher;
         this.source = punisher == null ? PunishmentSource.CONSOLE : PunishmentSource.PLAYER;
-        this.issueDate = ZonedDateTime.now(ZoneId.of(TimeUtils.TIMEZONE));
+        this.issueDate = ZonedDateTime.now(TimeUtils.zoneId());
     }
 
     public static Component generateBanMessage(Punishment punishment, String banUrl, PlayerNameResolver playerNameResolver)

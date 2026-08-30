@@ -34,6 +34,7 @@ import dev.plex.util.BuildInfo;
 import dev.plex.util.BungeeUtil;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
+import dev.plex.util.TimeUtils;
 import dev.plex.util.UpdateChecker;
 import dev.plex.util.redis.MessageUtil;
 import dev.plex.world.CustomWorld;
@@ -145,6 +146,7 @@ public class Plex extends JavaPlugin
         PlexLog.setDebugEnabled(config.getBoolean("debug"));
         messages.load();
         PlexUtils.configure(config, messages);
+        TimeUtils.TIMEZONE = config.getString("server.timezone", "Etc/UTC");
         toggles.load();
 
         // Don't add default entries to these files

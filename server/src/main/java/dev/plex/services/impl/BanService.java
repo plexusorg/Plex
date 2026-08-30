@@ -6,7 +6,6 @@ import dev.plex.util.PlexUtils;
 import dev.plex.util.TimeUtils;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
 import org.bukkit.Bukkit;
@@ -25,7 +24,7 @@ public class BanService extends AbstractService
         {
             punishments.forEach(punishment ->
             {
-                if (ZonedDateTime.now(ZoneId.of(TimeUtils.TIMEZONE)).isAfter(punishment.getEndDate()))
+                if (ZonedDateTime.now(TimeUtils.zoneId()).isAfter(punishment.getEndDate()))
                 {
                     plugin.getPunishmentManager().unban(punishment);
                     Bukkit.broadcast(PlexUtils.messageComponent("banExpiredBroadcast", Bukkit.getOfflinePlayer(punishment.getPunished()).getName()));

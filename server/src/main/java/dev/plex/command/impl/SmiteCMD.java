@@ -9,7 +9,6 @@ import dev.plex.punishment.PunishmentType;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.TimeUtils;
 
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -126,7 +125,7 @@ public class SmiteCMD extends ServerCommand
 
         Punishment punishment = new Punishment(plexPlayer.getUuid(), context.getUUID(sender));
         punishment.setCustomTime(false);
-        punishment.setEndDate(ZonedDateTime.now(ZoneId.of(TimeUtils.TIMEZONE)));
+        punishment.setEndDate(ZonedDateTime.now(TimeUtils.zoneId()));
         punishment.setType(PunishmentType.SMITE);
         punishment.setIp(player.getAddress().getAddress().getHostAddress().trim());
 

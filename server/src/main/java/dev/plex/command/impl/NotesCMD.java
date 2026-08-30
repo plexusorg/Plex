@@ -8,7 +8,6 @@ import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.extra.Note;
 import dev.plex.util.TimeUtils;
 
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
@@ -90,7 +89,7 @@ public class NotesCMD extends ServerCommand
                 String content = StringUtils.join(ArrayUtils.subarray(args, 2, args.length), " ");
                 if (playerSender != null)
                 {
-                    Note note = new Note(plexPlayer.getUuid(), content, playerSender.getUniqueId(), ZonedDateTime.now(ZoneId.of(TimeUtils.TIMEZONE)));
+                    Note note = new Note(plexPlayer.getUuid(), content, playerSender.getUniqueId(), ZonedDateTime.now(TimeUtils.zoneId()));
                     plexPlayer.getNotes().add(note);
                     plugin.getNoteRepository().addNote(note);
                     return context.messageComponent("noteAdded");

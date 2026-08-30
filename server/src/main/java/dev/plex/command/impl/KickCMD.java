@@ -12,7 +12,6 @@ import dev.plex.util.BungeeUtil;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.TimeUtils;
 
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
 import io.papermc.paper.command.brigadier.CommandSourceStack;
@@ -76,7 +75,7 @@ public class KickCMD extends ServerCommand
         }
 
         punishment.setReason(reason);
-        punishment.setEndDate(ZonedDateTime.now(ZoneId.of(TimeUtils.TIMEZONE)));
+        punishment.setEndDate(ZonedDateTime.now(TimeUtils.zoneId()));
         punishment.setCustomTime(false);
         punishment.setActive(false);
         punishment.setIp(player.getAddress().getAddress().getHostAddress().trim());

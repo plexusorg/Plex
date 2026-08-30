@@ -5,7 +5,6 @@ import dev.plex.listener.ServerListenerBase;
 import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.Punishment;
 import dev.plex.punishment.PunishmentManager;
-import dev.plex.punishment.PunishmentType;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
@@ -52,7 +51,7 @@ public class BanListener extends ServerListenerBase
                 return;
             }
             PlexPlayer player = plugin.getPlayerService().getPlayer(event.getUniqueId());
-            player.getPunishments().stream().filter(punishment -> (punishment.getType() == PunishmentType.BAN || punishment.getType() == PunishmentType.TEMPBAN) && punishment.isActive()).findFirst().ifPresent(punishment ->
+            player.getPunishments().stream().filter(plugin.getPunishmentManager()::isActiveBan).findFirst().ifPresent(punishment ->
                     event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED,
                             Punishment.generateBanMessage(punishment, plugin.config.getString("banning.ban_url"), plugin.getPlayerNameResolver())));
             return;

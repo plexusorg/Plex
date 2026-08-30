@@ -10,7 +10,6 @@ import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.JdbiException;
 
 import java.time.Instant;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Comparator;
 import java.util.List;
@@ -117,7 +116,7 @@ public class SQLNotes implements NoteRepository
                     UUID.fromString(entity.getUuid()),
                     entity.getNote(),
                     UUID.fromString(entity.getWrittenByUuid()),
-                    ZonedDateTime.ofInstant(Instant.ofEpochMilli(entity.getTimestamp()), ZoneId.of(TimeUtils.TIMEZONE))
+                    ZonedDateTime.ofInstant(Instant.ofEpochMilli(entity.getTimestamp()), TimeUtils.zoneId())
             );
             note.setId(entity.getId());
             return Optional.of(note);

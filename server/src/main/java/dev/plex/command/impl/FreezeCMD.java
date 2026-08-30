@@ -9,7 +9,6 @@ import dev.plex.punishment.PunishmentType;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.TimeUtils;
 
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
 import io.papermc.paper.command.brigadier.CommandSourceStack;
@@ -57,7 +56,7 @@ public class FreezeCMD extends ServerCommand
 
         Punishment punishment = new Punishment(punishedPlayer.getUuid(), context.getUUID(sender));
         punishment.setCustomTime(false);
-        ZonedDateTime date = ZonedDateTime.now(ZoneId.of(TimeUtils.TIMEZONE));
+        ZonedDateTime date = ZonedDateTime.now(TimeUtils.zoneId());
         punishment.setEndDate(date.plusSeconds(plugin.config.getInt("punishments.freeze-timer", 300)));
         punishment.setType(PunishmentType.FREEZE);
         punishment.setIp(player.getAddress().getAddress().getHostAddress().trim());

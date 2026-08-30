@@ -95,7 +95,7 @@ public class PlexCMD extends ServerCommand
             plugin.getServiceManager().endServices();
             plugin.getServiceManager().startServices();
             context.send(sender, "Restarted services.");
-            TimeUtils.TIMEZONE = plugin.config.getString("server.timezone");
+            TimeUtils.TIMEZONE = plugin.config.getString("server.timezone", "Etc/UTC");
             context.send(sender, "Set timezone to: " + TimeUtils.TIMEZONE);
             context.send(sender, "Plex successfully reloaded.");
             return null;

@@ -1,5 +1,6 @@
 package dev.plex.util;
 
+import java.time.DateTimeException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -7,15 +8,12 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.TimeZone;
 
 import org.apache.commons.lang3.math.NumberUtils;
 
 public class TimeUtils
 {
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("MM/dd/yyyy 'at' hh:mm:ss a z");
-    private static final Set<String> TIMEZONES = Set.of(TimeZone.getAvailableIDs());
     private static final List<String> timeUnits = new ArrayList<>()
     {{
         add("s");
@@ -28,6 +26,20 @@ public class TimeUtils
     }};
     public static String TIMEZONE = "Etc/UTC";
 
+    public static ZoneId zoneId()
+    {
+        try
+        {
+            return ZoneId.of(TIMEZONE);
+        }
+        catch (DateTimeException | NullPointerException e)
+        {
+            PlexLog.warn("\"{0}\" is not a valid timezone, using Etc/UTC instead", TIMEZONE);
+            TIMEZONE = "Etc/UTC";
+            return ZoneId.of(TIMEZONE);
+        }
+    }
+
     private static int parseInteger(String s) throws NumberFormatException
     {
         if (!NumberUtils.isCreatable(s))
@@ -39,7 +51,7 @@ public class TimeUtils
 
     public static ZonedDateTime createDate(String arg)
     {
-        ZonedDateTime time = ZonedDateTime.now(ZoneId.of(TimeUtils.TIMEZONE));
+        ZonedDateTime time = ZonedDateTime.now(zoneId());
         for (String unit : timeUnits)
         {
             if (arg.endsWith(unit))
@@ -62,22 +74,12 @@ public class TimeUtils
 
     public static String useTimezone(LocalDateTime date)
     {
-        // Use UTC if the timezone is null or not set correctly
-        if (TIMEZONE == null || !TIMEZONES.contains(TIMEZONE))
-        {
-            TIMEZONE = "Etc/UTC";
-        }
-        return DATE_FORMAT.withZone(ZoneId.of(TIMEZONE)).format(date);
+        return DATE_FORMAT.withZone(zoneId()).format(date);
     }
 
     public static String useTimezone(ZonedDateTime date)
     {
-        // Use UTC if the timezone is null or not set correctly
-        if (TIMEZONE == null || !TIMEZONES.contains(TIMEZONE))
-        {
-            TIMEZONE = "Etc/UTC";
-        }
-        return DATE_FORMAT.withZone(ZoneId.of(TIMEZONE)).format(date);
+        return DATE_FORMAT.withZone(zoneId()).format(date);
     }
 
     public static String formatRelativeTime(ZonedDateTime date)

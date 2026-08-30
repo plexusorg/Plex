@@ -12,7 +12,6 @@ import dev.plex.util.TimeUtils;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Collection;
@@ -123,6 +122,13 @@ public class PunishmentManager
         return false;
     }
 
+    public boolean isActiveBan(Punishment punishment)
+    {
+        return (punishment.getType() == PunishmentType.BAN || punishment.getType() == PunishmentType.TEMPBAN)
+                && punishment.isActive()
+                && (punishment.getEndDate() == null || punishment.getEndDate().isAfter(ZonedDateTime.now(TimeUtils.zoneId())));
+    }
+
     public CompletableFuture<Boolean> isAsyncBanned(UUID uuid)
     {
         return CompletableFuture.supplyAsync(() ->
@@ -132,7 +138,7 @@ public class PunishmentManager
                 return false;
             }
 
-            return plugin.getPunishmentRepository().getPunishments(uuid).stream().anyMatch(punishment -> (punishment.getType() == PunishmentType.BAN || punishment.getType() == PunishmentType.TEMPBAN) && punishment.isActive());
+            return plugin.getPunishmentRepository().getPunishments(uuid).stream().anyMatch(this::isActiveBan);
         }, plugin.getApi().scheduler().asyncExecutor());
     }
 
@@ -142,12 +148,12 @@ public class PunishmentManager
         {
             return false;
         }
-        return plugin.getPlayerService().getPlayer(uuid).getPunishments().stream().anyMatch(punishment -> (punishment.getType() == PunishmentType.BAN || punishment.getType() == PunishmentType.TEMPBAN) && punishment.isActive());
+        return plugin.getPlayerService().getPlayer(uuid).getPunishments().stream().anyMatch(this::isActiveBan);
     }
 
     public Punishment getBanByIP(String ip)
     {
-        return plugin.getPunishmentRepository().getPunishments(ip).stream().filter(punishment -> punishment.getType() == PunishmentType.TEMPBAN || punishment.getType() == PunishmentType.BAN).filter(Punishment::isActive).filter(punishment -> punishment.getIp().equals(ip)).findFirst().orElse(null);
+        return plugin.getPunishmentRepository().getPunishments(ip).stream().filter(this::isActiveBan).filter(punishment -> punishment.getIp().equals(ip)).findFirst().orElse(null);
     }
 
     public boolean isBanned(PlexPlayer player)
@@ -199,7 +205,7 @@ public class PunishmentManager
         if (punishment.getType() == PunishmentType.FREEZE)
         {
             player.setFrozen(true);
-            ZonedDateTime now = ZonedDateTime.now(ZoneId.of(TimeUtils.TIMEZONE));
+            ZonedDateTime now = ZonedDateTime.now(TimeUtils.zoneId());
             ZonedDateTime then = punishment.getEndDate();
             long seconds = ChronoUnit.SECONDS.between(now, then);
             plugin.getApi().scheduler().runGlobalLater(scheduledTask ->
@@ -220,7 +226,7 @@ public class PunishmentManager
         else if (punishment.getType() == PunishmentType.MUTE)
         {
             player.setMuted(true);
-            ZonedDateTime now = ZonedDateTime.now(ZoneId.of(TimeUtils.TIMEZONE));
+            ZonedDateTime now = ZonedDateTime.now(TimeUtils.zoneId());
             ZonedDateTime then = punishment.getEndDate();
             long seconds = ChronoUnit.SECONDS.between(now, then);
             plugin.getApi().scheduler().runGlobalLater(scheduledTask ->
