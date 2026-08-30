@@ -8,6 +8,7 @@ import dev.plex.punishment.Punishment;
 import dev.plex.punishment.PunishmentType;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.TimeUtils;
+import dev.plex.util.PlexLog;
 
 import java.time.ZonedDateTime;
 import java.util.Arrays;
@@ -97,8 +98,15 @@ public class TempmuteCMD extends ServerCommand
         punishment.setReason(reason);
         punishment.setActive(true);
 
-        plugin.getPunishmentManager().punish(punishedPlayer, punishment);
-        PlexUtils.broadcast(context.messageComponent("tempMutedPlayer", context.senderName(), player.getName(), TimeUtils.formatRelativeTime(endDate)));
+        plugin.getPunishmentManager().punish(punishedPlayer, punishment).whenComplete((unused, failure) -> plugin.getApi().scheduler().runGlobal(() ->
+        {
+            if (failure != null)
+            {
+                PlexLog.error("Unable to tempmute {0}: {1}", punishedPlayer.getUuid(), failure.getMessage());
+                context.send(sender, Component.text("Unable to persist the mute; no action was taken."));
+            }
+            else PlexUtils.broadcast(context.messageComponent("tempMutedPlayer", context.senderName(), player.getName(), TimeUtils.formatRelativeTime(endDate)));
+        }));
         return null;
     }
 

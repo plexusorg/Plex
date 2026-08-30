@@ -1,118 +1,63 @@
 package dev.plex.services;
 
-import com.google.common.collect.Lists;
 import dev.plex.Plex;
 import dev.plex.services.impl.AutoWipeService;
-import dev.plex.services.impl.BanService;
-import dev.plex.services.impl.GameRuleService;
-import dev.plex.services.impl.TimingService;
 import dev.plex.services.impl.UpdateCheckerService;
+import dev.plex.util.GameRuleUtil;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
-
 import org.bukkit.Bukkit;
 
 public class ServiceManager
 {
     private final Plex plugin;
-    private final List<AbstractService> services = Lists.newArrayList();
-    private final Map<AbstractService, ScheduledTask> scheduledTasks = new HashMap<>();
+    private final AutoWipeService autoWipe;
+    private final UpdateCheckerService updateChecker;
+    private ScheduledTask autoWipeTask;
+    private ScheduledTask updateCheckerTask;
 
     public ServiceManager(Plex plugin)
     {
         this.plugin = plugin;
-        registerService(new AutoWipeService(plugin));
-        registerService(new BanService(plugin));
-        registerService(new GameRuleService(plugin));
-        registerService(new TimingService(plugin));
-        registerService(new UpdateCheckerService(plugin));
+        this.autoWipe = new AutoWipeService(plugin);
+        this.updateChecker = new UpdateCheckerService(plugin);
     }
 
     public void startServices()
     {
-        services.forEach(this::startService);
+        plugin.getApi().scheduler().runGlobal(
+                () -> Bukkit.getWorlds().forEach(world -> GameRuleUtil.apply(plugin, world)));
+        if (autoWipe.shouldStart())
+        {
+            autoWipe.onStart();
+            autoWipeTask = plugin.getApi().scheduler().runGlobalTimer(
+                    autoWipe::run, 1L, 20L * autoWipe.repeatInSeconds());
+        }
+        if (updateChecker.shouldStart())
+        {
+            updateChecker.onStart();
+            updateCheckerTask = Bukkit.getAsyncScheduler().runAtFixedRate(
+                    plugin, updateChecker::run, 1, updateChecker.repeatInSeconds(), TimeUnit.SECONDS);
+        }
     }
 
     public void endServices()
     {
-        services.forEach(this::endService);
-    }
-
-    public AbstractService getService(Class<? extends AbstractService> clazz)
-    {
-        return services.stream().filter(service -> service.getClass().isAssignableFrom(clazz)).findFirst().orElse(null);
-    }
-
-    public void startService(AbstractService service)
-    {
-        ScheduledTask existingTask = scheduledTasks.remove(service);
-        if (existingTask != null)
+        if (updateCheckerTask != null)
         {
-            existingTask.cancel();
+            updateCheckerTask.cancel();
+            updateCheckerTask = null;
         }
-
-        ScheduledTask task = null;
-        if (!service.isRepeating())
+        if (autoWipeTask != null)
         {
-            int time = service.repeatInSeconds();
-            if (time == 0)
-            {
-                task = Bukkit.getGlobalRegionScheduler().run(plugin, service::run);
-            }
-            else
-            {
-                task = Bukkit.getAsyncScheduler().runDelayed(plugin, service::run, time, TimeUnit.SECONDS);
-            }
+            autoWipeTask.cancel();
+            autoWipeTask = null;
+            autoWipe.onEnd();
         }
-        else if (service.isRepeating() && service.isAsynchronous())
-        {
-            task = Bukkit.getAsyncScheduler().runAtFixedRate(plugin, service::run, 1, service.repeatInSeconds(), TimeUnit.SECONDS);
-        }
-        else if (service.isRepeating() && !service.isAsynchronous())
-        {
-            task = Bukkit.getGlobalRegionScheduler().runAtFixedRate(plugin, service::run, 1, 20L * service.repeatInSeconds());
-        }
-        if (task != null)
-        {
-            scheduledTasks.put(service, task);
-        }
-        if (!services.contains(service))
-        {
-            services.add(service);
-        }
-        service.onStart();
-    }
-
-    public void endService(AbstractService service, boolean remove)
-    {
-        ScheduledTask task = scheduledTasks.remove(service);
-        if (task != null)
-        {
-            task.cancel();
-        }
-        service.onEnd();
-        if (remove)
-        {
-            services.remove(service);
-        }
-    }
-
-    public void endService(AbstractService service)
-    {
-        endService(service, false);
-    }
-
-    private void registerService(AbstractService service)
-    {
-        services.add(service);
     }
 
     public int serviceCount()
     {
-        return services.size();
+        return (autoWipeTask == null ? 0 : 1) + (updateCheckerTask == null ? 0 : 1);
     }
 }

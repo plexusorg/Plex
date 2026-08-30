@@ -1,125 +1,88 @@
 package dev.plex.punishment;
 
-import com.google.common.collect.Lists;
-import com.google.common.reflect.TypeToken;
-import com.google.gson.Gson;
 import dev.plex.Plex;
 import dev.plex.player.PlexPlayer;
+import dev.plex.punishment.admission.BanDecisionService;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.TimeUtils;
+import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
+import lombok.Getter;
+import org.bukkit.Bukkit;
+import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-
-import lombok.Data;
-import lombok.Getter;
-import org.apache.commons.io.FileUtils;
-import org.bukkit.Bukkit;
-import org.jetbrains.annotations.Nullable;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class PunishmentManager
 {
     private final Plex plugin;
+    private final BanDecisionService banDecisionService;
+    private volatile List<IndefiniteBan> indefiniteBans = List.of();
+    private final ConcurrentHashMap<StateKey, ScheduledTask> timedTasks = new ConcurrentHashMap<>();
 
     public PunishmentManager(Plex plugin)
     {
-        this.plugin = plugin;
+        this.plugin = Objects.requireNonNull(plugin, "plugin");
+        int cacheSize = Math.max(100, plugin.config.getInt("banning.admission-cache-size", 10_000));
+        long ttlSeconds = Math.max(1, plugin.config.getLong("banning.admission-cache-seconds", 60));
+        this.banDecisionService = new BanDecisionService(plugin.getPunishmentRepository(), Duration.ofSeconds(ttlSeconds), cacheSize);
     }
-    @Getter
-    private final List<IndefiniteBan> indefiniteBans = Lists.newArrayList();
 
     public void mergeIndefiniteBans()
     {
-        this.indefiniteBans.clear();
-        plugin.indefBans.getKeys(false).forEach(key ->
-        {
-            IndefiniteBan ban = new IndefiniteBan(plugin.getIndefBans().getString(key + ".reason", ""));
-            ban.ips.addAll(plugin.getIndefBans().getStringList(key + ".ips"));
-            ban.usernames.addAll(plugin.getIndefBans().getStringList(key + ".users"));
-            ban.uuids.addAll(plugin.getIndefBans().getStringList(key + ".uuids").stream().map(UUID::fromString).toList());
-            this.indefiniteBans.add(ban);
-        });
+        indefiniteBans = plugin.indefBans.getKeys(false).stream().map(key -> new IndefiniteBan(
+                plugin.getIndefBans().getStringList(key + ".users"),
+                plugin.getIndefBans().getStringList(key + ".uuids").stream().map(UUID::fromString).toList(),
+                plugin.getIndefBans().getStringList(key + ".ips"),
+                plugin.getIndefBans().getString(key + ".reason", ""))).toList();
 
-        PlexLog.log("Loaded {0} UUID(s), {1} IP(s), and {2} username(s) as indefinitely banned", this.indefiniteBans.stream().map(IndefiniteBan::getUuids).mapToLong(Collection::size).sum(), this.indefiniteBans.stream().map(IndefiniteBan::getIps).mapToLong(Collection::size).sum(), this.indefiniteBans.stream().map(IndefiniteBan::getUsernames).mapToLong(Collection::size).sum());
-
-        if (plugin.getRedisConnection().isEnabled())
-        {
-            PlexLog.log("Asynchronously uploading all indefinite bans to Redis");
-            plugin.getRedisConnection().runAsync(jedis ->
-            {
-                jedis.set("indefbans", new Gson().toJson(indefiniteBans));
-            });
-        }
+        PlexLog.log("Loaded {0} UUID(s), {1} IP(s), and {2} username(s) as indefinitely banned",
+                indefiniteBans.stream().map(IndefiniteBan::getUuids).mapToLong(Collection::size).sum(),
+                indefiniteBans.stream().map(IndefiniteBan::getIps).mapToLong(Collection::size).sum(),
+                indefiniteBans.stream().map(IndefiniteBan::getUsernames).mapToLong(Collection::size).sum());
     }
+
+    public List<IndefiniteBan> getIndefiniteBans() { return indefiniteBans; }
 
     @Nullable
     public IndefiniteBan getIndefiniteBanByUUID(UUID uuid)
     {
-        if (plugin.getRedisConnection().isEnabled())
-        {
-            PlexLog.debug("Checking if UUID is banned in Redis");
-            List<IndefiniteBan> bans = redisIndefiniteBans();
-            return bans.stream().filter(indefiniteBan -> indefiniteBan.getUuids().contains(uuid)).findFirst().orElse(null);
-        }
-        return this.indefiniteBans.stream().filter(indefiniteBan -> indefiniteBan.getUuids().contains(uuid)).findFirst().orElse(null);
+        return indefiniteBans.stream().filter(ban -> ban.getUuids().contains(uuid)).findFirst().orElse(null);
     }
 
+    @Nullable
     public IndefiniteBan getIndefiniteBanByIP(String ip)
     {
-        if (plugin.getRedisConnection().isEnabled())
-        {
-            PlexLog.debug("Checking if IP is banned in Redis");
-            List<IndefiniteBan> bans = redisIndefiniteBans();
-            return bans.stream().filter(indefiniteBan -> indefiniteBan.getIps().contains(ip)).findFirst().orElse(null);
-        }
-        return this.indefiniteBans.stream().filter(indefiniteBan -> indefiniteBan.getIps().contains(ip)).findFirst().orElse(null);
+        String canonicalIp = BanDecisionService.canonicalIp(ip);
+        return indefiniteBans.stream().filter(ban -> ban.getIps().stream()
+                .map(BanDecisionService::canonicalIp).anyMatch(canonicalIp::equals)).findFirst().orElse(null);
     }
 
+    @Nullable
     public IndefiniteBan getIndefiniteBanByUsername(String username)
     {
-        if (plugin.getRedisConnection().isEnabled())
-        {
-            PlexLog.debug("Checking if username is banned in Redis");
-            List<IndefiniteBan> bans = redisIndefiniteBans();
-            return bans.stream().filter(indefiniteBan -> indefiniteBan.getUsernames().contains(username)).findFirst().orElse(null);
-        }
-        return this.indefiniteBans.stream().filter(indefiniteBan -> indefiniteBan.getUsernames().contains(username)).findFirst().orElse(null);
+        return indefiniteBans.stream().filter(ban -> ban.getUsernames().stream()
+                .anyMatch(name -> name.equalsIgnoreCase(username))).findFirst().orElse(null);
     }
 
-    public void issuePunishment(PlexPlayer plexPlayer, Punishment punishment)
+    public CompletableFuture<Optional<Punishment>> decideAdmission(UUID uuid, String ip)
     {
-        plexPlayer.getPunishments().add(punishment);
-        plugin.getPunishmentRepository().insertPunishment(punishment);
+        return banDecisionService.decide(uuid, ip);
     }
 
-    private List<IndefiniteBan> redisIndefiniteBans()
+    public void invalidateBanDecisions(UUID uuid, @Nullable String ip)
     {
-        String json = plugin.getRedisConnection().query(jedis -> jedis.get("indefbans"));
-        List<IndefiniteBan> bans = new Gson().fromJson(json, new TypeToken<List<IndefiniteBan>>()
-        {
-        }.getType());
-        return bans == null ? Lists.newArrayList() : bans;
-    }
-
-    private boolean isNotEmpty(File file)
-    {
-        try
-        {
-            return !FileUtils.readFileToString(file, StandardCharsets.UTF_8).trim().isEmpty();
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
-        return false;
+        banDecisionService.invalidate(uuid, ip);
     }
 
     public boolean isActiveBan(Punishment punishment)
@@ -129,134 +92,187 @@ public class PunishmentManager
                 && (punishment.getEndDate() == null || punishment.getEndDate().isAfter(ZonedDateTime.now(TimeUtils.zoneId())));
     }
 
-    public CompletableFuture<Boolean> isAsyncBanned(UUID uuid)
+    public CompletableFuture<Boolean> isBanned(UUID uuid)
     {
-        return CompletableFuture.supplyAsync(() ->
-        {
-            if (!plugin.getPlayerService().hasPlayedBefore(uuid))
-            {
-                return false;
-            }
-
-            return plugin.getPunishmentRepository().getPunishments(uuid).stream().anyMatch(this::isActiveBan);
-        }, plugin.getApi().scheduler().asyncExecutor());
-    }
-
-    public boolean isBanned(UUID uuid)
-    {
-        if (!plugin.getPlayerService().hasPlayedBefore(uuid))
-        {
-            return false;
-        }
-        return plugin.getPlayerService().getPlayer(uuid).getPunishments().stream().anyMatch(this::isActiveBan);
-    }
-
-    public Punishment getBanByIP(String ip)
-    {
-        return plugin.getPunishmentRepository().getPunishments(ip).stream().filter(this::isActiveBan).filter(punishment -> punishment.getIp().equals(ip)).findFirst().orElse(null);
-    }
-
-    public boolean isBanned(PlexPlayer player)
-    {
-        return isBanned(player.getUuid());
+        return plugin.getPunishmentRepository().getEffectiveBan(uuid, "", Instant.now()).thenApply(Optional::isPresent);
     }
 
     public CompletableFuture<List<Punishment>> getActiveBans()
     {
-        //PlexLog.debug("Checking active bans mysql");
-        CompletableFuture<List<Punishment>> future = new CompletableFuture<>();
-        plugin.getPunishmentRepository().getPunishments().whenComplete((punishments, throwable) ->
-        {
-            //PlexLog.debug("Received Punishments");
-            List<Punishment> punishmentList = punishments.stream().filter(Punishment::isActive).filter(punishment -> punishment.getType() == PunishmentType.BAN || punishment.getType() == PunishmentType.TEMPBAN).toList();
-            //PlexLog.debug("Completing with {0} punishments", punishmentList.size());
-            future.complete(punishmentList);
-        });
-        return future;
-    }
-
-    public void unban(Punishment punishment)
-    {
-        this.unban(punishment.getPunished());
+        return plugin.getPunishmentRepository().getPunishments().thenApply(punishments -> punishments.stream()
+                .filter(this::isActiveBan).toList());
     }
 
     public CompletableFuture<Void> unban(UUID uuid)
     {
-        return plugin.getPunishmentRepository().removeBan(uuid).thenRun(() ->
+        return plugin.getPunishmentRepository().removeBan(uuid).thenCompose(ips -> onGlobal(() ->
         {
-            PlexPlayer player = plugin.getPlayerService().getPlayer(uuid);
-            if (player == null)
+            PlexPlayer player = plugin.getPlayerService().getCachedPlayer(uuid);
+            if (player != null)
             {
+                player.getPunishments().stream()
+                        .filter(p -> p.getType() == PunishmentType.BAN || p.getType() == PunishmentType.TEMPBAN)
+                        .forEach(p -> p.setActive(false));
+            }
+            invalidateBanDecisions(uuid, null);
+            if (ips.isEmpty()) publishInvalidation(uuid, null);
+            for (String ip : ips)
+            {
+                invalidateBanDecisions(uuid, ip);
+                publishInvalidation(uuid, ip);
+            }
+        }));
+    }
+
+    public CompletableFuture<Void> punish(PlexPlayer player, Punishment punishment)
+    {
+        Objects.requireNonNull(player, "player");
+        Objects.requireNonNull(punishment, "punishment");
+        if (!player.getUuid().equals(punishment.getPunished()))
+            return CompletableFuture.failedFuture(new IllegalArgumentException("Punishment and player UUIDs differ"));
+        if (punishment.getType() == null)
+            return CompletableFuture.failedFuture(new IllegalArgumentException("Punishment type is required"));
+        if ((punishment.getType() == PunishmentType.MUTE || punishment.getType() == PunishmentType.FREEZE
+                || punishment.getType() == PunishmentType.TEMPBAN) && punishment.getEndDate() == null)
+            return CompletableFuture.failedFuture(new IllegalArgumentException(punishment.getType() + " requires an end date"));
+        if (punishment.getIp() != null) punishment.setIp(BanDecisionService.canonicalIp(punishment.getIp()));
+
+        return plugin.getPunishmentRepository().insertPunishment(punishment).thenCompose(unused -> onGlobal(() ->
+        {
+            player.getPunishments().add(punishment);
+            if (punishment.getType() == PunishmentType.BAN || punishment.getType() == PunishmentType.TEMPBAN)
+            {
+                invalidateBanDecisions(player.getUuid(), punishment.getIp());
+                publishInvalidation(player.getUuid(), punishment.getIp());
+            }
+            restoreTimedState(player, punishment.getType());
+        }));
+    }
+
+    public void restoreTimedState(PlexPlayer player)
+    {
+        restoreTimedState(player, PunishmentType.MUTE);
+        restoreTimedState(player, PunishmentType.FREEZE);
+    }
+
+    public CompletableFuture<Void> deactivateTimedPunishment(PlexPlayer player, PunishmentType type)
+    {
+        return plugin.getPunishmentRepository().updatePunishment(type, false, player.getUuid()).thenCompose(unused -> onGlobal(() ->
+        {
+            player.getPunishments().stream().filter(p -> p.getType() == type).forEach(p -> p.setActive(false));
+            restoreTimedState(player, type);
+        }));
+    }
+
+    private void restoreTimedState(PlexPlayer player, PunishmentType type)
+    {
+        if (type != PunishmentType.MUTE && type != PunishmentType.FREEZE) return;
+        ZonedDateTime now = ZonedDateTime.now(TimeUtils.zoneId());
+        ZonedDateTime deadline = player.getPunishments().stream()
+                .filter(p -> p.getType() == type && p.isActive() && p.getEndDate() != null && p.getEndDate().isAfter(now))
+                .map(Punishment::getEndDate).max(ZonedDateTime::compareTo).orElse(null);
+        boolean hasExpired = player.getPunishments().stream().anyMatch(p -> p.getType() == type && p.isActive()
+                && p.getEndDate() != null && !p.getEndDate().isAfter(now));
+        setTimedFlag(player, type, deadline != null);
+        if (hasExpired) expireRows(player, type, now, false);
+
+        StateKey key = new StateKey(player.getUuid(), type);
+        ScheduledTask old = timedTasks.remove(key);
+        if (old != null) old.cancel();
+        if (deadline == null) return;
+
+        long ticks = Math.max(1L, ChronoUnit.MILLIS.between(now, deadline) / 50L);
+        ScheduledTask replacement = plugin.getApi().scheduler().runGlobalLater(task ->
+        {
+            if (timedTasks.remove(key, task)) expireRows(player, type, ZonedDateTime.now(TimeUtils.zoneId()), true);
+        }, ticks);
+        timedTasks.put(key, replacement);
+    }
+
+    private void expireRows(PlexPlayer player, PunishmentType type, ZonedDateTime now, boolean announce)
+    {
+        boolean stillActive = player.getPunishments().stream().anyMatch(p -> p.getType() == type && p.isActive()
+                && p.getEndDate() != null && p.getEndDate().isAfter(now));
+        setTimedFlag(player, type, stillActive);
+        plugin.getPunishmentRepository().expirePunishments(type, player.getUuid(), now.toInstant()).whenComplete((unused, failure) ->
+        {
+            if (failure != null)
+            {
+                PlexLog.error("Failed to expire {0} for {1}: {2}", type, player.getUuid(), failure.getMessage());
                 return;
             }
-            player.getPunishments().stream()
-                    .filter(punishment -> punishment.getType() == PunishmentType.BAN || punishment.getType() == PunishmentType.TEMPBAN)
-                    .forEach(punishment -> punishment.setActive(false));
+            onGlobal(() ->
+            {
+                PlexPlayer current = plugin.getPlayerService().getCachedPlayer(player.getUuid());
+                if (current == null) return;
+                current.getPunishments().stream()
+                        .filter(p -> p.getType() == type && p.getEndDate() != null && !p.getEndDate().isAfter(now))
+                        .forEach(p -> p.setActive(false));
+                if (announce && !isTimedActive(current, type))
+                {
+                    Bukkit.broadcast(PlexUtils.messageComponent(type == PunishmentType.MUTE ? "unmutedPlayer" : "unfrozePlayer",
+                            "Plex", Bukkit.getOfflinePlayer(player.getUuid()).getName()));
+                }
+            });
         });
     }
 
-    public void updateOutdatedPunishments(PlexPlayer player)
+    private static boolean isTimedActive(PlexPlayer player, PunishmentType type)
     {
-
+        ZonedDateTime now = ZonedDateTime.now(TimeUtils.zoneId());
+        return player.getPunishments().stream().anyMatch(p -> p.getType() == type && p.isActive()
+                && p.getEndDate() != null && p.getEndDate().isAfter(now));
     }
 
-    private void doPunishment(PlexPlayer player, Punishment punishment)
+    private static void setTimedFlag(PlexPlayer player, PunishmentType type, boolean active)
     {
-        if (punishment.getType() == PunishmentType.FREEZE)
+        if (type == PunishmentType.MUTE) player.setMuted(active); else player.setFrozen(active);
+    }
+
+    private CompletableFuture<Void> onGlobal(Runnable action)
+    {
+        CompletableFuture<Void> future = new CompletableFuture<>();
+        plugin.getApi().scheduler().runGlobal(() ->
         {
-            player.setFrozen(true);
-            ZonedDateTime now = ZonedDateTime.now(TimeUtils.zoneId());
-            ZonedDateTime then = punishment.getEndDate();
-            long seconds = ChronoUnit.SECONDS.between(now, then);
-            plugin.getApi().scheduler().runGlobalLater(scheduledTask ->
+            try
             {
-                PlexPlayer afterPlayer = plugin.getPlayerService().getPlayer(player.getUuid());
-                if (!afterPlayer.isFrozen())
-                {
-                    return;
-                }
-                afterPlayer.setFrozen(false);
-                punishment.setActive(false);
-                plugin.getPunishmentRepository().updatePunishment(punishment.getType(), false, punishment.getPunished());
-
-                plugin.getPlayerService().update(afterPlayer);
-                Bukkit.broadcast(PlexUtils.messageComponent("unfrozePlayer", "Plex", Bukkit.getOfflinePlayer(afterPlayer.getUuid()).getName()));
-            }, Math.max(1L, 20L * seconds));
-        }
-        else if (punishment.getType() == PunishmentType.MUTE)
-        {
-            player.setMuted(true);
-            ZonedDateTime now = ZonedDateTime.now(TimeUtils.zoneId());
-            ZonedDateTime then = punishment.getEndDate();
-            long seconds = ChronoUnit.SECONDS.between(now, then);
-            plugin.getApi().scheduler().runGlobalLater(scheduledTask ->
+                action.run();
+                future.complete(null);
+            }
+            catch (Throwable failure)
             {
-                PlexPlayer afterPlayer = plugin.getPlayerService().getPlayer(player.getUuid());
-                if (!afterPlayer.isMuted())
-                {
-                    return;
-                }
-                afterPlayer.setMuted(false);
-                punishment.setActive(false);
-                plugin.getPunishmentRepository().updatePunishment(punishment.getType(), false, punishment.getPunished());
-
-                Bukkit.broadcast(PlexUtils.messageComponent("unmutedPlayer", "Plex", Bukkit.getOfflinePlayer(afterPlayer.getUuid()).getName()));
-            }, Math.max(1L, 20L * seconds));
-        }
+                future.completeExceptionally(failure);
+            }
+        });
+        return future;
     }
 
-    public void punish(PlexPlayer player, Punishment punishment)
+    private void publishInvalidation(UUID uuid, @Nullable String ip)
     {
-        issuePunishment(player, punishment);
-        doPunishment(player, punishment);
+        dev.plex.util.redis.MessageUtil.publishBanInvalidation(plugin, uuid, ip)
+                .exceptionally(failure ->
+                {
+                    PlexLog.warn("Unable to publish ban cache invalidation: {0}", failure.getMessage());
+                    return null;
+                });
     }
 
-    @Data
-    public static class IndefiniteBan
+    @Getter
+    public static final class IndefiniteBan
     {
-        private final List<String> usernames = Lists.newArrayList();
-        private final List<UUID> uuids = Lists.newArrayList();
-        private final List<String> ips = Lists.newArrayList();
+        private final List<String> usernames;
+        private final List<UUID> uuids;
+        private final List<String> ips;
         private final String reason;
+
+        public IndefiniteBan(List<String> usernames, List<UUID> uuids, List<String> ips, String reason)
+        {
+            this.usernames = List.copyOf(usernames);
+            this.uuids = List.copyOf(uuids);
+            this.ips = List.copyOf(ips);
+            this.reason = reason == null ? "" : reason;
+        }
     }
+
+    private record StateKey(UUID uuid, PunishmentType type) { }
 }

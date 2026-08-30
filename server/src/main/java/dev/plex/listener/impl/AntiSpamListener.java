@@ -1,12 +1,13 @@
 package dev.plex.listener.impl;
 
 import dev.plex.Plex;
+import dev.plex.abuse.AbuseTracker;
 import dev.plex.api.listener.EventRule;
 import dev.plex.listener.ServerListenerBase;
-import dev.plex.services.impl.TimingService;
 import dev.plex.util.PlexUtils;
 import io.papermc.paper.event.player.AsyncChatEvent;
 
+import java.time.Duration;
 import java.util.UUID;
 
 import org.bukkit.entity.Player;
@@ -16,6 +17,9 @@ import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 
 public class AntiSpamListener extends ServerListenerBase
 {
+    private static final AbuseTracker TRACKER = new AbuseTracker(
+            Duration.ofSeconds(5), 8, 0, Duration.ofMinutes(30), 10_000);
+
     public AntiSpamListener(Plex plugin)
     {
         super(plugin);
@@ -27,16 +31,14 @@ public class AntiSpamListener extends ServerListenerBase
     private void checkForSpam(Player player, Cancellable event)
     {
         UUID uuid = player.getUniqueId();
-        TimingService.spamCooldown.merge(uuid, 1L, Long::sum);
-        if (getCount(uuid) > 8L)
+        AbuseTracker.Decision decision = TRACKER.record(uuid);
+        if (!decision.allowed())
         {
-            player.sendMessage(PlexUtils.messageComponent("antiSpamMessage"));
             event.setCancelled(true);
+            if (decision.thresholdCrossed())
+            {
+                plugin.getApi().scheduler().runEntity(player, () -> player.sendMessage(PlexUtils.messageComponent("antiSpamMessage")));
+            }
         }
-    }
-
-    public long getCount(UUID uuid)
-    {
-        return TimingService.spamCooldown.getOrDefault(uuid, 1L);
     }
 }

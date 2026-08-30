@@ -26,11 +26,12 @@ public class Punishment
     private final UUID punisher;
     private PunishmentSource source;
     private String punisherReference;
+    private transient String resolvedPunisherName;
     private String ip;
     private PunishmentType type;
     private String reason;
     private boolean customTime;
-    private boolean active; // Field is only for bans
+    private boolean active;
     private ZonedDateTime issueDate;
     private ZonedDateTime endDate;
 
@@ -44,7 +45,20 @@ public class Punishment
 
     public static Component generateBanMessage(Punishment punishment, String banUrl, PlayerNameResolver playerNameResolver)
     {
-        return PlexUtils.messageComponent("banMessage", banUrl, punishment.getReason(), TimeUtils.useTimezone(punishment.getEndDate()), punisherDisplayName(punishment, playerNameResolver));
+        return PlexUtils.messageComponent("banMessage", banUrl, punishment.getReason(), endDate(punishment), punisherDisplayName(punishment, playerNameResolver));
+    }
+
+    public static Component generateAdmissionBanMessage(Punishment punishment, String banUrl)
+    {
+        String punisher = switch (punishment.getSource())
+        {
+            case PLAYER -> punishment.getResolvedPunisherName() == null || punishment.getResolvedPunisherName().isBlank()
+                    ? "unknown" : punishment.getResolvedPunisherName();
+            case CONSOLE -> "CONSOLE";
+            case WEB -> punishment.getPunisherReference() == null || punishment.getPunisherReference().isBlank()
+                    ? "WEB" : punishment.getPunisherReference();
+        };
+        return PlexUtils.messageComponent("banMessage", banUrl, punishment.getReason(), endDate(punishment), punisher);
     }
 
     public static Component generateKickMessage(Punishment punishment, PlayerNameResolver playerNameResolver)
@@ -61,10 +75,17 @@ public class Punishment
         }
         return switch (source)
         {
-            case PLAYER -> punishment.getPunisher() == null ? "CONSOLE" : playerNameResolver.resolve(punishment.getPunisher());
+            case PLAYER -> punishment.getPunisher() == null ? "CONSOLE"
+                    : punishment.getResolvedPunisherName() != null && !punishment.getResolvedPunisherName().isBlank()
+                    ? punishment.getResolvedPunisherName() : playerNameResolver.resolve(punishment.getPunisher());
             case CONSOLE -> "CONSOLE";
             case WEB -> punishment.getPunisherReference() == null || punishment.getPunisherReference().isBlank() ? "WEB" : punishment.getPunisherReference();
         };
+    }
+
+    private static String endDate(Punishment punishment)
+    {
+        return punishment.getEndDate() == null ? "Never" : TimeUtils.useTimezone(punishment.getEndDate());
     }
 
     public static Component generateIndefBanMessageWithReason(String type, String banUrl, String reason)

@@ -1,13 +1,10 @@
 package dev.plex.storage.punishment;
 
-import com.google.common.collect.Lists;
 import dev.plex.punishment.extra.Note;
 import dev.plex.storage.database.entity.NoteEntity;
 import dev.plex.storage.repository.NoteRepository;
-import dev.plex.util.PlexLog;
 import dev.plex.util.TimeUtils;
 import org.jdbi.v3.core.Jdbi;
-import org.jdbi.v3.core.JdbiException;
 
 import java.time.Instant;
 import java.time.ZonedDateTime;
@@ -20,6 +17,7 @@ import java.util.concurrent.Executor;
 
 public class SQLNotes implements NoteRepository
 {
+    private final Object insertLock = new Object();
     private final Jdbi jdbi;
     private final Executor executor;
 
@@ -31,69 +29,54 @@ public class SQLNotes implements NoteRepository
 
     public CompletableFuture<List<Note>> getNotes(UUID uuid)
     {
-        return CompletableFuture.supplyAsync(() ->
-        {
-            try
-            {
-                return jdbi.withHandle(h -> h.createQuery("SELECT * FROM notes WHERE uuid = :u")
+        return CompletableFuture.supplyAsync(() -> jdbi.withHandle(h -> h.createQuery("SELECT * FROM notes WHERE uuid = :u")
                         .bind("u", uuid.toString()).map((rs, ctx) -> mapRow(rs)).list()).stream()
                         .sorted(Comparator.comparingInt(NoteEntity::getId))
                         .map(this::toNote)
                         .flatMap(Optional::stream)
-                        .toList();
-            }
-            catch (JdbiException e)
-            {
-                PlexLog.warn("Failed to load notes for {0}: {1}", uuid, e.getMessage());
-                return Lists.newArrayList();
-            }
-        }, executor);
+                    .toList(), executor);
     }
 
-    public CompletableFuture<Void> deleteNote(int id, UUID uuid)
+    public CompletableFuture<Boolean> deleteNote(int id, UUID uuid)
     {
-        return CompletableFuture.runAsync(() ->
-        {
-            try
-            {
-                jdbi.useHandle(h -> h.createUpdate("DELETE FROM notes WHERE uuid = :u AND id = :id")
+        return CompletableFuture.supplyAsync(() -> jdbi.withHandle(h -> h.createUpdate("DELETE FROM notes WHERE uuid = :u AND id = :id")
                         .bind("u", uuid.toString())
                         .bind("id", id)
-                        .execute());
-            }
-            catch (JdbiException e)
-            {
-                PlexLog.warn("Failed to delete note {0} for {1}: {2}", id, uuid, e.getMessage());
-            }
-        }, executor);
+                        .execute()) > 0, executor);
     }
 
     public CompletableFuture<Void> addNote(Note note)
     {
         return CompletableFuture.runAsync(() ->
         {
-            try
+            synchronized (insertLock)
             {
-                int nextId = jdbi.withHandle(h -> h.createQuery("SELECT COALESCE(MAX(id), 0) FROM notes WHERE uuid = :u")
-                        .bind("u", note.getUuid().toString()).mapTo(Integer.class).one()) + 1;
-                NoteEntity entity = toEntity(note);
-                entity.setId(nextId);
-                jdbi.useHandle(h -> h.createUpdate(
+                jdbi.useTransaction(h ->
+                {
+                    int nextId = h.createQuery("SELECT COALESCE(MAX(id), 0) FROM notes WHERE uuid = :u")
+                            .bind("u", note.getUuid().toString()).mapTo(Integer.class).one() + 1;
+                    NoteEntity entity = toEntity(note);
+                    entity.setId(nextId);
+                    h.createUpdate(
                                 "INSERT INTO notes (id, uuid, written_by_uuid, note, timestamp) " +
                                         "VALUES (:id, :uuid, :writtenBy, :note, :ts)")
-                        .bind("id", entity.getId())
-                        .bind("uuid", entity.getUuid())
-                        .bind("writtenBy", entity.getWrittenByUuid())
-                        .bind("note", entity.getNote())
-                        .bind("ts", entity.getTimestamp())
-                        .execute());
-                note.setId(nextId);
-            }
-            catch (JdbiException e)
-            {
-                PlexLog.warn("Failed to add note for {0}: {1}", note.getUuid(), e.getMessage());
+                            .bind("id", entity.getId())
+                            .bind("uuid", entity.getUuid())
+                            .bind("writtenBy", entity.getWrittenByUuid())
+                            .bind("note", entity.getNote())
+                            .bind("ts", entity.getTimestamp())
+                            .execute();
+                    note.setId(nextId);
+                });
             }
         }, executor);
+    }
+
+    @Override
+    public CompletableFuture<Integer> clearNotes(UUID uuid)
+    {
+        return CompletableFuture.supplyAsync(() -> jdbi.withHandle(h -> h.createUpdate("DELETE FROM notes WHERE uuid = :u")
+                .bind("u", uuid.toString()).execute()), executor);
     }
 
     private static NoteEntity mapRow(java.sql.ResultSet rs) throws java.sql.SQLException

@@ -13,6 +13,7 @@ public final class ArtifactMetadata
 {
     private static final int CURRENT_SCHEMA_VERSION = 1;
     private static final Pattern SHA256_PATTERN = Pattern.compile("^[a-fA-F0-9]{64}$");
+    private static final Pattern ARTIFACT_FILE_NAME_PATTERN = Pattern.compile("^[A-Za-z0-9][A-Za-z0-9._-]{0,199}\\.jar$");
 
     private int schemaVersion;
     private String name;
@@ -153,18 +154,24 @@ public final class ArtifactMetadata
     {
         try
         {
-            String path = URI.create(downloadUrl).getPath();
-            int separatorIndex = path.lastIndexOf('/');
-            String fileName = separatorIndex >= 0 ? path.substring(separatorIndex + 1) : path;
-            if (!fileName.isBlank())
+            String rawPath = URI.create(downloadUrl).getRawPath();
+            int separatorIndex = rawPath.lastIndexOf('/');
+            String rawFileName = separatorIndex >= 0 ? rawPath.substring(separatorIndex + 1) : rawPath;
+            if (!rawFileName.isBlank())
             {
-                return URLDecoder.decode(fileName, StandardCharsets.UTF_8);
+                String decoded = URLDecoder.decode(rawFileName, StandardCharsets.UTF_8);
+                if (isSafeArtifactFileName(decoded))
+                {
+                    return decoded;
+                }
             }
         }
         catch (IllegalArgumentException ignored)
         {
         }
-        return name + "-" + version + ".jar";
+
+        String fallback = (name + "-" + version).replaceAll("[^A-Za-z0-9._-]", "_");
+        return isSafeArtifactFileName(fallback + ".jar") ? fallback + ".jar" : "update.jar";
     }
 
     private Optional<String> validateCommon(UpdateChannel requestedChannel)
@@ -197,9 +204,25 @@ public final class ArtifactMetadata
         {
             return Optional.of("metadata is missing downloadUrl");
         }
+        try
+        {
+            URI downloadUri = URI.create(downloadUrl);
+            if (!"https".equalsIgnoreCase(downloadUri.getScheme()) || downloadUri.getHost() == null)
+            {
+                return Optional.of("metadata downloadUrl must be an absolute HTTPS URL");
+            }
+        }
+        catch (IllegalArgumentException e)
+        {
+            return Optional.of("metadata downloadUrl is invalid");
+        }
         if (isBlank(sha256) || !SHA256_PATTERN.matcher(sha256).matches())
         {
             return Optional.of("metadata is missing a valid sha256");
+        }
+        if (size != null && size < 0)
+        {
+            return Optional.of("metadata size must not be negative");
         }
         return Optional.empty();
     }
@@ -217,5 +240,10 @@ public final class ArtifactMetadata
     private static boolean isKnown(String value)
     {
         return !isBlank(value) && !"unknown".equalsIgnoreCase(value);
+    }
+
+    private static boolean isSafeArtifactFileName(String value)
+    {
+        return value != null && ARTIFACT_FILE_NAME_PATTERN.matcher(value).matches();
     }
 }

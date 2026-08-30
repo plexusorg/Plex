@@ -11,6 +11,7 @@ import dev.plex.punishment.PunishmentType;
 import dev.plex.util.BungeeUtil;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.TimeUtils;
+import dev.plex.util.PlexLog;
 
 import java.time.ZonedDateTime;
 
@@ -68,6 +69,7 @@ public class KickCMD extends ServerCommand
             throw new PlayerNotFoundException();
         }
         Punishment punishment = new Punishment(plexPlayer.getUuid(), context.getUUID(sender));
+        punishment.setResolvedPunisherName(context.senderName());
         punishment.setType(PunishmentType.KICK);
         if (args.length > 1)
         {
@@ -79,9 +81,17 @@ public class KickCMD extends ServerCommand
         punishment.setCustomTime(false);
         punishment.setActive(false);
         punishment.setIp(player.getAddress().getAddress().getHostAddress().trim());
-        plugin.getPunishmentManager().punish(plexPlayer, punishment);
-        PlexUtils.broadcast(context.messageComponent("kickedPlayer", context.senderName(), plexPlayer.getName()));
-        BungeeUtil.kickPlayer(plugin, player, Punishment.generateKickMessage(punishment, plugin.getPlayerNameResolver()));
+        plugin.getPunishmentManager().punish(plexPlayer, punishment).whenComplete((unused, failure) -> plugin.getApi().scheduler().runGlobal(() ->
+        {
+            if (failure != null)
+            {
+                PlexLog.error("Unable to persist kick for {0}: {1}", plexPlayer.getUuid(), failure.getMessage());
+                context.send(sender, Component.text("Unable to persist the kick; no action was taken."));
+                return;
+            }
+            PlexUtils.broadcast(context.messageComponent("kickedPlayer", context.senderName(), plexPlayer.getName()));
+            plugin.getApi().scheduler().runEntity(player, () -> BungeeUtil.kickPlayer(plugin, player, Punishment.generateKickMessage(punishment, plugin.getPlayerNameResolver())));
+        }));
         return null;
     }
 

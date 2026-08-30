@@ -18,7 +18,7 @@ public class PunishmentEntity
     private boolean customTime;
     private boolean active;
     private long issueDate;
-    private long endDate;
+    private Long endDate;
 
     public PunishmentEntity()
     {

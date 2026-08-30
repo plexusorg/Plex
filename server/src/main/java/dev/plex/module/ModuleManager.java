@@ -10,12 +10,12 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 import lombok.Getter;
@@ -62,8 +62,12 @@ public class ModuleManager
                         throw new ModuleLoadException("Plex module " + file.getName() + " does not contain module.yml");
                     }
 
-                    InputStreamReader internalModuleFile = new InputStreamReader(moduleDescriptor, StandardCharsets.UTF_8);
-                    YamlConfiguration internalModuleConfig = YamlConfiguration.loadConfiguration(internalModuleFile);
+                    YamlConfiguration internalModuleConfig;
+                    try (moduleDescriptor;
+                         InputStreamReader internalModuleFile = new InputStreamReader(moduleDescriptor, StandardCharsets.UTF_8))
+                    {
+                        internalModuleConfig = YamlConfiguration.loadConfiguration(internalModuleFile);
+                    }
 
                     String name = internalModuleConfig.getString("name");
                     if (name == null || !name.matches("[A-Za-z0-9][A-Za-z0-9._-]{0,63}"))
@@ -119,7 +123,11 @@ public class ModuleManager
 
                     PlexModuleFile plexModuleFile = new PlexModuleFile(name, main, description, version,
                             apiCompatibility, libraries, repositories, updaterEnabled, updateUrls);
-                    Class<? extends PlexModule> module = Class.forName(main, true, loader).asSubclass(PlexModule.class);
+                    Class<? extends PlexModule> module = Class.forName(main, false, loader).asSubclass(PlexModule.class);
+                    if (module.getClassLoader() != loader)
+                    {
+                        throw new ModuleLoadException("Plex module main class must be defined by " + file.getName());
+                    }
 
                     PlexModule plexModule = module.getConstructor().newInstance();
                     plexModule.setApi(plugin.getApi());
@@ -136,7 +144,7 @@ public class ModuleManager
                     modules.add(plexModule);
                     loader = null;
                 }
-                catch (MalformedURLException | ReflectiveOperationException | ClassCastException e)
+                catch (IOException | ReflectiveOperationException | ClassCastException e)
                 {
                     PlexLog.warn("Skipping module " + file.getName() + ": " + e.getMessage());
                 }
@@ -164,21 +172,53 @@ public class ModuleManager
 
     public void loadModules()
     {
-        this.modules.forEach(module ->
+        Iterator<PlexModule> iterator = modules.iterator();
+        while (iterator.hasNext())
         {
+            PlexModule module = iterator.next();
             PlexLog.log("Loading module " + module.getPlexModuleFile().getName() + " with version " + module.getPlexModuleFile().getVersion());
-            module.load();
-            //            this.libraryLoader.createLoader(module, module.getPlexModuleFile());
-        });
+            try
+            {
+                module.load();
+            }
+            catch (RuntimeException | LinkageError ex)
+            {
+                PlexLog.error("Module " + module.getPlexModuleFile().getName() + " failed to load: " + ex.getMessage());
+                cleanupContributions(module);
+                closeClassLoader(module);
+                iterator.remove();
+            }
+        }
     }
 
     public void enableModules()
     {
-        this.modules.forEach(module ->
+        Iterator<PlexModule> iterator = modules.iterator();
+        while (iterator.hasNext())
         {
+            PlexModule module = iterator.next();
             PlexLog.log("Enabling module " + module.getPlexModuleFile().getName() + " with version " + module.getPlexModuleFile().getVersion());
-            module.enable();
-        });
+            try
+            {
+                module.enable();
+            }
+            catch (RuntimeException | LinkageError ex)
+            {
+                PlexLog.error("Module " + module.getPlexModuleFile().getName() + " failed to enable: " + ex.getMessage());
+                try
+                {
+                    module.disable();
+                }
+                catch (RuntimeException | LinkageError cleanupFailure)
+                {
+                    PlexLog.error("Module " + module.getPlexModuleFile().getName()
+                            + " also failed rollback disable: " + cleanupFailure.getMessage());
+                }
+                cleanupContributions(module);
+                closeClassLoader(module);
+                iterator.remove();
+            }
+        }
     }
 
     public void disableModules()
@@ -190,27 +230,13 @@ public class ModuleManager
             {
                 module.disable();
             }
-            catch (RuntimeException ex)
+            catch (RuntimeException | LinkageError ex)
             {
                 PlexLog.error("Module " + module.getPlexModuleFile().getName() + " failed to disable: " + ex.getMessage());
             }
             finally
             {
-                try
-                {
-                    module.getCommands().forEach(module::unregisterCommand);
-                }
-                finally
-                {
-                    try
-                    {
-                        module.getListeners().forEach(module::unregisterListener);
-                    }
-                    finally
-                    {
-                        module.cancelTasks();
-                    }
-                }
+                cleanupContributions(module);
             }
         });
     }
@@ -218,17 +244,8 @@ public class ModuleManager
     public void unloadModules()
     {
         this.disableModules();
-        this.modules.forEach(module ->
-        {
-            try
-            {
-                ((URLClassLoader) module.getClass().getClassLoader()).close();
-            }
-            catch (IOException e)
-            {
-                e.printStackTrace();
-            }
-        });
+        this.modules.forEach(this::closeClassLoader);
+        this.modules.clear();
     }
 
     public void reloadModules()
@@ -306,6 +323,45 @@ public class ModuleManager
         if (!file.delete())
         {
             PlexLog.warn("Unable to delete " + file.getAbsolutePath());
+        }
+    }
+
+    private void cleanupContributions(PlexModule module)
+    {
+        String name = module.getPlexModuleFile().getName();
+        try
+        {
+            module.getCommands().forEach(module::unregisterCommand);
+            module.getListeners().forEach(module::unregisterListener);
+        }
+        catch (RuntimeException | LinkageError ex)
+        {
+            PlexLog.error("Could not unregister all contributions from module " + name + ": " + ex.getMessage());
+        }
+        try
+        {
+            module.cancelTasks();
+        }
+        catch (RuntimeException | LinkageError ex)
+        {
+            PlexLog.error("Could not cancel tasks for module " + name + ": " + ex.getMessage());
+        }
+    }
+
+    private void closeClassLoader(PlexModule module)
+    {
+        ClassLoader classLoader = module.getClass().getClassLoader();
+        if (!(classLoader instanceof URLClassLoader loader))
+        {
+            return;
+        }
+        try
+        {
+            loader.close();
+        }
+        catch (IOException ex)
+        {
+            PlexLog.error("Could not close module " + module.getPlexModuleFile().getName() + " classloader: " + ex.getMessage());
         }
     }
 }

@@ -9,6 +9,7 @@ import dev.plex.command.exception.PlayerNotFoundException;
 import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.PunishmentType;
 import dev.plex.util.PlexUtils;
+import dev.plex.util.PlexLog;
 
 
 import io.papermc.paper.command.brigadier.CommandSourceStack;
@@ -56,13 +57,16 @@ public class UnmuteCMD extends ServerCommand
         {
             throw new CommandFailException(PlexUtils.messageString("playerNotMuted"));
         }
-        punishedPlayer.setMuted(false);
-        punishedPlayer.getPunishments().stream().filter(punishment -> punishment.getType() == PunishmentType.MUTE && punishment.isActive()).forEach(punishment ->
-        {
-            punishment.setActive(false);
-            plugin.getPunishmentRepository().updatePunishment(punishment.getType(), false, punishment.getPunished());
-        });
-        PlexUtils.broadcast(context.messageComponent("unmutedPlayer", context.senderName(), punishedPlayer.getName()));
+        plugin.getPunishmentManager().deactivateTimedPunishment(punishedPlayer, PunishmentType.MUTE)
+                .whenComplete((unused, failure) -> plugin.getApi().scheduler().runGlobal(() ->
+                {
+                    if (failure != null)
+                    {
+                        PlexLog.error("Unable to unmute {0}: {1}", punishedPlayer.getUuid(), failure.getMessage());
+                        context.send(sender, Component.text("Unable to persist the unmute; no action was taken."));
+                    }
+                    else PlexUtils.broadcast(context.messageComponent("unmutedPlayer", context.senderName(), punishedPlayer.getName()));
+                }));
         return null;
     }
 

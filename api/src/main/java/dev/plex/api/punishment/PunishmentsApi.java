@@ -3,6 +3,7 @@ package dev.plex.api.punishment;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import dev.plex.api.player.PlexPlayerView;
 
@@ -63,8 +64,9 @@ public interface PunishmentsApi
      *
      * @param player player to punish
      * @param punishment punishment details
+     * @return result that completes when storage is updated
      * @throws IllegalArgumentException if the request is for a different player
      *         or Plex does not know the player
      */
-    void punish(PlexPlayerView player, PunishmentRequest punishment);
+    CompletableFuture<Void> punish(PlexPlayerView player, PunishmentRequest punishment);
 }

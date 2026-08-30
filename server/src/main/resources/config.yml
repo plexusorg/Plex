@@ -13,6 +13,8 @@ server:
 # Ban message is customized in the messages.yml file. The URL to appeal at is below.
 banning:
   ban_url: "https://forum.plex.us.org"
+  admission-cache-seconds: 60
+  admission-cache-size: 10000
 
 punishments:
   mute-timer: 300
@@ -260,6 +262,8 @@ worlds:
 
 # Static updater metadata. The metadata can be hosted as plain JSON on Cloudflare Pages.
 updater:
+  enabled: true
+  interval: 1800
   channel: "dev"
 
 # Additional logging for debugging

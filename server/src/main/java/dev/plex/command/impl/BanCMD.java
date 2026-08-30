@@ -67,7 +67,7 @@ public class BanCMD extends ServerCommand
 
         Player player = Bukkit.getPlayer(plexPlayer.getUuid());
 
-        plugin.getPunishmentManager().isAsyncBanned(plexPlayer.getUuid()).whenComplete((aBoolean, throwable) ->
+        plugin.getPunishmentManager().isBanned(plexPlayer.getUuid()).whenComplete((aBoolean, throwable) ->
         {
             plugin.getApi().scheduler().runGlobal(() ->
             {
@@ -83,6 +83,7 @@ public class BanCMD extends ServerCommand
                 }
                 String reason;
                 Punishment punishment = new Punishment(plexPlayer.getUuid(), context.getUUID(sender));
+                punishment.setResolvedPunisherName(context.senderName());
                 punishment.setType(PunishmentType.BAN);
                 boolean rollBack = false;
                 if (args.length > 1)
@@ -101,18 +102,21 @@ public class BanCMD extends ServerCommand
                 punishment.setCustomTime(false);
                 punishment.setActive(true);
                 punishment.setIp(plexPlayer.getIps().getLast());
-                plugin.getPunishmentManager().punish(plexPlayer, punishment);
-                PlexUtils.broadcast(context.messageComponent("banningPlayer", context.senderName(), plexPlayer.getName()));
-                if (player != null)
+                final boolean shouldRollBack = rollBack;
+                plugin.getPunishmentManager().punish(plexPlayer, punishment).whenComplete((unused, failure) -> plugin.getApi().scheduler().runGlobal(() ->
                 {
-                    plugin.getApi().scheduler().runEntity(player, () -> BungeeUtil.kickPlayer(plugin, player, Punishment.generateBanMessage(punishment, plugin.config.getString("banning.ban_url"), plugin.getPlayerNameResolver())));
-                }
-                PlexLog.debug("(From /ban command) PunishedPlayer UUID: " + plexPlayer.getUuid());
-
-                if (rollBack)
-                {
-                    plugin.getApi().rollback().rollbackLastDay(sender, plexPlayer.getName());
-                }
+                    if (failure != null)
+                    {
+                        PlexLog.error("Unable to ban {0}: {1}", plexPlayer.getName(), failure.getMessage());
+                        context.send(sender, Component.text("Unable to persist the ban; no action was taken."));
+                        return;
+                    }
+                    PlexUtils.broadcast(context.messageComponent("banningPlayer", context.senderName(), plexPlayer.getName()));
+                    if (player != null)
+                        plugin.getApi().scheduler().runEntity(player, () -> BungeeUtil.kickPlayer(plugin, player, Punishment.generateBanMessage(punishment, plugin.config.getString("banning.ban_url"), plugin.getPlayerNameResolver())));
+                    PlexLog.debug("(From /ban command) PunishedPlayer UUID: " + plexPlayer.getUuid());
+                    if (shouldRollBack) plugin.getApi().rollback().rollbackLastDay(sender, plexPlayer.getName());
+                }));
             });
         });
 

@@ -45,9 +45,10 @@ public class ChatListener extends ServerListenerBase
     @EventHandler(priority = EventPriority.LOWEST)
     public void onChat(AsyncChatEvent event)
     {
-        PlexPlayer plexPlayer = plugin.getPlayerCache().getPlexPlayerMap().get(event.getPlayer().getUniqueId());
+        PlexPlayer plexPlayer = plugin.getPlayerCache().getPlexPlayer(event.getPlayer().getUniqueId());
         PlexChatRenderer renderer = new PlexChatRenderer();
         renderer.format = SafeMiniMessage.mmDeserialize(plugin.config.getString("chat.format"));
+        PRE_RENDERER.accept(event, plexPlayer);
         if (plexPlayer.isStaffChat())
         {
             String prefix = PlexUtils.mmSerialize(VaultHook.getPrefix(event.getPlayer())); // Don't use PlexPlayer#getPrefix because that returns their custom set prefix and not their group's
@@ -79,8 +80,6 @@ public class ChatListener extends ServerListenerBase
             renderer.hasPrefix = false;
             renderer.prefix = null;
         }
-
-        PRE_RENDERER.accept(event, plexPlayer);
 
         event.renderer(renderer);
     }

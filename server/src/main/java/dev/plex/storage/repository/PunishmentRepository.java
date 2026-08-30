@@ -6,10 +6,14 @@ import dev.plex.punishment.PunishmentType;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.time.Instant;
+import java.util.Optional;
 
 public interface PunishmentRepository
 {
     CompletableFuture<List<Punishment>> getPunishments();
+
+    CompletableFuture<Optional<Punishment>> getEffectiveBan(UUID uuid, String canonicalIp, Instant now);
 
     List<Punishment> getPunishments(UUID uuid);
 
@@ -17,9 +21,9 @@ public interface PunishmentRepository
 
     CompletableFuture<Void> insertPunishment(Punishment punishment);
 
-    void syncRemoveBan(UUID uuid);
-
     CompletableFuture<Void> updatePunishment(PunishmentType type, boolean active, UUID punished);
 
-    CompletableFuture<Void> removeBan(UUID uuid);
+    CompletableFuture<Void> expirePunishments(PunishmentType type, UUID punished, Instant now);
+
+    CompletableFuture<List<String>> removeBan(UUID uuid);
 }

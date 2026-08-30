@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 final class DefaultPunishmentsApi implements PunishmentsApi
@@ -24,11 +25,11 @@ final class DefaultPunishmentsApi implements PunishmentsApi
     @Override public Optional<? extends IndefiniteBanView> indefiniteBanByUuid(UUID uuid) { return Optional.ofNullable(plugin.getPunishmentManager().getIndefiniteBanByUUID(Objects.requireNonNull(uuid, "uuid"))).map(DefaultIndefiniteBanView::new); }
     @Override public Optional<? extends IndefiniteBanView> indefiniteBanByName(String name) { return Optional.ofNullable(plugin.getPunishmentManager().getIndefiniteBanByUsername(Objects.requireNonNull(name, "name"))).map(DefaultIndefiniteBanView::new); }
     @Override public Optional<? extends IndefiniteBanView> indefiniteBanByIp(String ip) { return Optional.ofNullable(plugin.getPunishmentManager().getIndefiniteBanByIP(Objects.requireNonNull(ip, "ip"))).map(DefaultIndefiniteBanView::new); }
-    @Override public CompletionStage<Boolean> isBanned(UUID uuid) { return plugin.getPunishmentManager().isAsyncBanned(Objects.requireNonNull(uuid, "uuid")); }
+    @Override public CompletionStage<Boolean> isBanned(UUID uuid) { return plugin.getPunishmentManager().isBanned(Objects.requireNonNull(uuid, "uuid")); }
     @Override public CompletionStage<Void> unban(UUID uuid) { return plugin.getPunishmentManager().unban(Objects.requireNonNull(uuid, "uuid")); }
 
     @Override
-    public void punish(PlexPlayerView playerView, PunishmentRequest request)
+    public CompletableFuture<Void> punish(PlexPlayerView playerView, PunishmentRequest request)
     {
         Objects.requireNonNull(playerView, "playerView");
         Objects.requireNonNull(request, "request");
@@ -51,6 +52,6 @@ final class DefaultPunishmentsApi implements PunishmentsApi
         punishment.setCustomTime(request.customTime());
         punishment.setActive(request.active());
         punishment.setEndDate(request.endDate());
-        plugin.getPunishmentManager().punish(player, punishment);
+        return plugin.getPunishmentManager().punish(player, punishment);
     }
 }

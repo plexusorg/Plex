@@ -31,8 +31,11 @@ import org.bukkit.event.block.SpongeAbsorbEvent;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.PortalCreateEvent;
 import org.bukkit.event.world.StructureGrowEvent;
+import org.bukkit.event.world.WorldLoadEvent;
+import org.bukkit.event.world.WorldUnloadEvent;
 
 public final class WorldSpawnSignListener extends ServerListenerBase
 {
@@ -98,6 +101,27 @@ public final class WorldSpawnSignListener extends ServerListenerBase
             event.setCancelled(true);
             signManager.restore(event.getBlock().getWorld());
         }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onWorldLoad(WorldLoadEvent event)
+    {
+        signManager.restoreConfigured(event.getWorld());
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onChunkLoad(ChunkLoadEvent event)
+    {
+        if (event.getChunk().getX() == 0 && event.getChunk().getZ() == 0)
+        {
+            signManager.restoreConfigured(event.getWorld());
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onWorldUnload(WorldUnloadEvent event)
+    {
+        signManager.forget(event.getWorld());
     }
 
     private void protectExplosion(List<Block> blocks, World world)

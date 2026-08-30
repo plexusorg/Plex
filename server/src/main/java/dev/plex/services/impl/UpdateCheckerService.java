@@ -1,41 +1,60 @@
 package dev.plex.services.impl;
 
 import dev.plex.Plex;
-import dev.plex.services.AbstractService;
+import dev.plex.util.PlexLog;
 import dev.plex.util.UpdateChecker;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.Bukkit;
 
-public class UpdateCheckerService extends AbstractService
+public class UpdateCheckerService
 {
-    private boolean notified = false;
+    private final Plex plugin;
+    private boolean notified;
 
     public UpdateCheckerService(Plex plugin)
     {
-        super(plugin, true, true);
+        this.plugin = plugin;
     }
 
-    @Override
+    public boolean shouldStart()
+    {
+        return plugin.config.getBoolean("updater.enabled", true);
+    }
+
     public void run(ScheduledTask task)
     {
-        if (!notified)
+        if (notified)
+        {
+            return;
+        }
+        try
         {
             UpdateChecker.UpdateCheckResult result = plugin.getUpdateChecker().checkForUpdates(false);
-            plugin.getUpdateChecker().sendResultMessage(Bukkit.getConsoleSender(), result, 1);
             if (result.status() == UpdateChecker.UpdateCheckStatus.UPDATE_AVAILABLE
                     || result.status() == UpdateChecker.UpdateCheckStatus.MINECRAFT_TOO_OLD
                     || result.status() == UpdateChecker.UpdateCheckStatus.MINECRAFT_TOO_NEW
                     || result.status() == UpdateChecker.UpdateCheckStatus.MINECRAFT_UNLISTED)
             {
                 notified = true;
+                task.cancel();
             }
+            plugin.getApi().scheduler().runGlobal(
+                    () -> plugin.getUpdateChecker().sendResultMessage(Bukkit.getConsoleSender(), result, 1));
+        }
+        catch (RuntimeException exception)
+        {
+            PlexLog.warn("Update check failed; retrying later: {0}", exception.getMessage());
         }
     }
 
-    @Override
+    public void onStart()
+    {
+        notified = false;
+        plugin.getUpdateChecker().clearCache();
+    }
+
     public int repeatInSeconds()
     {
-        // Every 30 minutes
-        return 1800;
+        return Math.max(60, plugin.config.getInt("updater.interval", 1800));
     }
 }

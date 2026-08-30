@@ -6,11 +6,12 @@ import dev.plex.command.ServerCommand;
 import dev.plex.command.ServerCommandContext;
 import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.extra.Note;
+import dev.plex.util.PlexLog;
 import dev.plex.util.TimeUtils;
 
 import java.time.ZonedDateTime;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.UUID;
 
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
@@ -71,12 +72,20 @@ public class NotesCMD extends ServerCommand
             {
                 plugin.getNoteRepository().getNotes(plexPlayer.getUuid()).whenComplete((notes, ex) ->
                 {
-                    if (notes.isEmpty())
+                    if (ex != null)
                     {
-                        context.send(sender, context.messageComponent("noNotes"));
+                        PlexLog.warn("Unable to list notes for {0}: {1}", plexPlayer.getUuid(), ex.getMessage());
+                        plugin.getApi().scheduler().runGlobal(() -> context.send(sender, Component.text("Unable to load notes.")));
                         return;
                     }
-                    readNotes(context, sender, plexPlayer, notes);
+                    if (notes.isEmpty())
+                    {
+                        plugin.getApi().scheduler().runGlobal(() -> context.send(sender, context.messageComponent("noNotes")));
+                        return;
+                    }
+                    List<String> authors = notes.stream()
+                            .map(note -> authorName(note.getWrittenBy())).toList();
+                    plugin.getApi().scheduler().runGlobal(() -> readNotes(context, sender, plexPlayer, notes, authors));
                 });
                 return null;
             }
@@ -90,10 +99,18 @@ public class NotesCMD extends ServerCommand
                 if (playerSender != null)
                 {
                     Note note = new Note(plexPlayer.getUuid(), content, playerSender.getUniqueId(), ZonedDateTime.now(TimeUtils.zoneId()));
-                    plexPlayer.getNotes().add(note);
-                    plugin.getNoteRepository().addNote(note);
-                    return context.messageComponent("noteAdded");
+                    plugin.getNoteRepository().addNote(note).whenComplete((unused, failure) -> plugin.getApi().scheduler().runGlobal(() ->
+                    {
+                        if (failure != null)
+                        {
+                            PlexLog.warn("Unable to add note for {0}: {1}", plexPlayer.getUuid(), failure.getMessage());
+                            context.send(sender, Component.text("Unable to add note."));
+                        }
+                        else context.send(sender, context.messageComponent("noteAdded"));
+                    }));
+                    return null;
                 }
+                return context.usage();
             }
             case "remove":
             {
@@ -110,32 +127,32 @@ public class NotesCMD extends ServerCommand
                 {
                     return context.messageComponent("unableToParseNumber", args[2]);
                 }
-                plugin.getNoteRepository().getNotes(plexPlayer.getUuid()).whenComplete((notes, ex) ->
+                plugin.getNoteRepository().deleteNote(id, plexPlayer.getUuid()).whenComplete((deleted, ex) ->
                 {
-                    boolean deleted = false;
-                    for (Note note : notes)
+                    plugin.getApi().scheduler().runGlobal(() ->
                     {
-                        if (note.getId() == id)
+                        if (ex != null)
                         {
-                            plugin.getNoteRepository().deleteNote(id, plexPlayer.getUuid()).whenComplete((notes1, ex1) ->
-                                    context.send(sender, context.messageComponent("removedNote", id)));
-                            deleted = true;
+                            PlexLog.warn("Unable to remove note {0} for {1}: {2}", id, plexPlayer.getUuid(), ex.getMessage());
+                            context.send(sender, Component.text("Unable to remove note."));
                         }
-                    }
-                    if (!deleted)
-                    {
-                        context.send(sender, context.messageComponent("noteNotFound"));
-                    }
-                    plexPlayer.getNotes().removeIf(note -> note.getId() == id);
+                        else context.send(sender, deleted ? context.messageComponent("removedNote", id) : context.messageComponent("noteNotFound"));
+                    });
                 });
                 return null;
             }
             case "clear":
             {
-                int count = plexPlayer.getNotes().size();
-                plexPlayer.getNotes().clear();
-                plugin.getPlayerService().update(plexPlayer);
-                return context.messageComponent("clearedNotes", count);
+                plugin.getNoteRepository().clearNotes(plexPlayer.getUuid()).whenComplete((count, failure) -> plugin.getApi().scheduler().runGlobal(() ->
+                {
+                    if (failure != null)
+                    {
+                        PlexLog.warn("Unable to clear notes for {0}: {1}", plexPlayer.getUuid(), failure.getMessage());
+                        context.send(sender, Component.text("Unable to clear notes."));
+                    }
+                    else context.send(sender, context.messageComponent("clearedNotes", count));
+                }));
+                return null;
             }
             default:
             {
@@ -144,18 +161,25 @@ public class NotesCMD extends ServerCommand
         }
     }
 
-    private void readNotes(ServerCommandContext context, @NotNull CommandSender sender, PlexPlayer plexPlayer, List<Note> notes)
+    private void readNotes(ServerCommandContext context, @NotNull CommandSender sender, PlexPlayer plexPlayer,
+                           List<Note> notes, List<String> authors)
     {
-        AtomicReference<Component> noteList = new AtomicReference<>(context.messageComponent("notesHeader", plexPlayer.getName()));
-        for (Note note : notes)
+        Component noteList = context.messageComponent("notesHeader", plexPlayer.getName());
+        for (int index = 0; index < notes.size(); index++)
         {
-            String author = plugin.getPlayerNameResolver().resolve(note.getWrittenBy());
-            Component noteLine = context.messageComponent("notePrefix", note.getId(), author, TimeUtils.useTimezone(note.getTimestamp()));
+            Note note = notes.get(index);
+            Component noteLine = context.messageComponent("notePrefix", note.getId(), authors.get(index), TimeUtils.useTimezone(note.getTimestamp()));
             noteLine = noteLine.append(context.messageComponent("noteLine", note.getNote()));
-            noteList.set(noteList.get().append(Component.newline()));
-            noteList.set(noteList.get().append(noteLine));
+            noteList = noteList.append(Component.newline()).append(noteLine);
         }
-        context.send(sender, noteList.get());
+        context.send(sender, noteList);
+    }
+
+    private String authorName(UUID uuid)
+    {
+        if (uuid == null) return "CONSOLE";
+        String name = plugin.getPlayerService().getNameByUUID(uuid);
+        return name == null || name.isBlank() ? uuid.toString() : name;
     }
 
 }

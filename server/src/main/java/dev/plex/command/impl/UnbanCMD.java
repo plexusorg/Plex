@@ -7,6 +7,7 @@ import dev.plex.command.ServerCommandContext;
 import dev.plex.command.exception.PlayerNotFoundException;
 import dev.plex.player.PlexPlayer;
 import dev.plex.util.PlexUtils;
+import dev.plex.util.PlexLog;
 
 
 import io.papermc.paper.command.brigadier.CommandSourceStack;
@@ -54,15 +55,27 @@ public class UnbanCMD extends ServerCommand
                 throw new PlayerNotFoundException();
             }
 
-            plugin.getPunishmentManager().isAsyncBanned(target.getUuid()).whenComplete((aBoolean, throwable) ->
+            plugin.getPunishmentManager().isBanned(target.getUuid()).whenComplete((aBoolean, throwable) ->
             {
-                if (!aBoolean)
+                if (throwable != null)
                 {
-                    context.send(sender, context.messageComponent("playerNotBanned"));
+                    plugin.getApi().scheduler().runGlobal(() -> context.send(sender, Component.text("Unable to check ban state.")));
                     return;
                 }
-                plugin.getPunishmentManager().unban(target.getUuid());
-                PlexUtils.broadcast(context.messageComponent("unbanningPlayer", context.senderName(), target.getName()));
+                if (!aBoolean)
+                {
+                    plugin.getApi().scheduler().runGlobal(() -> context.send(sender, context.messageComponent("playerNotBanned")));
+                    return;
+                }
+                plugin.getPunishmentManager().unban(target.getUuid()).whenComplete((unused, failure) -> plugin.getApi().scheduler().runGlobal(() ->
+                {
+                    if (failure != null)
+                    {
+                        PlexLog.error("Unable to unban {0}: {1}", target.getUuid(), failure.getMessage());
+                        context.send(sender, Component.text("Unable to persist the unban; no action was taken."));
+                    }
+                    else PlexUtils.broadcast(context.messageComponent("unbanningPlayer", context.senderName(), target.getName()));
+                }));
             });
         }
         return null;

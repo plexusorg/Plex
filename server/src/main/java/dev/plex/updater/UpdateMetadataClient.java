@@ -1,11 +1,10 @@
 package dev.plex.updater;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
+import com.google.gson.JsonParseException;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URLEncoder;
@@ -16,6 +15,7 @@ import java.util.Optional;
 public final class UpdateMetadataClient
 {
     private static final List<String> DEFAULT_BASE_URLS = List.of("https://updater.plex.us.org", "https://plex-updater.com");
+    private static final int MAX_METADATA_BYTES = 1024 * 1024;
 
     private final Gson gson = new Gson();
     private final UpdateChannel channel;
@@ -109,14 +109,24 @@ public final class UpdateMetadataClient
     private ArtifactMetadata fetch(String baseUrl, String path) throws MetadataException
     {
         String url = baseUrl + path;
+        HttpURLConnection connection = null;
         try
         {
-            HttpURLConnection connection = (HttpURLConnection) URI.create(url).toURL().openConnection();
+            URI uri = URI.create(url);
+            if (!"https".equalsIgnoreCase(uri.getScheme()) || uri.getHost() == null)
+            {
+                throw new MetadataException("metadata URL must be an absolute HTTPS URL: " + url, false);
+            }
+            connection = (HttpURLConnection) uri.toURL().openConnection();
             connection.setConnectTimeout(10000);
             connection.setReadTimeout(10000);
             connection.setRequestProperty("Accept", "application/json");
 
             int statusCode = connection.getResponseCode();
+            if (!"https".equalsIgnoreCase(connection.getURL().getProtocol()))
+            {
+                throw new MetadataException("metadata request redirected to a non-HTTPS URL for " + path + " on " + baseUrl, false);
+            }
             if (statusCode == HttpURLConnection.HTTP_NOT_FOUND)
             {
                 throw new MetadataException("no compatible update metadata exists at " + path + " on " + baseUrl, true);
@@ -126,16 +136,21 @@ public final class UpdateMetadataClient
                 throw new MetadataException("metadata request returned HTTP " + statusCode + " for " + path + " on " + baseUrl, false);
             }
 
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8)))
+            try (InputStream input = connection.getInputStream())
             {
-                ArtifactMetadata metadata = gson.fromJson(reader, ArtifactMetadata.class);
+                byte[] body = input.readNBytes(MAX_METADATA_BYTES + 1);
+                if (body.length > MAX_METADATA_BYTES)
+                {
+                    throw new MetadataException("metadata response exceeded " + MAX_METADATA_BYTES + " bytes for " + path + " on " + baseUrl, false);
+                }
+                ArtifactMetadata metadata = gson.fromJson(new String(body, StandardCharsets.UTF_8), ArtifactMetadata.class);
                 if (metadata == null)
                 {
                     throw new MetadataException("metadata response was empty for " + path + " on " + baseUrl, false);
                 }
                 return metadata;
             }
-            catch (JsonSyntaxException e)
+            catch (JsonParseException e)
             {
                 throw new MetadataException("metadata response was not valid JSON for " + path + " on " + baseUrl, false, e);
             }
@@ -147,6 +162,13 @@ public final class UpdateMetadataClient
         catch (IOException e)
         {
             throw new MetadataException("metadata request failed for " + path + " on " + baseUrl, false, e);
+        }
+        finally
+        {
+            if (connection != null)
+            {
+                connection.disconnect();
+            }
         }
     }
 

@@ -27,7 +27,7 @@ public final class WorldSpawnSignManager
 {
     private static final int SIGN_X = 0;
     private static final int SIGN_Z = 0;
-    private static final long WATCHDOG_PERIOD_TICKS = 20L;
+    private static final long WATCHDOG_PERIOD_TICKS = 20L * 30L;
 
     private final Plex plugin;
     private final Map<UUID, ProtectedSign> protectedSigns = new ConcurrentHashMap<>();
@@ -97,6 +97,22 @@ public final class WorldSpawnSignManager
                 1L);
     }
 
+    public void restoreConfigured(World world)
+    {
+        String configKey = configKey(world);
+        if (configKey == null) return;
+        plugin.getApi().scheduler().executeRegion(
+                world,
+                SIGN_X >> 4,
+                SIGN_Z >> 4,
+                () -> ensureSign(world, configKey));
+    }
+
+    public void forget(World world)
+    {
+        protectedSigns.remove(world.getUID());
+    }
+
     private void restoreLoadedWorlds()
     {
         ConfigurationSection worlds = plugin.config.getConfigurationSection("worlds");
@@ -111,11 +127,7 @@ public final class WorldSpawnSignManager
             {
                 continue;
             }
-            plugin.getApi().scheduler().executeRegion(
-                    world,
-                    SIGN_X >> 4,
-                    SIGN_Z >> 4,
-                    () -> ensureSign(world, configKey));
+            restoreConfigured(world);
         }
     }
 

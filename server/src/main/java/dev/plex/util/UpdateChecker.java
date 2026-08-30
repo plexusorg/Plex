@@ -14,6 +14,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
@@ -31,6 +32,7 @@ import org.bukkit.entity.Player;
 public class UpdateChecker
 {
     private static final long PLEX_METADATA_FAILURE_CACHE_MILLIS = 5 * 60 * 1000L;
+    private static final long MAX_ARTIFACT_BYTES = 256L * 1024L * 1024L;
 
     private final Plex plugin;
     private final UpdateChannel channel;
@@ -61,6 +63,16 @@ public class UpdateChecker
         this.plugin = plugin;
         this.channel = UpdateChannel.fromConfig(plugin.config.getString("updater.channel"));
         this.metadataClient = new UpdateMetadataClient(channel);
+    }
+
+    public synchronized void clearCache()
+    {
+        latestPlexMetadata = null;
+        latestPlexMetadataFailure = null;
+        latestPlexMetadataFailureAtMillis = 0L;
+        latestPlexChannelLatestMetadata = null;
+        latestPlexChannelLatestMetadataFailure = null;
+        latestPlexChannelLatestMetadataFailureAtMillis = 0L;
     }
 
     public UpdateCheckResult checkForUpdates(boolean useCache)
@@ -206,11 +218,11 @@ public class UpdateChecker
 
     public void installModuleJar(CommandSender sender, String name)
     {
-        updateJar(sender, name, List.of(), () -> plugin.getApi().scheduler().runGlobal(() ->
+        updateJar(sender, name, List.of(), () ->
         {
             plugin.getModuleManager().reloadModules();
             sendMessage(sender, PlexUtils.messageComponent("moduleRestartRequired"));
-        }));
+        });
     }
 
     public ModuleUpdateResult updateModuleJar(CommandSender sender, PlexModule module)
@@ -415,16 +427,33 @@ public class UpdateChecker
             return false;
         }
 
-        File temporaryFile = new File(parent, copyTo.getName() + ".download");
+        if (parent == null)
+        {
+            sendMessage(sender, PlexUtils.messageComponent("updateDownloadFailed", metadata.name()));
+            PlexLog.error("Unable to download update {0}: destination has no parent directory", metadata.name());
+            return false;
+        }
+
+        Path normalizedParent = parent.toPath().toAbsolutePath().normalize();
+        Path normalizedDestination = copyTo.toPath().toAbsolutePath().normalize();
+        if (!normalizedParent.equals(normalizedDestination.getParent()))
+        {
+            sendMessage(sender, PlexUtils.messageComponent("updateDownloadFailed", metadata.name()));
+            PlexLog.error("Unable to download update {0}: artifact filename escapes the destination directory", metadata.name());
+            return false;
+        }
+
+        Path temporaryPath = null;
         try
         {
-            download(metadata.downloadUrl(), temporaryFile);
-            validateDownloadedFile(metadata, temporaryFile);
-            Files.move(temporaryFile.toPath(), copyTo.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            temporaryPath = Files.createTempFile(normalizedParent, metadata.fileName() + ".", ".download");
+            download(metadata.downloadUrl(), temporaryPath.toFile());
+            validateDownloadedFile(metadata, temporaryPath.toFile());
+            Files.move(temporaryPath, normalizedDestination, StandardCopyOption.REPLACE_EXISTING);
             sendMessage(sender, PlexUtils.messageComponent("updateDownloaded"));
             if (onSuccess != null)
             {
-                onSuccess.run();
+                plugin.getApi().scheduler().runGlobal(onSuccess);
             }
             return true;
         }
@@ -432,36 +461,79 @@ public class UpdateChecker
         {
             sendMessage(sender, PlexUtils.messageComponent("updateDownloadFailed", metadata.name()));
             PlexLog.error("Unable to download update {0}: {1}", metadata.name(), e.getMessage());
-            e.printStackTrace();
             return false;
         }
         finally
         {
-            try
+            if (temporaryPath != null)
             {
-                Files.deleteIfExists(temporaryFile.toPath());
-            }
-            catch (IOException ignored)
-            {
+                try
+                {
+                    Files.deleteIfExists(temporaryPath);
+                }
+                catch (IOException ignored)
+                {
+                }
             }
         }
     }
 
     private void download(String downloadUrl, File destination) throws IOException
     {
-        HttpURLConnection connection = (HttpURLConnection) URI.create(downloadUrl).toURL().openConnection();
-        connection.setConnectTimeout(15000);
-        connection.setReadTimeout(30000);
-
-        int statusCode = connection.getResponseCode();
-        if (statusCode != HttpURLConnection.HTTP_OK)
+        URI uri;
+        try
         {
-            throw new IOException("download request returned HTTP " + statusCode);
+            uri = URI.create(downloadUrl);
         }
-
-        try (InputStream inputStream = connection.getInputStream())
+        catch (IllegalArgumentException exception)
         {
-            Files.copy(inputStream, destination.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            throw new IOException("download URL is invalid", exception);
+        }
+        if (!"https".equalsIgnoreCase(uri.getScheme()) || uri.getHost() == null)
+        {
+            throw new IOException("download URL must be an absolute HTTPS URL");
+        }
+        HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
+        try
+        {
+            connection.setConnectTimeout(15000);
+            connection.setReadTimeout(30000);
+
+            int statusCode = connection.getResponseCode();
+            if (!"https".equalsIgnoreCase(connection.getURL().getProtocol()))
+            {
+                throw new IOException("download request redirected to a non-HTTPS URL");
+            }
+            if (statusCode != HttpURLConnection.HTTP_OK)
+            {
+                throw new IOException("download request returned HTTP " + statusCode);
+            }
+            long contentLength = connection.getContentLengthLong();
+            if (contentLength > MAX_ARTIFACT_BYTES)
+            {
+                throw new IOException("download exceeded the maximum artifact size");
+            }
+
+            try (InputStream inputStream = connection.getInputStream();
+                 OutputStream outputStream = Files.newOutputStream(destination.toPath()))
+            {
+                byte[] buffer = new byte[8192];
+                long total = 0L;
+                int read;
+                while ((read = inputStream.read(buffer)) != -1)
+                {
+                    total += read;
+                    if (total > MAX_ARTIFACT_BYTES)
+                    {
+                        throw new IOException("download exceeded the maximum artifact size");
+                    }
+                    outputStream.write(buffer, 0, read);
+                }
+            }
+        }
+        finally
+        {
+            connection.disconnect();
         }
     }
 

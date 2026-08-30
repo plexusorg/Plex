@@ -7,66 +7,89 @@ import dev.plex.hook.VaultHook;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.minimessage.SafeMiniMessage;
-
 import java.util.UUID;
-
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.json.JSONException;
+import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
-import redis.clients.jedis.JedisPubSub;
 
 import static dev.plex.util.PlexUtils.messageComponent;
 
-public class MessageUtil
+public final class MessageUtil
 {
     private static final Gson GSON = new Gson();
-    private static JedisPubSub SUBSCRIBER;
+    private static final String STAFF_CHAT_CHANNEL = "staffchat";
+    private static final String INVALIDATION_CHANNEL = "plex:ban-cache-invalidation:v1";
+    private static Plex plugin;
+    private static String serverAddress;
+    private static AutoCloseable subscription;
+    private static Consumer<BanCacheInvalidation> invalidationListener;
 
-    public static void subscribe(Plex plugin)
+    private MessageUtil()
     {
-        PlexLog.debug("Subscribing");
-        SUBSCRIBER = new JedisPubSub()
+    }
+
+    public static synchronized void subscribe(Plex currentPlugin)
+    {
+        close();
+        if (!currentPlugin.getRedisConnection().isEnabled())
         {
-            @Override
-            public void onMessage(String channel, String message)
-            {
-                try
-                {
-                    JSONObject object = new JSONObject(message);
-                    if (channel.equalsIgnoreCase("staffchat"))
-                    {
-                        UUID[] ignore = GSON.fromJson(object.getString("ignore"), new TypeToken<UUID[]>()
-                        {
-                        }.getType());
-                        String sender = object.getString("sender").isEmpty() ? "CONSOLE" : object.getString("sender");
-                        PlexUtils.adminChat(sender, !sender.equals("CONSOLE") ? PlexUtils.mmSerialize(VaultHook.getPrefix(UUID.fromString(sender))) : "<dark_gray>[<dark_purple>Console<dark_gray>]", object.getString("message"), ignore);
-                        String[] server = object.getString("server").split(":");
-                        if (!Bukkit.getServer().getIp().equalsIgnoreCase(server[0]) || Bukkit.getServer().getPort() != Integer.parseInt(server[1]))
-                        {
-                            plugin.getServer().getConsoleSender().sendMessage(messageComponent("adminChatFormat", sender, object.getString("message")));
-                        }
-                    }
-                }
-                catch (JSONException ignored)
-                {
+            return;
+        }
+        plugin = currentPlugin;
+        serverAddress = Bukkit.getServer().getIp() + ":" + Bukkit.getServer().getPort();
+        subscription = currentPlugin.getRedisConnection().subscribe(MessageUtil::receive,
+                STAFF_CHAT_CHANNEL, INVALIDATION_CHANNEL);
+    }
 
-                }
+    public static synchronized void close()
+    {
+        if (subscription != null)
+        {
+            try
+            {
+                subscription.close();
             }
-
-            @Override
-            public void onSubscribe(String channel, int subscribedChannels)
+            catch (Exception ex)
             {
-                PlexLog.debug("Subscribed to {0}", channel);
+                PlexLog.debug("Redis subscription close failed: {0}", ex.getMessage());
+            }
+        }
+        subscription = null;
+        invalidationListener = null;
+        plugin = null;
+        serverAddress = null;
+    }
+
+    public static synchronized AutoCloseable onBanInvalidation(Consumer<BanCacheInvalidation> listener)
+    {
+        invalidationListener = listener;
+        return () ->
+        {
+            synchronized (MessageUtil.class)
+            {
+                if (invalidationListener == listener)
+                {
+                    invalidationListener = null;
+                }
             }
         };
-        //        SUBSCRIBER.subscribe("staffchat", "chat");
-        plugin.getRedisConnection().runAsync(jedis ->
+    }
+
+    public static CompletableFuture<Long> publishBanInvalidation(Plex plugin, UUID playerId, @Nullable String ip)
+    {
+        if (!plugin.getRedisConnection().isEnabled())
         {
-            jedis.subscribe(SUBSCRIBER, "staffchat", "chat");
-        });
+            return CompletableFuture.completedFuture(0L);
+        }
+        JSONObject object = new JSONObject();
+        object.put("playerId", playerId.toString());
+        object.put("ip", ip == null ? JSONObject.NULL : ip);
+        return publish(plugin, INVALIDATION_CHANNEL, object.toString(), "ban-cache invalidation");
     }
 
     public static void sendStaffChat(Plex plugin, CommandSender sender, Component message, UUID... ignore)
@@ -75,13 +98,68 @@ public class MessageUtil
         {
             return;
         }
-
-        String miniMessage = SafeMiniMessage.mmSerialize(message);
         JSONObject object = new JSONObject();
         object.put("sender", sender instanceof Player player ? player.getUniqueId().toString() : "");
-        object.put("message", miniMessage);
+        object.put("message", SafeMiniMessage.mmSerialize(message));
         object.put("ignore", GSON.toJson(ignore));
-        object.put("server", String.format("%s:%s", Bukkit.getServer().getIp(), Bukkit.getServer().getPort()));
-        plugin.getRedisConnection().execute(jedis -> jedis.publish("staffchat", object.toString()));
+        object.put("server", serverAddress);
+        publish(plugin, STAFF_CHAT_CHANNEL, object.toString(), "staff chat");
+    }
+
+    private static CompletableFuture<Long> publish(Plex plugin, String channel, String message, String description)
+    {
+        CompletableFuture<Long> result = plugin.getRedisConnection().publishAsync(channel, message);
+        result.exceptionally(ex ->
+        {
+            PlexLog.warn("Could not publish {0}: {1}", description, ex.getMessage());
+            return 0L;
+        });
+        return result;
+    }
+
+    private static void receive(String channel, String message)
+    {
+        Plex current = plugin;
+        if (current != null)
+        {
+            current.getApi().scheduler().runGlobal(() -> dispatch(current, channel, message));
+        }
+    }
+
+    private static void dispatch(Plex current, String channel, String message)
+    {
+        try
+        {
+            JSONObject object = new JSONObject(message);
+            if (STAFF_CHAT_CHANNEL.equals(channel))
+            {
+                UUID[] ignore = GSON.fromJson(object.getString("ignore"), new TypeToken<UUID[]>() { }.getType());
+                String sender = object.getString("sender").isEmpty() ? "CONSOLE" : object.getString("sender");
+                PlexUtils.adminChat(sender,
+                        sender.equals("CONSOLE")
+                                ? "<dark_gray>[<dark_purple>Console<dark_gray>]"
+                                : PlexUtils.mmSerialize(VaultHook.getPrefix(UUID.fromString(sender))),
+                        object.getString("message"), ignore);
+                if (!serverAddress.equalsIgnoreCase(object.getString("server")))
+                {
+                    current.getServer().getConsoleSender().sendMessage(
+                            messageComponent("adminChatFormat", sender, object.getString("message")));
+                }
+            }
+            else if (INVALIDATION_CHANNEL.equals(channel) && invalidationListener != null)
+            {
+                invalidationListener.accept(new BanCacheInvalidation(
+                        UUID.fromString(object.getString("playerId")),
+                        object.isNull("ip") ? null : object.getString("ip")));
+            }
+        }
+        catch (RuntimeException ex)
+        {
+            PlexLog.warn("Ignoring invalid Redis message on {0}: {1}", channel, ex.getMessage());
+        }
+    }
+
+    public record BanCacheInvalidation(UUID playerId, @Nullable String ip)
+    {
     }
 }

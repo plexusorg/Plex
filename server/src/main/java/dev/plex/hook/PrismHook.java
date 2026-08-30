@@ -1,7 +1,6 @@
 package dev.plex.hook;
 
 import dev.plex.Plex;
-import dev.plex.api.rollback.RollbackApi;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import java.time.Instant;
@@ -19,7 +18,6 @@ public class PrismHook
     private static final List<String> ROLLBACK_ACTIONS = List.of("block-place", "block-break", "block-burn", "entity-spawn", "entity-kill", "entity-explode");
 
     private final Plex plex;
-    private RollbackManager rollbackManager;
     private RegisteredServiceProvider<PrismPaperApi> provider;
 
     public PrismHook(Plex plex)
@@ -33,10 +31,6 @@ public class PrismHook
         }
 
         provider = Bukkit.getServicesManager().getRegistration(PrismPaperApi.class);
-        if (provider != null)
-        {
-            rollbackManager = new RollbackManager(plex);
-        }
     }
 
     public boolean hasPrism()
@@ -47,11 +41,6 @@ public class PrismHook
     public PrismPaperApi getPrism()
     {
         return provider.getProvider();
-    }
-
-    public RollbackApi getRollbackApi()
-    {
-        return rollbackManager;
     }
 
     public void rollback(CommandSender sender, String playerName, int seconds)

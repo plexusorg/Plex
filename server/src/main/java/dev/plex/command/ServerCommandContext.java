@@ -25,7 +25,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Runtime context and helper facade for a server command execution.
+ * Context for a server command execution.
  */
 public final class ServerCommandContext
 {

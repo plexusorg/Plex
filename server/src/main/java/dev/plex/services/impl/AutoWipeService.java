@@ -1,45 +1,132 @@
 package dev.plex.services.impl;
 
 import dev.plex.Plex;
-import dev.plex.services.AbstractService;
+import dev.plex.util.PlexLog;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
-
-import java.util.List;
-
+import java.util.EnumSet;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.HandlerList;
+import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityRemoveEvent;
+import org.bukkit.event.entity.EntitySpawnEvent;
+import org.bukkit.event.world.ChunkLoadEvent;
+import org.bukkit.event.world.ChunkUnloadEvent;
 
-public class AutoWipeService extends AbstractService
+public class AutoWipeService implements Listener
 {
+    private final Plex plugin;
+    private final Map<UUID, Entity> entities = new ConcurrentHashMap<>();
+    private Set<EntityType> entityTypes = Set.of();
+
     public AutoWipeService(Plex plugin)
     {
-        super(plugin, true, false);
+        this.plugin = plugin;
     }
 
-    @Override
-    public void run(ScheduledTask task)
+    public boolean shouldStart()
     {
-        if (plugin.config.getBoolean("autowipe.enabled"))
-        {
-            List<String> entities = plugin.config.getStringList("autowipe.entities");
+        return plugin.config.getBoolean("autowipe.enabled");
+    }
 
-            for (World world : Bukkit.getWorlds())
+    public void onStart()
+    {
+        entityTypes = configuredTypes();
+        Bukkit.getPluginManager().registerEvents(this, plugin);
+        for (World world : Bukkit.getWorlds())
+        {
+            for (Chunk chunk : world.getLoadedChunks())
             {
-                for (Entity entity : world.getEntities())
+                plugin.getApi().scheduler().executeRegion(world, chunk.getX(), chunk.getZ(), () ->
                 {
-                    if (entities.stream().anyMatch(entityName -> entityName.equalsIgnoreCase(entity.getType().name())))
-                    {
-                        entity.getScheduler().run(plugin, scheduledTask -> entity.remove(), null);
-                    }
-                }
+                    if (chunk.isLoaded()) index(chunk);
+                });
             }
         }
     }
 
-    @Override
+    public void onEnd()
+    {
+        HandlerList.unregisterAll(this);
+        entities.clear();
+    }
+
+    public void run(ScheduledTask task)
+    {
+        entities.forEach((uuid, entity) -> entity.getScheduler().run(plugin, ignored ->
+        {
+            if (entityTypes.contains(entity.getType())) entity.remove();
+            entities.remove(uuid, entity);
+        }, () -> entities.remove(uuid, entity)));
+    }
+
+    @EventHandler
+    public void onEntitySpawn(EntitySpawnEvent event)
+    {
+        index(event.getEntity());
+    }
+
+    @EventHandler
+    public void onEntityRemove(EntityRemoveEvent event)
+    {
+        entities.remove(event.getEntity().getUniqueId());
+    }
+
+    @EventHandler
+    public void onChunkLoad(ChunkLoadEvent event)
+    {
+        index(event.getChunk());
+    }
+
+    @EventHandler
+    public void onChunkUnload(ChunkUnloadEvent event)
+    {
+        for (Entity entity : event.getChunk().getEntities())
+        {
+            entities.remove(entity.getUniqueId());
+        }
+    }
+
     public int repeatInSeconds()
     {
         return Math.max(1, plugin.config.getInt("autowipe.interval"));
+    }
+
+    private void index(Chunk chunk)
+    {
+        for (Entity entity : chunk.getEntities()) index(entity);
+    }
+
+    private void index(Entity entity)
+    {
+        if (entityTypes.contains(entity.getType())) entities.put(entity.getUniqueId(), entity);
+    }
+
+    private Set<EntityType> configuredTypes()
+    {
+        EnumSet<EntityType> parsed = EnumSet.noneOf(EntityType.class);
+        for (String configuredName : plugin.config.getStringList("autowipe.entities"))
+        {
+            String name = configuredName.trim().toUpperCase(Locale.ROOT);
+            if (name.equals("DROPPED_ITEM")) name = "ITEM";
+            try
+            {
+                parsed.add(EntityType.valueOf(name));
+            }
+            catch (IllegalArgumentException exception)
+            {
+                PlexLog.warn("Ignoring unknown autowipe entity type: {0}", configuredName);
+            }
+        }
+        return Set.copyOf(parsed);
     }
 }

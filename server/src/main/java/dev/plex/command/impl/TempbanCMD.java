@@ -10,6 +10,7 @@ import dev.plex.punishment.Punishment;
 import dev.plex.punishment.PunishmentType;
 import dev.plex.util.BungeeUtil;
 import dev.plex.util.PlexUtils;
+import dev.plex.util.PlexLog;
 import dev.plex.util.TimeUtils;
 
 import java.util.List;
@@ -65,11 +66,8 @@ public class TempbanCMD extends ServerCommand
         }
         Player player = Bukkit.getPlayer(target.getUuid());
 
-        if (plugin.getPunishmentManager().isBanned(target.getUuid()))
-        {
-            return context.messageComponent("playerBanned");
-        }
         Punishment punishment = new Punishment(target.getUuid(), context.getUUID(sender));
+        punishment.setResolvedPunisherName(context.senderName());
         punishment.setType(PunishmentType.TEMPBAN);
         boolean rollBack = false;
         if (args.length > 2)
@@ -87,16 +85,36 @@ public class TempbanCMD extends ServerCommand
         punishment.setCustomTime(false);
         punishment.setActive(true);
         punishment.setIp(target.getIps().getLast());
-        plugin.getPunishmentManager().punish(target, punishment);
-        PlexUtils.broadcast(context.messageComponent("banningPlayer", context.senderName(), target.getName()));
-        if (player != null)
+        final boolean shouldRollBack = rollBack;
+        plugin.getPunishmentManager().isBanned(target.getUuid()).whenComplete((banned, checkFailure) ->
+                plugin.getApi().scheduler().runGlobal(() ->
         {
-            plugin.getApi().scheduler().runEntity(player, () -> BungeeUtil.kickPlayer(plugin, player, Punishment.generateBanMessage(punishment, plugin.config.getString("banning.ban_url"), plugin.getPlayerNameResolver())));
-        }
-        if (rollBack)
-        {
-            plugin.getApi().rollback().rollbackLastDay(sender, target.getName());
-        }
+            if (checkFailure != null)
+            {
+                PlexLog.error("Unable to check ban state for {0}: {1}", target.getName(), checkFailure.getMessage());
+                context.send(sender, Component.text("Unable to check the player's ban state."));
+                return;
+            }
+            if (banned)
+            {
+                context.send(sender, context.messageComponent("playerBanned"));
+                return;
+            }
+            plugin.getPunishmentManager().punish(target, punishment).whenComplete((unused, failure) ->
+                    plugin.getApi().scheduler().runGlobal(() ->
+            {
+                if (failure != null)
+                {
+                    PlexLog.error("Unable to tempban {0}: {1}", target.getName(), failure.getMessage());
+                    context.send(sender, Component.text("Unable to persist the ban; no action was taken."));
+                    return;
+                }
+                PlexUtils.broadcast(context.messageComponent("banningPlayer", context.senderName(), target.getName()));
+                if (player != null)
+                    plugin.getApi().scheduler().runEntity(player, () -> BungeeUtil.kickPlayer(plugin, player, Punishment.generateBanMessage(punishment, plugin.config.getString("banning.ban_url"), plugin.getPlayerNameResolver())));
+                if (shouldRollBack) plugin.getApi().rollback().rollbackLastDay(sender, target.getName());
+            }));
+        }));
         return null;
     }
 

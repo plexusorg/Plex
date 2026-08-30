@@ -10,7 +10,9 @@ public interface NoteRepository
 {
     CompletableFuture<List<Note>> getNotes(UUID uuid);
 
-    CompletableFuture<Void> deleteNote(int id, UUID uuid);
+    CompletableFuture<Boolean> deleteNote(int id, UUID uuid);
 
     CompletableFuture<Void> addNote(Note note);
+
+    CompletableFuture<Integer> clearNotes(UUID uuid);
 }

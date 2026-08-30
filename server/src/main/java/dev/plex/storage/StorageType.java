@@ -161,6 +161,23 @@ public enum StorageType
         };
     }
 
+    public String playerIpInsertSql()
+    {
+        return switch (this)
+        {
+            case SQLITE -> """
+                    INSERT OR IGNORE INTO player_ips (player_uuid, ip) VALUES (:u, :ip)
+                    """;
+            case MARIADB -> """
+                    INSERT IGNORE INTO `player_ips` (`player_uuid`, `ip`) VALUES (:u, :ip)
+                    """;
+            case POSTGRES -> """
+                    INSERT INTO player_ips (player_uuid, ip) VALUES (:u, :ip)
+                    ON CONFLICT DO NOTHING
+                    """;
+        };
+    }
+
     public String getDisplayName()
     {
         return displayName;

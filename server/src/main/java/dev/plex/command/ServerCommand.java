@@ -361,7 +361,7 @@ public abstract class ServerCommand implements PlexCommand
 
     private boolean hasCachedPlexPlayer(Player player)
     {
-        return plugin.getPlayerCache().getPlexPlayerMap().containsKey(player.getUniqueId());
+        return plugin.getPlayerCache().contains(player.getUniqueId());
     }
 
     private String[] splitExecutionArgs(String rawArgs)

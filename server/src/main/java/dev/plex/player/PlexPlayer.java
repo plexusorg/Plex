@@ -4,8 +4,8 @@ import com.google.common.collect.Lists;
 import com.google.gson.GsonBuilder;
 import dev.plex.punishment.Punishment;
 import dev.plex.punishment.PunishmentType;
-import dev.plex.punishment.extra.Note;
 import dev.plex.util.adapter.ZonedDateTimeAdapter;
+import dev.plex.util.TimeUtils;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -38,16 +38,14 @@ public class PlexPlayer
     private boolean commandSpy;
 
     // These fields are transient so MongoDB doesn't automatically drop them in.
-    private transient boolean frozen;
-    private transient boolean muted;
-    private transient boolean lockedUp;
+    private transient volatile boolean frozen;
+    private transient volatile boolean muted;
+    private transient volatile boolean lockedUp;
 
     private List<String> ips = Lists.newArrayList();
 
     @Setter(AccessLevel.NONE)
     private List<Punishment> punishments = Lists.newArrayList();
-
-    private List<Note> notes = Lists.newArrayList();
 
     public PlexPlayer()
     {
@@ -86,9 +84,11 @@ public class PlexPlayer
 
     public void checkMutesAndFreeze()
     {
-        final ZonedDateTime now = ZonedDateTime.now();
-        this.muted = this.punishments.stream().filter(punishment -> punishment.getType() == PunishmentType.MUTE).anyMatch(punishment -> punishment.isActive() && now.isBefore(punishment.getEndDate()));
-        this.frozen = this.punishments.stream().filter(punishment -> punishment.getType() == PunishmentType.FREEZE).anyMatch(punishment -> punishment.isActive() && now.isBefore(punishment.getEndDate()));
+        final ZonedDateTime now = ZonedDateTime.now(TimeUtils.zoneId());
+        this.muted = this.punishments.stream().filter(punishment -> punishment.getType() == PunishmentType.MUTE)
+                .anyMatch(punishment -> punishment.isActive() && punishment.getEndDate() != null && now.isBefore(punishment.getEndDate()));
+        this.frozen = this.punishments.stream().filter(punishment -> punishment.getType() == PunishmentType.FREEZE)
+                .anyMatch(punishment -> punishment.isActive() && punishment.getEndDate() != null && now.isBefore(punishment.getEndDate()));
     }
 
     public String toJSON()
