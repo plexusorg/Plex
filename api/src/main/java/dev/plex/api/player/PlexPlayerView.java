@@ -37,7 +37,7 @@ public interface PlexPlayerView
      *
      * @return punishment history for the player
      */
-    List<? extends PunishmentView> punishments();
+    List<PunishmentView> punishments();
 
     /**
      * Returns whether the player is currently frozen.

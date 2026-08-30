@@ -52,7 +52,8 @@ public class BanListCommand extends ServerCommand
                     return;
                 }
                 String names = StringUtils.join(punishments.stream()
-                        .map(punishment -> plugin.getPlayerNameResolver().resolve(punishment.getPunished())).toList(), ", ");
+                        .map(punishment -> punishment.getResolvedPunishedName() == null || punishment.getResolvedPunishedName().isBlank()
+                                ? punishment.getPunished().toString() : punishment.getResolvedPunishedName()).toList(), ", ");
                 plugin.getApi().scheduler().runGlobal(() ->
                         context.send(sender, context.messageComponent("activeBansList", punishments.size(), names)));
             });

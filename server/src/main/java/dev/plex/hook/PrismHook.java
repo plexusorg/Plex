@@ -1,10 +1,9 @@
 package dev.plex.hook;
 
 import dev.plex.Plex;
-import dev.plex.util.PlexLog;
-import dev.plex.util.PlexUtils;
 import java.time.Instant;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
@@ -17,12 +16,10 @@ public class PrismHook
 {
     private static final List<String> ROLLBACK_ACTIONS = List.of("block-place", "block-break", "block-burn", "entity-spawn", "entity-kill", "entity-explode");
 
-    private final Plex plex;
     private RegisteredServiceProvider<PrismPaperApi> provider;
 
     public PrismHook(Plex plex)
     {
-        this.plex = plex;
         Plugin plugin = plex.getServer().getPluginManager().getPlugin("prism");
 
         if (plugin == null || !plugin.isEnabled())
@@ -43,7 +40,7 @@ public class PrismHook
         return provider.getProvider();
     }
 
-    public void rollback(CommandSender sender, String playerName, int seconds)
+    public CompletableFuture<Integer> rollback(CommandSender sender, String playerName, int seconds)
     {
         long now = Instant.now().getEpochSecond();
         ActivityQuery query = PaperActivityQuery.builder()
@@ -54,26 +51,6 @@ public class PrismHook
                 .rollback()
                 .build();
 
-        getPrism().rollback(sender, query).whenComplete((result, error) ->
-                plex.getApi().scheduler().runGlobal(() ->
-                {
-                    if (error != null)
-                    {
-                        sender.sendMessage(PlexUtils.messageComponent("prismRollbackError", error.getMessage()));
-                        PlexLog.error("Unable to rollback: {0}", error);
-                        return;
-                    }
-
-                    int count = result.applied();
-                    if (count == 0)
-                    {
-                        sender.sendMessage(PlexUtils.messageComponent("prismNoResult", count));
-                        PlexLog.debug("No activities are available to rollback");
-                        return;
-                    }
-
-                    sender.sendMessage(PlexUtils.messageComponent("prismRollbackMessage", count));
-                    PlexLog.debug("Rolled back {0} activities", count);
-                }));
+        return getPrism().rollback(sender, query).thenApply(result -> result.applied()).toCompletableFuture();
     }
 }

@@ -3,6 +3,7 @@ package dev.plex.api.player;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import dev.plex.module.PlexModule;
 
 /**
@@ -14,17 +15,17 @@ public interface PlayersApi
      * Looks up a player by UUID.
      *
      * @param uuid player UUID
-     * @return player view, if known
+     * @return future containing the player view, if known
      */
-    Optional<? extends PlexPlayerView> player(UUID uuid);
+    CompletableFuture<Optional<PlexPlayerView>> player(UUID uuid);
 
     /**
      * Looks up a player by name.
      *
      * @param name player name
-     * @return player view, if known
+     * @return future containing the player view, if known
      */
-    Optional<? extends PlexPlayerView> byName(String name);
+    CompletableFuture<Optional<PlexPlayerView>> byName(String name);
 
     /**
      * Returns the names of online players.

@@ -1,6 +1,5 @@
 package dev.plex.api.message;
 
-import java.util.List;
 import net.kyori.adventure.text.Component;
 
 /**
@@ -68,10 +67,4 @@ public interface MessageApi
      */
     void broadcast(Component component);
 
-    /**
-     * Returns the names of online players.
-     *
-     * @return names of online players
-     */
-    List<String> onlinePlayerNames();
 }

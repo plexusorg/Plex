@@ -21,9 +21,9 @@ public interface PlexApi
     /**
      * Returns the API version for this Plex build.
      *
-     * @return API version information
+     * @return API compatibility version
      */
-    ApiCompatibility compatibility();
+    int apiCompatibilityVersion();
 
     /**
      * Returns the shared Plex configuration files.

@@ -13,7 +13,6 @@ import dev.plex.hook.PrismHook;
 import dev.plex.hook.WorldGuardHook;
 import dev.plex.module.ModuleManager;
 import dev.plex.network.ProxyVanishBridge;
-import dev.plex.player.PlayerNameResolver;
 import dev.plex.player.PlayerService;
 import dev.plex.punishment.PunishmentManager;
 import dev.plex.services.ServiceManager;
@@ -76,7 +75,6 @@ public class Plex extends JavaPlugin
     private PlayerRepository playerRepository;
     private PlayerModuleDataRepository playerModuleDataRepository;
     private PlayerService playerService;
-    private PlayerNameResolver playerNameResolver;
     private ProxyVanishBridge proxyVanishBridge;
 
     private PunishmentRepository punishmentRepository;
@@ -274,7 +272,6 @@ public class Plex extends JavaPlugin
         playerModuleDataRepository = new SQLPlayerModuleData(database.getJdbi(), storageType);
         noteRepository = new SQLNotes(database.getJdbi(), databaseExecutor);
         playerService = new PlayerService(playerCache, playerRepository, databaseExecutor);
-        playerNameResolver = new PlayerNameResolver(playerService);
         proxyVanishBridge = new ProxyVanishBridge(this);
 
         worldSpawnSignManager = new WorldSpawnSignManager(this);

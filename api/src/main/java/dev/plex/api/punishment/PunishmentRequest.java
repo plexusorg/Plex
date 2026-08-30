@@ -15,14 +15,11 @@ import org.jetbrains.annotations.Nullable;
  * @param ip IP address associated with the punished player
  * @param type punishment type to apply
  * @param reason punishment reason
- * @param customTime whether the punishment uses a custom duration
- * @param active whether the punishment should start active
  * @param endDate punishment end date, or {@code null} for punishments without an end date
  */
 public record PunishmentRequest(UUID punished, @Nullable UUID punisher, PunishmentSource source,
                                 @Nullable String punisherReference, @Nullable String ip, PunishmentType type,
-                                String reason, boolean customTime, boolean active,
-                                @Nullable ZonedDateTime endDate)
+                                String reason, @Nullable ZonedDateTime endDate)
 {
     /**
      * Creates and validates a punishment request.
@@ -37,13 +34,13 @@ public record PunishmentRequest(UUID punished, @Nullable UUID punisher, Punishme
         {
             throw new IllegalArgumentException("A player punishment must have a punisher UUID");
         }
-        if (customTime && endDate == null)
+        if ((type == PunishmentType.TEMPBAN || type == PunishmentType.FREEZE) && endDate == null)
         {
-            throw new IllegalArgumentException("A custom-time punishment must have an end date");
+            throw new IllegalArgumentException(type + " requires an end date");
         }
-        if (!customTime && endDate != null)
+        if ((type == PunishmentType.BAN || type == PunishmentType.KICK || type == PunishmentType.SMITE) && endDate != null)
         {
-            throw new IllegalArgumentException("A punishment without custom time must not have an end date");
+            throw new IllegalArgumentException(type + " must not have an end date");
         }
     }
 }

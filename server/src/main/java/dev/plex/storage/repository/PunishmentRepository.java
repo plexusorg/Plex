@@ -25,5 +25,7 @@ public interface PunishmentRepository
 
     CompletableFuture<Void> expirePunishments(PunishmentType type, UUID punished, Instant now);
 
-    CompletableFuture<List<String>> removeBan(UUID uuid);
+    CompletableFuture<BanRemoval> removeBan(UUID uuid);
+
+    record BanRemoval(boolean changed, List<String> ips) { }
 }

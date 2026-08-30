@@ -98,9 +98,9 @@ public class ModuleManager
                     }
 
                     int apiCompatibility = internalModuleConfig.getInt("apiCompatibility");
-                    if (apiCompatibility != plugin.getApi().compatibility().version())
+                    if (apiCompatibility != plugin.getApi().apiCompatibilityVersion())
                     {
-                        throw new ModuleLoadException("Plex module " + name + " requires API compatibility " + apiCompatibility + ", but this Plex build provides API compatibility " + plugin.getApi().compatibility().version());
+                        throw new ModuleLoadException("Plex module " + name + " requires API compatibility " + apiCompatibility + ", but this Plex build provides API compatibility " + plugin.getApi().apiCompatibilityVersion());
                     }
 
                     List<String> libraries = internalModuleConfig.getStringList("libraries");

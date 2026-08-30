@@ -39,7 +39,6 @@ final class ServerModuleConfiguration extends ModuleConfiguration
         }
         this.file = configPath.toFile();
         this.fileName = relativePath.toString().replace('\\', '/');
-        if (!file.exists()) saveDefault();
     }
 
     @Override
@@ -47,6 +46,7 @@ final class ServerModuleConfiguration extends ModuleConfiguration
     {
         try
         {
+            if (!file.exists()) saveDefault();
             ConfigDefaultsMerger.Result result = ConfigDefaultsMerger.merge(file, module.getResource(fileName), fileName);
             if (!result.addedKeys().isEmpty())
             {
@@ -57,14 +57,21 @@ final class ServerModuleConfiguration extends ModuleConfiguration
         }
         catch (IOException | InvalidConfigurationException ex)
         {
-            ex.printStackTrace();
+            throw new IllegalStateException("Unable to load module configuration " + fileName, ex);
         }
     }
 
     @Override
     public void save()
     {
-        try { super.save(file); } catch (IOException ex) { ex.printStackTrace(); }
+        try
+        {
+            super.save(file);
+        }
+        catch (IOException ex)
+        {
+            throw new IllegalStateException("Unable to save module configuration " + fileName, ex);
+        }
     }
 
     private void saveDefault()
@@ -77,15 +84,14 @@ final class ServerModuleConfiguration extends ModuleConfiguration
             {
                 if (stream == null)
                 {
-                    PlexLog.warn("Unable to save default module config " + fileName + ": missing resource " + fileName);
-                    return;
+                    throw new IllegalStateException("Missing module configuration resource " + fileName);
                 }
                 Files.copy(stream, file.toPath());
             }
         }
         catch (IOException ex)
         {
-            ex.printStackTrace();
+            throw new IllegalStateException("Unable to create module configuration " + fileName, ex);
         }
     }
 }

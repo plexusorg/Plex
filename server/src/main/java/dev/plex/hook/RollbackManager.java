@@ -3,6 +3,8 @@ package dev.plex.hook;
 import dev.plex.Plex;
 import dev.plex.api.rollback.RollbackApi;
 import java.util.Collections;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import org.bukkit.command.CommandSender;
 
 public class RollbackManager implements RollbackApi
@@ -22,26 +24,38 @@ public class RollbackManager implements RollbackApi
     }
 
     @Override
-    public boolean rollback(CommandSender sender, String playerName, int seconds)
+    public CompletableFuture<Integer> rollback(CommandSender sender, String playerName, int seconds)
     {
+        Objects.requireNonNull(sender, "sender");
+        Objects.requireNonNull(playerName, "playerName");
+        if (seconds <= 0) return CompletableFuture.failedFuture(new IllegalArgumentException("seconds must be positive"));
         if (plugin.getPrismHook() != null && plugin.getPrismHook().hasPrism())
         {
-            plugin.getApi().scheduler().runGlobal(() -> plugin.getPrismHook().rollback(sender, playerName, seconds));
-            return true;
+            CompletableFuture<Integer> result = new CompletableFuture<>();
+            plugin.getApi().scheduler().runGlobal(() ->
+            {
+                try
+                {
+                    plugin.getPrismHook().rollback(sender, playerName, seconds).whenComplete((count, failure) ->
+                    {
+                        if (failure == null) result.complete(count); else result.completeExceptionally(failure);
+                    });
+                }
+                catch (RuntimeException failure)
+                {
+                    result.completeExceptionally(failure);
+                }
+            });
+            return result;
         }
 
         if (plugin.getCoreProtectHook() != null && plugin.getCoreProtectHook().hasCoreProtect())
         {
-            rollbackWithCoreProtect(playerName, seconds);
-            return true;
+            return CompletableFuture.supplyAsync(() -> plugin.getCoreProtectHook().coreProtectAPI()
+                    .performRollback(seconds, Collections.singletonList(playerName), null, null, null, null, 0, null).size(),
+                    plugin.getApi().scheduler().asyncExecutor());
         }
 
-        return false;
-    }
-
-    private void rollbackWithCoreProtect(String playerName, int seconds)
-    {
-        plugin.getApi().scheduler().runAsync(() ->
-                plugin.getCoreProtectHook().coreProtectAPI().performRollback(seconds, Collections.singletonList(playerName), null, null, null, null, 0, null));
+        return CompletableFuture.failedFuture(new IllegalStateException("No rollback integration is available"));
     }
 }

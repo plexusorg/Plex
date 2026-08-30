@@ -235,7 +235,7 @@ public class UpdateChecker
         }
         try
         {
-            ArtifactMetadata metadata = metadataClient.fetchModuleLatest(moduleFile.getName(), plugin.getApi().compatibility().version(), moduleFile.getUpdateUrls());
+            ArtifactMetadata metadata = metadataClient.fetchModuleLatest(moduleFile.getName(), plugin.getApi().apiCompatibilityVersion(), moduleFile.getUpdateUrls());
             File copyTo = new File(plugin.getModulesFolder(), metadata.fileName());
 
             sendMessage(sender, PlexUtils.messageComponent("updateDownloading", metadata.fileName()));
@@ -258,7 +258,7 @@ public class UpdateChecker
     {
         try
         {
-            ArtifactMetadata metadata = metadataClient.fetchModuleLatest(name, plugin.getApi().compatibility().version(), moduleUpdateUrls);
+            ArtifactMetadata metadata = metadataClient.fetchModuleLatest(name, plugin.getApi().apiCompatibilityVersion(), moduleUpdateUrls);
             File copyTo = new File(plugin.getModulesFolder(), metadata.fileName());
 
             sendMessage(sender, PlexUtils.messageComponent("updateDownloading", metadata.fileName()));

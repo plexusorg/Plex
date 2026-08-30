@@ -90,7 +90,7 @@ public class KickCMD extends ServerCommand
                 return;
             }
             PlexUtils.broadcast(context.messageComponent("kickedPlayer", context.senderName(), plexPlayer.getName()));
-            plugin.getApi().scheduler().runEntity(player, () -> BungeeUtil.kickPlayer(plugin, player, Punishment.generateKickMessage(punishment, plugin.getPlayerNameResolver())));
+            plugin.getApi().scheduler().runEntity(player, () -> BungeeUtil.kickPlayer(plugin, player, Punishment.generateKickMessage(punishment)));
         }));
         return null;
     }

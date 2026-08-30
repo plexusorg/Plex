@@ -4,8 +4,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
-import dev.plex.api.player.PlexPlayerView;
 
 /**
  * Reads and creates Plex punishments.
@@ -17,7 +15,7 @@ public interface PunishmentsApi
      *
      * @return current indefinite bans
      */
-    List<? extends IndefiniteBanView> indefiniteBans();
+    List<IndefiniteBanView> indefiniteBans();
 
     /**
      * Looks up an indefinite ban by UUID.
@@ -25,7 +23,7 @@ public interface PunishmentsApi
      * @param uuid UUID to look up
      * @return matching indefinite ban, if one exists
      */
-    Optional<? extends IndefiniteBanView> indefiniteBanByUuid(UUID uuid);
+    Optional<IndefiniteBanView> indefiniteBanByUuid(UUID uuid);
 
     /**
      * Finds an indefinite ban by player name.
@@ -33,7 +31,7 @@ public interface PunishmentsApi
      * @param name player name
      * @return matching ban, if one exists
      */
-    Optional<? extends IndefiniteBanView> indefiniteBanByName(String name);
+    Optional<IndefiniteBanView> indefiniteBanByName(String name);
 
     /**
      * Finds an indefinite ban by IP address.
@@ -41,7 +39,7 @@ public interface PunishmentsApi
      * @param ip IP address
      * @return matching ban, if one exists
      */
-    Optional<? extends IndefiniteBanView> indefiniteBanByIp(String ip);
+    Optional<IndefiniteBanView> indefiniteBanByIp(String ip);
 
     /**
      * Checks if a player has an active ban.
@@ -49,24 +47,22 @@ public interface PunishmentsApi
      * @param uuid player UUID
      * @return result of the check
      */
-    CompletionStage<Boolean> isBanned(UUID uuid);
+    CompletableFuture<Boolean> isBanned(UUID uuid);
 
     /**
      * Removes active bans for a player.
      *
      * @param uuid player UUID
-     * @return result that completes when storage is updated
+     * @return future containing whether an active ban was removed
      */
-    CompletionStage<Void> unban(UUID uuid);
+    CompletableFuture<Boolean> unban(UUID uuid);
 
     /**
      * Applies a punishment to a player.
      *
-     * @param player player to punish
      * @param punishment punishment details
      * @return result that completes when storage is updated
-     * @throws IllegalArgumentException if the request is for a different player
-     *         or Plex does not know the player
+     * @throws NullPointerException if the request is null
      */
-    CompletableFuture<Void> punish(PlexPlayerView player, PunishmentRequest punishment);
+    CompletableFuture<Void> punish(PunishmentRequest punishment);
 }

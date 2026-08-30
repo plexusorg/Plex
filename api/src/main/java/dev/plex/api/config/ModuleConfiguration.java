@@ -15,12 +15,16 @@ public abstract class ModuleConfiguration extends YamlConfiguration
     }
 
     /**
-     * Loads the configuration from disk, merging defaults when the implementation supports it.
+     * Loads the configuration from disk, merging defaults when supported.
+     *
+     * @throws IllegalStateException if the configuration cannot be loaded
      */
     public abstract void load();
 
     /**
      * Saves the configuration to disk.
+     *
+     * @throws IllegalStateException if the configuration cannot be saved
      */
     public abstract void save();
 }

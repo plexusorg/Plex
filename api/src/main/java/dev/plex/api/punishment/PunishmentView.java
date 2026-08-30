@@ -69,13 +69,6 @@ public interface PunishmentView
     String reason();
 
     /**
-     * Returns whether the punishment uses a custom duration.
-     *
-     * @return whether the punishment uses a custom duration
-     */
-    boolean customTime();
-
-    /**
      * Returns whether the punishment is currently active.
      *
      * @return whether the punishment is currently active

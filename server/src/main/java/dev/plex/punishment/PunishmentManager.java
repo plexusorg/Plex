@@ -103,10 +103,11 @@ public class PunishmentManager
                 .filter(this::isActiveBan).toList());
     }
 
-    public CompletableFuture<Void> unban(UUID uuid)
+    public CompletableFuture<Boolean> unban(UUID uuid)
     {
-        return plugin.getPunishmentRepository().removeBan(uuid).thenCompose(ips -> onGlobal(() ->
+        return plugin.getPunishmentRepository().removeBan(uuid).thenCompose(removal -> onGlobal(() ->
         {
+            if (!removal.changed()) return;
             PlexPlayer player = plugin.getPlayerService().getCachedPlayer(uuid);
             if (player != null)
             {
@@ -115,13 +116,13 @@ public class PunishmentManager
                         .forEach(p -> p.setActive(false));
             }
             invalidateBanDecisions(uuid, null);
-            if (ips.isEmpty()) publishInvalidation(uuid, null);
-            for (String ip : ips)
+            if (removal.ips().isEmpty()) publishInvalidation(uuid, null);
+            for (String ip : removal.ips())
             {
                 invalidateBanDecisions(uuid, ip);
                 publishInvalidation(uuid, ip);
             }
-        }));
+        }).thenApply(unused -> removal.changed()));
     }
 
     public CompletableFuture<Void> punish(PlexPlayer player, Punishment punishment)
@@ -132,8 +133,8 @@ public class PunishmentManager
             return CompletableFuture.failedFuture(new IllegalArgumentException("Punishment and player UUIDs differ"));
         if (punishment.getType() == null)
             return CompletableFuture.failedFuture(new IllegalArgumentException("Punishment type is required"));
-        if ((punishment.getType() == PunishmentType.MUTE || punishment.getType() == PunishmentType.FREEZE
-                || punishment.getType() == PunishmentType.TEMPBAN) && punishment.getEndDate() == null)
+        if ((punishment.getType() == PunishmentType.FREEZE || punishment.getType() == PunishmentType.TEMPBAN)
+                && punishment.getEndDate() == null)
             return CompletableFuture.failedFuture(new IllegalArgumentException(punishment.getType() + " requires an end date"));
         if (punishment.getIp() != null) punishment.setIp(BanDecisionService.canonicalIp(punishment.getIp()));
 
@@ -168,12 +169,14 @@ public class PunishmentManager
     {
         if (type != PunishmentType.MUTE && type != PunishmentType.FREEZE) return;
         ZonedDateTime now = ZonedDateTime.now(TimeUtils.zoneId());
+        boolean permanent = player.getPunishments().stream()
+                .anyMatch(p -> p.getType() == type && p.isActive() && p.getEndDate() == null);
         ZonedDateTime deadline = player.getPunishments().stream()
                 .filter(p -> p.getType() == type && p.isActive() && p.getEndDate() != null && p.getEndDate().isAfter(now))
                 .map(Punishment::getEndDate).max(ZonedDateTime::compareTo).orElse(null);
         boolean hasExpired = player.getPunishments().stream().anyMatch(p -> p.getType() == type && p.isActive()
                 && p.getEndDate() != null && !p.getEndDate().isAfter(now));
-        setTimedFlag(player, type, deadline != null);
+        setTimedFlag(player, type, permanent || deadline != null);
         if (hasExpired) expireRows(player, type, now, false);
 
         StateKey key = new StateKey(player.getUuid(), type);
@@ -192,7 +195,7 @@ public class PunishmentManager
     private void expireRows(PlexPlayer player, PunishmentType type, ZonedDateTime now, boolean announce)
     {
         boolean stillActive = player.getPunishments().stream().anyMatch(p -> p.getType() == type && p.isActive()
-                && p.getEndDate() != null && p.getEndDate().isAfter(now));
+                && (p.getEndDate() == null || p.getEndDate().isAfter(now)));
         setTimedFlag(player, type, stillActive);
         plugin.getPunishmentRepository().expirePunishments(type, player.getUuid(), now.toInstant()).whenComplete((unused, failure) ->
         {
@@ -221,7 +224,7 @@ public class PunishmentManager
     {
         ZonedDateTime now = ZonedDateTime.now(TimeUtils.zoneId());
         return player.getPunishments().stream().anyMatch(p -> p.getType() == type && p.isActive()
-                && p.getEndDate() != null && p.getEndDate().isAfter(now));
+                && (p.getEndDate() == null || p.getEndDate().isAfter(now)));
     }
 
     private static void setTimedFlag(PlexPlayer player, PunishmentType type, boolean active)

@@ -1,7 +1,6 @@
 package dev.plex.api.impl;
 
 import dev.plex.Plex;
-import dev.plex.api.ApiCompatibility;
 import dev.plex.api.PlexApi;
 import dev.plex.api.command.CommandApi;
 import dev.plex.api.config.ConfigurationApi;
@@ -15,10 +14,11 @@ import dev.plex.api.punishment.PunishmentsApi;
 import dev.plex.api.rollback.RollbackApi;
 import dev.plex.api.scheduler.SchedulerApi;
 import dev.plex.api.storage.StorageApi;
+import dev.plex.hook.RollbackManager;
 
 public final class DefaultPlexApi implements PlexApi
 {
-    private final ApiCompatibility compatibility;
+    private final int apiCompatibilityVersion;
     private final ConfigurationApi configuration;
     private final ModulesApi modules;
     private final CommandApi commands;
@@ -34,7 +34,7 @@ public final class DefaultPlexApi implements PlexApi
 
     public DefaultPlexApi(Plex plugin, int apiCompatibilityVersion)
     {
-        this.compatibility = new DefaultApiCompatibility(apiCompatibilityVersion);
+        this.apiCompatibilityVersion = apiCompatibilityVersion;
         this.configuration = new DefaultConfigurationApi(plugin);
         this.modules = new DefaultModulesApi(plugin);
         this.commands = new DefaultCommandApi(plugin);
@@ -44,12 +44,12 @@ public final class DefaultPlexApi implements PlexApi
         this.messages = new DefaultMessageApi();
         this.players = new DefaultPlayersApi(plugin);
         this.punishments = new DefaultPunishmentsApi(plugin);
-        this.rollback = new DefaultRollbackApi(plugin);
+        this.rollback = new RollbackManager(plugin);
         this.scheduler = new DefaultSchedulerApi(plugin);
         this.storage = new DefaultStorageApi(plugin);
     }
 
-    @Override public ApiCompatibility compatibility() { return compatibility; }
+    @Override public int apiCompatibilityVersion() { return apiCompatibilityVersion; }
     @Override public ConfigurationApi configuration() { return configuration; }
     @Override public ModulesApi modules() { return modules; }
     @Override public CommandApi commands() { return commands; }

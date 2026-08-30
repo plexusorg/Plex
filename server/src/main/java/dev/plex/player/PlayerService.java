@@ -59,6 +59,32 @@ public class PlayerService
         return plexPlayer.orElseGet(() -> playerRepository.getByName(username, loadExtraData));
     }
 
+    public CompletableFuture<PlexPlayer> findPlayer(UUID uuid)
+    {
+        PlexPlayer cached = playerCache.getPlexPlayer(uuid);
+        return cached == null
+                ? read(() -> playerRepository.getByUUID(uuid, true))
+                : CompletableFuture.completedFuture(cached);
+    }
+
+    public CompletableFuture<PlexPlayer> findPlayer(String username)
+    {
+        Optional<PlexPlayer> cached = playerCache.snapshot().stream()
+                .filter(player -> player.getName().equalsIgnoreCase(username))
+                .findFirst();
+        return cached.isPresent()
+                ? CompletableFuture.completedFuture(cached.get())
+                : read(() -> playerRepository.getByName(username, true));
+    }
+
+    public CompletableFuture<String> findName(UUID uuid)
+    {
+        PlexPlayer cached = playerCache.getPlexPlayer(uuid);
+        return cached == null
+                ? read(() -> playerRepository.getNameByUUID(uuid))
+                : CompletableFuture.completedFuture(cached.getName());
+    }
+
     public PlexPlayer getPlayerByIP(String ip)
     {
         PlexPlayer player = playerCache.snapshot().stream().filter(plexPlayer -> plexPlayer.getIps().contains(ip)).findFirst().orElse(null);
@@ -95,6 +121,18 @@ public class PlayerService
         try
         {
             return CompletableFuture.runAsync(action, executor);
+        }
+        catch (RuntimeException failure)
+        {
+            return CompletableFuture.failedFuture(failure);
+        }
+    }
+
+    private <T> CompletableFuture<T> read(java.util.function.Supplier<T> action)
+    {
+        try
+        {
+            return CompletableFuture.supplyAsync(action, executor);
         }
         catch (RuntimeException failure)
         {

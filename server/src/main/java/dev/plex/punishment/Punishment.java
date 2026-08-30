@@ -3,7 +3,6 @@ package dev.plex.punishment;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import dev.plex.api.punishment.PunishmentSource;
-import dev.plex.player.PlayerNameResolver;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.TimeUtils;
 import dev.plex.util.adapter.ZonedDateTimeAdapter;
@@ -27,6 +26,7 @@ public class Punishment
     private PunishmentSource source;
     private String punisherReference;
     private transient String resolvedPunisherName;
+    private transient String resolvedPunishedName;
     private String ip;
     private PunishmentType type;
     private String reason;
@@ -43,9 +43,9 @@ public class Punishment
         this.issueDate = ZonedDateTime.now(TimeUtils.zoneId());
     }
 
-    public static Component generateBanMessage(Punishment punishment, String banUrl, PlayerNameResolver playerNameResolver)
+    public static Component generateBanMessage(Punishment punishment, String banUrl)
     {
-        return PlexUtils.messageComponent("banMessage", banUrl, punishment.getReason(), endDate(punishment), punisherDisplayName(punishment, playerNameResolver));
+        return PlexUtils.messageComponent("banMessage", banUrl, punishment.getReason(), endDate(punishment), punisherDisplayName(punishment));
     }
 
     public static Component generateAdmissionBanMessage(Punishment punishment, String banUrl)
@@ -61,12 +61,12 @@ public class Punishment
         return PlexUtils.messageComponent("banMessage", banUrl, punishment.getReason(), endDate(punishment), punisher);
     }
 
-    public static Component generateKickMessage(Punishment punishment, PlayerNameResolver playerNameResolver)
+    public static Component generateKickMessage(Punishment punishment)
     {
-        return PlexUtils.messageComponent("kickMessage", punishment.getReason(), punisherDisplayName(punishment, playerNameResolver));
+        return PlexUtils.messageComponent("kickMessage", punishment.getReason(), punisherDisplayName(punishment));
     }
 
-    public static String punisherDisplayName(Punishment punishment, PlayerNameResolver playerNameResolver)
+    public static String punisherDisplayName(Punishment punishment)
     {
         PunishmentSource source = punishment.getSource();
         if (source == null)
@@ -77,7 +77,7 @@ public class Punishment
         {
             case PLAYER -> punishment.getPunisher() == null ? "CONSOLE"
                     : punishment.getResolvedPunisherName() != null && !punishment.getResolvedPunisherName().isBlank()
-                    ? punishment.getResolvedPunisherName() : playerNameResolver.resolve(punishment.getPunisher());
+                    ? punishment.getResolvedPunisherName() : punishment.getPunisher().toString();
             case CONSOLE -> "CONSOLE";
             case WEB -> punishment.getPunisherReference() == null || punishment.getPunisherReference().isBlank() ? "WEB" : punishment.getPunisherReference();
         };

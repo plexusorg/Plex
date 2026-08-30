@@ -55,28 +55,16 @@ public class UnbanCMD extends ServerCommand
                 throw new PlayerNotFoundException();
             }
 
-            plugin.getPunishmentManager().isBanned(target.getUuid()).whenComplete((aBoolean, throwable) ->
-            {
-                if (throwable != null)
-                {
-                    plugin.getApi().scheduler().runGlobal(() -> context.send(sender, Component.text("Unable to check ban state.")));
-                    return;
-                }
-                if (!aBoolean)
-                {
-                    plugin.getApi().scheduler().runGlobal(() -> context.send(sender, context.messageComponent("playerNotBanned")));
-                    return;
-                }
-                plugin.getPunishmentManager().unban(target.getUuid()).whenComplete((unused, failure) -> plugin.getApi().scheduler().runGlobal(() ->
+            plugin.getPunishmentManager().unban(target.getUuid()).whenComplete((changed, failure) -> plugin.getApi().scheduler().runGlobal(() ->
                 {
                     if (failure != null)
                     {
                         PlexLog.error("Unable to unban {0}: {1}", target.getUuid(), failure.getMessage());
                         context.send(sender, Component.text("Unable to persist the unban; no action was taken."));
                     }
+                    else if (!changed) context.send(sender, context.messageComponent("playerNotBanned"));
                     else PlexUtils.broadcast(context.messageComponent("unbanningPlayer", context.senderName(), target.getName()));
                 }));
-            });
         }
         return null;
     }

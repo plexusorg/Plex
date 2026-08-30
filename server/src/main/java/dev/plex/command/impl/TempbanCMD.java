@@ -111,11 +111,26 @@ public class TempbanCMD extends ServerCommand
                 }
                 PlexUtils.broadcast(context.messageComponent("banningPlayer", context.senderName(), target.getName()));
                 if (player != null)
-                    plugin.getApi().scheduler().runEntity(player, () -> BungeeUtil.kickPlayer(plugin, player, Punishment.generateBanMessage(punishment, plugin.config.getString("banning.ban_url"), plugin.getPlayerNameResolver())));
-                if (shouldRollBack) plugin.getApi().rollback().rollbackLastDay(sender, target.getName());
+                    plugin.getApi().scheduler().runEntity(player, () -> BungeeUtil.kickPlayer(plugin, player, Punishment.generateBanMessage(punishment, plugin.config.getString("banning.ban_url"))));
+                if (shouldRollBack) reportRollback(context, sender, target.getName());
             }));
         }));
         return null;
+    }
+
+    private void reportRollback(ServerCommandContext context, CommandSender sender, String playerName)
+    {
+        plugin.getApi().rollback().rollbackLastDay(sender, playerName).whenComplete((count, failure) ->
+                plugin.getApi().scheduler().runGlobal(() ->
+                {
+                    if (failure != null)
+                    {
+                        PlexLog.error("Unable to rollback {0}: {1}", playerName, failure.getMessage());
+                        context.send(sender, context.messageComponent("prismRollbackError", failure.getMessage()));
+                    }
+                    else if (count == 0) context.send(sender, context.messageComponent("prismNoResult", count));
+                    else context.send(sender, context.messageComponent("prismRollbackMessage", count));
+                }));
     }
 
 }

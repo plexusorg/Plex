@@ -11,9 +11,6 @@ import dev.plex.punishment.PunishmentType;
 import dev.plex.util.BungeeUtil;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
-import dev.plex.util.TimeUtils;
-
-import java.time.ZonedDateTime;
 import java.util.List;
 
 import io.papermc.paper.command.brigadier.CommandSourceStack;
@@ -97,8 +94,7 @@ public class BanCMD extends ServerCommand
                 {
                     punishment.setReason(context.messageString("noReasonProvided"));
                 }
-                ZonedDateTime date = ZonedDateTime.now(TimeUtils.zoneId());
-                punishment.setEndDate(date.plusDays(1));
+                punishment.setEndDate(null);
                 punishment.setCustomTime(false);
                 punishment.setActive(true);
                 punishment.setIp(plexPlayer.getIps().getLast());
@@ -113,14 +109,29 @@ public class BanCMD extends ServerCommand
                     }
                     PlexUtils.broadcast(context.messageComponent("banningPlayer", context.senderName(), plexPlayer.getName()));
                     if (player != null)
-                        plugin.getApi().scheduler().runEntity(player, () -> BungeeUtil.kickPlayer(plugin, player, Punishment.generateBanMessage(punishment, plugin.config.getString("banning.ban_url"), plugin.getPlayerNameResolver())));
+                        plugin.getApi().scheduler().runEntity(player, () -> BungeeUtil.kickPlayer(plugin, player, Punishment.generateBanMessage(punishment, plugin.config.getString("banning.ban_url"))));
                     PlexLog.debug("(From /ban command) PunishedPlayer UUID: " + plexPlayer.getUuid());
-                    if (shouldRollBack) plugin.getApi().rollback().rollbackLastDay(sender, plexPlayer.getName());
+                    if (shouldRollBack) reportRollback(context, sender, plexPlayer.getName());
                 }));
             });
         });
 
         return null;
+    }
+
+    private void reportRollback(ServerCommandContext context, CommandSender sender, String playerName)
+    {
+        plugin.getApi().rollback().rollbackLastDay(sender, playerName).whenComplete((count, failure) ->
+                plugin.getApi().scheduler().runGlobal(() ->
+                {
+                    if (failure != null)
+                    {
+                        PlexLog.error("Unable to rollback {0}: {1}", playerName, failure.getMessage());
+                        context.send(sender, context.messageComponent("prismRollbackError", failure.getMessage()));
+                    }
+                    else if (count == 0) context.send(sender, context.messageComponent("prismNoResult", count));
+                    else context.send(sender, context.messageComponent("prismRollbackMessage", count));
+                }));
     }
 
 }

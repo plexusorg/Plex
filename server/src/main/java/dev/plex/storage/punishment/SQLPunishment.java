@@ -5,6 +5,7 @@ import dev.plex.punishment.Punishment;
 import dev.plex.punishment.PunishmentType;
 import dev.plex.storage.database.entity.PunishmentEntity;
 import dev.plex.storage.repository.PunishmentRepository;
+import dev.plex.storage.repository.PunishmentRepository.BanRemoval;
 import dev.plex.util.PlexLog;
 import dev.plex.util.TimeUtils;
 import org.jdbi.v3.core.Jdbi;
@@ -30,16 +31,20 @@ public class SQLPunishment implements PunishmentRepository
 
     public CompletableFuture<List<Punishment>> getPunishments()
     {
-        return CompletableFuture.supplyAsync(() -> jdbi.withHandle(h -> h.createQuery("SELECT * FROM punishments")
-                .map((rs, ctx) -> mapRow(rs)).list()).stream().map(this::toPunishment).toList(), executor);
+        return CompletableFuture.supplyAsync(() -> jdbi.withHandle(h -> h.createQuery(
+                        "SELECT p.*, punisher.last_known_name AS resolved_punisher_name, punished.last_known_name AS resolved_punished_name FROM punishments p " +
+                                "LEFT JOIN players punisher ON punisher.uuid = p.punisher_uuid " +
+                                "LEFT JOIN players punished ON punished.uuid = p.punished_uuid")
+                .map((rs, ctx) -> mapPunishment(rs)).list()), executor);
     }
 
     @Override
     public CompletableFuture<Optional<Punishment>> getEffectiveBan(UUID uuid, String canonicalIp, Instant now)
     {
         return CompletableFuture.supplyAsync(() -> jdbi.withHandle(h -> h.createQuery(
-                        "SELECT p.*, punisher.last_known_name AS resolved_punisher_name FROM punishments p " +
+                        "SELECT p.*, punisher.last_known_name AS resolved_punisher_name, punished.last_known_name AS resolved_punished_name FROM punishments p " +
                         "LEFT JOIN players punisher ON punisher.uuid = p.punisher_uuid " +
+                        "LEFT JOIN players punished ON punished.uuid = p.punished_uuid " +
                         "WHERE p.active = :active AND p.type IN ('BAN', 'TEMPBAN') " +
                         "AND (p.punished_uuid = :uuid OR (:ip <> '' AND p.ip = :ip)) " +
                         "AND (p.endDate IS NULL OR p.endDate > :now) " +
@@ -50,25 +55,27 @@ public class SQLPunishment implements PunishmentRepository
                 .bind("now", now.toEpochMilli())
                 .map((rs, ctx) ->
                 {
-                    Punishment punishment = toPunishment(mapRow(rs));
-                    punishment.setResolvedPunisherName(rs.getString("resolved_punisher_name"));
-                    return punishment;
+                    return mapPunishment(rs);
                 })
                 .findFirst()), executor);
     }
 
     public List<Punishment> getPunishments(UUID uuid)
     {
-        return jdbi.withHandle(h -> h.createQuery("SELECT * FROM punishments WHERE punished_uuid = :u")
-                .bind("u", uuid.toString()).map((rs, ctx) -> mapRow(rs)).list())
-                .stream().map(this::toPunishment).toList();
+        return jdbi.withHandle(h -> h.createQuery(
+                        "SELECT p.*, punisher.last_known_name AS resolved_punisher_name, punished.last_known_name AS resolved_punished_name FROM punishments p " +
+                                "LEFT JOIN players punisher ON punisher.uuid = p.punisher_uuid " +
+                                "LEFT JOIN players punished ON punished.uuid = p.punished_uuid WHERE p.punished_uuid = :u")
+                .bind("u", uuid.toString()).map((rs, ctx) -> mapPunishment(rs)).list());
     }
 
     public List<Punishment> getPunishments(String ip)
     {
-        return jdbi.withHandle(h -> h.createQuery("SELECT * FROM punishments WHERE ip = :ip")
-                .bind("ip", ip).map((rs, ctx) -> mapRow(rs)).list())
-                .stream().map(this::toPunishment).toList();
+        return jdbi.withHandle(h -> h.createQuery(
+                        "SELECT p.*, punisher.last_known_name AS resolved_punisher_name, punished.last_known_name AS resolved_punished_name FROM punishments p " +
+                                "LEFT JOIN players punisher ON punisher.uuid = p.punisher_uuid " +
+                                "LEFT JOIN players punished ON punished.uuid = p.punished_uuid WHERE p.ip = :ip")
+                .bind("ip", ip).map((rs, ctx) -> mapPunishment(rs)).list());
     }
 
     public CompletableFuture<Void> insertPunishment(Punishment punishment)
@@ -110,16 +117,16 @@ public class SQLPunishment implements PunishmentRepository
                 .bind("active", true).bind("now", now.toEpochMilli()).execute()), executor);
     }
 
-    public CompletableFuture<List<String>> removeBan(UUID uuid)
+    public CompletableFuture<BanRemoval> removeBan(UUID uuid)
     {
         return CompletableFuture.supplyAsync(() -> jdbi.inTransaction(h ->
         {
             List<String> ips = h.createQuery("SELECT DISTINCT ip FROM punishments WHERE punished_uuid = :u AND active = :active " +
                             "AND type IN ('BAN', 'TEMPBAN') AND ip IS NOT NULL")
                     .bind("u", uuid.toString()).bind("active", true).mapTo(String.class).list();
-            h.createUpdate("UPDATE punishments SET active = :active WHERE punished_uuid = :u AND type IN ('BAN', 'TEMPBAN')")
-                    .bind("active", false).bind("u", uuid.toString()).execute();
-            return ips;
+            int changed = h.createUpdate("UPDATE punishments SET active = :active WHERE punished_uuid = :u AND type IN ('BAN', 'TEMPBAN') AND active = :currentlyActive")
+                    .bind("active", false).bind("currentlyActive", true).bind("u", uuid.toString()).execute();
+            return new BanRemoval(changed > 0, ips);
         }), executor);
     }
 
@@ -165,6 +172,14 @@ public class SQLPunishment implements PunishmentRepository
         punishment.setEndDate(entity.getEndDate() == null ? null : ZonedDateTime.ofInstant(Instant.ofEpochMilli(entity.getEndDate()), TimeUtils.zoneId()));
         punishment.setReason(entity.getReason());
         punishment.setIp(entity.getIp());
+        return punishment;
+    }
+
+    private Punishment mapPunishment(java.sql.ResultSet rs) throws java.sql.SQLException
+    {
+        Punishment punishment = toPunishment(mapRow(rs));
+        punishment.setResolvedPunisherName(rs.getString("resolved_punisher_name"));
+        punishment.setResolvedPunishedName(rs.getString("resolved_punished_name"));
         return punishment;
     }
 

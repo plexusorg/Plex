@@ -9,6 +9,9 @@ import dev.plex.storage.player.PlayerModuleDataRepository;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 public class DefaultPlayerModuleData implements PlayerModuleData
@@ -17,85 +20,115 @@ public class DefaultPlayerModuleData implements PlayerModuleData
     private static final Pattern KEY_PATTERN = Pattern.compile("^[a-z][a-z0-9_]{0,63}$");
 
     private final PlayerModuleDataRepository repository;
+    private final Executor executor;
     private final String modulePrefix;
     private final UUID playerUuid;
 
-    public DefaultPlayerModuleData(PlayerModuleDataRepository repository, String modulePrefix, UUID playerUuid)
+    public DefaultPlayerModuleData(PlayerModuleDataRepository repository, Executor executor, String modulePrefix, UUID playerUuid)
     {
         this.repository = repository;
+        this.executor = executor;
         this.modulePrefix = modulePrefix;
         this.playerUuid = playerUuid;
     }
 
     @Override
-    public Optional<JsonElement> get(String key)
+    public CompletableFuture<Optional<JsonElement>> get(String key)
     {
-        return repository.get(playerUuid, modulePrefix, validateKey(key));
+        return read(() -> repository.get(playerUuid, modulePrefix, validateKey(key)));
     }
 
     @Override
-    public <T> Optional<T> get(String key, Class<T> type)
+    public <T> CompletableFuture<Optional<T>> get(String key, Class<T> type)
     {
-        Objects.requireNonNull(type, "type");
+        return read(() ->
+        {
+            Objects.requireNonNull(type, "type");
+            Optional<JsonElement> value = repository.get(playerUuid, modulePrefix, validateKey(key));
+            try
+            {
+                return value.map(element -> GSON.fromJson(element, type));
+            }
+            catch (JsonParseException | ClassCastException ex)
+            {
+                return Optional.empty();
+            }
+        });
+    }
+
+    @Override
+    public CompletableFuture<String> getString(String key, String fallback)
+    {
+        return get(key)
+                .thenApply(value -> value.filter(JsonElement::isJsonPrimitive)
+                        .map(JsonElement::getAsJsonPrimitive)
+                        .filter(primitive -> primitive.isString())
+                        .map(primitive -> primitive.getAsString())
+                        .orElse(fallback));
+    }
+
+    @Override
+    public CompletableFuture<Long> getLong(String key, long fallback)
+    {
+        return get(key)
+                .thenApply(value -> value.filter(JsonElement::isJsonPrimitive)
+                        .map(JsonElement::getAsJsonPrimitive)
+                        .filter(primitive -> primitive.isNumber())
+                        .map(primitive -> primitive.getAsLong())
+                        .orElse(fallback));
+    }
+
+    @Override
+    public CompletableFuture<Boolean> getBoolean(String key, boolean fallback)
+    {
+        return get(key)
+                .thenApply(value -> value.filter(JsonElement::isJsonPrimitive)
+                        .map(JsonElement::getAsJsonPrimitive)
+                        .filter(primitive -> primitive.isBoolean())
+                        .map(primitive -> primitive.getAsBoolean())
+                        .orElse(fallback));
+    }
+
+    @Override
+    public CompletableFuture<Void> set(String key, JsonElement value)
+    {
+        return write(() -> repository.set(playerUuid, modulePrefix, validateKey(key), Objects.requireNonNull(value, "value")));
+    }
+
+    @Override
+    public CompletableFuture<Void> set(String key, Object value)
+    {
+        return write(() -> repository.set(playerUuid, modulePrefix, validateKey(key), GSON.toJsonTree(value)));
+    }
+
+    @Override
+    public CompletableFuture<Void> remove(String key)
+    {
+        return write(() -> repository.remove(playerUuid, modulePrefix, validateKey(key)));
+    }
+
+    private <T> CompletableFuture<T> read(Supplier<T> action)
+    {
         try
         {
-            return get(key).map(element -> GSON.fromJson(element, type));
+            return CompletableFuture.supplyAsync(action, executor);
         }
-        catch (JsonParseException | ClassCastException ex)
+        catch (RuntimeException failure)
         {
-            return Optional.empty();
+            return CompletableFuture.failedFuture(failure);
         }
     }
 
-    @Override
-    public String getString(String key, String fallback)
+    private CompletableFuture<Void> write(Runnable action)
     {
-        return get(key)
-                .filter(JsonElement::isJsonPrimitive)
-                .map(JsonElement::getAsJsonPrimitive)
-                .filter(primitive -> primitive.isString())
-                .map(primitive -> primitive.getAsString())
-                .orElse(fallback);
-    }
-
-    @Override
-    public long getLong(String key, long fallback)
-    {
-        return get(key)
-                .filter(JsonElement::isJsonPrimitive)
-                .map(JsonElement::getAsJsonPrimitive)
-                .filter(primitive -> primitive.isNumber())
-                .map(primitive -> primitive.getAsLong())
-                .orElse(fallback);
-    }
-
-    @Override
-    public boolean getBoolean(String key, boolean fallback)
-    {
-        return get(key)
-                .filter(JsonElement::isJsonPrimitive)
-                .map(JsonElement::getAsJsonPrimitive)
-                .filter(primitive -> primitive.isBoolean())
-                .map(primitive -> primitive.getAsBoolean())
-                .orElse(fallback);
-    }
-
-    @Override
-    public void set(String key, JsonElement value)
-    {
-        repository.set(playerUuid, modulePrefix, validateKey(key), Objects.requireNonNull(value, "value"));
-    }
-
-    @Override
-    public void set(String key, Object value)
-    {
-        set(key, GSON.toJsonTree(value));
-    }
-
-    @Override
-    public void remove(String key)
-    {
-        repository.remove(playerUuid, modulePrefix, validateKey(key));
+        try
+        {
+            return CompletableFuture.runAsync(action, executor);
+        }
+        catch (RuntimeException failure)
+        {
+            return CompletableFuture.failedFuture(failure);
+        }
     }
 
     private String validateKey(String key)
