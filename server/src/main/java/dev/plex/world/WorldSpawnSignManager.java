@@ -115,7 +115,7 @@ public final class WorldSpawnSignManager
 
     private void restoreLoadedWorlds()
     {
-        ConfigurationSection worlds = plugin.config.getConfigurationSection("worlds");
+        ConfigurationSection worlds = plugin.worlds.getConfigurationSection("worlds");
         if (worlds == null)
         {
             return;
@@ -150,7 +150,7 @@ public final class WorldSpawnSignManager
 
     private String configKey(World world)
     {
-        ConfigurationSection worlds = plugin.config.getConfigurationSection("worlds");
+        ConfigurationSection worlds = plugin.worlds.getConfigurationSection("worlds");
         if (worlds == null)
         {
             return null;
@@ -185,7 +185,7 @@ public final class WorldSpawnSignManager
         BlockData supportData = support.getType().isSolid()
                 ? support.getBlockData().clone()
                 : Material.BEDROCK.createBlockData();
-        String displayName = plugin.config.getString("worlds." + configKey + ".name", configKey);
+        String displayName = plugin.worlds.getString("worlds." + configKey + ".name", configKey);
         return new ProtectedSign(signY, supportData, displayName);
     }
 

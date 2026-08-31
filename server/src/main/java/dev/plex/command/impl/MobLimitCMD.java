@@ -50,24 +50,24 @@ public class MobLimitCMD extends ServerCommand
         {
             Chunk chunk = playerSender != null ? playerSender.getLocation().getChunk() : Bukkit.getWorlds().getFirst().getChunkAt(0, 0);
 
-            int currentLimit = plugin.config.getInt("entity_limit.max_mobs_per_chunk");
+            int currentLimit = plugin.entities.getInt("entity_limit.max_mobs_per_chunk");
             int currentMobCount = (int) Arrays.stream(chunk.getEntities())
                     .filter(entity -> entity instanceof LivingEntity && !(entity instanceof Player))
                     .count();
 
-            String status = PlexUtils.messageString(plugin.config.getBoolean("entity_limit.mob_limit_enabled") ? "mobLimitEnabled" : "mobLimitDisabled");
+            String status = PlexUtils.messageString(plugin.entities.getBoolean("entity_limit.mob_limit_enabled") ? "mobLimitEnabled" : "mobLimitDisabled");
             return PlexUtils.messageComponent("mobLimitStatus", status, currentMobCount, currentLimit, chunk.getX(), chunk.getZ());
         }
 
         switch (args[0].toLowerCase())
         {
             case "on":
-                plugin.config.set("entity_limit.mob_limit_enabled", true);
-                plugin.config.save();
+                plugin.entities.set("entity_limit.mob_limit_enabled", true);
+                plugin.entities.save();
                 return PlexUtils.messageComponent("mobLimitToggle", PlexUtils.messageString("stateEnabled"));
             case "off":
-                plugin.config.set("entity_limit.mob_limit_enabled", false);
-                plugin.config.save();
+                plugin.entities.set("entity_limit.mob_limit_enabled", false);
+                plugin.entities.save();
                 return PlexUtils.messageComponent("mobLimitToggle", PlexUtils.messageString("stateDisabled"));
             case "setmax":
                 try
@@ -83,15 +83,15 @@ public class MobLimitCMD extends ServerCommand
                         throw new NumberFormatException();
                     }
 
-                    int limitCeiling = plugin.config.getInt("entity_limit.mob_limit_ceiling");
+                    int limitCeiling = plugin.entities.getInt("entity_limit.mob_limit_ceiling");
                     if (newLimit > limitCeiling)
                     {
                         newLimit = limitCeiling;
                         sender.sendMessage(PlexUtils.messageComponent("mobLimitCeiling"));
                     }
 
-                    plugin.config.set("entity_limit.max_mobs_per_chunk", newLimit);
-                    plugin.config.save();
+                    plugin.entities.set("entity_limit.max_mobs_per_chunk", newLimit);
+                    plugin.entities.save();
                     return PlexUtils.messageComponent("mobLimitSet", newLimit);
                 }
                 catch (NumberFormatException e)

@@ -75,6 +75,35 @@ public class PunishmentManager
                 .anyMatch(name -> name.equalsIgnoreCase(username))).findFirst().orElse(null);
     }
 
+    public synchronized boolean banUsername(String username, String reason)
+    {
+        if (getIndefiniteBanByUsername(username) != null)
+        {
+            return false;
+        }
+        String key = nextIndefiniteBanKey("name", username);
+        plugin.indefBans.set(key + ".reason", reason);
+        plugin.indefBans.set(key + ".users", List.of(username));
+        plugin.indefBans.save();
+        mergeIndefiniteBans();
+        return true;
+    }
+
+    public synchronized boolean banIp(String ip, String reason)
+    {
+        String canonicalIp = BanDecisionService.canonicalIp(ip);
+        if (getIndefiniteBanByIP(canonicalIp) != null)
+        {
+            return false;
+        }
+        String key = nextIndefiniteBanKey("ip", canonicalIp);
+        plugin.indefBans.set(key + ".reason", reason);
+        plugin.indefBans.set(key + ".ips", List.of(canonicalIp));
+        plugin.indefBans.save();
+        mergeIndefiniteBans();
+        return true;
+    }
+
     public CompletableFuture<Optional<Punishment>> decideAdmission(UUID uuid, String ip)
     {
         return banDecisionService.decide(uuid, ip);
@@ -258,6 +287,22 @@ public class PunishmentManager
                     PlexLog.warn("Unable to publish ban cache invalidation: {0}", failure.getMessage());
                     return null;
                 });
+    }
+
+    private String nextIndefiniteBanKey(String type, String value)
+    {
+        String slug = value.toLowerCase(java.util.Locale.ROOT).replaceAll("[^a-z0-9]+", "-")
+                .replaceAll("(^-+|-+$)", "");
+        if (slug.isEmpty()) slug = "entry";
+        if (slug.length() > 40) slug = slug.substring(0, 40);
+        String base = "command-" + type + "-" + slug;
+        String key = base;
+        int suffix = 2;
+        while (plugin.indefBans.contains(key))
+        {
+            key = base + "-" + suffix++;
+        }
+        return key;
     }
 
     @Getter

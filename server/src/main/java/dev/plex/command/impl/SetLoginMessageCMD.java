@@ -5,6 +5,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
 import dev.plex.command.ServerCommandContext;
 import dev.plex.command.exception.CommandFailException;
+import dev.plex.meta.PlayerMeta;
 import dev.plex.player.PlexPlayer;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
@@ -30,8 +31,6 @@ public class SetLoginMessageCMD extends ServerCommand
             .permission("plex.setloginmessage")
             .build());
     }
-    private final boolean nameRequired = plugin.getConfig().getBoolean("loginmessages.name");
-
     @Override
     protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
     {
@@ -92,32 +91,51 @@ public class SetLoginMessageCMD extends ServerCommand
                 return context.messageComponent("playerNotFound");
             }
             String message = StringUtils.join(args, " ", 2, args.length);
-            message = message.replace(plexPlayer.getName(), "%player%");
-            validateMessage(context, message);
+            message = normalizeMessage(plexPlayer, message);
+            validateMessage(context, plexPlayer, message);
             plexPlayer.setLoginMessage(message);
             plugin.getPlayerService().update(plexPlayer);
             return context.messageComponent("setOtherPlayersLoginMessage", plexPlayer.getName(),
-                    MiniMessage.miniMessage().serialize(PlexUtils.stringToComponent(message.replace("%player%", plexPlayer.getName()))));
+                    MiniMessage.miniMessage().serialize(PlexUtils.stringToComponent(PlayerMeta.getLoginMessage(plugin.config, plexPlayer))));
         }
         if (context.isConsole(sender))
         {
             return context.messageComponent("noPermissionConsole");
         }
         PlexPlayer plexPlayer = plugin.getPlayerCache().getPlexPlayer(playerSender.getUniqueId());
-        String message = StringUtils.join(args, " ", 0, args.length)
-                .replace(plexPlayer.getName(), "%player%");
-        validateMessage(context, message);
+        String message = normalizeMessage(plexPlayer, StringUtils.join(args, " ", 0, args.length));
+        validateMessage(context, plexPlayer, message);
         plexPlayer.setLoginMessage(message);
         plugin.getPlayerService().update(plexPlayer);
-        return context.messageComponent("setOwnLoginMessage", PlexUtils.stringToComponent(message.replace("%player%", plexPlayer.getName())));
+        return context.messageComponent("setOwnLoginMessage", PlexUtils.stringToComponent(PlayerMeta.getLoginMessage(plugin.config, plexPlayer)));
     }
 
-    private void validateMessage(ServerCommandContext context, String message)
+    private String normalizeMessage(PlexPlayer plexPlayer, String message)
     {
-        if (nameRequired && !message.contains("%player%"))
+        String normalized = message.replace(plexPlayer.getName(), "%player%");
+        String title = PlayerMeta.getGroupTitle(plugin.config, plexPlayer);
+        return title.isEmpty() ? normalized : StringUtils.replaceIgnoreCase(normalized, title, "%group%");
+    }
+
+    private void validateMessage(ServerCommandContext context, PlexPlayer plexPlayer, String message)
+    {
+        if (plugin.config.getBoolean("loginmessages.name") && !message.contains("%player%"))
         {
             PlexLog.debug("Validating login message has a valid name in it");
             throw new CommandFailException(context.messageString("nameRequired"));
+        }
+        if (!plugin.config.getBoolean("loginmessages.group"))
+        {
+            return;
+        }
+        if (PlayerMeta.getGroupTitle(plugin.config, plexPlayer).isEmpty())
+        {
+            throw new CommandFailException(context.messageString("groupNotConfigured"));
+        }
+        if (!message.contains("%group%"))
+        {
+            PlexLog.debug("Validating login message has a valid group in it");
+            throw new CommandFailException(context.messageString("groupRequired"));
         }
     }
 

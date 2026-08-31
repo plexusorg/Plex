@@ -62,7 +62,7 @@ public class EntityWipeCMD extends ServerCommand
         CommandSender sender = context.sender();
         Player playerSender = context.player();
         String[] args = context.args();
-        List<String> entityBlacklist = plugin.config.getStringList("entitywipe_list");
+        List<String> entityBlacklist = plugin.entities.getStringList("entitywipe_list");
 
         List<String> entityWhitelist = new LinkedList<>(Arrays.asList(args));
 

@@ -1,0 +1,70 @@
+# Plex World Configuration
+# See https://docs.plex.us.org/docs/customization/config#worlds for documentation.
+
+# These gamerules apply to every world on the server.
+global_gamerules:
+  - "advance_weather;true"
+  - "advance_time;true"
+  - "spawn_mobs;false"
+  - "spawn_monsters;false"
+  - "spawn_patrols;false"
+  - "spawn_phantoms;false"
+  - "spawn_wandering_traders;false"
+  - "spawn_wardens;false"
+  - "keep_inventory;true"
+  - "mob_drops;false"
+  - "mob_griefing;false"
+  - "block_drops;false"
+  - "command_block_output;false"
+  - "natural_health_regeneration;true"
+  - "show_advancement_messages;false"
+  - "show_death_messages;false"
+  - "send_command_feedback;false"
+
+worlds:
+  flatlands:
+    name: "Flatlands"
+    modification:
+      permission: "plex.world.flatlands.modify"
+      message: "<red>You do not have permission to modify this world."
+    gameRules:
+      # These gamerules override the global gamerules.
+      - "advance_weather;false"
+      - "advance_time;false"
+    parameters:
+      grass_block: 1
+      dirt: 32
+      stone: 16
+      bedrock: 1
+  adminworld:
+    name: "Admin World"
+    entry:
+      permission: "plex.world.adminworld.enter"
+      message: "<red>You do not have permission to enter this world."
+    modification:
+      permission: "plex.world.adminworld.modify"
+      message: "<red>You do not have permission to modify this world."
+    gameRules:
+      - "advance_weather;false"
+      - "advance_time;false"
+    parameters:
+      grass_block: 1
+      dirt: 32
+      stone: 16
+      bedrock: 1
+  masterbuilderworld:
+    name: "MasterBuilder World"
+    entry:
+      permission: "plex.world.masterbuilderworld.enter"
+      message: "<red>You do not have permission to enter this world."
+    modification:
+      permission: "plex.world.masterbuilderworld.modify"
+      message: "<red>You do not have permission to modify this world."
+    gameRules:
+      - "advance_weather;false"
+      - "advance_time;false"
+    parameters:
+      grass_block: 1
+      dirt: 32
+      stone: 16
+      bedrock: 1

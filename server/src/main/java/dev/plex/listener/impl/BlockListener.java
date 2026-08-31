@@ -33,7 +33,7 @@ public class BlockListener extends ServerListenerBase
     @EventHandler(priority = EventPriority.LOW)
     public void onBlockPlace(BlockPlaceEvent event)
     {
-        List<String> blockedBlocksConfig = plugin.config.getStringList("blocked_blocks");
+        List<String> blockedBlocksConfig = plugin.entities.getStringList("blocked_blocks");
         if (blockedBlocksConfig != cachedBlockedBlocksConfig)
         {
             blockedBlocks.clear();

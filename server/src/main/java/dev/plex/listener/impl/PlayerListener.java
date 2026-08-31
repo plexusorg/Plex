@@ -60,7 +60,7 @@ public class PlayerListener extends ServerListenerBase
             player.openInventory(player.getInventory());
         }
 
-        String loginMessage = PlayerMeta.getLoginMessage(plexPlayer);
+        String loginMessage = PlayerMeta.getLoginMessage(plugin.config, plexPlayer);
         if (!loginMessage.isEmpty() && !PlayerMeta.isVanished(player))
         {
             PlexUtils.broadcast(PlexUtils.stringToComponent(loginMessage));

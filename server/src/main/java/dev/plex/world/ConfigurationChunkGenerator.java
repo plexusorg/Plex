@@ -17,14 +17,14 @@ public class ConfigurationChunkGenerator extends BlockMapChunkGenerator
     private static LinkedHashMap<Material, Integer> createBlockMap(Plex plugin, String worldName)
     {
         LinkedHashMap<Material, Integer> blockMap = new LinkedHashMap<>();
-        for (String key : plugin.config.getConfigurationSection("worlds." + worldName + ".parameters").getKeys(false))
+        for (String key : plugin.worlds.getConfigurationSection("worlds." + worldName + ".parameters").getKeys(false))
         {
             Material material = Material.getMaterial(key.toUpperCase());
             if (material == null)
             {
                 continue;
             }
-            int count = plugin.config.getInt("worlds." + worldName + ".parameters." + key);
+            int count = plugin.worlds.getInt("worlds." + worldName + ".parameters." + key);
             blockMap.put(material, count);
         }
         return blockMap;

@@ -19,7 +19,7 @@ public class CustomWorld extends WorldCreator
 
     public static World generateConfigFlatWorld(Plex plugin, String name)
     {
-        if (!plugin.config.contains("worlds." + name))
+        if (!plugin.worlds.contains("worlds." + name))
         {
             return null;
         }

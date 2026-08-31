@@ -67,7 +67,7 @@ public class MobListener extends ServerListenerBase
             return;
         }
 
-        if (plugin.config.getStringList("blocked_entities").stream().anyMatch(type -> type.equalsIgnoreCase(event.getEntityType().name())))
+        if (plugin.entities.getStringList("blocked_entities").stream().anyMatch(type -> type.equalsIgnoreCase(event.getEntityType().name())))
         {
             event.setCancelled(true);
             Location location = event.getLocation();
@@ -75,12 +75,12 @@ public class MobListener extends ServerListenerBase
             PlexUtils.disabledEffectMultiple(coll.toArray(new Player[coll.size()]), location); // dont let intellij auto correct toArray to an empty array (for efficiency)
         }
 
-        if (plugin.config.getBoolean("entity_limit.mob_limit_enabled"))
+        if (plugin.entities.getBoolean("entity_limit.mob_limit_enabled"))
         {
             Location location = event.getLocation();
             Chunk chunk = location.getChunk();
 
-            if (isEntityLimitReached(chunk, plugin.config.getInt("entity_limit.max_mobs_per_chunk")))
+            if (isEntityLimitReached(chunk, plugin.entities.getInt("entity_limit.max_mobs_per_chunk")))
             {
                 event.setCancelled(true);
             }

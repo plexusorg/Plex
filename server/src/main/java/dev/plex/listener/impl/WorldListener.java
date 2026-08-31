@@ -261,7 +261,7 @@ public class WorldListener extends ServerListenerBase
         {
             return true;
         }
-        String permission = plugin.config.getString("worlds." + key + ".modification.permission");
+        String permission = plugin.worlds.getString("worlds." + key + ".modification.permission");
         return permission == null || player.hasPermission(permission);
     }
 
@@ -272,7 +272,7 @@ public class WorldListener extends ServerListenerBase
         {
             return;
         }
-        String message = plugin.config.getString("worlds." + key + ".modification.message");
+        String message = plugin.worlds.getString("worlds." + key + ".modification.message");
         if (message != null && !message.isBlank())
         {
             player.sendMessage(MiniMessage.miniMessage().deserialize(message));
@@ -286,14 +286,14 @@ public class WorldListener extends ServerListenerBase
         {
             return true;
         }
-        String permission = plugin.config.getString("worlds." + key + ".entry.permission");
+        String permission = plugin.worlds.getString("worlds." + key + ".entry.permission");
         if (permission == null || player.hasPermission(permission))
         {
             return true;
         }
         if (showMessage)
         {
-            String message = plugin.config.getString("worlds." + key + ".entry.message");
+            String message = plugin.worlds.getString("worlds." + key + ".entry.message");
             if (message != null && !message.isBlank())
             {
                 player.sendMessage(MiniMessage.miniMessage().deserialize(message));
@@ -304,7 +304,7 @@ public class WorldListener extends ServerListenerBase
 
     private String worldKey(World world)
     {
-        ConfigurationSection worlds = plugin.config.getConfigurationSection("worlds");
+        ConfigurationSection worlds = plugin.worlds.getConfigurationSection("worlds");
         if (worlds == null)
         {
             return null;

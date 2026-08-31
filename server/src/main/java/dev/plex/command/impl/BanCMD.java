@@ -8,7 +8,7 @@ import dev.plex.command.exception.PlayerNotFoundException;
 import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.Punishment;
 import dev.plex.punishment.PunishmentType;
-import dev.plex.util.BungeeUtil;
+import dev.plex.util.BanKickUtil;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import java.util.List;
@@ -16,9 +16,7 @@ import java.util.List;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
 import org.apache.commons.lang3.StringUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 
@@ -48,7 +46,6 @@ public class BanCMD extends ServerCommand
     protected Component execute(@NotNull ServerCommandContext context)
     {
         CommandSender sender = context.sender();
-        Player playerSender = context.player();
         String[] args = context.args();
         if (args.length == 0)
         {
@@ -61,8 +58,6 @@ public class BanCMD extends ServerCommand
         {
             throw new PlayerNotFoundException();
         }
-
-        Player player = Bukkit.getPlayer(plexPlayer.getUuid());
 
         plugin.getPunishmentManager().isBanned(plexPlayer.getUuid()).whenComplete((aBoolean, throwable) ->
         {
@@ -97,7 +92,7 @@ public class BanCMD extends ServerCommand
                 punishment.setEndDate(null);
                 punishment.setCustomTime(false);
                 punishment.setActive(true);
-                punishment.setIp(plexPlayer.getIps().getLast());
+                punishment.setIp(BanKickUtil.currentOrLastIp(plexPlayer));
                 final boolean shouldRollBack = rollBack;
                 plugin.getPunishmentManager().punish(plexPlayer, punishment).whenComplete((unused, failure) -> plugin.getApi().scheduler().runGlobal(() ->
                 {
@@ -108,8 +103,8 @@ public class BanCMD extends ServerCommand
                         return;
                     }
                     PlexUtils.broadcast(context.messageComponent("banningPlayer", context.senderName(), plexPlayer.getName()));
-                    if (player != null)
-                        plugin.getApi().scheduler().runEntity(player, () -> BungeeUtil.kickPlayer(plugin, player, Punishment.generateBanMessage(punishment, plugin.config.getString("banning.ban_url"))));
+                    BanKickUtil.kickPlayersWithIp(plugin, punishment.getIp(),
+                            Punishment.generateBanMessage(punishment, plugin.config.getString("banning.ban_url")));
                     PlexLog.debug("(From /ban command) PunishedPlayer UUID: " + plexPlayer.getUuid());
                     if (shouldRollBack) reportRollback(context, sender, plexPlayer.getName());
                 }));

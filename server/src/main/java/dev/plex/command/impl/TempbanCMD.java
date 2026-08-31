@@ -8,7 +8,7 @@ import dev.plex.command.exception.PlayerNotFoundException;
 import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.Punishment;
 import dev.plex.punishment.PunishmentType;
-import dev.plex.util.BungeeUtil;
+import dev.plex.util.BanKickUtil;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.PlexLog;
 import dev.plex.util.TimeUtils;
@@ -18,9 +18,7 @@ import java.util.List;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
 import org.apache.commons.lang3.StringUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 
@@ -50,7 +48,6 @@ public class TempbanCMD extends ServerCommand
     protected Component execute(@NotNull ServerCommandContext context)
     {
         CommandSender sender = context.sender();
-        Player playerSender = context.player();
         String[] args = context.args();
         if (args.length <= 1)
         {
@@ -64,8 +61,6 @@ public class TempbanCMD extends ServerCommand
         {
             throw new PlayerNotFoundException();
         }
-        Player player = Bukkit.getPlayer(target.getUuid());
-
         Punishment punishment = new Punishment(target.getUuid(), context.getUUID(sender));
         punishment.setResolvedPunisherName(context.senderName());
         punishment.setType(PunishmentType.TEMPBAN);
@@ -84,7 +79,7 @@ public class TempbanCMD extends ServerCommand
         punishment.setEndDate(TimeUtils.createDate(args[1]));
         punishment.setCustomTime(false);
         punishment.setActive(true);
-        punishment.setIp(target.getIps().getLast());
+        punishment.setIp(BanKickUtil.currentOrLastIp(target));
         final boolean shouldRollBack = rollBack;
         plugin.getPunishmentManager().isBanned(target.getUuid()).whenComplete((banned, checkFailure) ->
                 plugin.getApi().scheduler().runGlobal(() ->
@@ -110,8 +105,8 @@ public class TempbanCMD extends ServerCommand
                     return;
                 }
                 PlexUtils.broadcast(context.messageComponent("banningPlayer", context.senderName(), target.getName()));
-                if (player != null)
-                    plugin.getApi().scheduler().runEntity(player, () -> BungeeUtil.kickPlayer(plugin, player, Punishment.generateBanMessage(punishment, plugin.config.getString("banning.ban_url"))));
+                BanKickUtil.kickPlayersWithIp(plugin, punishment.getIp(),
+                        Punishment.generateBanMessage(punishment, plugin.config.getString("banning.ban_url")));
                 if (shouldRollBack) reportRollback(context, sender, target.getName());
             }));
         }));

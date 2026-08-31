@@ -35,7 +35,7 @@ public class AutoWipeService implements Listener
 
     public boolean shouldStart()
     {
-        return plugin.config.getBoolean("autowipe.enabled");
+        return plugin.entities.getBoolean("autowipe.enabled");
     }
 
     public void onStart()
@@ -98,7 +98,7 @@ public class AutoWipeService implements Listener
 
     public int repeatInSeconds()
     {
-        return Math.max(1, plugin.config.getInt("autowipe.interval"));
+        return Math.max(1, plugin.entities.getInt("autowipe.interval"));
     }
 
     private void index(Chunk chunk)
@@ -114,7 +114,7 @@ public class AutoWipeService implements Listener
     private Set<EntityType> configuredTypes()
     {
         EnumSet<EntityType> parsed = EnumSet.noneOf(EntityType.class);
-        for (String configuredName : plugin.config.getStringList("autowipe.entities"))
+        for (String configuredName : plugin.entities.getStringList("autowipe.entities"))
         {
             String name = configuredName.trim().toUpperCase(Locale.ROOT);
             if (name.equals("DROPPED_ITEM")) name = "ITEM";

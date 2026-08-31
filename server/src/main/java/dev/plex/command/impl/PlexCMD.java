@@ -80,6 +80,10 @@ public class PlexCMD extends ServerCommand
             plugin.config.load();
             PlexLog.setDebugEnabled(plugin.config.getBoolean("debug"));
             context.send(sender, "Reloaded config file");
+            plugin.entities.load();
+            context.send(sender, "Reloaded entities file");
+            plugin.worlds.load();
+            context.send(sender, "Reloaded worlds file");
             plugin.messages.load();
             PlexUtils.configure(plugin.config, plugin.messages);
             context.send(sender, "Reloaded messages file");

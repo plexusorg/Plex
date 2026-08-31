@@ -51,6 +51,7 @@ import net.milkbowl.vault.chat.Chat;
 import net.milkbowl.vault.permission.Permission;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -65,7 +66,11 @@ public class Plex extends JavaPlugin
     public Config messages;
     public Config indefBans;
     public Config toggles;
+    public Config entities;
+    public Config worlds;
     public File modulesFolder;
+    private boolean migrateLegacyEntityConfig;
+    private boolean migrateLegacyWorldConfig;
     private StorageType storageType = StorageType.SQLITE;
     private Database database;
     private ThreadPoolExecutor databaseExecutor;
@@ -111,6 +116,10 @@ public class Plex extends JavaPlugin
         messages = new Config(this, "messages.yml");
         indefBans = new Config(this, "indefbans.yml");
         toggles = new Config(this, "toggles.yml");
+        migrateLegacyEntityConfig = !new File(getDataFolder(), "entities.yml").exists();
+        migrateLegacyWorldConfig = !new File(getDataFolder(), "worlds.yml").exists();
+        entities = new Config(this, "entities.yml");
+        worlds = new Config(this, "worlds.yml");
         build.load(this);
         api = new DefaultPlexApi(this, MODULE_API_COMPATIBILITY_VERSION);
         installModuleApiRuntimes();
@@ -144,6 +153,9 @@ public class Plex extends JavaPlugin
     public void onEnable()
     {
         config.load();
+        entities.load();
+        worlds.load();
+        migrateSplitConfigs();
         updateConfiguredChannel();
         PlexLog.setDebugEnabled(config.getBoolean("debug"));
         messages.load();
@@ -389,11 +401,76 @@ public class Plex extends JavaPlugin
     private void generateWorlds()
     {
         PlexLog.log("Generating any worlds if needed...");
-        for (String key : config.getConfigurationSection("worlds").getKeys(false))
+        for (String key : worlds.getConfigurationSection("worlds").getKeys(false))
         {
             CustomWorld.generateConfigFlatWorld(this, key);
         }
         PlexLog.log("Finished with world generation!");
+    }
+
+    private void migrateSplitConfigs()
+    {
+        boolean configChanged = false;
+        if (migrateLegacyEntityConfig)
+        {
+            boolean entitiesChanged = migrateConfigRoots(config, entities, List.of(
+                    "entitywipe_list", "autowipe", "blocked_blocks", "blocked_entities", "entity_limit"));
+            configChanged |= entitiesChanged;
+            if (entitiesChanged)
+            {
+                entities.save();
+                PlexLog.log("Moved entity settings from config.yml to entities.yml.");
+            }
+        }
+
+        boolean worldsChanged = false;
+        if (migrateLegacyWorldConfig)
+        {
+            worldsChanged = migrateConfigRoots(config, worlds, List.of("global_gamerules", "worlds"));
+            configChanged |= worldsChanged;
+            if (worldsChanged)
+            {
+                worlds.save();
+                PlexLog.log("Moved world settings from config.yml to worlds.yml.");
+            }
+        }
+
+        if (configChanged)
+        {
+            config.save();
+        }
+        migrateLegacyEntityConfig = false;
+        migrateLegacyWorldConfig = false;
+    }
+
+    private boolean migrateConfigRoots(Config source, Config target, List<String> roots)
+    {
+        boolean changed = false;
+        for (String root : roots)
+        {
+            if (!source.contains(root))
+            {
+                continue;
+            }
+            ConfigurationSection section = source.getConfigurationSection(root);
+            if (section == null)
+            {
+                target.set(root, source.get(root));
+            }
+            else
+            {
+                for (String path : section.getKeys(true))
+                {
+                    if (!section.isConfigurationSection(path))
+                    {
+                        target.set(root + "." + path, section.get(path));
+                    }
+                }
+            }
+            source.set(root, null);
+            changed = true;
+        }
+        return changed;
     }
 
     private void reloadPlayers()

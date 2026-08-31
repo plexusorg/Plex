@@ -81,6 +81,16 @@ consoleOnly: "<red>This command can only be executed by the console."
 # 1 - The player
 banningPlayer: "<red>{0} - Banning {1}"
 # 0 - The command sender
+# 1 - The username
+banningName: "<red>{0} - Banning username {1}"
+# 0 - The command sender
+# 1 - The IP address
+banningIp: "<red>{0} - Banning IP {1}"
+invalidUsername: "<red>That is not a valid Minecraft username."
+invalidIpOrPlayer: "<red>Specify a valid IP address or a player with a known IP address."
+nameAlreadyBanned: "<red>That username is already banned."
+ipAlreadyBanned: "<red>That IP address is already banned."
+# 0 - The command sender
 # 1 - The player
 unbanningPlayer: "<aqua>{0} - Unbanning {1}"
 playerNotBanned: "<red>That player is not banned!"
@@ -230,6 +240,8 @@ removedOwnLoginMessage: "<gray>Your login message has been removed."
 # 0 - The player
 removedOtherLoginMessage: "<gray>You removed {0}'s login message."
 nameRequired: "<red>Policy requires that you must state your player name in your login message. You can either do this by inserting your name or %player%."
+groupRequired: "<red>Policy requires that you must state your group in your login message. You can either do this by inserting your configured group title or %group%."
+groupNotConfigured: "<red>Your primary group does not have a title configured, so it cannot be used in a login message."
 # 0 - The material name
 # 1 - The players who have the material in their inventory
 playersWithMaterial: "<gray>Players with {0} in their inventory: {1}"

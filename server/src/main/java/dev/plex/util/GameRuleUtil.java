@@ -23,7 +23,7 @@ public class GameRuleUtil
 
     public static void commitGlobalGameRules(Plex plugin, World world)
     {
-        for (String s : plugin.config.getStringList("global_gamerules"))
+        for (String s : plugin.worlds.getStringList("global_gamerules"))
         {
             readGameRules(world, s);
         }
@@ -31,7 +31,7 @@ public class GameRuleUtil
 
     public static void commitSpecificGameRules(Plex plugin, World world)
     {
-        ConfigurationSection worlds = plugin.config.getConfigurationSection("worlds");
+        ConfigurationSection worlds = plugin.worlds.getConfigurationSection("worlds");
         if (worlds == null)
         {
             return;
@@ -39,7 +39,7 @@ public class GameRuleUtil
         worlds.getKeys(false).stream()
                 .filter(key -> key.equalsIgnoreCase(world.getName()))
                 .findFirst()
-                .ifPresent(key -> plugin.config.getStringList("worlds." + key + ".gameRules")
+                .ifPresent(key -> plugin.worlds.getStringList("worlds." + key + ".gameRules")
                         .forEach(rule -> readGameRules(world, rule)));
     }
 

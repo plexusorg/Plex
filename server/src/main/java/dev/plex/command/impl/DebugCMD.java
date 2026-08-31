@@ -91,7 +91,7 @@ public class DebugCMD extends ServerCommand
                 GameRuleUtil.commitGlobalGameRules(plugin, world);
                 PlexLog.log("Set global gamerules for world: " + world.getName());
             }
-            for (String world : plugin.config.getConfigurationSection("worlds").getKeys(false))
+            for (String world : plugin.worlds.getConfigurationSection("worlds").getKeys(false))
             {
                 World bukkitWorld = Bukkit.getWorld(world);
                 if (bukkitWorld != null)

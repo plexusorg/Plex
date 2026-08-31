@@ -35,7 +35,7 @@ public class VanishListener extends ServerListenerBase
             return;
         }
 
-        String loginMessage = PlayerMeta.getLoginMessage(plexPlayer);
+        String loginMessage = PlayerMeta.getLoginMessage(plugin.config, plexPlayer);
         if (!loginMessage.isEmpty())
         {
             PlexUtils.broadcast(PlexUtils.stringToComponent(loginMessage));
