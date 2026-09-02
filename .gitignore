@@ -18,3 +18,7 @@ Thumbs.db
 
 # Common working directory
 run/
+
+# Local agent configuration
+/.codex/
+/.claude/
