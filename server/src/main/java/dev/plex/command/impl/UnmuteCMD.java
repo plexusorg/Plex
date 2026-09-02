@@ -41,7 +41,6 @@ public class UnmuteCMD extends ServerCommand
     protected Component execute(@NotNull ServerCommandContext context)
     {
         CommandSender sender = context.sender();
-        Player playerSender = context.player();
         String[] args = context.args();
         if (args.length != 1)
         {
@@ -58,7 +57,7 @@ public class UnmuteCMD extends ServerCommand
             throw new CommandFailException(PlexUtils.messageString("playerNotMuted"));
         }
         plugin.getPunishmentManager().deactivateTimedPunishment(punishedPlayer, PunishmentType.MUTE)
-                .whenComplete((unused, failure) -> plugin.getApi().scheduler().runGlobal(() ->
+                .whenComplete((unused, failure) ->
                 {
                     if (failure != null)
                     {
@@ -66,7 +65,7 @@ public class UnmuteCMD extends ServerCommand
                         context.send(sender, Component.text("Unable to persist the unmute; no action was taken."));
                     }
                     else PlexUtils.broadcast(context.messageComponent("unmutedPlayer", context.senderName(), punishedPlayer.getName()));
-                }));
+                });
         return null;
     }
 

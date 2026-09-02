@@ -75,13 +75,10 @@ public class PlayerListener extends ServerListenerBase
             }
             if (!notes.isEmpty())
             {
-                plugin.getApi().scheduler().runGlobal(() ->
+                if (plugin.getPlayerService().getCachedPlayer(plexPlayer.getUuid()) == plexPlayer)
                 {
-                    if (plugin.getPlayerService().getCachedPlayer(plexPlayer.getUuid()) == plexPlayer)
-                    {
-                        PlexUtils.broadcastToAdmins(PlexUtils.messageComponent(notes.size() == 1 ? "playerNoteAlert" : "playerNoteAlertPlural", plexPlayer.getName(), notes.size()), "plex.notes.notify");
-                    }
-                });
+                    PlexUtils.broadcastToAdmins(PlexUtils.messageComponent(notes.size() == 1 ? "playerNoteAlert" : "playerNoteAlertPlural", plexPlayer.getName(), notes.size()), "plex.notes.notify");
+                }
             }
         });
     }

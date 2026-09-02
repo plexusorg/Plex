@@ -183,7 +183,7 @@ public class ModuleManager
             }
             catch (RuntimeException | LinkageError ex)
             {
-                PlexLog.error("Module " + module.getPlexModuleFile().getName() + " failed to load: " + ex.getMessage());
+                PlexLog.error("Module " + module.getPlexModuleFile().getName() + " failed to load", ex);
                 cleanupContributions(module);
                 closeClassLoader(module);
                 iterator.remove();
@@ -204,7 +204,7 @@ public class ModuleManager
             }
             catch (RuntimeException | LinkageError ex)
             {
-                PlexLog.error("Module " + module.getPlexModuleFile().getName() + " failed to enable: " + ex.getMessage());
+                PlexLog.error("Module " + module.getPlexModuleFile().getName() + " failed to enable", ex);
                 try
                 {
                     module.disable();
@@ -212,7 +212,7 @@ public class ModuleManager
                 catch (RuntimeException | LinkageError cleanupFailure)
                 {
                     PlexLog.error("Module " + module.getPlexModuleFile().getName()
-                            + " also failed rollback disable: " + cleanupFailure.getMessage());
+                            + " also failed rollback disable", cleanupFailure);
                 }
                 cleanupContributions(module);
                 closeClassLoader(module);
@@ -232,7 +232,7 @@ public class ModuleManager
             }
             catch (RuntimeException | LinkageError ex)
             {
-                PlexLog.error("Module " + module.getPlexModuleFile().getName() + " failed to disable: " + ex.getMessage());
+                PlexLog.error("Module " + module.getPlexModuleFile().getName() + " failed to disable", ex);
             }
             finally
             {
@@ -336,7 +336,7 @@ public class ModuleManager
         }
         catch (RuntimeException | LinkageError ex)
         {
-            PlexLog.error("Could not unregister all contributions from module " + name + ": " + ex.getMessage());
+            PlexLog.error("Could not unregister all contributions from module " + name, ex);
         }
         try
         {
@@ -344,7 +344,7 @@ public class ModuleManager
         }
         catch (RuntimeException | LinkageError ex)
         {
-            PlexLog.error("Could not cancel tasks for module " + name + ": " + ex.getMessage());
+            PlexLog.error("Could not cancel tasks for module " + name, ex);
         }
     }
 
@@ -361,7 +361,7 @@ public class ModuleManager
         }
         catch (IOException ex)
         {
-            PlexLog.error("Could not close module " + module.getPlexModuleFile().getName() + " classloader: " + ex.getMessage());
+            PlexLog.error("Could not close module " + module.getPlexModuleFile().getName() + " classloader", ex);
         }
     }
 }

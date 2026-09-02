@@ -61,49 +61,46 @@ public class BanCMD extends ServerCommand
 
         plugin.getPunishmentManager().isBanned(plexPlayer.getUuid(), BanKickUtil.currentOrLastIp(plexPlayer)).whenComplete((aBoolean, throwable) ->
         {
-            plugin.getApi().scheduler().runGlobal(() ->
+            if (throwable != null)
             {
-                if (throwable != null)
+                PlexLog.error("Unable to check ban state for {0}: {1}", plexPlayer.getName(), throwable.getMessage());
+                context.send(sender, Component.text("Unable to check the player's ban state."));
+                return;
+            }
+            if (aBoolean)
+            {
+                context.send(sender, context.messageComponent("playerBanned"));
+                return;
+            }
+            String reason;
+            Punishment punishment = new Punishment(plexPlayer.getUuid(), context.getUUID(sender));
+            punishment.setResolvedPunisherName(context.senderName());
+            punishment.setType(PunishmentType.BAN);
+            boolean rollBack = false;
+            if (args.length > 1)
+            {
+                reason = StringUtils.join(args, " ", 1, args.length);
+                String newReason = StringUtils.normalizeSpace(reason.replace("-rb", ""));
+                punishment.setReason(newReason.trim().isEmpty() ? context.messageString("noReasonProvided") : newReason);
+                rollBack = reason.startsWith("-rb") || reason.endsWith("-rb");
+            }
+            else
+            {
+                punishment.setReason(context.messageString("noReasonProvided"));
+            }
+            punishment.setIp(BanKickUtil.currentOrLastIp(plexPlayer));
+            final boolean shouldRollBack = rollBack;
+            plugin.getPunishmentManager().punish(plexPlayer, punishment).whenComplete((unused, failure) ->
+            {
+                if (failure != null)
                 {
-                    PlexLog.error("Unable to check ban state for {0}: {1}", plexPlayer.getName(), throwable.getMessage());
-                    context.send(sender, Component.text("Unable to check the player's ban state."));
+                    PlexLog.error("Unable to ban {0}: {1}", plexPlayer.getName(), failure.getMessage());
+                    context.send(sender, Component.text("Unable to persist the ban; no action was taken."));
                     return;
                 }
-                if (aBoolean)
-                {
-                    context.send(sender, context.messageComponent("playerBanned"));
-                    return;
-                }
-                String reason;
-                Punishment punishment = new Punishment(plexPlayer.getUuid(), context.getUUID(sender));
-                punishment.setResolvedPunisherName(context.senderName());
-                punishment.setType(PunishmentType.BAN);
-                boolean rollBack = false;
-                if (args.length > 1)
-                {
-                    reason = StringUtils.join(args, " ", 1, args.length);
-                    String newReason = StringUtils.normalizeSpace(reason.replace("-rb", ""));
-                    punishment.setReason(newReason.trim().isEmpty() ? context.messageString("noReasonProvided") : newReason);
-                    rollBack = reason.startsWith("-rb") || reason.endsWith("-rb");
-                }
-                else
-                {
-                    punishment.setReason(context.messageString("noReasonProvided"));
-                }
-                punishment.setIp(BanKickUtil.currentOrLastIp(plexPlayer));
-                final boolean shouldRollBack = rollBack;
-                plugin.getPunishmentManager().punish(plexPlayer, punishment).whenComplete((unused, failure) -> plugin.getApi().scheduler().runGlobal(() ->
-                {
-                    if (failure != null)
-                    {
-                        PlexLog.error("Unable to ban {0}: {1}", plexPlayer.getName(), failure.getMessage());
-                        context.send(sender, Component.text("Unable to persist the ban; no action was taken."));
-                        return;
-                    }
-                    PlexUtils.broadcast(context.messageComponent("banningPlayer", context.senderName(), plexPlayer.getName()));
-                    PlexLog.debug("(From /ban command) PunishedPlayer UUID: " + plexPlayer.getUuid());
-                    if (shouldRollBack) reportRollback(context, sender, plexPlayer.getName());
-                }));
+                PlexUtils.broadcast(context.messageComponent("banningPlayer", context.senderName(), plexPlayer.getName()));
+                PlexLog.debug("(From /ban command) PunishedPlayer UUID: " + plexPlayer.getUuid());
+                if (shouldRollBack) reportRollback(context, sender, plexPlayer.getName());
             });
         });
 
@@ -113,16 +110,15 @@ public class BanCMD extends ServerCommand
     private void reportRollback(ServerCommandContext context, CommandSender sender, String playerName)
     {
         plugin.getApi().rollback().rollbackLastDay(sender, playerName).whenComplete((count, failure) ->
-                plugin.getApi().scheduler().runGlobal(() ->
-                {
-                    if (failure != null)
-                    {
-                        PlexLog.error("Unable to rollback {0}: {1}", playerName, failure.getMessage());
-                        context.send(sender, context.messageComponent("prismRollbackError", failure.getMessage()));
-                    }
-                    else if (count == 0) context.send(sender, context.messageComponent("prismNoResult", count));
-                    else context.send(sender, context.messageComponent("prismRollbackMessage", count));
-                }));
+        {
+            if (failure != null)
+            {
+                PlexLog.error("Unable to rollback {0}: {1}", playerName, failure.getMessage());
+                context.send(sender, context.messageComponent("prismRollbackError", failure.getMessage()));
+            }
+            else if (count == 0) context.send(sender, context.messageComponent("prismNoResult", count));
+            else context.send(sender, context.messageComponent("prismRollbackMessage", count));
+        });
     }
 
 }

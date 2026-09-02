@@ -139,21 +139,21 @@ public class UpdateChecker
             case UP_TO_DATE:
                 if (verbosity == 2)
                 {
-                    sendMessage(sender, PlexUtils.messageComponent("updateUpToDate", channel.id()));
+                    sender.sendMessage(PlexUtils.messageComponent("updateUpToDate", channel.id()));
                 }
                 break;
             case UPDATE_AVAILABLE:
                 if (verbosity >= 1)
                 {
-                    sendMessage(sender, PlexUtils.messageComponent("updateAvailable", result.metadata().version(), channel.id()));
-                    sendMessage(sender, PlexUtils.messageComponent("updateRunCommand"));
+                    sender.sendMessage(PlexUtils.messageComponent("updateAvailable", result.metadata().version(), channel.id()));
+                    sender.sendMessage(PlexUtils.messageComponent("updateRunCommand"));
                 }
                 break;
             case MINECRAFT_TOO_OLD:
                 if (verbosity >= 1)
                 {
                     List<String> supportedVersions = sortedSupportedVersions(result.metadata());
-                    sendMessage(sender, PlexUtils.messageComponent("updateRequiresNewerMinecraft",
+                    sender.sendMessage(PlexUtils.messageComponent("updateRequiresNewerMinecraft",
                             result.metadata().version(), channel.id(), firstSupportedVersion(supportedVersions), getRunningMinecraftVersion(), String.join(", ", supportedVersions)));
                 }
                 break;
@@ -161,7 +161,7 @@ public class UpdateChecker
                 if (verbosity >= 1)
                 {
                     List<String> supportedVersions = sortedSupportedVersions(result.metadata());
-                    sendMessage(sender, PlexUtils.messageComponent("updateUnsupportedNewerMinecraft",
+                    sender.sendMessage(PlexUtils.messageComponent("updateUnsupportedNewerMinecraft",
                             result.metadata().version(), channel.id(), lastSupportedVersion(supportedVersions), getRunningMinecraftVersion(), String.join(", ", supportedVersions)));
                 }
                 break;
@@ -169,7 +169,7 @@ public class UpdateChecker
                 if (verbosity >= 1)
                 {
                     List<String> supportedVersions = sortedSupportedVersions(result.metadata());
-                    sendMessage(sender, PlexUtils.messageComponent("updateRequiresMinecraftVersion",
+                    sender.sendMessage(PlexUtils.messageComponent("updateRequiresMinecraftVersion",
                             result.metadata().version(), channel.id(), String.join(", ", supportedVersions), getRunningMinecraftVersion()));
                 }
                 break;
@@ -179,7 +179,7 @@ public class UpdateChecker
                 {
                     if (verbosity == 2)
                     {
-                        sendMessage(sender, PlexUtils.messageComponent("updateMetadataNotFound", channel.id()));
+                        sender.sendMessage(PlexUtils.messageComponent("updateMetadataNotFound", channel.id()));
                     }
                     break;
                 }
@@ -191,7 +191,7 @@ public class UpdateChecker
                     }
                     else
                     {
-                        sendMessage(sender, updateMetadataErrorComponent(error));
+                        sender.sendMessage(updateMetadataErrorComponent(error));
                     }
                     PlexLog.debug("Update metadata check failed: {0}", error.getMessage());
                 }
@@ -212,7 +212,7 @@ public class UpdateChecker
     public void updateJar(CommandSender sender, ArtifactMetadata metadata, Runnable onSuccess)
     {
         File copyTo = new File(Bukkit.getUpdateFolderFile(), metadata.fileName());
-        sendMessage(sender, PlexUtils.messageComponent("updateDownloading", metadata.fileName()));
+        sender.sendMessage(PlexUtils.messageComponent("updateDownloading", metadata.fileName()));
         plugin.getApi().scheduler().runAsync(() -> downloadAndInstall(sender, metadata, copyTo, onSuccess));
     }
 
@@ -221,7 +221,7 @@ public class UpdateChecker
         updateJar(sender, name, List.of(), () ->
         {
             plugin.getModuleManager().reloadModules();
-            sendMessage(sender, PlexUtils.messageComponent("moduleRestartRequired"));
+            sender.sendMessage(PlexUtils.messageComponent("moduleRestartRequired"));
         });
     }
 
@@ -230,7 +230,7 @@ public class UpdateChecker
         PlexModuleFile moduleFile = module.getPlexModuleFile();
         if (!moduleFile.isUpdaterEnabled())
         {
-            sendMessage(sender, PlexUtils.messageComponent("moduleUpdateDisabled", moduleFile.getName()));
+            sender.sendMessage(PlexUtils.messageComponent("moduleUpdateDisabled", moduleFile.getName()));
             return ModuleUpdateResult.SKIPPED;
         }
         try
@@ -238,14 +238,14 @@ public class UpdateChecker
             ArtifactMetadata metadata = metadataClient.fetchModuleLatest(moduleFile.getName(), plugin.getApi().apiCompatibilityVersion(), moduleFile.getUpdateUrls());
             File copyTo = new File(plugin.getModulesFolder(), metadata.fileName());
 
-            sendMessage(sender, PlexUtils.messageComponent("updateDownloading", metadata.fileName()));
+            sender.sendMessage(PlexUtils.messageComponent("updateDownloading", metadata.fileName()));
             return downloadAndInstall(sender, metadata, copyTo, null)
                     ? ModuleUpdateResult.UPDATED
                     : ModuleUpdateResult.FAILED;
         }
         catch (UpdateMetadataClient.MetadataException e)
         {
-            sendMessage(sender, updateMetadataErrorComponent(e));
+            sender.sendMessage(updateMetadataErrorComponent(e));
             if (!e.notFound())
             {
                 PlexLog.error("Unable to update {0}: {1}", moduleFile.getName(), e.getMessage());
@@ -261,12 +261,12 @@ public class UpdateChecker
             ArtifactMetadata metadata = metadataClient.fetchModuleLatest(name, plugin.getApi().apiCompatibilityVersion(), moduleUpdateUrls);
             File copyTo = new File(plugin.getModulesFolder(), metadata.fileName());
 
-            sendMessage(sender, PlexUtils.messageComponent("updateDownloading", metadata.fileName()));
+            sender.sendMessage(PlexUtils.messageComponent("updateDownloading", metadata.fileName()));
             plugin.getApi().scheduler().runAsync(() -> downloadAndInstall(sender, metadata, copyTo, onSuccess));
         }
         catch (UpdateMetadataClient.MetadataException e)
         {
-            sendMessage(sender, updateMetadataErrorComponent(e));
+            sender.sendMessage(updateMetadataErrorComponent(e));
             if (!e.notFound())
             {
                 PlexLog.error("Unable to update {0}: {1}", name, e.getMessage());
@@ -423,13 +423,13 @@ public class UpdateChecker
         File parent = copyTo.getParentFile();
         if (parent != null && !parent.exists() && !parent.mkdirs())
         {
-            sendMessage(sender, PlexUtils.messageComponent("updateDirectoryFailed", parent.getAbsolutePath()));
+            sender.sendMessage(PlexUtils.messageComponent("updateDirectoryFailed", parent.getAbsolutePath()));
             return false;
         }
 
         if (parent == null)
         {
-            sendMessage(sender, PlexUtils.messageComponent("updateDownloadFailed", metadata.name()));
+            sender.sendMessage(PlexUtils.messageComponent("updateDownloadFailed", metadata.name()));
             PlexLog.error("Unable to download update {0}: destination has no parent directory", metadata.name());
             return false;
         }
@@ -438,7 +438,7 @@ public class UpdateChecker
         Path normalizedDestination = copyTo.toPath().toAbsolutePath().normalize();
         if (!normalizedParent.equals(normalizedDestination.getParent()))
         {
-            sendMessage(sender, PlexUtils.messageComponent("updateDownloadFailed", metadata.name()));
+            sender.sendMessage(PlexUtils.messageComponent("updateDownloadFailed", metadata.name()));
             PlexLog.error("Unable to download update {0}: artifact filename escapes the destination directory", metadata.name());
             return false;
         }
@@ -450,16 +450,16 @@ public class UpdateChecker
             download(metadata.downloadUrl(), temporaryPath.toFile());
             validateDownloadedFile(metadata, temporaryPath.toFile());
             Files.move(temporaryPath, normalizedDestination, StandardCopyOption.REPLACE_EXISTING);
-            sendMessage(sender, PlexUtils.messageComponent("updateDownloaded"));
+            sender.sendMessage(PlexUtils.messageComponent("updateDownloaded"));
             if (onSuccess != null)
             {
-                plugin.getApi().scheduler().runGlobal(onSuccess);
+                onSuccess.run();
             }
             return true;
         }
         catch (IOException e)
         {
-            sendMessage(sender, PlexUtils.messageComponent("updateDownloadFailed", metadata.name()));
+            sender.sendMessage(PlexUtils.messageComponent("updateDownloadFailed", metadata.name()));
             PlexLog.error("Unable to download update {0}: {1}", metadata.name(), e.getMessage());
             return false;
         }
@@ -580,13 +580,4 @@ public class UpdateChecker
         return PlexUtils.messageComponent("updateMetadataError", e.getMessage());
     }
 
-    private void sendMessage(CommandSender sender, Component message)
-    {
-        if (sender instanceof Player player)
-        {
-            plugin.getApi().scheduler().runEntity(player, () -> sender.sendMessage(message));
-            return;
-        }
-        plugin.getApi().scheduler().runGlobal(() -> sender.sendMessage(message));
-    }
 }

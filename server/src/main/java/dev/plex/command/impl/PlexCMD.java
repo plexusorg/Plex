@@ -185,12 +185,12 @@ public class PlexCMD extends ServerCommand
                 UpdateChecker.UpdateCheckResult result = plugin.getUpdateChecker().checkForUpdates(false);
                 if (result.status() == UpdateChecker.UpdateCheckStatus.UPDATE_AVAILABLE)
                 {
-                    plugin.getUpdateChecker().updateJar(sender, result.metadata(), () -> sendMessage(sender, context.mmString("<red>Alert: Restart the server for the new JAR file to be applied.")));
+                    plugin.getUpdateChecker().updateJar(sender, result.metadata(), () -> sender.sendMessage(context.mmString("<red>Alert: Restart the server for the new JAR file to be applied.")));
                     return;
                 }
                 if (result.status() == UpdateChecker.UpdateCheckStatus.UP_TO_DATE)
                 {
-                    sendMessage(sender, context.mmString("<red>Plex is already up to date!"));
+                    sender.sendMessage(context.mmString("<red>Plex is already up to date!"));
                     return;
                 }
                 plugin.getUpdateChecker().sendResultMessage(sender, result, 2);
@@ -204,13 +204,4 @@ public class PlexCMD extends ServerCommand
         return null;
     }
 
-    private void sendMessage(CommandSender sender, Component message)
-    {
-        if (sender instanceof Player player)
-        {
-            plugin.getApi().scheduler().runEntity(player, () -> sender.sendMessage(message));
-            return;
-        }
-        plugin.getApi().scheduler().runGlobal(() -> sender.sendMessage(message));
-    }
 }

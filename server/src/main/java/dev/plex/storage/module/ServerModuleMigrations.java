@@ -5,7 +5,6 @@ import dev.plex.api.storage.ModuleMigrations;
 import dev.plex.module.PlexModule;
 
 import java.sql.SQLException;
-import java.util.List;
 
 public class ServerModuleMigrations implements ModuleMigrations
 {
@@ -21,20 +20,12 @@ public class ServerModuleMigrations implements ModuleMigrations
     }
 
     @Override
-    public void run(List<String> versions) throws SQLException
-    {
-        run("db/migration", versions);
-    }
-
-    @Override
-    public void run(String resourceRoot, List<String> versions) throws SQLException
+    public void run() throws SQLException
     {
         plugin.getDatabase().getMigrationRunner().runModule(
                 plugin.getDatabase().getDataSource(),
                 module,
                 storage.scope(),
-                resourceRoot,
-                versions,
                 storage::quotedTable
         );
     }

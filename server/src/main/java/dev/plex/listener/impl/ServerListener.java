@@ -9,7 +9,6 @@ import dev.plex.util.RandomUtil;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicReference;
 
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -29,25 +28,16 @@ public class ServerListener extends ServerListenerBase
         baseMotd = baseMotd.replace("\\n", "\n");
         baseMotd = baseMotd.replace("%servername%", plugin.config.getString("server.name"));
 
-        String version = Bukkit.getBukkitVersion();
-        if (version.contains("build"))
-        {
-            baseMotd = baseMotd.replace("%mcversion%", version.split(".build")[0]);
-        }
-        else
-        {
-            baseMotd = baseMotd.replace("%mcversion%", version.split("-")[0]);
-        }
+        baseMotd = baseMotd.replace("%mcversion%", Bukkit.getMinecraftVersion());
 
         if (plugin.config.getBoolean("server.colorize_motd"))
         {
-            AtomicReference<Component> motd = new AtomicReference<>(Component.empty());
+            Component motd = Component.empty();
             for (final String word : baseMotd.split(" "))
             {
-                motd.set(motd.get().append(Component.text(word).color(RandomUtil.getRandomColor())));
-                motd.set(motd.get().append(Component.space()));
+                motd = motd.append(Component.text(word).color(RandomUtil.getRandomColor())).append(Component.space());
             }
-            event.motd(motd.get());
+            event.motd(motd);
         }
         else
         {

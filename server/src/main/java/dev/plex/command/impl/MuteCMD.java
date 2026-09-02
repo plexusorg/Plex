@@ -41,7 +41,6 @@ public class MuteCMD extends ServerCommand
     protected Component execute(@NotNull ServerCommandContext context)
     {
         CommandSender sender = context.sender();
-        Player playerSender = context.player();
         String[] args = context.args();
         if (args.length != 1)
         {
@@ -68,7 +67,7 @@ public class MuteCMD extends ServerCommand
         punishment.setIp(player.getAddress().getAddress().getHostAddress().trim());
         punishment.setReason("");
 
-        plugin.getPunishmentManager().punish(punishedPlayer, punishment).whenComplete((unused, failure) -> plugin.getApi().scheduler().runGlobal(() ->
+        plugin.getPunishmentManager().punish(punishedPlayer, punishment).whenComplete((unused, failure) ->
         {
             if (failure != null)
             {
@@ -76,7 +75,7 @@ public class MuteCMD extends ServerCommand
                 context.send(sender, Component.text("Unable to persist the mute; no action was taken."));
             }
             else PlexUtils.broadcast(context.messageComponent("mutedPlayer", context.senderName(), player.getName()));
-        }));
+        });
         return null;
     }
 

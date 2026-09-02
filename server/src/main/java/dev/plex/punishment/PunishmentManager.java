@@ -159,9 +159,9 @@ public class PunishmentManager
 
     public CompletableFuture<Boolean> unban(UUID uuid)
     {
-        return plugin.getPunishmentRepository().removeBan(uuid).thenCompose(removal -> onGlobal(() ->
+        return plugin.getPunishmentRepository().removeBan(uuid).thenApply(removal ->
         {
-            if (!removal.changed()) return;
+            if (!removal.changed()) return false;
             PlexPlayer player = plugin.getPlayerService().getCachedPlayer(uuid);
             if (player != null)
             {
@@ -176,7 +176,8 @@ public class PunishmentManager
                 invalidateBanDecisions(uuid, ip);
                 publishInvalidation(uuid, ip);
             }
-        }).thenApply(unused -> removal.changed()));
+            return true;
+        });
     }
 
     public CompletableFuture<Void> punish(PlexPlayer player, Punishment punishment)
@@ -216,7 +217,7 @@ public class PunishmentManager
                 return CompletableFuture.failedFuture(new IllegalStateException("Player is already banned"));
             }
             return plugin.getPunishmentRepository().insertPunishment(punishment);
-        }).thenCompose(unused -> onGlobal(() ->
+        }).thenRun(() ->
         {
             player.getPunishments().add(punishment);
             if (punishment.getType().isBan())
@@ -230,7 +231,7 @@ public class PunishmentManager
                 }
             }
             restoreTimedState(player, punishment.getType());
-        }));
+        });
     }
 
     public void restoreTimedState(PlexPlayer player)
@@ -241,11 +242,11 @@ public class PunishmentManager
 
     public CompletableFuture<Void> deactivateTimedPunishment(PlexPlayer player, PunishmentType type)
     {
-        return plugin.getPunishmentRepository().updatePunishment(type, false, player.getUuid()).thenCompose(unused -> onGlobal(() ->
+        return plugin.getPunishmentRepository().updatePunishment(type, false, player.getUuid()).thenRun(() ->
         {
             player.getPunishments().stream().filter(p -> p.getType() == type).forEach(p -> p.setActive(false));
             restoreTimedState(player, type);
-        }));
+        });
     }
 
     private void restoreTimedState(PlexPlayer player, PunishmentType type)
@@ -287,19 +288,16 @@ public class PunishmentManager
                 PlexLog.error("Failed to expire {0} for {1}: {2}", type, player.getUuid(), failure.getMessage());
                 return;
             }
-            onGlobal(() ->
+            PlexPlayer current = plugin.getPlayerService().getCachedPlayer(player.getUuid());
+            if (current == null) return;
+            current.getPunishments().stream()
+                    .filter(p -> p.getType() == type && p.getEndDate() != null && !p.getEndDate().isAfter(now))
+                    .forEach(p -> p.setActive(false));
+            if (announce && !isTimedActive(current, type))
             {
-                PlexPlayer current = plugin.getPlayerService().getCachedPlayer(player.getUuid());
-                if (current == null) return;
-                current.getPunishments().stream()
-                        .filter(p -> p.getType() == type && p.getEndDate() != null && !p.getEndDate().isAfter(now))
-                        .forEach(p -> p.setActive(false));
-                if (announce && !isTimedActive(current, type))
-                {
-                    Bukkit.broadcast(PlexUtils.messageComponent(type == PunishmentType.MUTE ? "unmutedPlayer" : "unfrozePlayer",
-                            "Plex", Bukkit.getOfflinePlayer(player.getUuid()).getName()));
-                }
-            });
+                Bukkit.broadcast(PlexUtils.messageComponent(type == PunishmentType.MUTE ? "unmutedPlayer" : "unfrozePlayer",
+                        "Plex", Bukkit.getOfflinePlayer(player.getUuid()).getName()));
+            }
         });
     }
 
@@ -313,24 +311,6 @@ public class PunishmentManager
     private static void setTimedFlag(PlexPlayer player, PunishmentType type, boolean active)
     {
         if (type == PunishmentType.MUTE) player.setMuted(active); else player.setFrozen(active);
-    }
-
-    private CompletableFuture<Void> onGlobal(Runnable action)
-    {
-        CompletableFuture<Void> future = new CompletableFuture<>();
-        plugin.getApi().scheduler().runGlobal(() ->
-        {
-            try
-            {
-                action.run();
-                future.complete(null);
-            }
-            catch (Throwable failure)
-            {
-                future.completeExceptionally(failure);
-            }
-        });
-        return future;
     }
 
     private void publishInvalidation(UUID uuid, @Nullable String ip)

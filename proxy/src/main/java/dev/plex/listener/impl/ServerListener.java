@@ -10,7 +10,6 @@ import dev.plex.util.RandomUtil;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import net.kyori.adventure.text.Component;
@@ -38,13 +37,12 @@ public class ServerListener extends ProxyListener
 
         if (config.isColorizeMotd())
         {
-            AtomicReference<Component> motd = new AtomicReference<>(Component.empty());
+            Component motd = Component.empty();
             for (final String word : baseMotd.split(" "))
             {
-                motd.set(motd.get().append(Component.text(word).color(RandomUtil.getRandomColor())));
-                motd.set(motd.get().append(Component.space()));
+                motd = motd.append(Component.text(word).color(RandomUtil.getRandomColor())).append(Component.space());
             }
-            builder.description(motd.get());
+            builder.description(motd);
         }
         else
         {

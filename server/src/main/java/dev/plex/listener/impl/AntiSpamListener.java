@@ -37,7 +37,7 @@ public class AntiSpamListener extends ServerListenerBase
             event.setCancelled(true);
             if (decision.thresholdCrossed())
             {
-                plugin.getApi().scheduler().runEntity(player, () -> player.sendMessage(PlexUtils.messageComponent("antiSpamMessage")));
+                player.sendMessage(PlexUtils.messageComponent("antiSpamMessage"));
             }
         }
     }

@@ -7,21 +7,31 @@ import dev.plex.util.PlexLog;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.JarURLConnection;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
+import java.util.TreeSet;
 import java.util.function.Function;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class MigrationRunner
 {
     private static final String MIGRATION_TABLE = "plex_schema_history";
+    private static final String MIGRATION_ROOT = "db/migration";
     private static final Pattern VERSION_PATTERN = Pattern.compile("^[0-9]{3}_[a-z0-9_]+$");
     private static final Pattern TABLE_TOKEN_PATTERN = Pattern.compile("\\{\\{table:([a-z0-9_]+)}}");
 
@@ -32,14 +42,19 @@ public class MigrationRunner
         this.storageType = storageType;
     }
 
-    public void runCore(DataSource dataSource, ClassLoader classLoader, List<String> versions) throws SQLException
+    public void runCore(DataSource dataSource) throws SQLException
     {
-        run(dataSource, "core", versions, version -> readCore(classLoader, version), Function.identity());
+        ClassLoader classLoader = MigrationRunner.class.getClassLoader();
+        String resourceDirectory = migrationDirectory();
+        run(dataSource, "core", discoverCore(classLoader, resourceDirectory),
+                version -> readCore(classLoader, version), Function.identity());
     }
 
-    public void runModule(DataSource dataSource, PlexModule module, String scope, String resourceRoot, List<String> versions, Function<String, String> tableResolver) throws SQLException
+    public void runModule(DataSource dataSource, PlexModule module, String scope, Function<String, String> tableResolver) throws SQLException
     {
-        run(dataSource, scope, versions, version -> readModule(module, resourceRoot, version), tableResolver);
+        String resourceDirectory = migrationDirectory();
+        run(dataSource, scope, discoverModule(module, resourceDirectory),
+                version -> readModule(module, version), tableResolver);
     }
 
     private void run(DataSource dataSource, String scope, List<String> versions, ResourceReader reader, Function<String, String> tableResolver) throws SQLException
@@ -49,7 +64,6 @@ public class MigrationRunner
             ensureMigrationTable(connection);
             for (String version : versions)
             {
-                validateVersion(version);
                 if (hasMigration(connection, scope, version))
                 {
                     continue;
@@ -110,7 +124,7 @@ public class MigrationRunner
 
     private String readCore(ClassLoader classLoader, String version) throws SQLException
     {
-        String resource = "db/migration/" + storageType.dialect().migrationDirectory() + "/" + version + ".sql";
+        String resource = migrationDirectory() + "/" + version + ".sql";
         try (InputStream stream = classLoader.getResourceAsStream(resource))
         {
             if (stream == null)
@@ -125,9 +139,9 @@ public class MigrationRunner
         }
     }
 
-    private String readModule(PlexModule module, String resourceRoot, String version) throws SQLException
+    private String readModule(PlexModule module, String version) throws SQLException
     {
-        String resource = resourceRoot + "/" + storageType.dialect().migrationDirectory() + "/" + version + ".sql";
+        String resource = migrationDirectory() + "/" + version + ".sql";
         try (InputStream stream = module.getResource(resource))
         {
             if (stream == null)
@@ -140,6 +154,97 @@ public class MigrationRunner
         {
             throw new SQLException("Failed to read module migration resource: " + resource, e);
         }
+    }
+
+    private String migrationDirectory()
+    {
+        return MIGRATION_ROOT + "/" + storageType.dialect().migrationDirectory();
+    }
+
+    private List<String> discoverCore(ClassLoader classLoader, String resourceDirectory) throws SQLException
+    {
+        TreeSet<String> versions = new TreeSet<>();
+        try
+        {
+            Enumeration<URL> resources = classLoader.getResources(resourceDirectory);
+            while (resources.hasMoreElements())
+            {
+                URL resource = resources.nextElement();
+                if (resource.getProtocol().equals("file"))
+                {
+                    try (var paths = Files.list(Path.of(resource.toURI())))
+                    {
+                        paths.filter(Files::isRegularFile)
+                                .map(path -> path.getFileName().toString())
+                                .forEach(file -> addMigration(versions, file));
+                    }
+                }
+                else if (resource.getProtocol().equals("jar"))
+                {
+                    JarURLConnection connection = (JarURLConnection)resource.openConnection();
+                    connection.setUseCaches(false);
+                    try (JarFile jar = connection.getJarFile())
+                    {
+                        addMigrations(versions, jar, resourceDirectory);
+                    }
+                }
+            }
+        }
+        catch (IOException | URISyntaxException e)
+        {
+            throw new SQLException("Failed to discover database migrations", e);
+        }
+        return requireMigrations(versions, resourceDirectory);
+    }
+
+    private List<String> discoverModule(PlexModule module, String resourceDirectory) throws SQLException
+    {
+        TreeSet<String> versions = new TreeSet<>();
+        try (JarFile jar = new JarFile(module.getModuleJar()))
+        {
+            addMigrations(versions, jar, resourceDirectory);
+        }
+        catch (IOException e)
+        {
+            throw new SQLException("Failed to discover migrations for module " + module.getPlexModuleFile().getName(), e);
+        }
+        return requireMigrations(versions, resourceDirectory);
+    }
+
+    private void addMigrations(TreeSet<String> versions, JarFile jar, String resourceDirectory)
+    {
+        String prefix = resourceDirectory + "/";
+        Enumeration<JarEntry> entries = jar.entries();
+        while (entries.hasMoreElements())
+        {
+            JarEntry entry = entries.nextElement();
+            String name = entry.getName();
+            if (!entry.isDirectory() && name.startsWith(prefix) && !name.substring(prefix.length()).contains("/"))
+            {
+                addMigration(versions, name.substring(prefix.length()));
+            }
+        }
+    }
+
+    private void addMigration(TreeSet<String> versions, String fileName)
+    {
+        if (fileName.endsWith(".sql"))
+        {
+            versions.add(fileName.substring(0, fileName.length() - 4));
+        }
+    }
+
+    private List<String> requireMigrations(TreeSet<String> versions, String resourceDirectory) throws SQLException
+    {
+        if (versions.isEmpty())
+        {
+            throw new SQLException("No database migrations found in " + resourceDirectory);
+        }
+        for (String version : versions)
+        {
+            validateVersion(version);
+        }
+        return List.copyOf(versions);
     }
 
     private String replaceTableTokens(String script, Function<String, String> tableResolver) throws SQLException

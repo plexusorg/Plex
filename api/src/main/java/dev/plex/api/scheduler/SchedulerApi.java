@@ -13,6 +13,7 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Runs tasks on Paper and Folia schedulers.
+ * Adventure audience messaging does not require a scheduler task.
  */
 public interface SchedulerApi
 {

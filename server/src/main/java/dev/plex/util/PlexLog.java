@@ -46,6 +46,11 @@ public class PlexLog
         logger.error(PlexUtils.mmDeserialize("<red>[Plex Error] <gold>" + message));
     }
 
+    public static void error(String message, Throwable throwable)
+    {
+        logger.error(PlexUtils.mmDeserialize("<red>[Plex Error] <gold>" + message), throwable);
+    }
+
     public static void warn(String message, Object... strings)
     {
         for (int i = 0; i < strings.length; i++)

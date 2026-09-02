@@ -87,7 +87,6 @@ public class TempbanCMD extends ServerCommand
         punishment.setIp(BanKickUtil.currentOrLastIp(target));
         final boolean shouldRollBack = rollBack;
         plugin.getPunishmentManager().isBanned(target.getUuid(), punishment.getIp()).whenComplete((banned, checkFailure) ->
-                plugin.getApi().scheduler().runGlobal(() ->
         {
             if (checkFailure != null)
             {
@@ -101,7 +100,6 @@ public class TempbanCMD extends ServerCommand
                 return;
             }
             plugin.getPunishmentManager().punish(target, punishment).whenComplete((unused, failure) ->
-                    plugin.getApi().scheduler().runGlobal(() ->
             {
                 if (failure != null)
                 {
@@ -111,24 +109,23 @@ public class TempbanCMD extends ServerCommand
                 }
                 PlexUtils.broadcast(context.messageComponent("banningPlayer", context.senderName(), target.getName()));
                 if (shouldRollBack) reportRollback(context, sender, target.getName());
-            }));
-        }));
+            });
+        });
         return null;
     }
 
     private void reportRollback(ServerCommandContext context, CommandSender sender, String playerName)
     {
         plugin.getApi().rollback().rollbackLastDay(sender, playerName).whenComplete((count, failure) ->
-                plugin.getApi().scheduler().runGlobal(() ->
-                {
-                    if (failure != null)
-                    {
-                        PlexLog.error("Unable to rollback {0}: {1}", playerName, failure.getMessage());
-                        context.send(sender, context.messageComponent("prismRollbackError", failure.getMessage()));
-                    }
-                    else if (count == 0) context.send(sender, context.messageComponent("prismNoResult", count));
-                    else context.send(sender, context.messageComponent("prismRollbackMessage", count));
-                }));
+        {
+            if (failure != null)
+            {
+                PlexLog.error("Unable to rollback {0}: {1}", playerName, failure.getMessage());
+                context.send(sender, context.messageComponent("prismRollbackError", failure.getMessage()));
+            }
+            else if (count == 0) context.send(sender, context.messageComponent("prismNoResult", count));
+            else context.send(sender, context.messageComponent("prismRollbackMessage", count));
+        });
     }
 
 }

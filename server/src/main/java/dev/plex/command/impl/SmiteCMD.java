@@ -48,7 +48,6 @@ public class SmiteCMD extends ServerCommand
     protected Component execute(@NotNull ServerCommandContext context)
     {
         CommandSender sender = context.sender();
-        Player playerSender = context.player();
         String[] args = context.args();
         if (args.length < 1)
         {
@@ -94,7 +93,6 @@ public class SmiteCMD extends ServerCommand
         boolean finalSilent = silent;
         boolean finalClearInv = clearInv;
         plugin.getPunishmentManager().punish(plexPlayer, punishment).whenComplete((unused, failure) ->
-                plugin.getApi().scheduler().runGlobal(() ->
         {
             if (failure != null)
             {
@@ -112,7 +110,7 @@ public class SmiteCMD extends ServerCommand
             }
             plugin.getApi().scheduler().runEntity(player,
                     () -> applySmite(context, player, finalReason, finalClearInv));
-        }));
+        });
         return null;
     }
 

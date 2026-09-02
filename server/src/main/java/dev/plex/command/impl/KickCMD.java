@@ -48,7 +48,6 @@ public class KickCMD extends ServerCommand
     protected Component execute(@NotNull ServerCommandContext context)
     {
         CommandSender sender = context.sender();
-        Player playerSender = context.player();
         String[] args = context.args();
         if (args.length == 0)
         {
@@ -78,7 +77,7 @@ public class KickCMD extends ServerCommand
 
         punishment.setReason(reason);
         punishment.setIp(player.getAddress().getAddress().getHostAddress().trim());
-        plugin.getPunishmentManager().punish(plexPlayer, punishment).whenComplete((unused, failure) -> plugin.getApi().scheduler().runGlobal(() ->
+        plugin.getPunishmentManager().punish(plexPlayer, punishment).whenComplete((unused, failure) ->
         {
             if (failure != null)
             {
@@ -88,7 +87,7 @@ public class KickCMD extends ServerCommand
             }
             PlexUtils.broadcast(context.messageComponent("kickedPlayer", context.senderName(), plexPlayer.getName()));
             plugin.getApi().scheduler().runEntity(player, () -> BungeeUtil.kickPlayer(plugin, player, Punishment.generateKickMessage(punishment)));
-        }));
+        });
         return null;
     }
 

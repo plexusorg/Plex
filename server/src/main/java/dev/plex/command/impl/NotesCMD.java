@@ -75,17 +75,17 @@ public class NotesCMD extends ServerCommand
                     if (ex != null)
                     {
                         PlexLog.warn("Unable to list notes for {0}: {1}", plexPlayer.getUuid(), ex.getMessage());
-                        plugin.getApi().scheduler().runGlobal(() -> context.send(sender, Component.text("Unable to load notes.")));
+                        context.send(sender, Component.text("Unable to load notes."));
                         return;
                     }
                     if (notes.isEmpty())
                     {
-                        plugin.getApi().scheduler().runGlobal(() -> context.send(sender, context.messageComponent("noNotes")));
+                        context.send(sender, context.messageComponent("noNotes"));
                         return;
                     }
                     List<String> authors = notes.stream()
                             .map(note -> authorName(note.getWrittenBy())).toList();
-                    plugin.getApi().scheduler().runGlobal(() -> readNotes(context, sender, plexPlayer, notes, authors));
+                    readNotes(context, sender, plexPlayer, notes, authors);
                 });
                 return null;
             }
@@ -99,7 +99,7 @@ public class NotesCMD extends ServerCommand
                 if (playerSender != null)
                 {
                     Note note = new Note(plexPlayer.getUuid(), content, playerSender.getUniqueId(), ZonedDateTime.now(TimeUtils.zoneId()));
-                    plugin.getNoteRepository().addNote(note).whenComplete((unused, failure) -> plugin.getApi().scheduler().runGlobal(() ->
+                    plugin.getNoteRepository().addNote(note).whenComplete((unused, failure) ->
                     {
                         if (failure != null)
                         {
@@ -107,7 +107,7 @@ public class NotesCMD extends ServerCommand
                             context.send(sender, Component.text("Unable to add note."));
                         }
                         else context.send(sender, context.messageComponent("noteAdded"));
-                    }));
+                    });
                     return null;
                 }
                 return context.usage();
@@ -129,21 +129,18 @@ public class NotesCMD extends ServerCommand
                 }
                 plugin.getNoteRepository().deleteNote(id, plexPlayer.getUuid()).whenComplete((deleted, ex) ->
                 {
-                    plugin.getApi().scheduler().runGlobal(() ->
+                    if (ex != null)
                     {
-                        if (ex != null)
-                        {
-                            PlexLog.warn("Unable to remove note {0} for {1}: {2}", id, plexPlayer.getUuid(), ex.getMessage());
-                            context.send(sender, Component.text("Unable to remove note."));
-                        }
-                        else context.send(sender, deleted ? context.messageComponent("removedNote", id) : context.messageComponent("noteNotFound"));
-                    });
+                        PlexLog.warn("Unable to remove note {0} for {1}: {2}", id, plexPlayer.getUuid(), ex.getMessage());
+                        context.send(sender, Component.text("Unable to remove note."));
+                    }
+                    else context.send(sender, deleted ? context.messageComponent("removedNote", id) : context.messageComponent("noteNotFound"));
                 });
                 return null;
             }
             case "clear":
             {
-                plugin.getNoteRepository().clearNotes(plexPlayer.getUuid()).whenComplete((count, failure) -> plugin.getApi().scheduler().runGlobal(() ->
+                plugin.getNoteRepository().clearNotes(plexPlayer.getUuid()).whenComplete((count, failure) ->
                 {
                     if (failure != null)
                     {
@@ -151,7 +148,7 @@ public class NotesCMD extends ServerCommand
                         context.send(sender, Component.text("Unable to clear notes."));
                     }
                     else context.send(sender, context.messageComponent("clearedNotes", count));
-                }));
+                });
                 return null;
             }
             default:

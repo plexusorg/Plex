@@ -39,7 +39,6 @@ public class UnbanCMD extends ServerCommand
     protected Component execute(@NotNull ServerCommandContext context)
     {
         CommandSender sender = context.sender();
-        Player playerSender = context.player();
         String[] args = context.args();
         if (args.length == 0)
         {
@@ -55,7 +54,7 @@ public class UnbanCMD extends ServerCommand
                 throw new PlayerNotFoundException();
             }
 
-            plugin.getPunishmentManager().unban(target.getUuid()).whenComplete((changed, failure) -> plugin.getApi().scheduler().runGlobal(() ->
+            plugin.getPunishmentManager().unban(target.getUuid()).whenComplete((changed, failure) ->
                 {
                     if (failure != null)
                     {
@@ -64,7 +63,7 @@ public class UnbanCMD extends ServerCommand
                     }
                     else if (!changed) context.send(sender, context.messageComponent("playerNotBanned"));
                     else PlexUtils.broadcast(context.messageComponent("unbanningPlayer", context.senderName(), target.getName()));
-                }));
+                });
         }
         return null;
     }

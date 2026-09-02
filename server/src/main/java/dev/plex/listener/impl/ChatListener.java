@@ -64,8 +64,19 @@ public class ChatListener extends ServerListenerBase
                 return;
             }
             Component message = staffChatEvent.getMessage();
-            MessageUtil.sendStaffChat(plugin, event.getPlayer(), message, PlexUtils.adminChat(event.getPlayer().getName(), prefix, SafeMiniMessage.mmSerialize(message)).toArray(UUID[]::new));
-            plugin.getServer().getConsoleSender().sendMessage(PlexUtils.messageComponent("adminChatFormat", event.getPlayer().getName(), prefix, SafeMiniMessage.mmSerialize(message.replaceText(URL_REPLACEMENT_CONFIG))));
+            Runnable broadcast = () ->
+            {
+                MessageUtil.sendStaffChat(plugin, event.getPlayer(), message, PlexUtils.adminChat(event.getPlayer().getName(), prefix, SafeMiniMessage.mmSerialize(message)).toArray(UUID[]::new));
+                plugin.getServer().getConsoleSender().sendMessage(PlexUtils.messageComponent("adminChatFormat", event.getPlayer().getName(), prefix, SafeMiniMessage.mmSerialize(message.replaceText(URL_REPLACEMENT_CONFIG))));
+            };
+            if (event.isAsynchronous())
+            {
+                plugin.getApi().scheduler().runGlobal(broadcast);
+            }
+            else
+            {
+                broadcast.run();
+            }
             return;
         }
         Component prefix = PlayerMeta.getPrefix(plexPlayer);

@@ -38,8 +38,7 @@ public class UpdateCheckerService
                 notified = true;
                 task.cancel();
             }
-            plugin.getApi().scheduler().runGlobal(
-                    () -> plugin.getUpdateChecker().sendResultMessage(Bukkit.getConsoleSender(), result, 1));
+            plugin.getUpdateChecker().sendResultMessage(Bukkit.getConsoleSender(), result, 1);
         }
         catch (RuntimeException exception)
         {

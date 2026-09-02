@@ -41,7 +41,6 @@ public class FreezeCMD extends ServerCommand
     protected Component execute(@NotNull ServerCommandContext context)
     {
         CommandSender sender = context.sender();
-        Player playerSender = context.player();
         String[] args = context.args();
         if (args.length != 1)
         {
@@ -62,7 +61,7 @@ public class FreezeCMD extends ServerCommand
         punishment.setIp(player.getAddress().getAddress().getHostAddress().trim());
         punishment.setReason("");
 
-        plugin.getPunishmentManager().punish(punishedPlayer, punishment).whenComplete((unused, failure) -> plugin.getApi().scheduler().runGlobal(() ->
+        plugin.getPunishmentManager().punish(punishedPlayer, punishment).whenComplete((unused, failure) ->
         {
             if (failure != null)
             {
@@ -70,7 +69,7 @@ public class FreezeCMD extends ServerCommand
                 context.send(sender, Component.text("Unable to persist the freeze; no action was taken."));
             }
             else PlexUtils.broadcast(context.messageComponent("frozePlayer", context.senderName(), player.getName()));
-        }));
+        });
         return null;
     }
 

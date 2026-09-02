@@ -7,8 +7,6 @@ import dev.plex.config.Config;
 import dev.plex.listener.impl.ChatListener;
 import dev.plex.util.minimessage.SafeMiniMessage;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.time.Month;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -84,25 +82,6 @@ public class PlexUtils
                 .spawn();
         // note that the sound is played to everyone who is close enough to hear it
         players[0].getWorld().playSound(location, org.bukkit.Sound.BLOCK_FIRE_EXTINGUISH, 0.5f, 0.5f);
-    }
-
-    public static void testConnections(Plex plugin)
-    {
-        if (plugin.getDatabase().getDataSource() != null)
-        {
-            try (Connection ignored = plugin.getDatabase().getConnection())
-            {
-                PlexLog.log("Successfully enabled " + plugin.getStorageType().getDisplayName() + "!");
-            }
-            catch (SQLException e)
-            {
-                PlexLog.error("Unable to connect to the SQL Server");
-            }
-        }
-        else
-        {
-            PlexLog.error("Unable to initialize hikari data source!");
-        }
     }
 
     public static boolean isFolia()
@@ -279,10 +258,7 @@ public class PlexUtils
 
     public static void broadcastToAdmins(Component component, String permission)
     {
-        Bukkit.getOnlinePlayers().stream().filter(pl -> pl.hasPermission(permission)).forEach(pl ->
-        {
-            pl.sendMessage(component);
-        });
+        Bukkit.broadcast(component, permission);
     }
 
     public static List<UUID> adminChat(String senderName, String prefix, String message, UUID... ignore)

@@ -7,8 +7,6 @@ import dev.plex.storage.StorageType;
 import lombok.Getter;
 import org.jdbi.v3.core.Jdbi;
 
-import java.util.List;
-
 @Getter
 public class Database
 {
@@ -38,7 +36,7 @@ public class Database
         try
         {
             this.migrationRunner = new MigrationRunner(storageType);
-            this.migrationRunner.runCore(dataSource, getClass().getClassLoader(), List.of("001_initial_schema"));
+            this.migrationRunner.runCore(dataSource);
             this.jdbi = Jdbi.create(dataSource);
         }
         catch (Exception e)

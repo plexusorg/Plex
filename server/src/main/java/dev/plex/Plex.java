@@ -174,16 +174,7 @@ public class Plex extends JavaPlugin
         playerCache = new PlayerCache();
 
         PlexLog.log("Attempting to connect to DB: {0}", plugin.config.getString("data.db.name"));
-        try
-        {
-            PlexUtils.testConnections(this);
-            PlexLog.log("Connected to " + storageType.name().toUpperCase());
-        }
-        catch (Exception e)
-        {
-            PlexLog.error("Failed to connect to " + storageType.name().toUpperCase());
-            e.printStackTrace();
-        }
+        PlexLog.log("Connected to " + storageType.name().toUpperCase());
 
         if (!getServer().getPluginManager().isPluginEnabled("Vault"))
         {
@@ -486,13 +477,10 @@ public class Plex extends JavaPlugin
                     PlexLog.warn("Unable to reload player {0}: {1}", playerId, failure.getMessage());
                     return;
                 }
-                api.scheduler().runGlobal(() ->
+                api.scheduler().runEntity(player, () ->
                 {
-                    if (Bukkit.getPlayer(playerId) != null)
-                    {
-                        playerService.cache(plexPlayer);
-                        punishmentManager.restoreTimedState(plexPlayer);
-                    }
+                    playerService.cache(plexPlayer);
+                    punishmentManager.restoreTimedState(plexPlayer);
                 });
             });
         });

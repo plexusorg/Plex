@@ -45,7 +45,6 @@ public class TempmuteCMD extends ServerCommand
     protected Component execute(@NotNull ServerCommandContext context)
     {
         CommandSender sender = context.sender();
-        Player playerSender = context.player();
         String[] args = context.args();
         if (args.length < 2)
         {
@@ -96,7 +95,7 @@ public class TempmuteCMD extends ServerCommand
         punishment.setIp(player.getAddress().getAddress().getHostAddress().trim());
         punishment.setReason(reason);
 
-        plugin.getPunishmentManager().punish(punishedPlayer, punishment).whenComplete((unused, failure) -> plugin.getApi().scheduler().runGlobal(() ->
+        plugin.getPunishmentManager().punish(punishedPlayer, punishment).whenComplete((unused, failure) ->
         {
             if (failure != null)
             {
@@ -104,7 +103,7 @@ public class TempmuteCMD extends ServerCommand
                 context.send(sender, Component.text("Unable to persist the mute; no action was taken."));
             }
             else PlexUtils.broadcast(context.messageComponent("tempMutedPlayer", context.senderName(), player.getName(), TimeUtils.formatRelativeTime(endDate)));
-        }));
+        });
         return null;
     }
 
