@@ -79,6 +79,10 @@ source or current official documentation rather than memory.
 - Do not add `module.respond(...)`, `module.send(...)`, or similar wrappers around a one-line platform call.
 - When changing the Plex API, search every sibling Plex module for the old contract and build all affected modules
   against the current local Plex checkout.
+- Treat third-party plugin integrations as optional unless the feature cannot exist without them. Check the capability,
+  warn once when it is unavailable, skip only the integration code, and expose that state to affected API/frontend
+  consumers. Do not disable unrelated module features or produce a linkage-error stack trace for an absent optional
+  plugin.
 - Missing required plugins should fail module enablement with a clear exception. Let the module lifecycle log the error
   and disable/remove the module; do not log once and continue half-enabled.
 - Use the module logger for module failures and include the throwable. Use Plex's logging facilities for core lifecycle
