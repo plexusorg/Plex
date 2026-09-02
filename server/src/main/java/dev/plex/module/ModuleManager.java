@@ -119,8 +119,9 @@ public class ModuleManager
             throw new ModuleLoadException("Plex module " + name + " requires API compatibility " + compatibility + ", but this Plex build provides API compatibility " + plugin.getApi().apiCompatibilityVersion());
         }
         List<String> repositories = config.getConfigurationSection("repositories") == null ? List.of()
-                : config.getConfigurationSection("repositories").getValues(false).values().stream()
-                        .map(String::valueOf).filter(repository -> !repository.isBlank()).toList();
+                : config.getConfigurationSection("repositories").getKeys(false).stream()
+                        .map(id -> config.getConfigurationSection("repositories").getString(id, ""))
+                        .filter(repository -> !repository.isBlank()).toList();
         List<String> updateUrls = new ArrayList<>(config.getStringList("updater.urls").stream()
                 .filter(url -> !url.isBlank()).toList());
         String updateUrl = config.getString("updater.url", "");

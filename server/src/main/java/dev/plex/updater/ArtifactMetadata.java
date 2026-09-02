@@ -180,13 +180,17 @@ public final class ArtifactMetadata
         {
             return Optional.of("metadata schemaVersion " + schemaVersion + " is not supported");
         }
-        String[][] requiredValues = {{"name", name}, {"version", version}, {"channel", channel}, {"downloadUrl", downloadUrl}};
-        for (String[] requiredValue : requiredValues)
+        if (isBlank(name))
         {
-            if (isBlank(requiredValue[1]))
-            {
-                return Optional.of("metadata is missing " + requiredValue[0]);
-            }
+            return Optional.of("metadata is missing name");
+        }
+        if (isBlank(version))
+        {
+            return Optional.of("metadata is missing version");
+        }
+        if (isBlank(channel))
+        {
+            return Optional.of("metadata is missing channel");
         }
         if (!requestedChannel.id().equalsIgnoreCase(channel))
         {
@@ -196,24 +200,10 @@ public final class ArtifactMetadata
         {
             return Optional.of("stable metadata must not point to a SNAPSHOT version");
         }
-        Optional<String> downloadUrlError = validateDownloadUrl();
-        if (downloadUrlError.isPresent())
+        if (isBlank(downloadUrl))
         {
-            return downloadUrlError;
+            return Optional.of("metadata is missing downloadUrl");
         }
-        if (!SHA256_PATTERN.matcher(Objects.requireNonNullElse(sha256, "")).matches())
-        {
-            return Optional.of("metadata is missing a valid sha256");
-        }
-        if (Objects.requireNonNullElse(size, 0L) < 0)
-        {
-            return Optional.of("metadata size must not be negative");
-        }
-        return Optional.empty();
-    }
-
-    private Optional<String> validateDownloadUrl()
-    {
         try
         {
             URI downloadUri = URI.create(downloadUrl);
@@ -221,12 +211,20 @@ public final class ArtifactMetadata
             {
                 return Optional.of("metadata downloadUrl must be an absolute HTTPS URL");
             }
-            return Optional.empty();
         }
         catch (IllegalArgumentException e)
         {
             return Optional.of("metadata downloadUrl is invalid");
         }
+        if (isBlank(sha256) || !SHA256_PATTERN.matcher(sha256).matches())
+        {
+            return Optional.of("metadata is missing a valid sha256");
+        }
+        if (size != null && size < 0)
+        {
+            return Optional.of("metadata size must not be negative");
+        }
+        return Optional.empty();
     }
 
     private boolean supportsMinecraftVersion(String minecraftVersion)

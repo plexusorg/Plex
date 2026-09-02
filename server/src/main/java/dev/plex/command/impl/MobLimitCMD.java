@@ -6,7 +6,6 @@ import dev.plex.command.ServerCommandContext;
 import dev.plex.util.PlexUtils;
 
 import java.util.Arrays;
-import java.util.Map;
 
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
@@ -19,8 +18,6 @@ import org.jetbrains.annotations.NotNull;
 
 public class MobLimitCMD extends ServerCommand
 {
-    private static final Map<Boolean, String> LIMIT_STATUS = Map.of(
-            true, "mobLimitEnabled", false, "mobLimitDisabled");
     public MobLimitCMD()
     {
         super(command("moblimit")
@@ -57,7 +54,8 @@ public class MobLimitCMD extends ServerCommand
                     .filter(LivingEntity.class::isInstance)
                     .filter(entity -> !(entity instanceof Player))
                     .count();
-            String status = PlexUtils.messageString(LIMIT_STATUS.get(plugin.entities.getBoolean("entity_limit.mob_limit_enabled")));
+            String status = PlexUtils.messageString(plugin.entities.getBoolean("entity_limit.mob_limit_enabled")
+                    ? "mobLimitEnabled" : "mobLimitDisabled");
             return PlexUtils.messageComponent("mobLimitStatus", status, currentMobCount, currentLimit, chunk.getX(), chunk.getZ());
         }
 
@@ -76,10 +74,6 @@ public class MobLimitCMD extends ServerCommand
                         return context.usage();
                     }
                     int newLimit = Integer.parseInt(args[1]);
-                    if (newLimit < 0)
-                    {
-                        throw new NumberFormatException();
-                    }
                     int limitCeiling = plugin.entities.getInt("entity_limit.mob_limit_ceiling");
                     if (newLimit > limitCeiling)
                     {

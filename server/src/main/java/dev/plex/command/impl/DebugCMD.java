@@ -10,7 +10,6 @@ import dev.plex.util.GameRuleUtil;
 import dev.plex.util.PlexLog;
 
 import java.util.Arrays;
-import java.util.Locale;
 
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
@@ -57,7 +56,7 @@ public class DebugCMD extends ServerCommand
         {
             return context.usage();
         }
-        return switch (args[0].toLowerCase(Locale.ROOT))
+        return switch (args[0])
         {
             case "redis" -> redis(context);
             case "redis-reset" -> resetRedis(context, args);
@@ -110,7 +109,7 @@ public class DebugCMD extends ServerCommand
             if (bukkitWorld != null)
             {
                 GameRuleUtil.commitSpecificGameRules(plugin, bukkitWorld);
-                PlexLog.log("Set specific gamerules for world: " + world.toLowerCase(Locale.ROOT));
+                    PlexLog.log("Set specific gamerules for world: " + world);
             }
         }
         return context.messageComponent("reappliedGamerules");

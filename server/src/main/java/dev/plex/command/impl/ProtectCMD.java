@@ -9,8 +9,6 @@ import dev.plex.hook.WorldGuardHook.ProtectionException;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import java.util.Collection;
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 import net.kyori.adventure.text.Component;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
@@ -20,15 +18,6 @@ import org.jetbrains.annotations.NotNull;
 /** Creates and manages WorldGuard regions using configurable flag presets. */
 public final class ProtectCMD extends ServerCommand
 {
-    private static final Map<String, String> ERROR_MESSAGES = Map.of(
-            "region-exists", "protectRegionExists",
-            "region-not-found", "protectRegionNotFound",
-            "preset-not-found", "protectPresetNotFound",
-            "invalid-region-id", "protectInvalidRegionId",
-            "manager-unavailable", "protectManagerUnavailable",
-            "player-only", "protectPlayerOnly",
-            "unsupported-region", "protectUnsupportedRegion",
-            "managed-other-world", "protectManagedOtherWorld");
     private final WorldGuardHook worldGuard;
 
     public ProtectCMD(WorldGuardHook worldGuard)
@@ -82,7 +71,7 @@ public final class ProtectCMD extends ServerCommand
 
         try
         {
-            return switch (args[0].toLowerCase(Locale.ROOT))
+            return switch (args[0])
             {
                 case "create" -> create(context, args);
                 case "apply" -> apply(context, args);
@@ -95,13 +84,28 @@ public final class ProtectCMD extends ServerCommand
         }
         catch (ProtectionException ex)
         {
-            String message = ERROR_MESSAGES.getOrDefault(ex.reason(), "protectInvalidPreset");
-            return context.messageComponent(message, ex.detail());
+            return protectionError(context, ex);
         }
         catch (IncompleteRegionException ex)
         {
             return context.messageComponent("protectSelectionIncomplete");
         }
+    }
+
+    private Component protectionError(ServerCommandContext context, ProtectionException exception)
+    {
+        return switch (exception.reason())
+        {
+            case "region-exists" -> context.messageComponent("protectRegionExists", exception.detail());
+            case "region-not-found" -> context.messageComponent("protectRegionNotFound", exception.detail());
+            case "preset-not-found" -> context.messageComponent("protectPresetNotFound", exception.detail());
+            case "invalid-region-id" -> context.messageComponent("protectInvalidRegionId", exception.detail());
+            case "manager-unavailable" -> context.messageComponent("protectManagerUnavailable", exception.detail());
+            case "player-only" -> context.messageComponent("protectPlayerOnly");
+            case "unsupported-region" -> context.messageComponent("protectUnsupportedRegion", exception.detail());
+            case "managed-other-world" -> context.messageComponent("protectManagedOtherWorld", exception.detail());
+            default -> context.messageComponent("protectInvalidPreset", exception.detail());
+        };
     }
 
     private Component create(ServerCommandContext context, String[] args) throws IncompleteRegionException

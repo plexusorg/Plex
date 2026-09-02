@@ -1,5 +1,6 @@
 package dev.plex.command.impl;
 
+import com.google.common.primitives.Ints;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
 import dev.plex.command.ServerCommandContext;
@@ -68,15 +69,15 @@ public class EntityWipeCMD extends ServerCommand
         List<String> entityBlacklist = plugin.entities.getStringList("entitywipe_list");
 
         String lastArgument = Arrays.stream(args).reduce((first, second) -> second).orElse("");
-        boolean radiusSpecified = org.apache.commons.lang3.math.NumberUtils.isParsable(lastArgument);
-        int radius = org.apache.commons.lang3.math.NumberUtils.toInt(lastArgument);
+        Integer parsedRadius = Ints.tryParse(lastArgument);
+        boolean radiusSpecified = parsedRadius != null && parsedRadius != Integer.MIN_VALUE;
+        int radius = radiusSpecified ? parsedRadius : 0;
         int entityArgumentCount = args.length - Boolean.compare(radiusSpecified, false);
         List<String> entityWhitelist = new LinkedList<>(Arrays.asList(args).subList(0, entityArgumentCount));
 
         boolean useBlacklist = entityWhitelist.isEmpty();
-        Collection<String> selectedTypes = (useBlacklist ? entityBlacklist : entityWhitelist).stream()
-                .map(name -> name.toUpperCase(Locale.ROOT))
-                .collect(Collectors.toSet());
+        Collection<String> selectedTypes = selectedEntityTypes(context, sender,
+                useBlacklist ? entityBlacklist : entityWhitelist, useBlacklist);
         Player radiusCenter = Optional.ofNullable(playerSender).filter(player -> radius != 0).orElse(null);
         int range = Math.abs(radius);
         Collection<Entity> entities = radiusCenter != null
@@ -118,5 +119,27 @@ public class EntityWipeCMD extends ServerCommand
             PlexUtils.broadcast(context.messageComponent("removedEntitiesOfTypes", context.senderName(), entityCount, list));
         }
         return null;
+    }
+
+    private Collection<String> selectedEntityTypes(ServerCommandContext context, CommandSender sender,
+                                                   List<String> names, boolean configuredBlacklist)
+    {
+        if (configuredBlacklist)
+        {
+            return names.stream().map(name -> name.toUpperCase(Locale.ROOT)).collect(Collectors.toSet());
+        }
+        Collection<String> types = new java.util.HashSet<>();
+        for (String name : names)
+        {
+            try
+            {
+                types.add(EntityType.valueOf(name.toUpperCase(Locale.ROOT)).name());
+            }
+            catch (IllegalArgumentException ignored)
+            {
+                context.send(sender, context.messageComponent("invalidEntityType", name));
+            }
+        }
+        return types;
     }
 }

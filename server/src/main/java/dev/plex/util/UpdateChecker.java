@@ -22,7 +22,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HexFormat;
 import java.util.List;
-import java.util.Set;
 
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -79,7 +78,7 @@ public class UpdateChecker
     public UpdateCheckResult checkForUpdates(boolean useCache)
     {
         String runningMinecraftVersion = getRunningMinecraftVersion();
-        if (Set.of("", "unknown").contains(runningMinecraftVersion.toLowerCase()))
+        if (runningMinecraftVersion.isBlank() || runningMinecraftVersion.equalsIgnoreCase("unknown"))
         {
             return new UpdateCheckResult(UpdateCheckStatus.ERROR, null, UpdateMetadataClient.MetadataException.localError("running Minecraft version could not be determined"));
         }
@@ -117,18 +116,15 @@ public class UpdateChecker
         }
 
         List<String> supportedVersions = sortedSupportedVersions(channelLatest);
-        if (!supportedVersions.isEmpty())
+        String minimumVersion = supportedVersions.get(0);
+        String maximumVersion = supportedVersions.get(supportedVersions.size() - 1);
+        if (compareMinecraftVersions(runningMinecraftVersion, minimumVersion) < 0)
         {
-            String minimumVersion = supportedVersions.get(0);
-            String maximumVersion = supportedVersions.get(supportedVersions.size() - 1);
-            if (compareMinecraftVersions(runningMinecraftVersion, minimumVersion) < 0)
-            {
-                return new UpdateCheckResult(UpdateCheckStatus.MINECRAFT_TOO_OLD, channelLatest, null);
-            }
-            if (compareMinecraftVersions(runningMinecraftVersion, maximumVersion) > 0)
-            {
-                return new UpdateCheckResult(UpdateCheckStatus.MINECRAFT_TOO_NEW, channelLatest, null);
-            }
+            return new UpdateCheckResult(UpdateCheckStatus.MINECRAFT_TOO_OLD, channelLatest, null);
+        }
+        if (compareMinecraftVersions(runningMinecraftVersion, maximumVersion) > 0)
+        {
+            return new UpdateCheckResult(UpdateCheckStatus.MINECRAFT_TOO_NEW, channelLatest, null);
         }
         return new UpdateCheckResult(UpdateCheckStatus.MINECRAFT_UNLISTED, channelLatest, null);
     }

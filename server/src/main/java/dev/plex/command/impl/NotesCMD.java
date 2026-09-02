@@ -2,14 +2,13 @@ package dev.plex.command.impl;
 
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import dev.plex.api.note.PlayerNote;
 import dev.plex.command.ServerCommand;
 import dev.plex.command.ServerCommandContext;
 import dev.plex.player.PlexPlayer;
-import dev.plex.punishment.extra.Note;
 import dev.plex.util.PlexLog;
 import dev.plex.util.TimeUtils;
 
-import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -17,7 +16,6 @@ import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
@@ -64,7 +62,7 @@ public class NotesCMD extends ServerCommand
             return context.messageComponent("playerNotFound");
         }
 
-        return switch (args[1].toLowerCase())
+        return switch (args[1])
         {
             case "list" -> list(context, plexPlayer);
             case "add" -> add(context, plexPlayer, args);
@@ -76,7 +74,7 @@ public class NotesCMD extends ServerCommand
 
     private Component list(ServerCommandContext context, PlexPlayer player)
     {
-        plugin.getNoteRepository().getNotes(player.getUuid()).whenComplete((notes, failure) ->
+        plugin.getApi().notes().list(player.getUuid()).whenComplete((notes, failure) ->
         {
             if (failure != null)
             {
@@ -89,8 +87,7 @@ public class NotesCMD extends ServerCommand
                 context.send(context.sender(), context.messageComponent("noNotes"));
                 return;
             }
-            List<String> authors = notes.stream().map(note -> authorName(note.getWrittenBy())).toList();
-            readNotes(context, context.sender(), player, notes, authors);
+            readNotes(context, player, notes);
         });
         return null;
     }
@@ -103,8 +100,7 @@ public class NotesCMD extends ServerCommand
             return context.usage();
         }
         String content = StringUtils.join(ArrayUtils.subarray(args, 2, args.length), " ");
-        Note note = new Note(player.getUuid(), content, author.getUniqueId(), ZonedDateTime.now(TimeUtils.zoneId()));
-        plugin.getNoteRepository().addNote(note).whenComplete((unused, failure) ->
+        plugin.getApi().notes().add(player.getUuid(), content, author.getUniqueId()).whenComplete((unused, failure) ->
         {
             if (failure != null)
             {
@@ -124,7 +120,7 @@ public class NotesCMD extends ServerCommand
             return context.usage();
         }
         int id = Integer.parseInt(args[2]);
-        plugin.getNoteRepository().deleteNote(id, player.getUuid()).whenComplete((deleted, failure) ->
+        plugin.getApi().notes().remove(player.getUuid(), id).whenComplete((deleted, failure) ->
         {
             if (failure != null)
             {
@@ -139,7 +135,7 @@ public class NotesCMD extends ServerCommand
 
     private Component clear(ServerCommandContext context, PlexPlayer player)
     {
-        plugin.getNoteRepository().clearNotes(player.getUuid()).whenComplete((count, failure) ->
+        plugin.getApi().notes().clear(player.getUuid()).whenComplete((count, failure) ->
         {
             if (failure != null)
             {
@@ -152,18 +148,16 @@ public class NotesCMD extends ServerCommand
         return null;
     }
 
-    private void readNotes(ServerCommandContext context, @NotNull CommandSender sender, PlexPlayer plexPlayer,
-                           List<Note> notes, List<String> authors)
+    private void readNotes(ServerCommandContext context, PlexPlayer plexPlayer, List<PlayerNote> notes)
     {
         Component noteList = context.messageComponent("notesHeader", plexPlayer.getName());
-        for (int index = 0; index < notes.size(); index++)
+        for (PlayerNote note : notes)
         {
-            Note note = notes.get(index);
-            Component noteLine = context.messageComponent("notePrefix", note.getId(), authors.get(index), TimeUtils.useTimezone(note.getTimestamp()));
-            noteLine = noteLine.append(context.messageComponent("noteLine", note.getNote()));
+            Component noteLine = context.messageComponent("notePrefix", note.id(), authorName(note.author()), TimeUtils.useTimezone(note.timestamp()));
+            noteLine = noteLine.append(context.messageComponent("noteLine", note.content()));
             noteList = noteList.append(Component.newline()).append(noteLine);
         }
-        context.send(sender, noteList);
+        context.send(context.sender(), noteList);
     }
 
     private String authorName(UUID uuid)

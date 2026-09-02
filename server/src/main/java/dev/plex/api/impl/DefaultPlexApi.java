@@ -9,6 +9,7 @@ import dev.plex.api.listener.ListenerApi;
 import dev.plex.api.logging.LoggingApi;
 import dev.plex.api.message.MessageApi;
 import dev.plex.api.module.ModulesApi;
+import dev.plex.api.note.NotesApi;
 import dev.plex.api.player.PlayersApi;
 import dev.plex.api.punishment.PunishmentsApi;
 import dev.plex.api.rollback.RollbackApi;
@@ -26,6 +27,7 @@ public final class DefaultPlexApi implements PlexApi
     private final ModuleConfigApi moduleConfigs;
     private final LoggingApi logging;
     private final MessageApi messages;
+    private final NotesApi notes;
     private final PlayersApi players;
     private final PunishmentsApi punishments;
     private final RollbackApi rollback;
@@ -42,6 +44,7 @@ public final class DefaultPlexApi implements PlexApi
         this.moduleConfigs = new DefaultModuleConfigApi();
         this.logging = new DefaultLoggingApi();
         this.messages = new DefaultMessageApi();
+        this.notes = new DefaultNotesApi(plugin);
         this.players = new DefaultPlayersApi(plugin);
         this.punishments = new DefaultPunishmentsApi(plugin);
         this.rollback = new RollbackManager(plugin);
@@ -57,6 +60,7 @@ public final class DefaultPlexApi implements PlexApi
     @Override public ModuleConfigApi moduleConfigs() { return moduleConfigs; }
     @Override public LoggingApi logging() { return logging; }
     @Override public MessageApi messages() { return messages; }
+    @Override public NotesApi notes() { return notes; }
     @Override public PlayersApi players() { return players; }
     @Override public PunishmentsApi punishments() { return punishments; }
     @Override public RollbackApi rollback() { return rollback; }

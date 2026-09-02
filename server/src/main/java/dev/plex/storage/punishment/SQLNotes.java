@@ -1,6 +1,6 @@
 package dev.plex.storage.punishment;
 
-import dev.plex.punishment.extra.Note;
+import dev.plex.api.note.PlayerNote;
 import dev.plex.storage.database.entity.NoteEntity;
 import dev.plex.storage.repository.NoteRepository;
 import dev.plex.util.TimeUtils;
@@ -14,6 +14,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+import org.jetbrains.annotations.Nullable;
 
 public class SQLNotes implements NoteRepository
 {
@@ -27,7 +28,7 @@ public class SQLNotes implements NoteRepository
         this.executor = executor;
     }
 
-    public CompletableFuture<List<Note>> getNotes(UUID uuid)
+    public CompletableFuture<List<PlayerNote>> getNotes(UUID uuid)
     {
         return CompletableFuture.supplyAsync(() -> jdbi.withHandle(h -> h.createQuery("SELECT * FROM notes WHERE uuid = :u")
                         .bind("u", uuid.toString()).map((rs, ctx) -> mapRow(rs)).list()).stream()
@@ -45,7 +46,7 @@ public class SQLNotes implements NoteRepository
                         .execute()) > 0, executor);
     }
 
-    public CompletableFuture<Void> addNote(Note note)
+    public CompletableFuture<Void> addNote(UUID player, String content, @Nullable UUID author, ZonedDateTime timestamp)
     {
         return CompletableFuture.runAsync(() ->
         {
@@ -54,8 +55,8 @@ public class SQLNotes implements NoteRepository
                 jdbi.useTransaction(h ->
                 {
                     int nextId = h.createQuery("SELECT COALESCE(MAX(id), 0) FROM notes WHERE uuid = :u")
-                            .bind("u", note.getUuid().toString()).mapTo(Integer.class).one() + 1;
-                    NoteEntity entity = toEntity(note);
+                            .bind("u", player.toString()).mapTo(Integer.class).one() + 1;
+                    NoteEntity entity = toEntity(player, content, author, timestamp);
                     entity.setId(nextId);
                     h.createUpdate(
                                 "INSERT INTO notes (id, uuid, written_by_uuid, note, timestamp) " +
@@ -66,7 +67,6 @@ public class SQLNotes implements NoteRepository
                             .bind("note", entity.getNote())
                             .bind("ts", entity.getTimestamp())
                             .execute();
-                    note.setId(nextId);
                 });
             }
         }, executor);
@@ -91,18 +91,14 @@ public class SQLNotes implements NoteRepository
         return e;
     }
 
-    private Optional<Note> toNote(NoteEntity entity)
+    private Optional<PlayerNote> toNote(NoteEntity entity)
     {
         try
         {
-            Note note = new Note(
-                    UUID.fromString(entity.getUuid()),
-                    entity.getNote(),
-                    UUID.fromString(entity.getWrittenByUuid()),
-                    ZonedDateTime.ofInstant(Instant.ofEpochMilli(entity.getTimestamp()), TimeUtils.zoneId())
-            );
-            note.setId(entity.getId());
-            return Optional.of(note);
+            String writtenBy = entity.getWrittenByUuid();
+            return Optional.of(new PlayerNote(entity.getId(), UUID.fromString(entity.getUuid()), entity.getNote(),
+                    writtenBy == null ? null : UUID.fromString(writtenBy),
+                    ZonedDateTime.ofInstant(Instant.ofEpochMilli(entity.getTimestamp()), TimeUtils.zoneId())));
         }
         catch (IllegalArgumentException | NullPointerException e)
         {
@@ -110,14 +106,13 @@ public class SQLNotes implements NoteRepository
         }
     }
 
-    private NoteEntity toEntity(Note note)
+    private NoteEntity toEntity(UUID player, String content, @Nullable UUID author, ZonedDateTime timestamp)
     {
         NoteEntity entity = new NoteEntity();
-        entity.setId(note.getId());
-        entity.setUuid(note.getUuid().toString());
-        entity.setWrittenByUuid(note.getWrittenBy().toString());
-        entity.setNote(note.getNote());
-        entity.setTimestamp(note.getTimestamp().toInstant().toEpochMilli());
+        entity.setUuid(player.toString());
+        entity.setWrittenByUuid(author == null ? null : author.toString());
+        entity.setNote(content);
+        entity.setTimestamp(timestamp.toInstant().toEpochMilli());
         return entity;
     }
 }

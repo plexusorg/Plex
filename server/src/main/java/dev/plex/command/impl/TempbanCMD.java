@@ -14,10 +14,11 @@ import dev.plex.util.PlexLog;
 import dev.plex.util.TimeUtils;
 
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
-import org.apache.commons.lang3.StringUtils;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
@@ -66,10 +67,11 @@ public class TempbanCMD extends ServerCommand
         punishment.setReason(context.messageString("noReasonProvided"));
         if (args.length > 2)
         {
-            String reason = StringUtils.join(args, " ", 2, args.length);
-            String newReason = StringUtils.normalizeSpace(reason.replace("-rb", ""));
-            punishment.setReason(newReason.trim().isEmpty() ? context.messageString("noReasonProvided") : newReason);
-            rollBack = List.of(args[2], args[args.length - 1]).contains("-rb");
+            List<String> reason = new ArrayList<>(Arrays.asList(args).subList(2, args.length));
+            rollBack = reason.getFirst().equals("-rb") || reason.getLast().equals("-rb");
+            if (reason.getFirst().equals("-rb")) reason.removeFirst();
+            if (!reason.isEmpty() && reason.getLast().equals("-rb")) reason.removeLast();
+            if (!reason.isEmpty()) punishment.setReason(String.join(" ", reason));
         }
         try
         {

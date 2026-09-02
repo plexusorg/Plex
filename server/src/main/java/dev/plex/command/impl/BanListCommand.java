@@ -3,12 +3,12 @@ package dev.plex.command.impl;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
 import dev.plex.command.ServerCommandContext;
+import dev.plex.command.source.RequiredCommandSource;
 
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
 import org.apache.commons.lang3.StringUtils;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import dev.plex.util.PlexLog;
 
@@ -20,6 +20,7 @@ public class BanListCommand extends ServerCommand
             .description("Manages the banlist")
             .usage("/<command> [purge]")
             .permission("plex.banlist")
+            .source(RequiredCommandSource.CONSOLE)
             .build());
     }
     @Override
@@ -54,33 +55,22 @@ public class BanListCommand extends ServerCommand
             });
             return null;
         }
-        if (java.util.Set.of("purge", "clear").contains(args[0].toLowerCase(java.util.Locale.ROOT)))
+        plugin.getPunishmentManager().getActiveBans().whenComplete((punishments, throwable) ->
         {
-            if (sender instanceof Player)
+            if (throwable != null)
             {
-                return context.messageComponent("noPermissionInGame");
+                context.send(sender, Component.text("Unable to load active bans."));
+                return;
             }
-            if (!context.checkPermission(sender, "plex.banlist.clear"))
-            {
-                return null;
-            }
-            plugin.getPunishmentManager().getActiveBans().whenComplete((punishments, throwable) ->
-            {
-                if (throwable != null)
-                {
-                    context.send(sender, Component.text("Unable to load active bans."));
-                    return;
-                }
-                var uuids = punishments.stream().map(dev.plex.punishment.Punishment::getPunished).distinct().toList();
-                java.util.concurrent.CompletableFuture.allOf(uuids.stream().map(plugin.getPunishmentManager()::unban)
-                                .toArray(java.util.concurrent.CompletableFuture[]::new))
-                        .whenComplete((unused, failure) ->
-                        {
-                            if (failure != null) context.send(sender, Component.text("Unable to clear all active bans."));
-                            else context.send(sender, context.messageComponent("unbannedPlayers", uuids.size()));
-                        });
-            });
-        }
+            var uuids = punishments.stream().map(dev.plex.punishment.Punishment::getPunished).distinct().toList();
+            java.util.concurrent.CompletableFuture.allOf(uuids.stream().map(plugin.getPunishmentManager()::unban)
+                            .toArray(java.util.concurrent.CompletableFuture[]::new))
+                    .whenComplete((unused, failure) ->
+                    {
+                        if (failure != null) context.send(sender, Component.text("Unable to clear all active bans."));
+                        else context.send(sender, context.messageComponent("unbannedPlayers", uuids.size()));
+                    });
+        });
         return null;
     }
 

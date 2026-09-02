@@ -66,7 +66,7 @@ public class PlayerListener extends ServerListenerBase
             PlexUtils.broadcast(PlexUtils.stringToComponent(loginMessage));
         }
 
-        plugin.getNoteRepository().getNotes(plexPlayer.getUuid()).whenComplete((notes, ex) ->
+        plugin.getApi().notes().list(plexPlayer.getUuid()).whenComplete((notes, ex) ->
         {
             if (ex != null)
             {

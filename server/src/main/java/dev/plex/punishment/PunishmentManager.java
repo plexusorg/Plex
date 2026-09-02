@@ -14,6 +14,7 @@ import org.bukkit.Bukkit;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Collection;
@@ -181,8 +182,13 @@ public class PunishmentManager
 
     public CompletableFuture<Void> punish(PlexPlayer player, Punishment punishment)
     {
-        punishment.getType().fixedDuration().ifPresent(duration ->
-                punishment.setEndDate(punishment.getIssueDate().plus(duration)));
+        Objects.requireNonNull(player, "player");
+        Objects.requireNonNull(punishment, "punishment");
+        IllegalArgumentException invalid = validateForPersistence(player, punishment);
+        if (invalid != null)
+        {
+            return CompletableFuture.failedFuture(invalid);
+        }
         if (punishment.getIp() != null) punishment.setIp(BanDecisionService.canonicalIp(punishment.getIp()));
         punishment.setActive(punishment.getType().startsActive());
 
@@ -212,6 +218,34 @@ public class PunishmentManager
             if (punishment.getType() == PunishmentType.MUTE || punishment.getType() == PunishmentType.FREEZE)
                 restoreTimedState(player, punishment.getType());
         });
+    }
+
+    @Nullable
+    private IllegalArgumentException validateForPersistence(PlexPlayer player, Punishment punishment)
+    {
+        if (!player.getUuid().equals(punishment.getPunished()))
+            return new IllegalArgumentException("Punishment and player UUIDs differ");
+        if (punishment.getType() == null)
+            return new IllegalArgumentException("Punishment type is required");
+        if (punishment.getIssueDate() == null)
+            return new IllegalArgumentException("Punishment issue date is required");
+
+        punishment.getType().fixedDuration().ifPresent(duration ->
+                punishment.setEndDate(punishment.getIssueDate().plus(duration)));
+        ZonedDateTime endDate = punishment.getEndDate();
+        if (punishment.getType().requiresEndDate() && endDate == null)
+            return new IllegalArgumentException(punishment.getType() + " requires an end date");
+        if (!punishment.getType().requiresEndDate() && endDate != null)
+            return new IllegalArgumentException(punishment.getType() + " must not have an end date");
+        if (endDate != null && !endDate.toInstant().isAfter(Instant.now()))
+            return new IllegalArgumentException(punishment.getType() + " requires a future end date");
+        Duration maximumDuration = punishment.getType().maximumDuration().orElse(null);
+        if (endDate != null && maximumDuration != null
+                && endDate.toInstant().isAfter(punishment.getIssueDate().toInstant().plus(maximumDuration)))
+            return new IllegalArgumentException(punishment.getType() + " exceeds its maximum duration");
+        if (punishment.getReason() == null)
+            return new IllegalArgumentException("Punishment reason is required");
+        return null;
     }
 
     public void restoreTimedState(PlexPlayer player)

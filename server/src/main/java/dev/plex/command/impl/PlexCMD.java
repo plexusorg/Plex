@@ -13,7 +13,6 @@ import dev.plex.util.TimeUtils;
 import dev.plex.util.UpdateChecker;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.stream.Collectors;
 
 import io.papermc.paper.command.brigadier.CommandSourceStack;
@@ -66,27 +65,22 @@ public class PlexCMD extends ServerCommand
         String[] args = context.args();
         if (args.length == 0)
         {
-            return showInfo(context);
+            CommandSender sender = context.sender();
+            context.send(sender, context.mmString("<light_purple>Plex - A new freedom plugin."));
+            context.send(sender, context.mmString("<light_purple>Plugin version: <gold>" + plugin.getPluginMeta().getVersion() + " #" + BuildInfo.getNumber() + " <light_purple>Git: <gold>" + BuildInfo.shortenCommit(BuildInfo.getCommit())));
+            context.send(sender, context.mmString("<light_purple>Authors: <gold>Telesphoreo, Taahh"));
+            context.send(sender, context.mmString("<light_purple>Built by: <gold>" + BuildInfo.getAuthor() + " <light_purple>on <gold>" + BuildInfo.getDate()));
+            context.send(sender, context.mmString("<light_purple>Run <gold>/plex modules <light_purple>to see a list of modules."));
+            plugin.getApi().scheduler().runAsync(() -> plugin.getUpdateChecker().getUpdateStatusMessage(sender, true, 2));
+            return null;
         }
-        return switch (args[0].toLowerCase(Locale.ROOT))
+        return switch (args[0])
         {
             case "reload" -> reload(context);
             case "modules" -> modules(context, args);
             case "update" -> update(context);
             default -> context.usage();
         };
-    }
-
-    private Component showInfo(ServerCommandContext context)
-    {
-        CommandSender sender = context.sender();
-        context.send(sender, context.mmString("<light_purple>Plex - A new freedom plugin."));
-        context.send(sender, context.mmString("<light_purple>Plugin version: <gold>" + plugin.getPluginMeta().getVersion() + " #" + BuildInfo.getNumber() + " <light_purple>Git: <gold>" + BuildInfo.shortenCommit(BuildInfo.getCommit())));
-        context.send(sender, context.mmString("<light_purple>Authors: <gold>Telesphoreo, Taahh"));
-        context.send(sender, context.mmString("<light_purple>Built by: <gold>" + BuildInfo.getAuthor() + " <light_purple>on <gold>" + BuildInfo.getDate()));
-        context.send(sender, context.mmString("<light_purple>Run <gold>/plex modules <light_purple>to see a list of modules."));
-        plugin.getApi().scheduler().runAsync(() -> plugin.getUpdateChecker().getUpdateStatusMessage(sender, true, 2));
-        return null;
     }
 
     private Component reload(ServerCommandContext context)
@@ -123,7 +117,7 @@ public class PlexCMD extends ServerCommand
         {
             return context.mmString("<gold>Modules (" + plugin.getModuleManager().getModules().size() + "): <yellow>" + StringUtils.join(plugin.getModuleManager().getModules().stream().map(PlexModule::getPlexModuleFile).map(PlexModuleFile::getName).collect(Collectors.toList()), ", "));
         }
-        return switch (args[1].toLowerCase(Locale.ROOT))
+        return switch (args[1])
         {
             case "reload" -> reloadModules(context);
             case "update" -> updateModules(context);
@@ -173,6 +167,10 @@ public class PlexCMD extends ServerCommand
     private Component installModule(ServerCommandContext context, String[] args)
     {
         context.checkPermission(context.sender(), "plex.modules.install");
+        if (args.length < 3)
+        {
+            return context.usage();
+        }
         String moduleName = args[2];
         plugin.getApi().scheduler().runAsync(() -> plugin.getUpdateChecker().installModuleJar(context.sender(), moduleName));
         return context.mmString("<green>Installing module <yellow>" + moduleName + "<green>...");
@@ -181,8 +179,12 @@ public class PlexCMD extends ServerCommand
     private Component uninstallModule(ServerCommandContext context, String[] args)
     {
         context.checkPermission(context.sender(), "plex.modules.uninstall");
+        if (args.length < 3)
+        {
+            return context.usage();
+        }
         String moduleName = args[2];
-        boolean removeData = args.length == 4;
+        boolean removeData = args.length == 4 && "-rmdir".equals(args[3]);
         return switch (plugin.getModuleManager().uninstallModule(moduleName, removeData))
         {
             case NOT_FOUND -> context.mmString("<red>No installed module named <yellow>" + moduleName + "<red> was found.");

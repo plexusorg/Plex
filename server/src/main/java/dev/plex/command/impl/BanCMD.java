@@ -11,11 +11,12 @@ import dev.plex.api.punishment.PunishmentType;
 import dev.plex.util.BanKickUtil;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
-import org.apache.commons.lang3.StringUtils;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
@@ -72,21 +73,18 @@ public class BanCMD extends ServerCommand
                 context.send(sender, context.messageComponent("playerBanned"));
                 return;
             }
-            String reason;
             Punishment punishment = new Punishment(plexPlayer.getUuid(), context.getUUID(sender));
             punishment.setResolvedPunisherName(context.senderName());
             punishment.setType(PunishmentType.BAN);
             boolean rollBack = false;
+            punishment.setReason(context.messageString("noReasonProvided"));
             if (args.length > 1)
             {
-                reason = StringUtils.join(args, " ", 1, args.length);
-                String newReason = StringUtils.normalizeSpace(reason.replace("-rb", ""));
-                punishment.setReason(newReason.trim().isEmpty() ? context.messageString("noReasonProvided") : newReason);
-                rollBack = reason.startsWith("-rb") || reason.endsWith("-rb");
-            }
-            else
-            {
-                punishment.setReason(context.messageString("noReasonProvided"));
+                List<String> reason = new ArrayList<>(Arrays.asList(args).subList(1, args.length));
+                rollBack = reason.getFirst().equals("-rb") || reason.getLast().equals("-rb");
+                if (reason.getFirst().equals("-rb")) reason.removeFirst();
+                if (!reason.isEmpty() && reason.getLast().equals("-rb")) reason.removeLast();
+                if (!reason.isEmpty()) punishment.setReason(String.join(" ", reason));
             }
             punishment.setIp(BanKickUtil.currentOrLastIp(plexPlayer));
             final boolean shouldRollBack = rollBack;

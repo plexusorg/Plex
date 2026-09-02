@@ -28,7 +28,6 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -448,7 +447,7 @@ public abstract class SimplePlexCommand implements PlexCommand
             return false;
         }
 
-        if (getRequiredSource() == RequiredCommandSource.IN_GAME && sender instanceof ConsoleCommandSender)
+        if (getRequiredSource() == RequiredCommandSource.IN_GAME && !(sender instanceof Player))
         {
             return false;
         }
@@ -465,7 +464,7 @@ public abstract class SimplePlexCommand implements PlexCommand
             return false;
         }
 
-        if (getRequiredSource() == RequiredCommandSource.IN_GAME && sender instanceof ConsoleCommandSender)
+        if (getRequiredSource() == RequiredCommandSource.IN_GAME && !(sender instanceof Player))
         {
             send(sender, messageComponent("noPermissionConsole"));
             return false;

@@ -105,25 +105,31 @@ public class TimeUtils
             return "now";
         }
 
-        RelativeUnit[] units = {
-                new RelativeUnit("week", seconds / (7 * 24 * 60 * 60)),
-                new RelativeUnit("day", seconds / (24 * 60 * 60)),
-                new RelativeUnit("hour", seconds / (60 * 60)),
-                new RelativeUnit("minute", seconds / 60),
-                new RelativeUnit("second", seconds)
-        };
-        for (RelativeUnit unit : units)
-        {
-            if (unit.amount() > 0)
-            {
-                return unit.amount() + " " + unit.name() + (unit.amount() > 1 ? "s" : "");
-            }
-        }
-        throw new IllegalStateException("positive duration has no display unit");
-    }
+        long minute = seconds / 60;
+        long hour = minute / 60;
+        long day = hour / 24;
+        long week = day / 7;
 
-    private record RelativeUnit(String name, long amount)
-    {
+        if (week > 0)
+        {
+            return week + " week" + (week > 1 ? "s" : "");
+        }
+        else if (day > 0)
+        {
+            return day + " day" + (day > 1 ? "s" : "");
+        }
+        else if (hour > 0)
+        {
+            return hour + " hour" + (hour > 1 ? "s" : "");
+        }
+        else if (minute > 0)
+        {
+            return minute + " minute" + (minute > 1 ? "s" : "");
+        }
+        else
+        {
+            return seconds + " second" + (seconds > 1 ? "s" : "");
+        }
     }
 
 }

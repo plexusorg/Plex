@@ -7,6 +7,7 @@ import dev.plex.api.listener.ListenerApi;
 import dev.plex.api.logging.LoggingApi;
 import dev.plex.api.message.MessageApi;
 import dev.plex.api.module.ModulesApi;
+import dev.plex.api.note.NotesApi;
 import dev.plex.api.player.PlayersApi;
 import dev.plex.api.punishment.PunishmentsApi;
 import dev.plex.api.rollback.RollbackApi;
@@ -73,6 +74,13 @@ public interface PlexApi
      * @return message service
      */
     MessageApi messages();
+
+    /**
+     * Returns the player notes service.
+     *
+     * @return player notes service
+     */
+    NotesApi notes();
 
     /**
      * Returns the player service.

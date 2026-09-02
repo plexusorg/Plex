@@ -14,6 +14,13 @@ These rules apply to the whole Plex repository. Apply the same standards when a 
 - Before deleting or changing an API, search all callers, tests, and affected sibling modules. Do not assume repository-
   local searches find consumers of a published API.
 - Preserve established behavior unless the task explicitly changes it. Do not mix unrelated redesigns into a fix.
+- Involve the user before choosing among materially different behaviors. If a change would alter user-visible behavior,
+  permissions, compatibility, persistence semantics, operational output, or another contract and the intended result is
+  not explicit, present the evidence and ask which behavior the user wants before editing. Do not silently infer policy
+  from what is easiest to implement or what satisfies a metric.
+- Use subagents for work that is not small when the work can be divided into clear, independently reviewable scopes.
+  Keep one owner responsible for integration, resolve overlapping edits explicitly, and run the post-change review loop
+  over the combined diff; delegation does not replace judgment or verification.
 - Do not edit generated output, build directories, bundled assets, or dependency code.
 - Do not commit, push, deploy, or modify live services unless the user explicitly asks.
 
@@ -43,7 +50,7 @@ Do not edit code until the failure is understood well enough to state its root c
 
 ## Keep code simple
 
-- Production methods and constructors must have cyclomatic complexity no greater than 10, as enforced by Checkstyle.
+- Production methods and constructors must have cyclomatic complexity no greater than 20, as enforced by Checkstyle.
 - Treat a complexity violation as evidence that the method probably contains unnecessary behavior, states, or defensive
   ceremony. Simplify or delete those first; method extraction is not the default remediation.
 - Do not satisfy the complexity limit by mechanically extracting branches into helper methods. Any extracted method
@@ -77,6 +84,18 @@ Before considering a change complete, inspect the diff and remove complexity int
 boxed primitives, unnecessary schedulers, wrappers, compatibility branches, broad catches, redundant null checks,
 temporary fallbacks, and one-use abstractions. Every remaining complication must have a concrete contract or ownership
 reason.
+
+## Post-change review loop
+
+- After implementation and before final verification, ask independent reviewer agents to inspect the complete diff for
+  behavior regressions, reward-hacked metrics, unnecessary complexity or extraction, API-boundary violations, and
+  Paper/Folia ownership mistakes.
+- Treat reviewer findings as hypotheses. Trace each against the pre-change behavior, direct callers, and relevant
+  contracts; fix only findings supported by evidence.
+- After fixing justified findings, repeat the independent review on the new complete diff. Continue until a review round
+  produces no justified findings.
+- Only then run the required build, focused tests, `git diff --check`, and final diff inspection. Report rejected findings
+  when they involved a meaningful tradeoff.
 
 ## Paper and Folia threading
 

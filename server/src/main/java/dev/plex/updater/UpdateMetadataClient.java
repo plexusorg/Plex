@@ -120,18 +120,10 @@ public final class UpdateMetadataClient
             connection = (HttpURLConnection) uri.toURL().openConnection();
             connection.setConnectTimeout(10000);
             connection.setReadTimeout(10000);
-            connection.setInstanceFollowRedirects(false);
             connection.setRequestProperty("Accept", "application/json");
 
             int statusCode = connection.getResponseCode();
-            if (statusCode == HttpURLConnection.HTTP_NOT_FOUND)
-            {
-                throw new MetadataException("no compatible update metadata exists at " + path + " on " + baseUrl, true);
-            }
-            if (statusCode != HttpURLConnection.HTTP_OK)
-            {
-                throw new MetadataException("metadata request returned HTTP " + statusCode + " for " + path + " on " + baseUrl, false);
-            }
+            validateResponse(connection, statusCode, baseUrl, path);
 
             try (InputStream input = connection.getInputStream())
             {
@@ -163,6 +155,23 @@ public final class UpdateMetadataClient
         finally
         {
             Optional.ofNullable(connection).ifPresent(HttpURLConnection::disconnect);
+        }
+    }
+
+    private void validateResponse(HttpURLConnection connection, int statusCode, String baseUrl, String path)
+            throws MetadataException
+    {
+        if (!"https".equalsIgnoreCase(connection.getURL().getProtocol()))
+        {
+            throw new MetadataException("metadata request redirected to a non-HTTPS URL for " + path + " on " + baseUrl, false);
+        }
+        if (statusCode == HttpURLConnection.HTTP_NOT_FOUND)
+        {
+            throw new MetadataException("no compatible update metadata exists at " + path + " on " + baseUrl, true);
+        }
+        if (statusCode != HttpURLConnection.HTTP_OK)
+        {
+            throw new MetadataException("metadata request returned HTTP " + statusCode + " for " + path + " on " + baseUrl, false);
         }
     }
 

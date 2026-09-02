@@ -186,6 +186,7 @@ public class Plex extends JavaPlugin
         if (plugin.getServer().getPluginManager().isPluginEnabled("CoreProtect"))
         {
             coreProtectHook = new CoreProtectHook(this);
+            PlexLog.log("CoreProtect API available: {0}", coreProtectHook.hasCoreProtect());
         }
         else
         {
@@ -194,11 +195,14 @@ public class Plex extends JavaPlugin
         if (plugin.getServer().getPluginManager().isPluginEnabled("prism"))
         {
             prismHook = new PrismHook(this);
+            PlexLog.log("Prism API available: {0}", prismHook.hasPrism());
         }
         else
         {
             PlexLog.debug("Not hooking into Prism");
         }
+
+        PlexLog.log("SuperVanish / PremiumVanish available: {0}", PlexUtils.hasVanishPlugin());
 
         if (plugin.getServer().getPluginManager().isPluginEnabled("WorldGuard"))
         {
@@ -225,7 +229,7 @@ public class Plex extends JavaPlugin
         Metrics metrics = new Metrics(this, 14143);
         PlexLog.log("Enabled Metrics");
 
-        if (redisConnection.isEnabled())
+        if (redisConnection != null && redisConnection.isEnabled())
         {
             try
             {
@@ -294,6 +298,10 @@ public class Plex extends JavaPlugin
     @Override
     public void onDisable()
     {
+        if (redisConnection != null && redisConnection.isEnabled())
+        {
+            PlexLog.log("Disabling Redis/Jedis. No memory leaks in this Anarchy server!");
+        }
         MessageUtil.close();
         this.getServer().getMessenger().unregisterOutgoingPluginChannel(this);
         this.getServer().getMessenger().unregisterIncomingPluginChannel(this);
@@ -321,7 +329,10 @@ public class Plex extends JavaPlugin
                 PlexLog.error("Unable to flush all player sessions: {0}", failure.getMessage());
             }
         }
-        redisConnection.close();
+        if (redisConnection != null)
+        {
+            redisConnection.close();
+        }
 
         if (databaseExecutor != null)
         {
