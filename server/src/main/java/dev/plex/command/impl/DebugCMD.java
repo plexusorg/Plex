@@ -52,84 +52,96 @@ public class DebugCMD extends ServerCommand
     @Override
     protected Component execute(@NotNull ServerCommandContext context)
     {
-        CommandSender sender = context.sender();
-        Player playerSender = context.player();
         String[] args = context.args();
         if (args.length == 0)
         {
             return context.usage();
         }
-        if (args[0].equalsIgnoreCase("redis"))
+        return switch (args[0].toLowerCase(Locale.ROOT))
         {
-            if (!plugin.getRedisConnection().isEnabled())
-            {
-                throw new CommandFailException("&cRedis is not enabled.");
-            }
-            plugin.getRedisConnection().execute(jedis -> jedis.set("test", "123"));
-            context.send(sender, "Set test to 123. Now outputting key test...");
-            String test = plugin.getRedisConnection().query(jedis -> jedis.get("test"));
-            context.send(sender, test);
-            return null;
+            case "redis" -> redis(context);
+            case "redis-reset" -> resetRedis(context, args);
+            case "gamerules" -> gamerules(context);
+            case "aliases" -> aliases(context, args);
+            case "pagination" -> pagination(context);
+            default -> context.usage();
+        };
+    }
+
+    private Component redis(ServerCommandContext context)
+    {
+        if (!plugin.getRedisConnection().isEnabled())
+        {
+            throw new CommandFailException("&cRedis is not enabled.");
         }
-        if (args[0].equalsIgnoreCase("redis-reset"))
+        plugin.getRedisConnection().execute(jedis -> jedis.set("test", "123"));
+        context.send(context.sender(), "Set test to 123. Now outputting key test...");
+        String value = plugin.getRedisConnection().query(jedis -> jedis.get("test"));
+        context.send(context.sender(), value);
+        return null;
+    }
+
+    private Component resetRedis(ServerCommandContext context, String[] args)
+    {
+        if (args.length != 2)
         {
-            if (args.length == 2)
-            {
-                Player player = context.getNonNullPlayer(args[1]);
-                if (plugin.getRedisConnection().query(jedis -> jedis.exists(player.getUniqueId().toString())))
-                {
-                    plugin.getRedisConnection().execute(jedis -> jedis.del(player.getUniqueId().toString()));
-                    return context.messageComponent("redisResetSuccessful", player.getName());
-                }
-                return context.messageComponent("redisResetPlayerNotFound");
-            }
+            return context.usage();
         }
-        if (args[0].equalsIgnoreCase("gamerules"))
+        Player player = context.getNonNullPlayer(args[1]);
+        String key = player.getUniqueId().toString();
+        if (!plugin.getRedisConnection().query(jedis -> jedis.exists(key)))
         {
-            for (World world : Bukkit.getWorlds())
-            {
-                GameRuleUtil.commitGlobalGameRules(plugin, world);
-                PlexLog.log("Set global gamerules for world: " + world.getName());
-            }
-            for (String world : plugin.worlds.getConfigurationSection("worlds").getKeys(false))
-            {
-                World bukkitWorld = Bukkit.getWorld(world);
-                if (bukkitWorld != null)
-                {
-                    GameRuleUtil.commitSpecificGameRules(plugin, bukkitWorld);
-                    PlexLog.log("Set specific gamerules for world: " + world.toLowerCase(Locale.ROOT));
-                }
-            }
-            return context.messageComponent("reappliedGamerules");
+            return context.messageComponent("redisResetPlayerNotFound");
         }
-        if (args[0].equalsIgnoreCase("aliases"))
+        plugin.getRedisConnection().execute(jedis -> jedis.del(key));
+        return context.messageComponent("redisResetSuccessful", player.getName());
+    }
+
+    private Component gamerules(ServerCommandContext context)
+    {
+        for (World world : Bukkit.getWorlds())
         {
-            if (args.length == 2)
+            GameRuleUtil.commitGlobalGameRules(plugin, world);
+            PlexLog.log("Set global gamerules for world: " + world.getName());
+        }
+        for (String world : plugin.worlds.getConfigurationSection("worlds").getKeys(false))
+        {
+            World bukkitWorld = Bukkit.getWorld(world);
+            if (bukkitWorld != null)
             {
-                String commandName = args[1];
-                PlexCommand plexCommand = plugin.getCommandHandler().getCommand(commandName);
-                if (plexCommand != null)
-                {
-                    return context.messageComponent("commandAliases", commandName, Arrays.toString(plexCommand.getAliases().toArray(new String[0])));
-                }
-                Command command = plugin.getServer().getCommandMap().getCommand(commandName);
-                if (command == null)
-                {
-                    return context.messageComponent("commandNotFound");
-                }
-                return context.messageComponent("commandAliases", commandName, Arrays.toString(command.getAliases().toArray(new String[0])));
+                GameRuleUtil.commitSpecificGameRules(plugin, bukkitWorld);
+                PlexLog.log("Set specific gamerules for world: " + world.toLowerCase(Locale.ROOT));
             }
         }
-        if (args[0].equalsIgnoreCase("pagination"))
+        return context.messageComponent("reappliedGamerules");
+    }
+
+    private Component aliases(ServerCommandContext context, String[] args)
+    {
+        if (args.length != 2)
         {
-            if (playerSender == null)
-            {
-                return context.messageComponent("noPermissionConsole");
-            }
-            new MaterialDialog().open(playerSender);
-            return null;
+            return context.usage();
         }
-        return context.usage();
+        String commandName = args[1];
+        PlexCommand plexCommand = plugin.getCommandHandler().getCommand(commandName);
+        if (plexCommand != null)
+        {
+            return context.messageComponent("commandAliases", commandName, Arrays.toString(plexCommand.getAliases().toArray(new String[0])));
+        }
+        Command command = plugin.getServer().getCommandMap().getCommand(commandName);
+        return command == null ? context.messageComponent("commandNotFound")
+                : context.messageComponent("commandAliases", commandName, Arrays.toString(command.getAliases().toArray(new String[0])));
+    }
+
+    private Component pagination(ServerCommandContext context)
+    {
+        Player player = context.player();
+        if (player == null)
+        {
+            return context.messageComponent("noPermissionConsole");
+        }
+        new MaterialDialog().open(player);
+        return null;
     }
 
 }

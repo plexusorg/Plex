@@ -8,6 +8,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.math.NumberUtils;
 
@@ -24,6 +25,14 @@ public class TimeUtils
         add("mo");
         add("y");
     }};
+    private static final Map<String, ChronoUnit> CHRONO_UNITS = Map.of(
+            "s", ChronoUnit.SECONDS,
+            "m", ChronoUnit.MINUTES,
+            "h", ChronoUnit.HOURS,
+            "d", ChronoUnit.DAYS,
+            "w", ChronoUnit.WEEKS,
+            "mo", ChronoUnit.MONTHS,
+            "y", ChronoUnit.YEARS);
     public static String TIMEZONE = "Etc/UTC";
 
     public static ZoneId zoneId()
@@ -63,16 +72,7 @@ public class TimeUtils
                 }
                 try
                 {
-                    switch (unit)
-                    {
-                        case "y" -> time = time.plusYears(duration);
-                        case "mo" -> time = time.plusMonths(duration);
-                        case "w" -> time = time.plusWeeks(duration);
-                        case "d" -> time = time.plusDays(duration);
-                        case "h" -> time = time.plusHours(duration);
-                        case "m" -> time = time.plusMinutes(duration);
-                        case "s" -> time = time.plusSeconds(duration);
-                    }
+                    time = time.plus(duration, CHRONO_UNITS.get(unit));
                 }
                 catch (DateTimeException e)
                 {
@@ -105,31 +105,25 @@ public class TimeUtils
             return "now";
         }
 
-        long minute = seconds / 60;
-        long hour = minute / 60;
-        long day = hour / 24;
-        long week = day / 7;
+        RelativeUnit[] units = {
+                new RelativeUnit("week", seconds / (7 * 24 * 60 * 60)),
+                new RelativeUnit("day", seconds / (24 * 60 * 60)),
+                new RelativeUnit("hour", seconds / (60 * 60)),
+                new RelativeUnit("minute", seconds / 60),
+                new RelativeUnit("second", seconds)
+        };
+        for (RelativeUnit unit : units)
+        {
+            if (unit.amount() > 0)
+            {
+                return unit.amount() + " " + unit.name() + (unit.amount() > 1 ? "s" : "");
+            }
+        }
+        throw new IllegalStateException("positive duration has no display unit");
+    }
 
-        if (week > 0)
-        {
-            return week + " week" + (week > 1 ? "s" : "");
-        }
-        else if (day > 0)
-        {
-            return day + " day" + (day > 1 ? "s" : "");
-        }
-        else if (hour > 0)
-        {
-            return hour + " hour" + (hour > 1 ? "s" : "");
-        }
-        else if (minute > 0)
-        {
-            return minute + " minute" + (minute > 1 ? "s" : "");
-        }
-        else
-        {
-            return seconds + " second" + (seconds > 1 ? "s" : "");
-        }
+    private record RelativeUnit(String name, long amount)
+    {
     }
 
 }

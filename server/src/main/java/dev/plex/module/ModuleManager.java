@@ -14,7 +14,6 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -44,130 +43,114 @@ public class ModuleManager
         }
 
         PlexLog.debug(String.valueOf(moduleFiles.length));
-        Arrays.stream(moduleFiles).forEach(file ->
+        for (File file : moduleFiles)
         {
-            if (file.getName().endsWith(".jar"))
+            if (!file.getName().endsWith(".jar"))
             {
-                URLClassLoader loader = null;
+                continue;
+            }
+            loadModule(file);
+        }
+    }
+
+    private void loadModule(File file)
+    {
+        URLClassLoader loader = null;
+        try
+        {
+            loader = new URLClassLoader(new URL[]{file.toURI().toURL()}, Plex.class.getClassLoader());
+            PlexModuleFile moduleFile = readModuleFile(file, loader);
+            rejectDuplicate(moduleFile);
+            Class<? extends PlexModule> type = Class.forName(moduleFile.getMain(), false, loader).asSubclass(PlexModule.class);
+            if (type.getClassLoader() != loader)
+            {
+                throw new ModuleLoadException("Plex module main class must be defined by " + file.getName());
+            }
+            PlexModule module = type.getConstructor().newInstance();
+            module.setApi(plugin.getApi());
+            module.setPlexModuleFile(moduleFile);
+            module.setModuleJar(file);
+            module.setDataFolder(new File(plugin.getModulesFolder(), moduleFile.getName()));
+            module.getDataFolder().mkdirs();
+            module.setLogger(LogManager.getLogger(moduleFile.getName()));
+            modules.add(module);
+            loader = null;
+        }
+        catch (IOException | ReflectiveOperationException | ClassCastException | ModuleLoadException e)
+        {
+            PlexLog.warn("Skipping module " + file.getName() + ": " + e.getMessage());
+        }
+        finally
+        {
+            if (loader != null)
+            {
                 try
                 {
-                    loader = new URLClassLoader(
-                            new URL[]{file.toURI().toURL()},
-                            Plex.class.getClassLoader()
-                    );
-
-                    InputStream moduleDescriptor = loader.getResourceAsStream("module.yml");
-                    if (moduleDescriptor == null)
-                    {
-                        throw new ModuleLoadException("Plex module " + file.getName() + " does not contain module.yml");
-                    }
-
-                    YamlConfiguration internalModuleConfig;
-                    try (moduleDescriptor;
-                         InputStreamReader internalModuleFile = new InputStreamReader(moduleDescriptor, StandardCharsets.UTF_8))
-                    {
-                        internalModuleConfig = YamlConfiguration.loadConfiguration(internalModuleFile);
-                    }
-
-                    String name = internalModuleConfig.getString("name");
-                    if (name == null || !name.matches("[A-Za-z0-9][A-Za-z0-9._-]{0,63}"))
-                    {
-                        throw new ModuleLoadException("Plex module name is invalid");
-                    }
-                    if (modules.stream().anyMatch(loaded -> loaded.getPlexModuleFile().getName().equalsIgnoreCase(name)))
-                    {
-                        throw new ModuleLoadException("Plex module name is already in use: " + name);
-                    }
-                    String storagePrefix = ModuleNames.prefix(name);
-                    if (modules.stream().anyMatch(loaded -> ModuleNames.prefix(loaded).equals(storagePrefix)))
-                    {
-                        throw new ModuleLoadException("Plex module storage name is already in use: " + storagePrefix);
-                    }
-
-                    String main = internalModuleConfig.getString("main");
-                    if (main == null)
-                    {
-                        throw new ModuleLoadException("Plex module main class can't be null!");
-                    }
-
-                    String description = internalModuleConfig.getString("description", "A Plex module");
-                    String version = internalModuleConfig.getString("version", "1.0");
-                    if (!internalModuleConfig.isInt("apiCompatibility"))
-                    {
-                        throw new ModuleLoadException("Plex module " + name + " must declare an integer apiCompatibility in module.yml");
-                    }
-
-                    int apiCompatibility = internalModuleConfig.getInt("apiCompatibility");
-                    if (apiCompatibility != plugin.getApi().apiCompatibilityVersion())
-                    {
-                        throw new ModuleLoadException("Plex module " + name + " requires API compatibility " + apiCompatibility + ", but this Plex build provides API compatibility " + plugin.getApi().apiCompatibilityVersion());
-                    }
-
-                    List<String> libraries = internalModuleConfig.getStringList("libraries");
-                    List<String> repositories = internalModuleConfig.getConfigurationSection("repositories") == null
-                            ? List.of()
-                            : internalModuleConfig.getConfigurationSection("repositories").getKeys(false).stream()
-                                    .map(id -> internalModuleConfig.getConfigurationSection("repositories").getString(id, ""))
-                                    .filter(repository -> !repository.isBlank())
-                                    .toList();
-                    boolean updaterEnabled = internalModuleConfig.getBoolean("updater.enabled", true);
-                    List<String> updateUrls = new ArrayList<>();
-                    String updateUrl = internalModuleConfig.getString("updater.url", "");
-                    if (!updateUrl.isBlank())
-                    {
-                        updateUrls.add(updateUrl);
-                    }
-                    updateUrls.addAll(internalModuleConfig.getStringList("updater.urls").stream()
-                            .filter(url -> !url.isBlank())
-                            .toList());
-
-                    PlexModuleFile plexModuleFile = new PlexModuleFile(name, main, description, version,
-                            apiCompatibility, libraries, repositories, updaterEnabled, updateUrls);
-                    Class<? extends PlexModule> module = Class.forName(main, false, loader).asSubclass(PlexModule.class);
-                    if (module.getClassLoader() != loader)
-                    {
-                        throw new ModuleLoadException("Plex module main class must be defined by " + file.getName());
-                    }
-
-                    PlexModule plexModule = module.getConstructor().newInstance();
-                    plexModule.setApi(plugin.getApi());
-                    plexModule.setPlexModuleFile(plexModuleFile);
-                    plexModule.setModuleJar(file);
-
-                    plexModule.setDataFolder(new File(plugin.getModulesFolder() + File.separator + plexModuleFile.getName()));
-                    if (!plexModule.getDataFolder().exists())
-                    {
-                        plexModule.getDataFolder().mkdir();
-                    }
-
-                    plexModule.setLogger(LogManager.getLogger(plexModuleFile.getName()));
-                    modules.add(plexModule);
-                    loader = null;
+                    loader.close();
                 }
-                catch (IOException | ReflectiveOperationException | ClassCastException e)
+                catch (IOException ex)
                 {
-                    PlexLog.warn("Skipping module " + file.getName() + ": " + e.getMessage());
-                }
-                catch (ModuleLoadException e)
-                {
-                    PlexLog.warn("Skipping module " + file.getName() + ": " + e.getMessage());
-                }
-                finally
-                {
-                    if (loader != null)
-                    {
-                        try
-                        {
-                            loader.close();
-                        }
-                        catch (IOException ex)
-                        {
-                            PlexLog.warn("Could not close module file " + file.getName() + ": " + ex.getMessage());
-                        }
-                    }
+                    PlexLog.warn("Could not close module file " + file.getName() + ": " + ex.getMessage());
                 }
             }
-        });
+        }
+    }
+
+    private PlexModuleFile readModuleFile(File file, URLClassLoader loader) throws IOException, ModuleLoadException
+    {
+        InputStream descriptor = loader.getResourceAsStream("module.yml");
+        if (descriptor == null)
+        {
+            throw new ModuleLoadException("Plex module " + file.getName() + " does not contain module.yml");
+        }
+        YamlConfiguration config;
+        try (descriptor; InputStreamReader reader = new InputStreamReader(descriptor, StandardCharsets.UTF_8))
+        {
+            config = YamlConfiguration.loadConfiguration(reader);
+        }
+        String name = config.getString("name");
+        if (!config.isInt("apiCompatibility"))
+        {
+            throw new ModuleLoadException("Plex module " + name + " must declare an integer apiCompatibility in module.yml");
+        }
+        int compatibility = config.getInt("apiCompatibility");
+        if (compatibility != plugin.getApi().apiCompatibilityVersion())
+        {
+            throw new ModuleLoadException("Plex module " + name + " requires API compatibility " + compatibility + ", but this Plex build provides API compatibility " + plugin.getApi().apiCompatibilityVersion());
+        }
+        List<String> repositories = config.getConfigurationSection("repositories") == null ? List.of()
+                : config.getConfigurationSection("repositories").getValues(false).values().stream()
+                        .map(String::valueOf).filter(repository -> !repository.isBlank()).toList();
+        List<String> updateUrls = new ArrayList<>(config.getStringList("updater.urls").stream()
+                .filter(url -> !url.isBlank()).toList());
+        String updateUrl = config.getString("updater.url", "");
+        if (!updateUrl.isBlank())
+        {
+            updateUrls.addFirst(updateUrl);
+        }
+        try
+        {
+            return new PlexModuleFile(name, config.getString("main"), config.getString("description", "A Plex module"),
+                    config.getString("version", "1.0"), compatibility, config.getStringList("libraries"), repositories,
+                    config.getBoolean("updater.enabled", true), updateUrls);
+        }
+        catch (IllegalArgumentException | NullPointerException e)
+        {
+            throw new ModuleLoadException("Invalid module.yml in " + file.getName() + ": " + e.getMessage());
+        }
+    }
+
+    private void rejectDuplicate(PlexModuleFile moduleFile) throws ModuleLoadException
+    {
+        if (modules.stream().anyMatch(loaded -> loaded.getPlexModuleFile().getName().equalsIgnoreCase(moduleFile.getName())))
+        {
+            throw new ModuleLoadException("Plex module name is already in use: " + moduleFile.getName());
+        }
+        String storagePrefix = ModuleNames.prefix(moduleFile.getName());
+        if (modules.stream().anyMatch(loaded -> ModuleNames.prefix(loaded).equals(storagePrefix)))
+        {
+            throw new ModuleLoadException("Plex module storage name is already in use: " + storagePrefix);
+        }
     }
 
     public void loadModules()

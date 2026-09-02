@@ -36,7 +36,6 @@ public class BanListCommand extends ServerCommand
     protected Component execute(@NotNull ServerCommandContext context)
     {
         CommandSender sender = context.sender();
-        Player playerSender = context.player();
         String[] args = context.args();
         if (args.length == 0)
         {
@@ -49,24 +48,21 @@ public class BanListCommand extends ServerCommand
                     return;
                 }
                 String names = StringUtils.join(punishments.stream()
-                        .map(punishment -> punishment.getResolvedPunishedName() == null || punishment.getResolvedPunishedName().isBlank()
-                                ? punishment.getPunished().toString() : punishment.getResolvedPunishedName()).toList(), ", ");
+                        .map(punishment -> StringUtils.defaultIfBlank(punishment.getResolvedPunishedName(),
+                                punishment.getPunished().toString())).toList(), ", ");
                 context.send(sender, context.messageComponent("activeBansList", punishments.size(), names));
             });
             return null;
         }
-        if (args[0].equalsIgnoreCase("purge") || args[0].equalsIgnoreCase("clear"))
+        if (java.util.Set.of("purge", "clear").contains(args[0].toLowerCase(java.util.Locale.ROOT)))
         {
             if (sender instanceof Player)
             {
                 return context.messageComponent("noPermissionInGame");
             }
-            if (!sender.getName().equalsIgnoreCase("console"))
+            if (!context.checkPermission(sender, "plex.banlist.clear"))
             {
-                if (!context.checkPermission(sender, "plex.banlist.clear"))
-                {
-                    return null;
-                }
+                return null;
             }
             plugin.getPunishmentManager().getActiveBans().whenComplete((punishments, throwable) ->
             {

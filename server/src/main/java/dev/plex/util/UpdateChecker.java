@@ -22,6 +22,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HexFormat;
 import java.util.List;
+import java.util.Set;
 
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -78,7 +79,7 @@ public class UpdateChecker
     public UpdateCheckResult checkForUpdates(boolean useCache)
     {
         String runningMinecraftVersion = getRunningMinecraftVersion();
-        if (runningMinecraftVersion == null || runningMinecraftVersion.isBlank() || "unknown".equalsIgnoreCase(runningMinecraftVersion))
+        if (Set.of("", "unknown").contains(runningMinecraftVersion.toLowerCase()))
         {
             return new UpdateCheckResult(UpdateCheckStatus.ERROR, null, UpdateMetadataClient.MetadataException.localError("running Minecraft version could not be determined"));
         }
@@ -134,6 +135,15 @@ public class UpdateChecker
 
     public void sendResultMessage(CommandSender sender, UpdateCheckResult result, int verbosity)
     {
+        if (verbosity == 0)
+        {
+            return;
+        }
+        if (result.status() == UpdateCheckStatus.ERROR)
+        {
+            sendErrorResult(sender, result.error(), verbosity);
+            return;
+        }
         switch (result.status())
         {
             case UP_TO_DATE:
@@ -143,60 +153,48 @@ public class UpdateChecker
                 }
                 break;
             case UPDATE_AVAILABLE:
-                if (verbosity >= 1)
-                {
-                    sender.sendMessage(PlexUtils.messageComponent("updateAvailable", result.metadata().version(), channel.id()));
-                    sender.sendMessage(PlexUtils.messageComponent("updateRunCommand"));
-                }
+                sender.sendMessage(PlexUtils.messageComponent("updateAvailable", result.metadata().version(), channel.id()));
+                sender.sendMessage(PlexUtils.messageComponent("updateRunCommand"));
                 break;
             case MINECRAFT_TOO_OLD:
-                if (verbosity >= 1)
-                {
-                    List<String> supportedVersions = sortedSupportedVersions(result.metadata());
-                    sender.sendMessage(PlexUtils.messageComponent("updateRequiresNewerMinecraft",
-                            result.metadata().version(), channel.id(), firstSupportedVersion(supportedVersions), getRunningMinecraftVersion(), String.join(", ", supportedVersions)));
-                }
+                List<String> newerSupportedVersions = sortedSupportedVersions(result.metadata());
+                sender.sendMessage(PlexUtils.messageComponent("updateRequiresNewerMinecraft",
+                        result.metadata().version(), channel.id(), firstSupportedVersion(newerSupportedVersions), getRunningMinecraftVersion(), String.join(", ", newerSupportedVersions)));
                 break;
             case MINECRAFT_TOO_NEW:
-                if (verbosity >= 1)
-                {
-                    List<String> supportedVersions = sortedSupportedVersions(result.metadata());
-                    sender.sendMessage(PlexUtils.messageComponent("updateUnsupportedNewerMinecraft",
-                            result.metadata().version(), channel.id(), lastSupportedVersion(supportedVersions), getRunningMinecraftVersion(), String.join(", ", supportedVersions)));
-                }
+                List<String> olderSupportedVersions = sortedSupportedVersions(result.metadata());
+                sender.sendMessage(PlexUtils.messageComponent("updateUnsupportedNewerMinecraft",
+                        result.metadata().version(), channel.id(), lastSupportedVersion(olderSupportedVersions), getRunningMinecraftVersion(), String.join(", ", olderSupportedVersions)));
                 break;
             case MINECRAFT_UNLISTED:
-                if (verbosity >= 1)
-                {
-                    List<String> supportedVersions = sortedSupportedVersions(result.metadata());
-                    sender.sendMessage(PlexUtils.messageComponent("updateRequiresMinecraftVersion",
-                            result.metadata().version(), channel.id(), String.join(", ", supportedVersions), getRunningMinecraftVersion()));
-                }
+                List<String> listedVersions = sortedSupportedVersions(result.metadata());
+                sender.sendMessage(PlexUtils.messageComponent("updateRequiresMinecraftVersion",
+                        result.metadata().version(), channel.id(), String.join(", ", listedVersions), getRunningMinecraftVersion()));
                 break;
-            case ERROR:
-                UpdateMetadataClient.MetadataException error = result.error();
-                if (error.notFound())
-                {
-                    if (verbosity == 2)
-                    {
-                        sender.sendMessage(PlexUtils.messageComponent("updateMetadataNotFound", channel.id()));
-                    }
-                    break;
-                }
-                if (verbosity >= 1)
-                {
-                    if (sender instanceof ConsoleCommandSender)
-                    {
-                        PlexLog.warn("Unable to check for updates right now; the updater will try again later.");
-                    }
-                    else
-                    {
-                        sender.sendMessage(updateMetadataErrorComponent(error));
-                    }
-                    PlexLog.debug("Update metadata check failed: {0}", error.getMessage());
-                }
-                break;
+            default:
+                throw new IllegalStateException("error result was not handled");
         }
+    }
+
+    private void sendErrorResult(CommandSender sender, UpdateMetadataClient.MetadataException error, int verbosity)
+    {
+        if (error.notFound())
+        {
+            if (verbosity == 2)
+            {
+                sender.sendMessage(PlexUtils.messageComponent("updateMetadataNotFound", channel.id()));
+            }
+            return;
+        }
+        if (sender instanceof ConsoleCommandSender)
+        {
+            PlexLog.warn("Unable to check for updates right now; the updater will try again later.");
+        }
+        else
+        {
+            sender.sendMessage(updateMetadataErrorComponent(error));
+        }
+        PlexLog.debug("Update metadata check failed: {0}", error.getMessage());
     }
 
     // If verbose is 0, it will display nothing

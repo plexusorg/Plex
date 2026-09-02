@@ -14,7 +14,6 @@ import org.bukkit.Bukkit;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
-import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Collection;
@@ -182,28 +181,8 @@ public class PunishmentManager
 
     public CompletableFuture<Void> punish(PlexPlayer player, Punishment punishment)
     {
-        Objects.requireNonNull(player, "player");
-        Objects.requireNonNull(punishment, "punishment");
-        if (!player.getUuid().equals(punishment.getPunished()))
-            return CompletableFuture.failedFuture(new IllegalArgumentException("Punishment and player UUIDs differ"));
-        if (punishment.getType() == null)
-            return CompletableFuture.failedFuture(new IllegalArgumentException("Punishment type is required"));
-        if (punishment.getIssueDate() == null)
-            return CompletableFuture.failedFuture(new IllegalArgumentException("Punishment issue date is required"));
         punishment.getType().fixedDuration().ifPresent(duration ->
                 punishment.setEndDate(punishment.getIssueDate().plus(duration)));
-        if (punishment.getType().requiresEndDate() && punishment.getEndDate() == null)
-            return CompletableFuture.failedFuture(new IllegalArgumentException(punishment.getType() + " requires an end date"));
-        if (!punishment.getType().requiresEndDate() && punishment.getEndDate() != null)
-            return CompletableFuture.failedFuture(new IllegalArgumentException(punishment.getType() + " must not have an end date"));
-        if (punishment.getEndDate() != null && !punishment.getEndDate().toInstant().isAfter(Instant.now()))
-            return CompletableFuture.failedFuture(new IllegalArgumentException(punishment.getType() + " requires a future end date"));
-        if (punishment.getEndDate() != null && punishment.getType().maximumDuration().isPresent()
-                && punishment.getEndDate().toInstant().isAfter(punishment.getIssueDate().toInstant()
-                .plus(punishment.getType().maximumDuration().orElseThrow())))
-            return CompletableFuture.failedFuture(new IllegalArgumentException(punishment.getType() + " exceeds its maximum duration"));
-        if (punishment.getReason() == null)
-            return CompletableFuture.failedFuture(new IllegalArgumentException("Punishment reason is required"));
         if (punishment.getIp() != null) punishment.setIp(BanDecisionService.canonicalIp(punishment.getIp()));
         punishment.setActive(punishment.getType().startsActive());
 
@@ -230,7 +209,8 @@ public class PunishmentManager
                             Punishment.generateBanMessage(punishment, plugin.config.getString("banning.ban_url")));
                 }
             }
-            restoreTimedState(player, punishment.getType());
+            if (punishment.getType() == PunishmentType.MUTE || punishment.getType() == PunishmentType.FREEZE)
+                restoreTimedState(player, punishment.getType());
         });
     }
 
@@ -251,16 +231,17 @@ public class PunishmentManager
 
     private void restoreTimedState(PlexPlayer player, PunishmentType type)
     {
-        if (type != PunishmentType.MUTE && type != PunishmentType.FREEZE) return;
         ZonedDateTime now = ZonedDateTime.now(TimeUtils.zoneId());
-        boolean permanent = player.getPunishments().stream()
-                .anyMatch(p -> p.getType() == type && p.isActive() && p.getEndDate() == null);
-        ZonedDateTime deadline = player.getPunishments().stream()
-                .filter(p -> p.getType() == type && p.isActive() && p.getEndDate() != null && p.getEndDate().isAfter(now))
-                .map(Punishment::getEndDate).max(ZonedDateTime::compareTo).orElse(null);
-        boolean hasExpired = player.getPunishments().stream().anyMatch(p -> p.getType() == type && p.isActive()
-                && p.getEndDate() != null && !p.getEndDate().isAfter(now));
-        setTimedFlag(player, type, permanent || deadline != null);
+        List<Punishment> active = player.getPunishments().stream()
+                .filter(punishment -> punishment.getType() == type)
+                .filter(Punishment::isActive)
+                .toList();
+        ZonedDateTime deadline = active.stream().map(Punishment::getEndDate)
+                .filter(endDate -> endDate.isAfter(now))
+                .max(ZonedDateTime::compareTo).orElse(null);
+        boolean hasExpired = active.stream().map(Punishment::getEndDate)
+                .anyMatch(endDate -> !endDate.isAfter(now));
+        setTimedFlag(player, type, deadline != null);
         if (hasExpired) expireRows(player, type, now, false);
 
         StateKey key = new StateKey(player.getUuid(), type);
@@ -278,9 +259,7 @@ public class PunishmentManager
 
     private void expireRows(PlexPlayer player, PunishmentType type, ZonedDateTime now, boolean announce)
     {
-        boolean stillActive = player.getPunishments().stream().anyMatch(p -> p.getType() == type && p.isActive()
-                && (p.getEndDate() == null || p.getEndDate().isAfter(now)));
-        setTimedFlag(player, type, stillActive);
+        setTimedFlag(player, type, isTimedActive(player, type));
         plugin.getPunishmentRepository().expirePunishments(type, player.getUuid(), now.toInstant()).whenComplete((unused, failure) ->
         {
             if (failure != null)

@@ -28,15 +28,17 @@ public final class BanKickUtil
         String canonicalIp = BanDecisionService.canonicalIp(ip);
         for (Player player : Bukkit.getOnlinePlayers())
         {
-            boolean uuidMatch = uuid != null && player.getUniqueId().equals(uuid);
-            if (!uuidMatch && (canonicalIp.isEmpty() || player.getAddress() == null || player.getAddress().getAddress() == null))
+            if (uuid != null && player.getUniqueId().equals(uuid))
+            {
+                plugin.getApi().scheduler().runEntity(player, () -> BungeeUtil.kickPlayer(plugin, player, message));
+                continue;
+            }
+            if (canonicalIp.isEmpty() || player.getAddress() == null || player.getAddress().getAddress() == null)
             {
                 continue;
             }
-            boolean ipMatch = !canonicalIp.isEmpty() && player.getAddress() != null
-                    && player.getAddress().getAddress() != null && canonicalIp.equals(
-                    BanDecisionService.canonicalIp(player.getAddress().getAddress().getHostAddress()));
-            if (uuidMatch || ipMatch)
+            String playerIp = BanDecisionService.canonicalIp(player.getAddress().getAddress().getHostAddress());
+            if (canonicalIp.equals(playerIp))
             {
                 plugin.getApi().scheduler().runEntity(player, () -> BungeeUtil.kickPlayer(plugin, player, message));
             }

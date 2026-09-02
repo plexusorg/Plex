@@ -10,6 +10,7 @@ import io.papermc.paper.command.brigadier.CommandSourceStack;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import net.kyori.adventure.text.Component;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
@@ -19,6 +20,15 @@ import org.jetbrains.annotations.NotNull;
 /** Creates and manages WorldGuard regions using configurable flag presets. */
 public final class ProtectCMD extends ServerCommand
 {
+    private static final Map<String, String> ERROR_MESSAGES = Map.of(
+            "region-exists", "protectRegionExists",
+            "region-not-found", "protectRegionNotFound",
+            "preset-not-found", "protectPresetNotFound",
+            "invalid-region-id", "protectInvalidRegionId",
+            "manager-unavailable", "protectManagerUnavailable",
+            "player-only", "protectPlayerOnly",
+            "unsupported-region", "protectUnsupportedRegion",
+            "managed-other-world", "protectManagedOtherWorld");
     private final WorldGuardHook worldGuard;
 
     public ProtectCMD(WorldGuardHook worldGuard)
@@ -85,18 +95,8 @@ public final class ProtectCMD extends ServerCommand
         }
         catch (ProtectionException ex)
         {
-            return switch (ex.reason())
-            {
-                case "region-exists" -> context.messageComponent("protectRegionExists", ex.detail());
-                case "region-not-found" -> context.messageComponent("protectRegionNotFound", ex.detail());
-                case "preset-not-found" -> context.messageComponent("protectPresetNotFound", ex.detail());
-                case "invalid-region-id" -> context.messageComponent("protectInvalidRegionId", ex.detail());
-                case "manager-unavailable" -> context.messageComponent("protectManagerUnavailable", ex.detail());
-                case "player-only" -> context.messageComponent("protectPlayerOnly");
-                case "unsupported-region" -> context.messageComponent("protectUnsupportedRegion", ex.detail());
-                case "managed-other-world" -> context.messageComponent("protectManagedOtherWorld", ex.detail());
-                default -> context.messageComponent("protectInvalidPreset", ex.detail());
-            };
+            String message = ERROR_MESSAGES.getOrDefault(ex.reason(), "protectInvalidPreset");
+            return context.messageComponent(message, ex.detail());
         }
         catch (IncompleteRegionException ex)
         {

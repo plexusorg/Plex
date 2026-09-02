@@ -120,13 +120,10 @@ public final class UpdateMetadataClient
             connection = (HttpURLConnection) uri.toURL().openConnection();
             connection.setConnectTimeout(10000);
             connection.setReadTimeout(10000);
+            connection.setInstanceFollowRedirects(false);
             connection.setRequestProperty("Accept", "application/json");
 
             int statusCode = connection.getResponseCode();
-            if (!"https".equalsIgnoreCase(connection.getURL().getProtocol()))
-            {
-                throw new MetadataException("metadata request redirected to a non-HTTPS URL for " + path + " on " + baseUrl, false);
-            }
             if (statusCode == HttpURLConnection.HTTP_NOT_FOUND)
             {
                 throw new MetadataException("no compatible update metadata exists at " + path + " on " + baseUrl, true);
@@ -165,10 +162,7 @@ public final class UpdateMetadataClient
         }
         finally
         {
-            if (connection != null)
-            {
-                connection.disconnect();
-            }
+            Optional.ofNullable(connection).ifPresent(HttpURLConnection::disconnect);
         }
     }
 

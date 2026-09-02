@@ -25,31 +25,12 @@ public class BlockListener extends ServerListenerBase
         super(plugin);
     }
 
-    private static final List<Material> blockedBlocks = new ArrayList<>();
     private static final List<Material> SIGNS = Arrays.stream(Material.values()).filter((mat) -> mat.name().endsWith("_SIGN")).toList();
-    private static List<String> cachedBlockedBlocksConfig = null;
     public static final List<String> blockedPlayers = new ArrayList<>();
 
     @EventHandler(priority = EventPriority.LOW)
     public void onBlockPlace(BlockPlaceEvent event)
     {
-        List<String> blockedBlocksConfig = plugin.entities.getStringList("blocked_blocks");
-        if (blockedBlocksConfig != cachedBlockedBlocksConfig)
-        {
-            blockedBlocks.clear();
-            cachedBlockedBlocksConfig = blockedBlocksConfig;
-            for (String block : blockedBlocksConfig)
-            {
-                try
-                {
-                    blockedBlocks.add(Material.valueOf(block.toUpperCase()));
-                }
-                catch (IllegalArgumentException ignored)
-                {
-                }
-            }
-        }
-
         Block block = event.getBlock();
 
         if (blockedPlayers.contains(event.getPlayer().getName()))
@@ -58,7 +39,8 @@ public class BlockListener extends ServerListenerBase
             return;
         }
 
-        if (blockedBlocks.contains(block.getType()))
+        if (plugin.entities.getStringList("blocked_blocks").stream()
+                .anyMatch(configuredBlock -> configuredBlock.equalsIgnoreCase(block.getType().name())))
         {
             block.setType(Material.CAKE);
             PlexUtils.disabledEffect(event.getPlayer(), block.getLocation().add(0.5, 0.5, 0.5));
@@ -67,28 +49,20 @@ public class BlockListener extends ServerListenerBase
         if (SIGNS.contains(block.getType()))
         {
             Sign sign = (Sign) block.getState();
-            boolean anythingChanged = false;
-            for (int i = 0; i < sign.getSide(Side.FRONT).lines().size(); i++)
+            boolean changed = false;
+            for (Side side : Side.values())
             {
-                Component line = sign.getSide(Side.FRONT).line(i);
-                if (line.clickEvent() != null)
+                for (int lineNumber = 0; lineNumber < sign.getSide(side).lines().size(); lineNumber++)
                 {
-                    anythingChanged = true;
-                    sign.getSide(Side.FRONT).line(i, line.clickEvent(null));
+                    Component line = sign.getSide(side).line(lineNumber);
+                    if (line.clickEvent() != null)
+                    {
+                        sign.getSide(side).line(lineNumber, line.clickEvent(null));
+                        changed = true;
+                    }
                 }
             }
-
-            for (int i = 0; i < sign.getSide(Side.BACK).lines().size(); i++)
-            {
-                Component line = sign.getSide(Side.BACK).line(i);
-                if (line.clickEvent() != null)
-                {
-                    anythingChanged = true;
-                    sign.getSide(Side.BACK).line(i, line.clickEvent(null));
-                }
-            }
-
-            if (anythingChanged)
+            if (changed)
             {
                 sign.update(true);
                 PlexUtils.disabledEffect(event.getPlayer(), block.getLocation().add(0.5, 0.5, 0.5));

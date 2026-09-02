@@ -55,8 +55,6 @@ public class TempbanCMD extends ServerCommand
         }
 
         PlexPlayer target = plugin.getPlayerService().getPlayer(args[0]);
-        String reason;
-
         if (target == null)
         {
             throw new PlayerNotFoundException();
@@ -65,16 +63,13 @@ public class TempbanCMD extends ServerCommand
         punishment.setResolvedPunisherName(context.senderName());
         punishment.setType(PunishmentType.TEMPBAN);
         boolean rollBack = false;
+        punishment.setReason(context.messageString("noReasonProvided"));
         if (args.length > 2)
         {
-            reason = StringUtils.join(args, " ", 2, args.length);
+            String reason = StringUtils.join(args, " ", 2, args.length);
             String newReason = StringUtils.normalizeSpace(reason.replace("-rb", ""));
             punishment.setReason(newReason.trim().isEmpty() ? context.messageString("noReasonProvided") : newReason);
-            rollBack = reason.startsWith("-rb") || reason.endsWith("-rb");
-        }
-        else
-        {
-            punishment.setReason(context.messageString("noReasonProvided"));
+            rollBack = List.of(args[2], args[args.length - 1]).contains("-rb");
         }
         try
         {

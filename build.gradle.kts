@@ -11,6 +11,8 @@ version = "2.0-SNAPSHOT"
 description = "Plex"
 
 subprojects {
+    apply(plugin = "checkstyle")
+
     repositories {
         maven {
             url = uri("https://repo.papermc.io/repository/maven-public/")
@@ -32,6 +34,10 @@ subprojects {
     }
 
     plugins.withId("java") {
+        extensions.configure<CheckstyleExtension> {
+            toolVersion = "14.1.0"
+            configFile = rootProject.file("config/checkstyle/checkstyle.xml")
+        }
         extensions.configure<JavaPluginExtension> {
             toolchain.languageVersion.set(JavaLanguageVersion.of(25))
         }

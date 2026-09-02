@@ -6,8 +6,6 @@ import dev.plex.command.ServerCommandContext;
 import dev.plex.listener.impl.BlockListener;
 import dev.plex.util.PlexUtils;
 
-import java.util.List;
-
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -30,7 +28,6 @@ public class BlockEditCMD extends ServerCommand
     @Override
     protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
     {
-        command.executes(context -> executeCommand(context));
         command.then(literal("list")
                 .executes(context -> executeCommand(context, "list")));
         command.then(literal("purge")
@@ -45,24 +42,16 @@ public class BlockEditCMD extends ServerCommand
     protected Component execute(@NotNull ServerCommandContext context)
     {
         CommandSender sender = context.sender();
-        Player playerSender = context.player();
         String[] args = context.args();
-        if (args.length == 0)
-        {
-            return context.usage();
-        }
-
         if (args[0].equalsIgnoreCase("list"))
         {
             context.send(sender, context.messageComponent("listOfPlayersBlocked"));
 
-            int count = 0;
-            for (String player : BlockListener.blockedPlayers.stream().toList())
+            for (String player : BlockListener.blockedPlayers)
             {
                 context.send(sender, context.messageComponent("blockeditListEntry", player));
-                ++count;
             }
-            if (count == 0)
+            if (BlockListener.blockedPlayers.isEmpty())
             {
                 context.send(sender, context.messageComponent("blockeditListNone"));
             }
@@ -71,15 +60,8 @@ public class BlockEditCMD extends ServerCommand
         else if (args[0].equalsIgnoreCase("purge"))
         {
             PlexUtils.broadcast(context.messageComponent("unblockingEdits", context.senderName(), context.messageString("blockeditAllPlayers")));
-            int count = 0;
-            for (String player : BlockListener.blockedPlayers.stream().toList())
-            {
-                if (BlockListener.blockedPlayers.contains(player))
-                {
-                    BlockListener.blockedPlayers.remove(player);
-                    ++count;
-                }
-            }
+            int count = BlockListener.blockedPlayers.size();
+            BlockListener.blockedPlayers.clear();
             return context.messageComponent("blockeditSize", context.messageString("blockeditUnblockedAction"), count);
         }
         else if (args[0].equalsIgnoreCase("all"))

@@ -13,6 +13,7 @@ import dev.plex.network.VanishBridgeMessage;
 import dev.plex.util.PlexLog;
 import java.io.IOException;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -66,12 +67,14 @@ public class ConnectionListener extends ProxyListener
         try
         {
             VanishBridgeMessage message = VanishBridgeMessage.decode(event.getData());
-            Player player = plugin.getServer().getPlayer(message.playerId()).orElse(null);
-            if (player == null || player.getCurrentServer().isEmpty()
-                    || !player.getCurrentServer().get().getServerInfo().getName().equals(backend.getServerInfo().getName()))
+            Optional<Player> connectedPlayer = plugin.getServer().getPlayer(message.playerId());
+            if (connectedPlayer.flatMap(Player::getCurrentServer)
+                    .filter(connection -> connection.getServerInfo().getName().equals(backend.getServerInfo().getName()))
+                    .isEmpty())
             {
                 return;
             }
+            Player player = connectedPlayer.orElseThrow();
 
             switch (message.action())
             {

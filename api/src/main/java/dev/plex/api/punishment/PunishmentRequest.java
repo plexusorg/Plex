@@ -1,5 +1,6 @@
 package dev.plex.api.punishment;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -36,26 +37,41 @@ public record PunishmentRequest(UUID punished, @Nullable UUID punisher, Punishme
         {
             throw new IllegalArgumentException("A player punishment must have a punisher UUID");
         }
-        if (type.fixedDuration().isPresent())
+        endDate = validateEndDate(type, endDate);
+    }
+
+    private static ZonedDateTime validateEndDate(PunishmentType type, @Nullable ZonedDateTime endDate)
+    {
+        Instant now = Instant.now();
+        Duration fixedDuration = type.fixedDuration().orElse(null);
+        if (fixedDuration != null)
         {
-            endDate = ZonedDateTime.ofInstant(Instant.now().plus(type.fixedDuration().orElseThrow()), ZoneOffset.UTC);
+            return ZonedDateTime.ofInstant(now.plus(fixedDuration), ZoneOffset.UTC);
         }
-        else if (type.requiresEndDate() && endDate == null)
+
+        if (!type.requiresEndDate())
+        {
+            if (endDate != null)
+            {
+                throw new IllegalArgumentException(type + " must not have an end date");
+            }
+            return null;
+        }
+
+        if (endDate == null)
         {
             throw new IllegalArgumentException(type + " requires an end date");
         }
-        if (!type.requiresEndDate() && endDate != null)
-        {
-            throw new IllegalArgumentException(type + " must not have an end date");
-        }
-        if (endDate != null && !endDate.toInstant().isAfter(Instant.now()))
+        if (!endDate.toInstant().isAfter(now))
         {
             throw new IllegalArgumentException(type + " requires a future end date");
         }
-        if (endDate != null && type.maximumDuration().isPresent()
-                && endDate.toInstant().isAfter(Instant.now().plus(type.maximumDuration().orElseThrow())))
+
+        Duration maximumDuration = type.maximumDuration().orElse(null);
+        if (maximumDuration != null && endDate.toInstant().isAfter(now.plus(maximumDuration)))
         {
             throw new IllegalArgumentException(type + " exceeds its maximum duration");
         }
+        return endDate;
     }
 }

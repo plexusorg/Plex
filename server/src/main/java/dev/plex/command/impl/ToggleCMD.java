@@ -51,25 +51,9 @@ public class ToggleCMD extends ServerCommand
         {
             switch (args[0].toLowerCase())
             {
-                case "explosions" ->
+                case "explosions", "fluidspread", "drops", "redstone", "pvp" ->
                 {
-                    return toggle(context, "explosions");
-                }
-                case "fluidspread" ->
-                {
-                    return toggle(context, "fluidspread");
-                }
-                case "drops" ->
-                {
-                    return toggle(context, "drops");
-                }
-                case "redstone" ->
-                {
-                    return toggle(context, "redstone");
-                }
-                case "pvp" ->
-                {
-                    return toggle(context, "pvp");
+                    return toggle(context, args[0].toLowerCase());
                 }
                 case "chat" ->
                 {

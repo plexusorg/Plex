@@ -3,14 +3,17 @@ package dev.plex.command.impl;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
 import dev.plex.command.ServerCommandContext;
-import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
@@ -64,63 +67,37 @@ public class EntityWipeCMD extends ServerCommand
         String[] args = context.args();
         List<String> entityBlacklist = plugin.entities.getStringList("entitywipe_list");
 
-        List<String> entityWhitelist = new LinkedList<>(Arrays.asList(args));
+        String lastArgument = Arrays.stream(args).reduce((first, second) -> second).orElse("");
+        boolean radiusSpecified = org.apache.commons.lang3.math.NumberUtils.isParsable(lastArgument);
+        int radius = org.apache.commons.lang3.math.NumberUtils.toInt(lastArgument);
+        int entityArgumentCount = args.length - Boolean.compare(radiusSpecified, false);
+        List<String> entityWhitelist = new LinkedList<>(Arrays.asList(args).subList(0, entityArgumentCount));
 
-        boolean radiusSpecified = !entityWhitelist.isEmpty() && isNumeric(entityWhitelist.getLast()); // try and detect if the last argument of the command is a number
-        boolean useBlacklist = args.length == 0 || (args.length == 1 && radiusSpecified); // if there are no arguments or the one argument is a number
-        int radius = 0;
-
-        PlexLog.debug("using blacklist: " + useBlacklist);
-        PlexLog.debug("radius specified: " + radiusSpecified);
-
-        if (radiusSpecified)
-        {
-            radius = parseInt(context, sender, entityWhitelist.getLast()); // get the args length as the size of the list
-            radius *= radius;
-            entityWhitelist.removeLast(); // remove the radius from the list
-        }
-
-        PlexLog.debug("radius: " + radius);
-
-        EntityType[] entityTypes = EntityType.values();
-        entityWhitelist.removeIf(name ->
-        {
-            boolean res = Arrays.stream(entityTypes).noneMatch(entityType -> name.equalsIgnoreCase(entityType.name()));
-            if (res)
-            {
-                context.send(sender, context.messageComponent("invalidEntityType", name));
-            }
-            return res;
-        });
-
+        boolean useBlacklist = entityWhitelist.isEmpty();
+        Collection<String> selectedTypes = (useBlacklist ? entityBlacklist : entityWhitelist).stream()
+                .map(name -> name.toUpperCase(Locale.ROOT))
+                .collect(Collectors.toSet());
+        Player radiusCenter = Optional.ofNullable(playerSender).filter(player -> radius != 0).orElse(null);
+        int range = Math.abs(radius);
+        Collection<Entity> entities = radiusCenter != null
+                ? radiusCenter.getWorld().getNearbyEntities(radiusCenter.getLocation(), range, range, range,
+                        entity -> radiusCenter.getLocation().distanceSquared(entity.getLocation()) <= range * range)
+                : Bukkit.getWorlds().stream().flatMap(world -> world.getEntities().stream()).toList();
         HashMap<String, Integer> entityCounts = new HashMap<>();
 
-        for (World world : Bukkit.getWorlds())
+        for (Entity entity : entities)
         {
-            for (Entity entity : world.getEntities())
+            if (entity.getType() == EntityType.PLAYER)
             {
-                if (entity.getType() != EntityType.PLAYER)
-                {
-                    String type = entity.getType().name();
-
-                    if (useBlacklist ? entityBlacklist.stream().noneMatch(entityName -> entityName.equalsIgnoreCase(type)) : entityWhitelist.stream().anyMatch(entityName -> entityName.equalsIgnoreCase(type)))
-                    {
-                        if (radius > 0)
-                        {
-                            PlexLog.debug("we got here, radius is > 0");
-                            if (playerSender != null && entity.getWorld() == playerSender.getWorld() && playerSender.getLocation().distanceSquared(entity.getLocation()) > radius)
-                            {
-                                PlexLog.debug("continuing");
-                                continue;
-                            }
-                        }
-                        PlexLog.debug("removed entity: " + entity.getType().name());
-                        entity.remove();
-
-                        entityCounts.put(type, entityCounts.getOrDefault(type, 0) + 1);
-                    }
-                }
+                continue;
             }
+            String type = entity.getType().name();
+            if (selectedTypes.contains(type) == useBlacklist)
+            {
+                continue;
+            }
+            entity.remove();
+            entityCounts.merge(type, 1, Integer::sum);
         }
 
         int entityCount = entityCounts.values().stream().mapToInt(a -> a).sum();
@@ -141,35 +118,5 @@ public class EntityWipeCMD extends ServerCommand
             PlexUtils.broadcast(context.messageComponent("removedEntitiesOfTypes", context.senderName(), entityCount, list));
         }
         return null;
-    }
-
-    private Integer parseInt(ServerCommandContext context, CommandSender sender, String string)
-    {
-        try
-        {
-            return Integer.parseInt(string);
-        }
-        catch (NumberFormatException ex)
-        {
-            sender.sendMessage(context.messageComponent("notANumber", string));
-        }
-        return null;
-    }
-
-    private boolean isNumeric(String string)
-    {
-        if (string == null)
-        {
-            return false;
-        }
-        try
-        {
-            int num = Integer.parseInt(string);
-        }
-        catch (NumberFormatException nfe)
-        {
-            return false;
-        }
-        return true;
     }
 }

@@ -17,7 +17,6 @@ import dev.plex.command.exception.ConsoleOnlyException;
 import dev.plex.command.exception.PlayerNotBannedException;
 import dev.plex.command.exception.PlayerNotFoundException;
 import dev.plex.command.source.RequiredCommandSource;
-import dev.plex.player.PlexPlayer;
 import dev.plex.util.PlexUtils;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
@@ -27,9 +26,7 @@ import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
@@ -255,46 +252,19 @@ public abstract class ServerCommand implements PlexCommand
     private boolean canUse(CommandSourceStack source)
     {
         CommandSender sender = source.getSender();
-        if (commandSource == RequiredCommandSource.CONSOLE && sender instanceof Player)
-        {
-            return false;
-        }
-
-        if (commandSource == RequiredCommandSource.IN_GAME && !(sender instanceof Player))
-        {
-            return false;
-        }
-
-        String permission = getPermission();
-        if (permission.isEmpty())
-        {
-            return !(sender instanceof Player player) || hasCachedPlexPlayer(player);
-        }
-
         if (sender instanceof Player player)
         {
-            return hasCachedPlexPlayer(player) && player.hasPermission(permission);
+            return commandSource != RequiredCommandSource.CONSOLE
+                    && hasCachedPlexPlayer(player)
+                    && (getPermission().isEmpty() || player.hasPermission(getPermission()));
         }
-
-        if (sender instanceof ConsoleCommandSender && !sender.getName().equalsIgnoreCase("console"))
-        {
-            PlexPlayer plexPlayer = plugin.getPlayerService().getPlayer(sender.getName());
-            Player player = plexPlayer == null ? null : Bukkit.getPlayer(plexPlayer.getName());
-            return player != null && plugin.getPermissions().playerHas(null, player, permission);
-        }
-
-        return true;
+        return commandSource != RequiredCommandSource.IN_GAME;
     }
 
     private int dispatchCommand(CommandContext<CommandSourceStack> brigadierContext, String[] args)
     {
         ServerCommandContext context = new ServerCommandContext(plugin, this, brigadierContext, args);
         CommandSender sender = context.sender();
-        if (!validateSourceAndPermission(sender, context))
-        {
-            return com.mojang.brigadier.Command.SINGLE_SUCCESS;
-        }
-
         try
         {
             Component component = this.execute(context);
@@ -309,54 +279,6 @@ public abstract class ServerCommand implements PlexCommand
             context.send(sender, context.exceptionComponent(ex));
         }
         return com.mojang.brigadier.Command.SINGLE_SUCCESS;
-    }
-
-    private boolean validateSourceAndPermission(CommandSender sender, ServerCommandContext context)
-    {
-        if (commandSource == RequiredCommandSource.CONSOLE && sender instanceof Player)
-        {
-            context.send(sender, context.messageComponent("noPermissionInGame"));
-            return false;
-        }
-
-        if (commandSource == RequiredCommandSource.IN_GAME && context.isConsole())
-        {
-            context.send(sender, context.messageComponent("noPermissionConsole"));
-            return false;
-        }
-
-        String permission = getPermission();
-        if (permission.isEmpty())
-        {
-            return true;
-        }
-
-        if (sender instanceof Player player)
-        {
-            if (!hasCachedPlexPlayer(player))
-            {
-                return false;
-            }
-            if (!player.hasPermission(permission))
-            {
-                context.send(sender, context.messageComponent("noPermissionNode", permission));
-                return false;
-            }
-            return true;
-        }
-
-        if (sender instanceof ConsoleCommandSender && !sender.getName().equalsIgnoreCase("console"))
-        {
-            PlexPlayer plexPlayer = plugin.getPlayerService().getPlayer(sender.getName());
-            Player player = plexPlayer == null ? null : Bukkit.getPlayer(plexPlayer.getName());
-            if (player == null || !plugin.getPermissions().playerHas(null, player, permission))
-            {
-                context.send(sender, context.messageComponent("noPermissionNode", permission));
-                return false;
-            }
-        }
-
-        return true;
     }
 
     private boolean hasCachedPlexPlayer(Player player)

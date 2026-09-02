@@ -67,12 +67,16 @@ public class ListCMD extends ServerCommand
         {
             Player player = players.get(i);
             Component prefix = VaultHook.getPrefix(context.getPlexPlayer(player));
-            if (prefix != null && !prefix.equals(Component.empty()) && !prefix.equals(Component.space()))
+            if (prefix == null)
+            {
+                prefix = Component.empty();
+            }
+            if (!List.of(Component.empty(), Component.space()).contains(prefix))
             {
                 list = list.append(prefix).append(Component.space());
             }
             list = list.append(Component.text(player.getName()).color(NamedTextColor.WHITE));
-            if (args.length > 0 && args[0].equalsIgnoreCase("-d"))
+            if (List.of(args).contains("-d"))
             {
                 list = list.append(Component.space());
                 list = list.append(Component.text("(").color(NamedTextColor.WHITE));

@@ -6,6 +6,7 @@ import dev.plex.command.ServerCommandContext;
 import dev.plex.util.PlexUtils;
 
 import java.util.Arrays;
+import java.util.Map;
 
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
@@ -18,6 +19,8 @@ import org.jetbrains.annotations.NotNull;
 
 public class MobLimitCMD extends ServerCommand
 {
+    private static final Map<Boolean, String> LIMIT_STATUS = Map.of(
+            true, "mobLimitEnabled", false, "mobLimitDisabled");
     public MobLimitCMD()
     {
         super(command("moblimit")
@@ -49,26 +52,22 @@ public class MobLimitCMD extends ServerCommand
         if (args.length == 0)
         {
             Chunk chunk = playerSender != null ? playerSender.getLocation().getChunk() : Bukkit.getWorlds().getFirst().getChunkAt(0, 0);
-
             int currentLimit = plugin.entities.getInt("entity_limit.max_mobs_per_chunk");
             int currentMobCount = (int) Arrays.stream(chunk.getEntities())
-                    .filter(entity -> entity instanceof LivingEntity && !(entity instanceof Player))
+                    .filter(LivingEntity.class::isInstance)
+                    .filter(entity -> !(entity instanceof Player))
                     .count();
-
-            String status = PlexUtils.messageString(plugin.entities.getBoolean("entity_limit.mob_limit_enabled") ? "mobLimitEnabled" : "mobLimitDisabled");
+            String status = PlexUtils.messageString(LIMIT_STATUS.get(plugin.entities.getBoolean("entity_limit.mob_limit_enabled")));
             return PlexUtils.messageComponent("mobLimitStatus", status, currentMobCount, currentLimit, chunk.getX(), chunk.getZ());
         }
 
         switch (args[0].toLowerCase())
         {
-            case "on":
-                plugin.entities.set("entity_limit.mob_limit_enabled", true);
+            case "on", "off":
+                boolean enabled = args[0].equalsIgnoreCase("on");
+                plugin.entities.set("entity_limit.mob_limit_enabled", enabled);
                 plugin.entities.save();
-                return PlexUtils.messageComponent("mobLimitToggle", PlexUtils.messageString("stateEnabled"));
-            case "off":
-                plugin.entities.set("entity_limit.mob_limit_enabled", false);
-                plugin.entities.save();
-                return PlexUtils.messageComponent("mobLimitToggle", PlexUtils.messageString("stateDisabled"));
+                return PlexUtils.messageComponent("mobLimitToggle", PlexUtils.messageString(enabled ? "stateEnabled" : "stateDisabled"));
             case "setmax":
                 try
                 {
@@ -76,20 +75,17 @@ public class MobLimitCMD extends ServerCommand
                     {
                         return context.usage();
                     }
-
                     int newLimit = Integer.parseInt(args[1]);
                     if (newLimit < 0)
                     {
                         throw new NumberFormatException();
                     }
-
                     int limitCeiling = plugin.entities.getInt("entity_limit.mob_limit_ceiling");
                     if (newLimit > limitCeiling)
                     {
                         newLimit = limitCeiling;
                         sender.sendMessage(PlexUtils.messageComponent("mobLimitCeiling"));
                     }
-
                     plugin.entities.set("entity_limit.max_mobs_per_chunk", newLimit);
                     plugin.entities.save();
                     return PlexUtils.messageComponent("mobLimitSet", newLimit);

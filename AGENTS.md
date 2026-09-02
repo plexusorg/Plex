@@ -43,6 +43,14 @@ Do not edit code until the failure is understood well enough to state its root c
 
 ## Keep code simple
 
+- Production methods and constructors must have cyclomatic complexity no greater than 10, as enforced by Checkstyle.
+- Treat a complexity violation as evidence that the method probably contains unnecessary behavior, states, or defensive
+  ceremony. Simplify or delete those first; method extraction is not the default remediation.
+- Do not satisfy the complexity limit by mechanically extracting branches into helper methods. Any extracted method
+  must be independently justified by a cohesive responsibility, even if complexity enforcement did not exist. The
+  extraction must make the design simpler, not merely distribute one decision tree across methods.
+- Do not suppress a cyclomatic-complexity violation as a routine fix. Any exceptional algorithm whose complexity is
+  genuinely inherent requires an explicit justification before a narrowly scoped suppression is added.
 - Use direct API calls when they are already correct. Do not replace `sender.sendMessage(...)` or
   `player.sendMessage(...)` with a Plex wrapper that adds no behavior.
 - A public API exposes a stable capability; it is not mandatory indirection for Plex's own code.

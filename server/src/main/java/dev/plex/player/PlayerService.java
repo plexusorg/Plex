@@ -4,7 +4,6 @@ import dev.plex.cache.PlayerCache;
 import dev.plex.storage.repository.PlayerRepository;
 
 import java.util.Optional;
-import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -159,9 +158,10 @@ public class PlayerService
                 {
                     player = new PlexPlayer(uuid);
                     player.setName(username);
-                    player.setIps(normalizedIp.isEmpty()
-                            ? new java.util.ArrayList<>()
-                            : new java.util.ArrayList<>(List.of(normalizedIp)));
+                    if (!normalizedIp.isEmpty())
+                    {
+                        player.getIps().add(normalizedIp);
+                    }
                     playerRepository.insert(player);
                 }
                 else
@@ -177,13 +177,23 @@ public class PlayerService
                         player.setName(username);
                         changed = true;
                     }
-                    if (changed) playerRepository.update(player);
+                    if (changed)
+                    {
+                        playerRepository.update(player);
+                    }
                 }
                 return player;
             }, executor).whenComplete((player, failure) ->
             {
-                if (failure == null) pending.complete(player); else pending.completeExceptionally(failure);
-                if (failure != null) preparedSessions.remove(uuid, pending);
+                if (failure == null)
+                {
+                    pending.complete(player);
+                }
+                else
+                {
+                    pending.completeExceptionally(failure);
+                    preparedSessions.remove(uuid, pending);
+                }
             });
         }
         catch (RuntimeException failure)

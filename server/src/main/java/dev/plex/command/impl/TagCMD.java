@@ -14,7 +14,6 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.apache.commons.lang3.StringUtils;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
@@ -51,7 +50,7 @@ public class TagCMD extends ServerCommand
         String[] args = context.args();
         if (args.length == 0)
         {
-            if (sender instanceof ConsoleCommandSender)
+            if (playerSender == null)
             {
                 return context.usage("/tag clear <player>");
             }
@@ -60,7 +59,7 @@ public class TagCMD extends ServerCommand
 
         if (args[0].equalsIgnoreCase("set"))
         {
-            if (sender instanceof ConsoleCommandSender)
+            if (playerSender == null)
             {
                 return context.messageComponent("noPermissionConsole");
             }
@@ -87,14 +86,9 @@ public class TagCMD extends ServerCommand
         {
             if (args.length == 1)
             {
-                if (sender instanceof ConsoleCommandSender)
-                {
-                    return context.messageComponent("noPermissionConsole");
-                }
-
                 if (playerSender == null)
                 {
-                    return null;
+                    return context.messageComponent("noPermissionConsole");
                 }
 
                 PlexPlayer player = plugin.getPlayerService().getPlayer(playerSender.getUniqueId());
@@ -113,5 +107,3 @@ public class TagCMD extends ServerCommand
     }
 
 }
-
-

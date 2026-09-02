@@ -90,7 +90,6 @@ public class Plex extends JavaPlugin
     private final List<PlexCommand> pendingCommands = new ArrayList<>();
     private ServiceManager serviceManager;
     private PunishmentManager punishmentManager;
-    private AutoCloseable banInvalidationRegistration;
     private UpdateChecker updateChecker;
     private PlexApi api;
     private WorldSpawnSignManager worldSpawnSignManager;
@@ -187,14 +186,6 @@ public class Plex extends JavaPlugin
         if (plugin.getServer().getPluginManager().isPluginEnabled("CoreProtect"))
         {
             coreProtectHook = new CoreProtectHook(this);
-            if (coreProtectHook.hasCoreProtect())
-            {
-                PlexLog.log("Hooked into CoreProtect!");
-            }
-            else
-            {
-                PlexLog.debug("CoreProtect was enabled, but no compatible API was available");
-            }
         }
         else
         {
@@ -203,27 +194,10 @@ public class Plex extends JavaPlugin
         if (plugin.getServer().getPluginManager().isPluginEnabled("prism"))
         {
             prismHook = new PrismHook(this);
-            if (prismHook.hasPrism())
-            {
-                PlexLog.log("Hooked into Prism!");
-            }
-            else
-            {
-                PlexLog.debug("Prism was enabled, but no Prism API provider was available");
-            }
         }
         else
         {
             PlexLog.debug("Not hooking into Prism");
-        }
-
-        if (PlexUtils.hasVanishPlugin())
-        {
-            PlexLog.log("Hooked into SuperVanish / PremiumVanish!");
-        }
-        else
-        {
-            PlexLog.debug("Not hooking into SuperVanish / PremiumVanish");
         }
 
         if (plugin.getServer().getPluginManager().isPluginEnabled("WorldGuard"))
@@ -251,7 +225,7 @@ public class Plex extends JavaPlugin
         Metrics metrics = new Metrics(this, 14143);
         PlexLog.log("Enabled Metrics");
 
-        if (redisConnection != null && redisConnection.isEnabled())
+        if (redisConnection.isEnabled())
         {
             try
             {
@@ -282,7 +256,7 @@ public class Plex extends JavaPlugin
         commandHandler = new CommandHandler(this);
 
         punishmentManager = new PunishmentManager(this);
-        banInvalidationRegistration = MessageUtil.onBanInvalidation(
+        MessageUtil.onBanInvalidation(
                 invalidation -> punishmentManager.invalidateBanDecisions(invalidation.playerId(), invalidation.ip()));
         punishmentManager.mergeIndefiniteBans();
         PlexLog.log("Punishment System initialized");
@@ -320,23 +294,6 @@ public class Plex extends JavaPlugin
     @Override
     public void onDisable()
     {
-        if (redisConnection != null && redisConnection.isEnabled())
-        {
-            PlexLog.log("Disabling Redis/Jedis. No memory leaks in this Anarchy server!");
-        }
-
-        if (banInvalidationRegistration != null)
-        {
-            try
-            {
-                banInvalidationRegistration.close();
-            }
-            catch (Exception ex)
-            {
-                PlexLog.warn("Could not unregister ban-cache invalidation listener: {0}", ex.getMessage());
-            }
-            banInvalidationRegistration = null;
-        }
         MessageUtil.close();
         this.getServer().getMessenger().unregisterOutgoingPluginChannel(this);
         this.getServer().getMessenger().unregisterIncomingPluginChannel(this);
@@ -364,10 +321,7 @@ public class Plex extends JavaPlugin
                 PlexLog.error("Unable to flush all player sessions: {0}", failure.getMessage());
             }
         }
-        if (redisConnection != null)
-        {
-            redisConnection.close();
-        }
+        redisConnection.close();
 
         if (databaseExecutor != null)
         {

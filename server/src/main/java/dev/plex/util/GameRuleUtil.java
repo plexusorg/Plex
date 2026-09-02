@@ -3,6 +3,7 @@ package dev.plex.util;
 import dev.plex.Plex;
 
 import java.util.Locale;
+import java.util.List;
 
 import io.papermc.paper.registry.RegistryAccess;
 import io.papermc.paper.registry.RegistryKey;
@@ -78,9 +79,10 @@ public class GameRuleUtil
             return;
         }
 
-        if (rule.getType() == Boolean.class)
+        Class<?> type = rule.getType();
+        if (type == Boolean.class)
         {
-            if (!valueString.equalsIgnoreCase("true") && !valueString.equalsIgnoreCase("false"))
+            if (!List.of("true", "false").contains(valueString.toLowerCase(Locale.ROOT)))
             {
                 PlexLog.error(String.format("Invalid boolean value '%s' for game rule %s", valueString, gameRuleName));
                 return;
@@ -91,7 +93,7 @@ public class GameRuleUtil
             world.setGameRule(boolRule, value);
             PlexLog.debug("Setting game rule " + gameRuleName + " for world " + world.getName() + " with value " + value);
         }
-        else if (rule.getType() == Integer.class)
+        if (type == Integer.class)
         {
             @SuppressWarnings("unchecked")
             GameRule<Integer> intRule = (GameRule<Integer>) rule;
@@ -105,10 +107,8 @@ public class GameRuleUtil
             {
                 PlexLog.error(String.format("Invalid integer value '%s' for game rule %s", valueString, gameRuleName));
             }
+            return;
         }
-        else
-        {
-            PlexLog.error(String.format("Unknown game rule type for %s: %s", gameRuleName, rule.getType()));
-        }
+        PlexLog.error(String.format("Unknown game rule type for %s: %s", gameRuleName, type));
     }
 }

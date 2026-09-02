@@ -69,15 +69,10 @@ public class Punishment
     public static String punisherDisplayName(Punishment punishment)
     {
         PunishmentSource source = punishment.getSource();
-        if (source == null)
-        {
-            source = punishment.getPunisher() == null ? PunishmentSource.CONSOLE : PunishmentSource.PLAYER;
-        }
         return switch (source)
         {
-            case PLAYER -> punishment.getPunisher() == null ? "CONSOLE"
-                    : punishment.getResolvedPunisherName() != null && !punishment.getResolvedPunisherName().isBlank()
-                    ? punishment.getResolvedPunisherName() : punishment.getPunisher().toString();
+            case PLAYER -> punishment.getResolvedPunisherName() == null || punishment.getResolvedPunisherName().isBlank()
+                    ? punishment.getPunisher().toString() : punishment.getResolvedPunisherName();
             case CONSOLE -> "CONSOLE";
             case WEB -> punishment.getPunisherReference() == null || punishment.getPunisherReference().isBlank() ? "WEB" : punishment.getPunisherReference();
         };

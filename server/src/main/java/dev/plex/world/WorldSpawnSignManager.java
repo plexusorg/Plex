@@ -210,17 +210,14 @@ public final class WorldSpawnSignManager
         }
 
         Block block = world.getBlockAt(SIGN_X, protectedSign.y(), SIGN_Z);
-        boolean changed = false;
         if (!(block.getState() instanceof Sign))
         {
             block.setType(Material.OAK_SIGN, false);
-            changed = true;
         }
         if (block.getBlockData() instanceof Rotatable rotatable && rotatable.getRotation() != BlockFace.SOUTH)
         {
             rotatable.setRotation(BlockFace.SOUTH);
             block.setBlockData(rotatable, false);
-            changed = true;
         }
         BlockState state = block.getState();
         if (!(state instanceof Sign sign))
@@ -241,32 +238,13 @@ public final class WorldSpawnSignManager
             SignSide signSide = sign.getSide(side);
             for (int line = 0; line < lines.length; line++)
             {
-                if (!signSide.line(line).equals(lines[line]))
-                {
-                    signSide.line(line, lines[line]);
-                    changed = true;
-                }
+                signSide.line(line, lines[line]);
             }
-            if (signSide.getColor() != DyeColor.YELLOW)
-            {
-                signSide.setColor(DyeColor.YELLOW);
-                changed = true;
-            }
-            if (!signSide.isGlowingText())
-            {
-                signSide.setGlowingText(true);
-                changed = true;
-            }
+            signSide.setColor(DyeColor.YELLOW);
+            signSide.setGlowingText(true);
         }
-        if (!sign.isWaxed())
-        {
-            sign.setWaxed(true);
-            changed = true;
-        }
-        if (changed)
-        {
-            sign.update(true, false);
-        }
+        sign.setWaxed(true);
+        sign.update(true, false);
     }
 
     private record ProtectedSign(int y, BlockData supportData, String displayName)
