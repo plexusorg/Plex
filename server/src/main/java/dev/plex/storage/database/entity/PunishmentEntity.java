@@ -15,7 +15,6 @@ public class PunishmentEntity
     private String ip;
     private String type;
     private String reason;
-    private boolean customTime;
     private boolean active;
     private long issueDate;
     private Long endDate;

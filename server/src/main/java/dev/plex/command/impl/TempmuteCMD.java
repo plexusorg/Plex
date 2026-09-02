@@ -91,7 +91,6 @@ public class TempmuteCMD extends ServerCommand
                 : context.messageString("noReasonProvided");
 
         Punishment punishment = new Punishment(punishedPlayer.getUuid(), context.getUUID(sender));
-        punishment.setCustomTime(true);
         punishment.setEndDate(endDate);
         punishment.setType(PunishmentType.MUTE);
         punishment.setIp(player.getAddress().getAddress().getHostAddress().trim());

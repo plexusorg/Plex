@@ -11,6 +11,8 @@ import dev.plex.punishment.PunishmentType;
 import dev.plex.util.BanKickUtil;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
+import dev.plex.util.TimeUtils;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 import io.papermc.paper.command.brigadier.CommandSourceStack;
@@ -89,8 +91,7 @@ public class BanCMD extends ServerCommand
                 {
                     punishment.setReason(context.messageString("noReasonProvided"));
                 }
-                punishment.setEndDate(null);
-                punishment.setCustomTime(false);
+                punishment.setEndDate(ZonedDateTime.now(TimeUtils.zoneId()).plus(PunishmentType.STANDARD_BAN_DURATION));
                 punishment.setActive(true);
                 punishment.setIp(BanKickUtil.currentOrLastIp(plexPlayer));
                 final boolean shouldRollBack = rollBack;

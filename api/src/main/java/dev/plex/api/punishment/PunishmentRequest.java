@@ -1,5 +1,6 @@
 package dev.plex.api.punishment;
 
+import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.Objects;
 import java.util.UUID;
@@ -34,13 +35,18 @@ public record PunishmentRequest(UUID punished, @Nullable UUID punisher, Punishme
         {
             throw new IllegalArgumentException("A player punishment must have a punisher UUID");
         }
-        if ((type == PunishmentType.TEMPBAN || type == PunishmentType.FREEZE) && endDate == null)
+        if ((type == PunishmentType.BAN || type == PunishmentType.TEMPBAN || type == PunishmentType.MUTE
+                || type == PunishmentType.FREEZE) && endDate == null)
         {
             throw new IllegalArgumentException(type + " requires an end date");
         }
-        if ((type == PunishmentType.BAN || type == PunishmentType.KICK || type == PunishmentType.SMITE) && endDate != null)
+        if ((type == PunishmentType.KICK || type == PunishmentType.SMITE) && endDate != null)
         {
             throw new IllegalArgumentException(type + " must not have an end date");
+        }
+        if (endDate != null && !endDate.toInstant().isAfter(Instant.now()))
+        {
+            throw new IllegalArgumentException(type + " requires a future end date");
         }
     }
 }

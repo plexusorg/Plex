@@ -18,7 +18,6 @@ CREATE TABLE IF NOT EXISTS `punishments` (
     `ip` VARCHAR(2000),
     `type` VARCHAR(30),
     `reason` VARCHAR(2000),
-    `customTime` BOOLEAN,
     `active` BOOLEAN,
     `issueDate` BIGINT NOT NULL,
     `endDate` BIGINT,

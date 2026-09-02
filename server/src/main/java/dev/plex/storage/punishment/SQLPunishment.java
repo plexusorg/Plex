@@ -34,7 +34,8 @@ public class SQLPunishment implements PunishmentRepository
         return CompletableFuture.supplyAsync(() -> jdbi.withHandle(h -> h.createQuery(
                         "SELECT p.*, punisher.last_known_name AS resolved_punisher_name, punished.last_known_name AS resolved_punished_name FROM punishments p " +
                                 "LEFT JOIN players punisher ON punisher.uuid = p.punisher_uuid " +
-                                "LEFT JOIN players punished ON punished.uuid = p.punished_uuid")
+                                "LEFT JOIN players punished ON punished.uuid = p.punished_uuid " +
+                                "ORDER BY p.issueDate DESC, p.id DESC")
                 .map((rs, ctx) -> mapPunishment(rs)).list()), executor);
     }
 
@@ -47,12 +48,14 @@ public class SQLPunishment implements PunishmentRepository
                         "LEFT JOIN players punished ON punished.uuid = p.punished_uuid " +
                         "WHERE p.active = :active AND p.type IN ('BAN', 'TEMPBAN') " +
                         "AND (p.punished_uuid = :uuid OR (:ip <> '' AND p.ip = :ip)) " +
-                        "AND (p.endDate IS NULL OR p.endDate > :now) " +
+                        "AND ((p.endDate IS NOT NULL AND p.endDate > :now) " +
+                        "OR (p.type = 'BAN' AND p.endDate IS NULL AND p.issueDate > :banCutoff)) " +
                         "ORDER BY CASE WHEN p.punished_uuid = :uuid THEN 0 ELSE 1 END, p.issueDate DESC LIMIT 1")
                 .bind("active", true)
                 .bind("uuid", uuid.toString())
                 .bind("ip", canonicalIp)
                 .bind("now", now.toEpochMilli())
+                .bind("banCutoff", now.minus(PunishmentType.STANDARD_BAN_DURATION).toEpochMilli())
                 .map((rs, ctx) ->
                 {
                     return mapPunishment(rs);
@@ -65,7 +68,8 @@ public class SQLPunishment implements PunishmentRepository
         return jdbi.withHandle(h -> h.createQuery(
                         "SELECT p.*, punisher.last_known_name AS resolved_punisher_name, punished.last_known_name AS resolved_punished_name FROM punishments p " +
                                 "LEFT JOIN players punisher ON punisher.uuid = p.punisher_uuid " +
-                                "LEFT JOIN players punished ON punished.uuid = p.punished_uuid WHERE p.punished_uuid = :u")
+                        "LEFT JOIN players punished ON punished.uuid = p.punished_uuid WHERE p.punished_uuid = :u " +
+                                "ORDER BY p.issueDate DESC, p.id DESC")
                 .bind("u", uuid.toString()).map((rs, ctx) -> mapPunishment(rs)).list());
     }
 
@@ -74,7 +78,8 @@ public class SQLPunishment implements PunishmentRepository
         return jdbi.withHandle(h -> h.createQuery(
                         "SELECT p.*, punisher.last_known_name AS resolved_punisher_name, punished.last_known_name AS resolved_punished_name FROM punishments p " +
                                 "LEFT JOIN players punisher ON punisher.uuid = p.punisher_uuid " +
-                                "LEFT JOIN players punished ON punished.uuid = p.punished_uuid WHERE p.ip = :ip")
+                        "LEFT JOIN players punished ON punished.uuid = p.punished_uuid WHERE p.ip = :ip " +
+                                "ORDER BY p.issueDate DESC, p.id DESC")
                 .bind("ip", ip).map((rs, ctx) -> mapPunishment(rs)).list());
     }
 
@@ -85,8 +90,8 @@ public class SQLPunishment implements PunishmentRepository
             PlexLog.debug("Persisting punishment for " + punishment.getPunished());
             PunishmentEntity e = toEntity(punishment);
             jdbi.useHandle(h -> h.createUpdate(
-                                "INSERT INTO punishments (punished_uuid, punisher_uuid, source, punisher_reference, ip, type, reason, customTime, active, issueDate, endDate) " +
-                                        "VALUES (:punishedUuid, :punisherUuid, :source, :punisherReference, :ip, :type, :reason, :customTime, :active, :issueDate, :endDate)")
+                                "INSERT INTO punishments (punished_uuid, punisher_uuid, source, punisher_reference, ip, type, reason, active, issueDate, endDate) " +
+                                        "VALUES (:punishedUuid, :punisherUuid, :source, :punisherReference, :ip, :type, :reason, :active, :issueDate, :endDate)")
                         .bind("punishedUuid", e.getPunishedUuid())
                         .bind("punisherUuid", e.getPunisherUuid())
                         .bind("source", e.getSource())
@@ -94,7 +99,6 @@ public class SQLPunishment implements PunishmentRepository
                         .bind("ip", e.getIp())
                         .bind("type", e.getType())
                         .bind("reason", e.getReason())
-                        .bind("customTime", e.isCustomTime())
                         .bind("active", e.isActive())
                         .bind("issueDate", e.getIssueDate())
                         .bind("endDate", e.getEndDate())
@@ -151,7 +155,6 @@ public class SQLPunishment implements PunishmentRepository
         e.setIp(rs.getString("ip"));
         e.setType(rs.getString("type"));
         e.setReason(rs.getString("reason"));
-        e.setCustomTime(rs.getBoolean("customTime"));
         e.setActive(rs.getBoolean("active"));
         e.setIssueDate(rs.getLong("issueDate"));
         long endDate = rs.getLong("endDate");
@@ -165,11 +168,14 @@ public class SQLPunishment implements PunishmentRepository
         Punishment punishment = new Punishment(UUID.fromString(entity.getPunishedUuid()), punisher);
         punishment.setActive(entity.isActive());
         punishment.setType(PunishmentType.valueOf(entity.getType()));
-        punishment.setCustomTime(entity.isCustomTime());
         punishment.setSource(entity.getSource() == null ? punishment.getSource() : PunishmentSource.valueOf(entity.getSource()));
         punishment.setPunisherReference(entity.getPunisherReference());
         punishment.setIssueDate(ZonedDateTime.ofInstant(Instant.ofEpochMilli(entity.getIssueDate()), TimeUtils.zoneId()));
         punishment.setEndDate(entity.getEndDate() == null ? null : ZonedDateTime.ofInstant(Instant.ofEpochMilli(entity.getEndDate()), TimeUtils.zoneId()));
+        if (punishment.getType() == PunishmentType.BAN && punishment.getEndDate() == null)
+        {
+            punishment.setEndDate(punishment.getIssueDate().plus(PunishmentType.STANDARD_BAN_DURATION));
+        }
         punishment.setReason(entity.getReason());
         punishment.setIp(entity.getIp());
         return punishment;
@@ -194,7 +200,6 @@ public class SQLPunishment implements PunishmentRepository
         entity.setIp(punishment.getIp());
         entity.setType(punishment.getType().name());
         entity.setReason(punishment.getReason());
-        entity.setCustomTime(punishment.isCustomTime());
         entity.setActive(punishment.isActive());
         entity.setIssueDate(punishment.getIssueDate().toInstant().toEpochMilli());
         entity.setEndDate(punishment.getEndDate() == null ? null : punishment.getEndDate().toInstant().toEpochMilli());

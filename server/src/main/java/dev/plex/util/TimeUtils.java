@@ -56,20 +56,34 @@ public class TimeUtils
         {
             if (arg.endsWith(unit))
             {
-                int duration = parseInteger(arg.replace(unit, ""));
-                switch (unit)
+                int duration = parseInteger(arg.substring(0, arg.length() - unit.length()));
+                if (duration <= 0)
                 {
-                    case "y" -> time = time.plusYears(duration);
-                    case "mo" -> time = time.plusMonths(duration);
-                    case "w" -> time = time.plusWeeks(duration);
-                    case "d" -> time = time.plusDays(duration);
-                    case "h" -> time = time.plusHours(duration);
-                    case "m" -> time = time.plusMinutes(duration);
-                    case "s" -> time = time.plusSeconds(duration);
+                    throw new NumberFormatException();
                 }
+                try
+                {
+                    switch (unit)
+                    {
+                        case "y" -> time = time.plusYears(duration);
+                        case "mo" -> time = time.plusMonths(duration);
+                        case "w" -> time = time.plusWeeks(duration);
+                        case "d" -> time = time.plusDays(duration);
+                        case "h" -> time = time.plusHours(duration);
+                        case "m" -> time = time.plusMinutes(duration);
+                        case "s" -> time = time.plusSeconds(duration);
+                    }
+                }
+                catch (DateTimeException e)
+                {
+                    NumberFormatException invalid = new NumberFormatException();
+                    invalid.initCause(e);
+                    throw invalid;
+                }
+                return time;
             }
         }
-        return time;
+        throw new NumberFormatException();
     }
 
     public static String useTimezone(LocalDateTime date)

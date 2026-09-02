@@ -118,7 +118,8 @@ public class PunishmentManager
     {
         return (punishment.getType() == PunishmentType.BAN || punishment.getType() == PunishmentType.TEMPBAN)
                 && punishment.isActive()
-                && (punishment.getEndDate() == null || punishment.getEndDate().isAfter(ZonedDateTime.now(TimeUtils.zoneId())));
+                && punishment.getEndDate() != null
+                && punishment.getEndDate().isAfter(ZonedDateTime.now(TimeUtils.zoneId()));
     }
 
     public CompletableFuture<Boolean> isBanned(UUID uuid)
@@ -162,9 +163,15 @@ public class PunishmentManager
             return CompletableFuture.failedFuture(new IllegalArgumentException("Punishment and player UUIDs differ"));
         if (punishment.getType() == null)
             return CompletableFuture.failedFuture(new IllegalArgumentException("Punishment type is required"));
-        if ((punishment.getType() == PunishmentType.FREEZE || punishment.getType() == PunishmentType.TEMPBAN)
+        if ((punishment.getType() == PunishmentType.BAN || punishment.getType() == PunishmentType.FREEZE
+                || punishment.getType() == PunishmentType.MUTE || punishment.getType() == PunishmentType.TEMPBAN)
                 && punishment.getEndDate() == null)
             return CompletableFuture.failedFuture(new IllegalArgumentException(punishment.getType() + " requires an end date"));
+        if ((punishment.getType() == PunishmentType.KICK || punishment.getType() == PunishmentType.SMITE)
+                && punishment.getEndDate() != null)
+            return CompletableFuture.failedFuture(new IllegalArgumentException(punishment.getType() + " must not have an end date"));
+        if (punishment.getEndDate() != null && !punishment.getEndDate().toInstant().isAfter(Instant.now()))
+            return CompletableFuture.failedFuture(new IllegalArgumentException(punishment.getType() + " requires a future end date"));
         if (punishment.getIp() != null) punishment.setIp(BanDecisionService.canonicalIp(punishment.getIp()));
 
         return plugin.getPunishmentRepository().insertPunishment(punishment).thenCompose(unused -> onGlobal(() ->

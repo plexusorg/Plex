@@ -35,8 +35,21 @@ public final class BanDecisionService
         try
         {
             CompletableFuture<Optional<Punishment>> future = cache.get(key, () -> load(key));
-            return future.thenApply(result -> result.filter(punishment -> punishment.getEndDate() == null
-                    || punishment.getEndDate().toInstant().isAfter(Instant.now())));
+            return future.thenCompose(result ->
+            {
+                boolean expired = result.isPresent() && result.get().getEndDate() != null
+                        && !result.get().getEndDate().toInstant().isAfter(Instant.now());
+                if (!expired)
+                {
+                    return CompletableFuture.completedFuture(result);
+                }
+
+                // The database may contain another overlapping UUID/IP ban. Once the
+                // cached winner expires, reload instead of treating the player as clear
+                // until the cache TTL elapses.
+                cache.asMap().remove(key, future);
+                return decide(key.uuid(), key.ip());
+            });
         }
         catch (ExecutionException failure)
         {

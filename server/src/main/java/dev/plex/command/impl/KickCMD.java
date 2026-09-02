@@ -77,8 +77,7 @@ public class KickCMD extends ServerCommand
         }
 
         punishment.setReason(reason);
-        punishment.setEndDate(ZonedDateTime.now(TimeUtils.zoneId()));
-        punishment.setCustomTime(false);
+        punishment.setEndDate(null);
         punishment.setActive(false);
         punishment.setIp(player.getAddress().getAddress().getHostAddress().trim());
         plugin.getPunishmentManager().punish(plexPlayer, punishment).whenComplete((unused, failure) -> plugin.getApi().scheduler().runGlobal(() ->

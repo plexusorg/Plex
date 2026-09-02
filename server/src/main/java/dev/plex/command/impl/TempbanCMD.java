@@ -76,8 +76,14 @@ public class TempbanCMD extends ServerCommand
         {
             punishment.setReason(context.messageString("noReasonProvided"));
         }
-        punishment.setEndDate(TimeUtils.createDate(args[1]));
-        punishment.setCustomTime(false);
+        try
+        {
+            punishment.setEndDate(TimeUtils.createDate(args[1]));
+        }
+        catch (NumberFormatException e)
+        {
+            return context.messageComponent("invalidTimeFormat");
+        }
         punishment.setActive(true);
         punishment.setIp(BanKickUtil.currentOrLastIp(target));
         final boolean shouldRollBack = rollBack;

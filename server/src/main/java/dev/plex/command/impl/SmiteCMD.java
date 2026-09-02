@@ -124,7 +124,6 @@ public class SmiteCMD extends ServerCommand
         player.setHealth(0.0);
 
         Punishment punishment = new Punishment(plexPlayer.getUuid(), context.getUUID(sender));
-        punishment.setCustomTime(false);
         punishment.setEndDate(ZonedDateTime.now(TimeUtils.zoneId()));
         punishment.setType(PunishmentType.SMITE);
         punishment.setIp(player.getAddress().getAddress().getHostAddress().trim());

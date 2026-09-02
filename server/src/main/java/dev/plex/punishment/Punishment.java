@@ -30,7 +30,6 @@ public class Punishment
     private String ip;
     private PunishmentType type;
     private String reason;
-    private boolean customTime;
     private boolean active;
     private ZonedDateTime issueDate;
     private ZonedDateTime endDate;

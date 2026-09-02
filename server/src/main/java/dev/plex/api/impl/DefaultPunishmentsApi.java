@@ -36,7 +36,6 @@ final class DefaultPunishmentsApi implements PunishmentsApi
         punishment.setIp(request.ip());
         punishment.setType(PunishmentType.valueOf(request.type().name()));
         punishment.setReason(request.reason());
-        punishment.setCustomTime(request.endDate() != null);
         punishment.setActive(true);
         punishment.setEndDate(request.endDate());
         return plugin.getPlayerService().findPlayer(request.punished()).thenCompose(player ->

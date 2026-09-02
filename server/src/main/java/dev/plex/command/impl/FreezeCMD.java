@@ -56,7 +56,6 @@ public class FreezeCMD extends ServerCommand
         }
 
         Punishment punishment = new Punishment(punishedPlayer.getUuid(), context.getUUID(sender));
-        punishment.setCustomTime(false);
         ZonedDateTime date = ZonedDateTime.now(TimeUtils.zoneId());
         punishment.setEndDate(date.plusSeconds(plugin.config.getInt("punishments.freeze-timer", 300)));
         punishment.setType(PunishmentType.FREEZE);

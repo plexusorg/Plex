@@ -1,5 +1,7 @@
 package dev.plex.api.punishment;
 
+import java.time.Duration;
+
 /**
  * Supported punishment types exposed through the API.
  */
@@ -16,7 +18,7 @@ public enum PunishmentType
     FREEZE,
 
     /**
-     * Permanently bans a player.
+     * Bans a player for the standard 24-hour duration.
      */
     BAN,
 
@@ -33,5 +35,8 @@ public enum PunishmentType
     /**
      * Applies the smite action to a player.
      */
-    SMITE
+    SMITE;
+
+    /** Standard duration used by {@link #BAN}. */
+    public static final Duration STANDARD_BAN_DURATION = Duration.ofHours(24);
 }

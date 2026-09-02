@@ -77,7 +77,6 @@ public class AntiNukerListener extends ServerListenerBase
             punishment.setIp(player.getAddress().getAddress().getHostAddress());
         }
         punishment.setEndDate(TimeUtils.createDate("5m"));
-        punishment.setCustomTime(false);
         punishment.setActive(true);
         return plugin.getPunishmentManager().punish(plexPlayer, punishment);
     }
