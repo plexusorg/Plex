@@ -4,7 +4,6 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import java.time.Duration;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 public final class AbuseTracker
 {
@@ -19,7 +18,7 @@ public final class AbuseTracker
         this.eventLimit = eventLimit;
         this.strikesToEscalate = strikesToEscalate;
         entries = CacheBuilder.newBuilder()
-                .expireAfterAccess(idleExpiry.toNanos(), TimeUnit.NANOSECONDS)
+                .expireAfterAccess(idleExpiry)
                 .maximumSize(maximumEntries)
                 .build();
     }
