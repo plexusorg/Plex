@@ -5,7 +5,7 @@ import dev.plex.command.ServerCommand;
 import dev.plex.command.ServerCommandContext;
 import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.Punishment;
-import dev.plex.punishment.PunishmentType;
+import dev.plex.api.punishment.PunishmentType;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.TimeUtils;
 import dev.plex.util.PlexLog;
@@ -50,7 +50,7 @@ public class FreezeCMD extends ServerCommand
         Player player = context.getNonNullPlayer(args[0]);
         PlexPlayer punishedPlayer = context.getPlexPlayer(player);
 
-        if (punishedPlayer.isFrozen())
+        if (plugin.getPunishmentManager().hasActivePunishment(punishedPlayer, PunishmentType.FREEZE))
         {
             return context.messageComponent("playerFrozen");
         }
@@ -61,7 +61,6 @@ public class FreezeCMD extends ServerCommand
         punishment.setType(PunishmentType.FREEZE);
         punishment.setIp(player.getAddress().getAddress().getHostAddress().trim());
         punishment.setReason("");
-        punishment.setActive(true);
 
         plugin.getPunishmentManager().punish(punishedPlayer, punishment).whenComplete((unused, failure) -> plugin.getApi().scheduler().runGlobal(() ->
         {

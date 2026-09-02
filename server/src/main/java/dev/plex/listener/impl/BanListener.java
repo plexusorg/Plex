@@ -6,7 +6,6 @@ import dev.plex.punishment.Punishment;
 import dev.plex.punishment.PunishmentManager;
 import dev.plex.util.PlexLog;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
@@ -55,8 +54,6 @@ public class BanListener extends ServerListenerBase
         }
 
         if (punishment == null) return;
-        if (plugin.getPermissions() != null && plugin.getPermissions().playerHas(null,
-                Bukkit.getOfflinePlayer(event.getUniqueId()), "plex.ban.bypass")) return;
         event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED,
                 Punishment.generateAdmissionBanMessage(punishment, plugin.config.getString("banning.ban_url")));
     }

@@ -7,7 +7,7 @@ import dev.plex.command.ServerCommandContext;
 import dev.plex.command.exception.CommandFailException;
 import dev.plex.command.exception.PlayerNotFoundException;
 import dev.plex.player.PlexPlayer;
-import dev.plex.punishment.PunishmentType;
+import dev.plex.api.punishment.PunishmentType;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.PlexLog;
 
@@ -53,7 +53,7 @@ public class UnmuteCMD extends ServerCommand
             throw new PlayerNotFoundException();
         }
 
-        if (!punishedPlayer.isMuted())
+        if (!plugin.getPunishmentManager().hasActivePunishment(punishedPlayer, PunishmentType.MUTE))
         {
             throw new CommandFailException(PlexUtils.messageString("playerNotMuted"));
         }

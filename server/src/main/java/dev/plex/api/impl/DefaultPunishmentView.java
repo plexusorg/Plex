@@ -4,11 +4,10 @@ import dev.plex.api.punishment.PunishmentSource;
 import dev.plex.api.punishment.PunishmentType;
 import dev.plex.api.punishment.PunishmentView;
 import dev.plex.punishment.Punishment;
-import dev.plex.util.TimeUtils;
 import java.time.ZonedDateTime;
 import java.util.UUID;
 
-record DefaultPunishmentView(Punishment punishment) implements PunishmentView
+record DefaultPunishmentView(Punishment punishment, boolean active) implements PunishmentView
 {
     @Override public UUID punished() { return punishment.getPunished(); }
     @Override public UUID punisher() { return punishment.getPunisher(); }
@@ -16,13 +15,9 @@ record DefaultPunishmentView(Punishment punishment) implements PunishmentView
     @Override public String punisherReference() { return punishment.getPunisherReference(); }
     @Override public String punisherDisplayName() { return Punishment.punisherDisplayName(punishment); }
     @Override public String ip() { return punishment.getIp(); }
-    @Override public PunishmentType type() { return PunishmentType.valueOf(punishment.getType().name()); }
+    @Override public PunishmentType type() { return punishment.getType(); }
     @Override public String reason() { return punishment.getReason(); }
-    @Override public boolean active()
-    {
-        return punishment.isActive() && (punishment.getEndDate() == null
-                || punishment.getEndDate().isAfter(ZonedDateTime.now(TimeUtils.zoneId())));
-    }
+    @Override public boolean active() { return active; }
     @Override public ZonedDateTime issueDate() { return punishment.getIssueDate(); }
     @Override public ZonedDateTime endDate() { return punishment.getEndDate(); }
 }

@@ -3,6 +3,7 @@ package dev.plex.punishment;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import dev.plex.api.punishment.PunishmentSource;
+import dev.plex.api.punishment.PunishmentType;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.TimeUtils;
 import dev.plex.util.adapter.ZonedDateTimeAdapter;
@@ -30,7 +31,7 @@ public class Punishment
     private String ip;
     private PunishmentType type;
     private String reason;
-    private boolean active;
+    private volatile boolean active;
     private ZonedDateTime issueDate;
     private ZonedDateTime endDate;
 

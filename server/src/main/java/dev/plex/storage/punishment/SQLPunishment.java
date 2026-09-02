@@ -2,7 +2,7 @@ package dev.plex.storage.punishment;
 
 import dev.plex.api.punishment.PunishmentSource;
 import dev.plex.punishment.Punishment;
-import dev.plex.punishment.PunishmentType;
+import dev.plex.api.punishment.PunishmentType;
 import dev.plex.storage.database.entity.PunishmentEntity;
 import dev.plex.storage.repository.PunishmentRepository;
 import dev.plex.storage.repository.PunishmentRepository.BanRemoval;

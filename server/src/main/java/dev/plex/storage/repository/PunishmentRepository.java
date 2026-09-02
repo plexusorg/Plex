@@ -1,7 +1,7 @@
 package dev.plex.storage.repository;
 
 import dev.plex.punishment.Punishment;
-import dev.plex.punishment.PunishmentType;
+import dev.plex.api.punishment.PunishmentType;
 
 import java.util.List;
 import java.util.UUID;

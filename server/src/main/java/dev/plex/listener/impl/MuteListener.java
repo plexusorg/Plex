@@ -2,6 +2,7 @@ package dev.plex.listener.impl;
 
 import dev.plex.Plex;
 import dev.plex.listener.ServerListenerBase;
+import dev.plex.player.PlexPlayer;
 import dev.plex.util.CommandUtils;
 import dev.plex.util.PlexUtils;
 import io.papermc.paper.event.player.AsyncChatEvent;
@@ -20,7 +21,8 @@ public class MuteListener extends ServerListenerBase
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onChat(AsyncChatEvent event)
     {
-        if (plugin.getPlayerCache().getPlexPlayer(event.getPlayer().getUniqueId()).isMuted())
+        PlexPlayer plexPlayer = plugin.getPlayerService().getCachedPlayer(event.getPlayer().getUniqueId());
+        if (plexPlayer != null && plexPlayer.isMuted())
         {
             event.getPlayer().sendMessage(PlexUtils.messageComponent("muted"));
             event.setCancelled(true);
@@ -30,7 +32,8 @@ public class MuteListener extends ServerListenerBase
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onCommand(PlayerCommandPreprocessEvent event)
     {
-        if (plugin.getPlayerCache().getPlexPlayer(event.getPlayer().getUniqueId()).isMuted())
+        PlexPlayer plexPlayer = plugin.getPlayerService().getCachedPlayer(event.getPlayer().getUniqueId());
+        if (plexPlayer != null && plexPlayer.isMuted())
         {
             if (CommandUtils.matchesCommand(plugin, event.getMessage(), plugin.config.getStringList("block_on_mute")))
             {

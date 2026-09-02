@@ -149,7 +149,7 @@ public class SQLPlayerData implements PlayerRepository
             return null;
         }
 
-        PlexPlayer plexPlayer = new PlexPlayer(UUID.fromString(entity.getUuid()), false);
+        PlexPlayer plexPlayer = new PlexPlayer(UUID.fromString(entity.getUuid()));
         plexPlayer.setName(entity.getLastKnownName());
         plexPlayer.setLoginMessage(entity.getLoginMessage());
         plexPlayer.setPrefix(entity.getPrefix());
@@ -164,7 +164,6 @@ public class SQLPlayerData implements PlayerRepository
         if (player != null && load)
         {
             player.setPunishments(punishmentRepository.getPunishments(player.getUuid()));
-            player.checkMutesAndFreeze();
         }
         return player;
     }

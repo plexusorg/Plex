@@ -13,21 +13,30 @@ public final class BanKickUtil
     {
     }
 
+    public static void kickBannedPlayers(Plex plugin, java.util.UUID uuid, String ip, Component message)
+    {
+        kickMatchingPlayers(plugin, uuid, ip, message);
+    }
+
     public static void kickPlayersWithIp(Plex plugin, String ip, Component message)
     {
+        kickMatchingPlayers(plugin, null, ip, message);
+    }
+
+    private static void kickMatchingPlayers(Plex plugin, java.util.UUID uuid, String ip, Component message)
+    {
         String canonicalIp = BanDecisionService.canonicalIp(ip);
-        if (canonicalIp.isEmpty())
-        {
-            return;
-        }
         for (Player player : Bukkit.getOnlinePlayers())
         {
-            if (player.getAddress() == null || player.getAddress().getAddress() == null)
+            boolean uuidMatch = uuid != null && player.getUniqueId().equals(uuid);
+            if (!uuidMatch && (canonicalIp.isEmpty() || player.getAddress() == null || player.getAddress().getAddress() == null))
             {
                 continue;
             }
-            String playerIp = BanDecisionService.canonicalIp(player.getAddress().getAddress().getHostAddress());
-            if (canonicalIp.equals(playerIp))
+            boolean ipMatch = !canonicalIp.isEmpty() && player.getAddress() != null
+                    && player.getAddress().getAddress() != null && canonicalIp.equals(
+                    BanDecisionService.canonicalIp(player.getAddress().getAddress().getHostAddress()));
+            if (uuidMatch || ipMatch)
             {
                 plugin.getApi().scheduler().runEntity(player, () -> BungeeUtil.kickPlayer(plugin, player, message));
             }

@@ -6,7 +6,7 @@ import dev.plex.api.listener.EventRule;
 import dev.plex.listener.ServerListenerBase;
 import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.Punishment;
-import dev.plex.punishment.PunishmentType;
+import dev.plex.api.punishment.PunishmentType;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.TimeUtils;
@@ -77,7 +77,6 @@ public class AntiNukerListener extends ServerListenerBase
             punishment.setIp(player.getAddress().getAddress().getHostAddress());
         }
         punishment.setEndDate(TimeUtils.createDate("5m"));
-        punishment.setActive(true);
         return plugin.getPunishmentManager().punish(plexPlayer, punishment);
     }
 }

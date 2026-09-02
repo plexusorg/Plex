@@ -5,11 +5,10 @@ import dev.plex.command.ServerCommand;
 import dev.plex.command.ServerCommandContext;
 import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.Punishment;
-import dev.plex.punishment.PunishmentType;
+import dev.plex.api.punishment.PunishmentType;
+import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
-import dev.plex.util.TimeUtils;
 
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -87,53 +86,55 @@ public class SmiteCMD extends ServerCommand
         final Player player = context.getNonNullPlayer(args[0]);
         final PlexPlayer plexPlayer = context.getPlexPlayer(player);
 
-        Title title = Title.title(context.messageComponent("smiteTitleHeader"), context.messageComponent("smiteTitleMessage", reason, context.senderName()));
+        Punishment punishment = new Punishment(plexPlayer.getUuid(), context.getUUID(sender));
+        punishment.setType(PunishmentType.SMITE);
+        punishment.setIp(player.getAddress().getAddress().getHostAddress().trim());
+        String finalReason = reason != null ? reason : context.messageString("noReasonProvided");
+        punishment.setReason(finalReason);
+        boolean finalSilent = silent;
+        boolean finalClearInv = clearInv;
+        plugin.getPunishmentManager().punish(plexPlayer, punishment).whenComplete((unused, failure) ->
+                plugin.getApi().scheduler().runGlobal(() ->
+        {
+            if (failure != null)
+            {
+                PlexLog.error("Unable to persist smite for {0}: {1}", player.getName(), failure.getMessage());
+                context.send(sender, Component.text("Unable to persist the smite; no action was taken."));
+                return;
+            }
+            if (!finalSilent)
+            {
+                PlexUtils.broadcast(context.messageComponent("smiteBroadcast", player.getName(), finalReason, context.senderName()));
+            }
+            else
+            {
+                context.send(sender, context.messageComponent("smittenQuietly", player.getName()));
+            }
+            plugin.getApi().scheduler().runEntity(player,
+                    () -> applySmite(context, player, finalReason, finalClearInv));
+        }));
+        return null;
+    }
+
+    private void applySmite(ServerCommandContext context, Player player, String reason, boolean clearInventory)
+    {
+        Title title = Title.title(context.messageComponent("smiteTitleHeader"),
+                context.messageComponent("smiteTitleMessage", reason, context.senderName()));
         player.showTitle(title);
-
-        if (!silent)
-        {
-            PlexUtils.broadcast(context.messageComponent("smiteBroadcast", player.getName(), reason != null ? reason : context.messageString("noReasonProvided"), context.senderName()));
-        }
-        else
-        {
-            context.send(sender, context.messageComponent("smittenQuietly", player.getName()));
-        }
-
-        // Set gamemode to survival
         player.setGameMode(GameMode.SURVIVAL);
+        if (clearInventory) player.getInventory().clear();
 
-        // Clear inventory
-        if (clearInv)
-        {
-            player.getInventory().clear();
-        }
-
-        // Strike with lightning effect
-        final Location targetPos = player.getLocation();
-        final World world = player.getWorld();
+        Location target = player.getLocation();
+        World world = player.getWorld();
         for (int x = -1; x <= 1; x++)
         {
             for (int z = -1; z <= 1; z++)
             {
-                final Location strike_pos = new Location(world, targetPos.getBlockX() + x, targetPos.getBlockY(), targetPos.getBlockZ() + z);
-                world.strikeLightning(strike_pos);
+                world.strikeLightning(new Location(world, target.getBlockX() + x, target.getBlockY(), target.getBlockZ() + z));
             }
         }
-
-        // Kill
         player.setHealth(0.0);
-
-        Punishment punishment = new Punishment(plexPlayer.getUuid(), context.getUUID(sender));
-        punishment.setEndDate(ZonedDateTime.now(TimeUtils.zoneId()));
-        punishment.setType(PunishmentType.SMITE);
-        punishment.setIp(player.getAddress().getAddress().getHostAddress().trim());
-
-        if (reason != null)
-        {
-            punishment.setReason(reason);
-        }
-        context.send(player, context.messageComponent("smitten", reason != null ? reason : context.messageString("noReasonProvided")));
-        return null;
+        context.send(player, context.messageComponent("smitten", reason));
     }
 
 }

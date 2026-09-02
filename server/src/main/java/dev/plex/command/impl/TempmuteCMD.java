@@ -5,7 +5,7 @@ import dev.plex.command.ServerCommand;
 import dev.plex.command.ServerCommandContext;
 import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.Punishment;
-import dev.plex.punishment.PunishmentType;
+import dev.plex.api.punishment.PunishmentType;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.TimeUtils;
 import dev.plex.util.PlexLog;
@@ -55,7 +55,7 @@ public class TempmuteCMD extends ServerCommand
         Player player = context.getNonNullPlayer(args[0]);
         PlexPlayer punishedPlayer = context.getOfflinePlexPlayer(player.getUniqueId());
 
-        if (punishedPlayer.isMuted())
+        if (plugin.getPunishmentManager().hasActivePunishment(punishedPlayer, PunishmentType.MUTE))
         {
             return context.messageComponent("playerMuted");
         }
@@ -81,7 +81,7 @@ public class TempmuteCMD extends ServerCommand
             return context.messageComponent("timeMustBeFuture");
         }
 
-        ZonedDateTime oneWeekFromNow = ZonedDateTime.now().plusWeeks(1);
+        ZonedDateTime oneWeekFromNow = ZonedDateTime.now().plus(PunishmentType.MUTE.maximumDuration().orElseThrow());
         if (endDate.isAfter(oneWeekFromNow))
         {
             return context.messageComponent("maxTimeExceeded");
@@ -95,7 +95,6 @@ public class TempmuteCMD extends ServerCommand
         punishment.setType(PunishmentType.MUTE);
         punishment.setIp(player.getAddress().getAddress().getHostAddress().trim());
         punishment.setReason(reason);
-        punishment.setActive(true);
 
         plugin.getPunishmentManager().punish(punishedPlayer, punishment).whenComplete((unused, failure) -> plugin.getApi().scheduler().runGlobal(() ->
         {

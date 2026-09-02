@@ -7,7 +7,7 @@ import dev.plex.command.ServerCommandContext;
 import dev.plex.command.exception.PlayerNotFoundException;
 import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.Punishment;
-import dev.plex.punishment.PunishmentType;
+import dev.plex.api.punishment.PunishmentType;
 import dev.plex.util.BanKickUtil;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.PlexLog;
@@ -84,10 +84,9 @@ public class TempbanCMD extends ServerCommand
         {
             return context.messageComponent("invalidTimeFormat");
         }
-        punishment.setActive(true);
         punishment.setIp(BanKickUtil.currentOrLastIp(target));
         final boolean shouldRollBack = rollBack;
-        plugin.getPunishmentManager().isBanned(target.getUuid()).whenComplete((banned, checkFailure) ->
+        plugin.getPunishmentManager().isBanned(target.getUuid(), punishment.getIp()).whenComplete((banned, checkFailure) ->
                 plugin.getApi().scheduler().runGlobal(() ->
         {
             if (checkFailure != null)
@@ -111,8 +110,6 @@ public class TempbanCMD extends ServerCommand
                     return;
                 }
                 PlexUtils.broadcast(context.messageComponent("banningPlayer", context.senderName(), target.getName()));
-                BanKickUtil.kickPlayersWithIp(plugin, punishment.getIp(),
-                        Punishment.generateBanMessage(punishment, plugin.config.getString("banning.ban_url")));
                 if (shouldRollBack) reportRollback(context, sender, target.getName());
             }));
         }));

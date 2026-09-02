@@ -13,14 +13,19 @@ CREATE TABLE IF NOT EXISTS punishments (
     id BIGSERIAL PRIMARY KEY,
     punished_uuid VARCHAR(46) NOT NULL,
     punisher_uuid VARCHAR(46),
-    source VARCHAR(30),
+    source VARCHAR(30) NOT NULL CHECK (source IN ('PLAYER', 'CONSOLE', 'WEB')),
     punisher_reference VARCHAR(200),
     ip VARCHAR(2000),
-    type VARCHAR(30),
-    reason VARCHAR(2000),
-    active BOOLEAN,
+    type VARCHAR(30) NOT NULL CHECK (type IN ('MUTE', 'FREEZE', 'BAN', 'TEMPBAN', 'KICK', 'SMITE')),
+    reason VARCHAR(2000) NOT NULL,
+    active BOOLEAN NOT NULL,
     issueDate BIGINT NOT NULL,
-    endDate BIGINT
+    endDate BIGINT,
+    CHECK ((type IN ('MUTE', 'FREEZE', 'BAN', 'TEMPBAN') AND endDate IS NOT NULL)
+        OR (type IN ('KICK', 'SMITE') AND endDate IS NULL)),
+    CHECK (type NOT IN ('KICK', 'SMITE') OR active = FALSE),
+    CHECK (type <> 'BAN' OR endDate = issueDate + 86400000),
+    CHECK (type <> 'MUTE' OR endDate <= issueDate + 604800000)
 );
 
 CREATE INDEX IF NOT EXISTS idx_punishments_punished ON punishments(punished_uuid);

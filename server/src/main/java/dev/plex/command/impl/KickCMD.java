@@ -7,7 +7,7 @@ import dev.plex.command.ServerCommandContext;
 import dev.plex.command.exception.PlayerNotFoundException;
 import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.Punishment;
-import dev.plex.punishment.PunishmentType;
+import dev.plex.api.punishment.PunishmentType;
 import dev.plex.util.BungeeUtil;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.TimeUtils;
@@ -77,8 +77,6 @@ public class KickCMD extends ServerCommand
         }
 
         punishment.setReason(reason);
-        punishment.setEndDate(null);
-        punishment.setActive(false);
         punishment.setIp(player.getAddress().getAddress().getHostAddress().trim());
         plugin.getPunishmentManager().punish(plexPlayer, punishment).whenComplete((unused, failure) -> plugin.getApi().scheduler().runGlobal(() ->
         {

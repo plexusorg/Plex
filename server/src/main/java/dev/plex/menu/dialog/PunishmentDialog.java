@@ -136,7 +136,8 @@ public class PunishmentDialog
         return Component.text(punishment.getType().name() + "\n"
                 + "By: " + punisher + "\n"
                 + "Issued: " + TimeUtils.useTimezone(punishment.getIssueDate()) + "\n"
-                + "Expire(d/s): " + TimeUtils.useTimezone(punishment.getEndDate()) + "\n"
+                + "Expire(d/s): " + (punishment.getEndDate() == null
+                ? "N/A" : TimeUtils.useTimezone(punishment.getEndDate())) + "\n"
                 + "Reason: " + punishment.getReason());
     }
 }

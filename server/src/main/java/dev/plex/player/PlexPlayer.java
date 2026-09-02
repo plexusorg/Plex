@@ -1,16 +1,13 @@
 package dev.plex.player;
 
-import com.google.common.collect.Lists;
 import com.google.gson.GsonBuilder;
 import dev.plex.punishment.Punishment;
-import dev.plex.punishment.PunishmentType;
 import dev.plex.util.adapter.ZonedDateTimeAdapter;
-import dev.plex.util.TimeUtils;
 
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -42,16 +39,16 @@ public class PlexPlayer
     private transient volatile boolean muted;
     private transient volatile boolean lockedUp;
 
-    private List<String> ips = Lists.newArrayList();
+    private List<String> ips = new CopyOnWriteArrayList<>();
 
     @Setter(AccessLevel.NONE)
-    private List<Punishment> punishments = Lists.newArrayList();
+    private List<Punishment> punishments = new CopyOnWriteArrayList<>();
 
     public PlexPlayer()
     {
     }
 
-    public PlexPlayer(UUID playerUUID, boolean loadPunishments)
+    public PlexPlayer(UUID playerUUID)
     {
         this.uuid = playerUUID;
         this.name = "";
@@ -60,35 +57,21 @@ public class PlexPlayer
         this.prefix = "";
 
         this.commandSpy = false;
-
-        if (loadPunishments)
-        {
-            this.checkMutesAndFreeze();
-        }
-    }
-
-    public PlexPlayer(UUID playerUUID)
-    {
-        this(playerUUID, true);
     }
 
     public void setPunishments(List<Punishment> punishments)
     {
-        this.punishments = new ArrayList<>(punishments);
+        this.punishments = new CopyOnWriteArrayList<>(punishments);
+    }
+
+    public void setIps(List<String> ips)
+    {
+        this.ips = new CopyOnWriteArrayList<>(ips);
     }
 
     public String displayName()
     {
         return PlainTextComponentSerializer.plainText().serialize(getPlayer().displayName());
-    }
-
-    public void checkMutesAndFreeze()
-    {
-        final ZonedDateTime now = ZonedDateTime.now(TimeUtils.zoneId());
-        this.muted = this.punishments.stream().filter(punishment -> punishment.getType() == PunishmentType.MUTE)
-                .anyMatch(punishment -> punishment.isActive() && punishment.getEndDate() != null && now.isBefore(punishment.getEndDate()));
-        this.frozen = this.punishments.stream().filter(punishment -> punishment.getType() == PunishmentType.FREEZE)
-                .anyMatch(punishment -> punishment.isActive() && punishment.getEndDate() != null && now.isBefore(punishment.getEndDate()));
     }
 
     public String toJSON()

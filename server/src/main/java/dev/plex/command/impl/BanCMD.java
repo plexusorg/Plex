@@ -7,12 +7,10 @@ import dev.plex.command.ServerCommandContext;
 import dev.plex.command.exception.PlayerNotFoundException;
 import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.Punishment;
-import dev.plex.punishment.PunishmentType;
+import dev.plex.api.punishment.PunishmentType;
 import dev.plex.util.BanKickUtil;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
-import dev.plex.util.TimeUtils;
-import java.time.ZonedDateTime;
 import java.util.List;
 
 import io.papermc.paper.command.brigadier.CommandSourceStack;
@@ -61,13 +59,14 @@ public class BanCMD extends ServerCommand
             throw new PlayerNotFoundException();
         }
 
-        plugin.getPunishmentManager().isBanned(plexPlayer.getUuid()).whenComplete((aBoolean, throwable) ->
+        plugin.getPunishmentManager().isBanned(plexPlayer.getUuid(), BanKickUtil.currentOrLastIp(plexPlayer)).whenComplete((aBoolean, throwable) ->
         {
             plugin.getApi().scheduler().runGlobal(() ->
             {
                 if (throwable != null)
                 {
                     PlexLog.error("Unable to check ban state for {0}: {1}", plexPlayer.getName(), throwable.getMessage());
+                    context.send(sender, Component.text("Unable to check the player's ban state."));
                     return;
                 }
                 if (aBoolean)
@@ -91,8 +90,6 @@ public class BanCMD extends ServerCommand
                 {
                     punishment.setReason(context.messageString("noReasonProvided"));
                 }
-                punishment.setEndDate(ZonedDateTime.now(TimeUtils.zoneId()).plus(PunishmentType.STANDARD_BAN_DURATION));
-                punishment.setActive(true);
                 punishment.setIp(BanKickUtil.currentOrLastIp(plexPlayer));
                 final boolean shouldRollBack = rollBack;
                 plugin.getPunishmentManager().punish(plexPlayer, punishment).whenComplete((unused, failure) -> plugin.getApi().scheduler().runGlobal(() ->
@@ -104,8 +101,6 @@ public class BanCMD extends ServerCommand
                         return;
                     }
                     PlexUtils.broadcast(context.messageComponent("banningPlayer", context.senderName(), plexPlayer.getName()));
-                    BanKickUtil.kickPlayersWithIp(plugin, punishment.getIp(),
-                            Punishment.generateBanMessage(punishment, plugin.config.getString("banning.ban_url")));
                     PlexLog.debug("(From /ban command) PunishedPlayer UUID: " + plexPlayer.getUuid());
                     if (shouldRollBack) reportRollback(context, sender, plexPlayer.getName());
                 }));

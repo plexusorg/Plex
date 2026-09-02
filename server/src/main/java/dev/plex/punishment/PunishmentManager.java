@@ -1,10 +1,12 @@
 package dev.plex.punishment;
 
 import dev.plex.Plex;
+import dev.plex.api.punishment.PunishmentType;
 import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.admission.BanDecisionService;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
+import dev.plex.util.BanKickUtil;
 import dev.plex.util.TimeUtils;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import lombok.Getter;
@@ -104,8 +106,12 @@ public class PunishmentManager
         return true;
     }
 
-    public CompletableFuture<Optional<Punishment>> decideAdmission(UUID uuid, String ip)
+    public CompletableFuture<Optional<Punishment>> decideAdmission(UUID uuid, @Nullable String ip)
     {
+        if (hasBanBypass(uuid))
+        {
+            return CompletableFuture.completedFuture(Optional.empty());
+        }
         return banDecisionService.decide(uuid, ip);
     }
 
@@ -116,15 +122,33 @@ public class PunishmentManager
 
     public boolean isActiveBan(Punishment punishment)
     {
-        return (punishment.getType() == PunishmentType.BAN || punishment.getType() == PunishmentType.TEMPBAN)
-                && punishment.isActive()
-                && punishment.getEndDate() != null
-                && punishment.getEndDate().isAfter(ZonedDateTime.now(TimeUtils.zoneId()));
+        return punishment.getType().isBan() && isPunishmentActive(punishment);
+    }
+
+    public boolean isPunishmentActive(Punishment punishment)
+    {
+        if (!punishment.isActive()) return false;
+        if (punishment.getEndDate() != null && !punishment.getEndDate().isAfter(ZonedDateTime.now(TimeUtils.zoneId())))
+        {
+            return false;
+        }
+        return !punishment.getType().isBan() || !hasBanBypass(punishment.getPunished());
+    }
+
+    public boolean hasActivePunishment(PlexPlayer player, PunishmentType type)
+    {
+        return player.getPunishments().stream()
+                .anyMatch(punishment -> punishment.getType() == type && isPunishmentActive(punishment));
     }
 
     public CompletableFuture<Boolean> isBanned(UUID uuid)
     {
-        return plugin.getPunishmentRepository().getEffectiveBan(uuid, "", Instant.now()).thenApply(Optional::isPresent);
+        return isBanned(uuid, null);
+    }
+
+    public CompletableFuture<Boolean> isBanned(UUID uuid, @Nullable String ip)
+    {
+        return decideAdmission(uuid, ip).thenApply(Optional::isPresent);
     }
 
     public CompletableFuture<List<Punishment>> getActiveBans()
@@ -142,7 +166,7 @@ public class PunishmentManager
             if (player != null)
             {
                 player.getPunishments().stream()
-                        .filter(p -> p.getType() == PunishmentType.BAN || p.getType() == PunishmentType.TEMPBAN)
+                        .filter(p -> p.getType().isBan())
                         .forEach(p -> p.setActive(false));
             }
             invalidateBanDecisions(uuid, null);
@@ -163,24 +187,47 @@ public class PunishmentManager
             return CompletableFuture.failedFuture(new IllegalArgumentException("Punishment and player UUIDs differ"));
         if (punishment.getType() == null)
             return CompletableFuture.failedFuture(new IllegalArgumentException("Punishment type is required"));
-        if ((punishment.getType() == PunishmentType.BAN || punishment.getType() == PunishmentType.FREEZE
-                || punishment.getType() == PunishmentType.MUTE || punishment.getType() == PunishmentType.TEMPBAN)
-                && punishment.getEndDate() == null)
+        if (punishment.getIssueDate() == null)
+            return CompletableFuture.failedFuture(new IllegalArgumentException("Punishment issue date is required"));
+        punishment.getType().fixedDuration().ifPresent(duration ->
+                punishment.setEndDate(punishment.getIssueDate().plus(duration)));
+        if (punishment.getType().requiresEndDate() && punishment.getEndDate() == null)
             return CompletableFuture.failedFuture(new IllegalArgumentException(punishment.getType() + " requires an end date"));
-        if ((punishment.getType() == PunishmentType.KICK || punishment.getType() == PunishmentType.SMITE)
-                && punishment.getEndDate() != null)
+        if (!punishment.getType().requiresEndDate() && punishment.getEndDate() != null)
             return CompletableFuture.failedFuture(new IllegalArgumentException(punishment.getType() + " must not have an end date"));
         if (punishment.getEndDate() != null && !punishment.getEndDate().toInstant().isAfter(Instant.now()))
             return CompletableFuture.failedFuture(new IllegalArgumentException(punishment.getType() + " requires a future end date"));
+        if (punishment.getEndDate() != null && punishment.getType().maximumDuration().isPresent()
+                && punishment.getEndDate().toInstant().isAfter(punishment.getIssueDate().toInstant()
+                .plus(punishment.getType().maximumDuration().orElseThrow())))
+            return CompletableFuture.failedFuture(new IllegalArgumentException(punishment.getType() + " exceeds its maximum duration"));
+        if (punishment.getReason() == null)
+            return CompletableFuture.failedFuture(new IllegalArgumentException("Punishment reason is required"));
         if (punishment.getIp() != null) punishment.setIp(BanDecisionService.canonicalIp(punishment.getIp()));
+        punishment.setActive(punishment.getType().startsActive());
 
-        return plugin.getPunishmentRepository().insertPunishment(punishment).thenCompose(unused -> onGlobal(() ->
+        CompletableFuture<Boolean> alreadyActive = punishment.getType().isBan()
+                ? isBanned(player.getUuid(), punishment.getIp())
+                : CompletableFuture.completedFuture(false);
+        return alreadyActive.thenCompose(active ->
+        {
+            if (active)
+            {
+                return CompletableFuture.failedFuture(new IllegalStateException("Player is already banned"));
+            }
+            return plugin.getPunishmentRepository().insertPunishment(punishment);
+        }).thenCompose(unused -> onGlobal(() ->
         {
             player.getPunishments().add(punishment);
-            if (punishment.getType() == PunishmentType.BAN || punishment.getType() == PunishmentType.TEMPBAN)
+            if (punishment.getType().isBan())
             {
                 invalidateBanDecisions(player.getUuid(), punishment.getIp());
                 publishInvalidation(player.getUuid(), punishment.getIp());
+                if (isPunishmentActive(punishment))
+                {
+                    BanKickUtil.kickBannedPlayers(plugin, player.getUuid(), punishment.getIp(),
+                            Punishment.generateBanMessage(punishment, plugin.config.getString("banning.ban_url")));
+                }
             }
             restoreTimedState(player, punishment.getType());
         }));
@@ -294,6 +341,12 @@ public class PunishmentManager
                     PlexLog.warn("Unable to publish ban cache invalidation: {0}", failure.getMessage());
                     return null;
                 });
+    }
+
+    private boolean hasBanBypass(UUID uuid)
+    {
+        return plugin.getPermissions() != null && plugin.getPermissions().playerHas(null,
+                Bukkit.getOfflinePlayer(uuid), "plex.ban.bypass");
     }
 
     private String nextIndefiniteBanKey(String type, String value)

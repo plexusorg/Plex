@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Reads and creates Plex punishments.
@@ -48,6 +49,15 @@ public interface PunishmentsApi
      * @return result of the check
      */
     CompletableFuture<Boolean> isBanned(UUID uuid);
+
+    /**
+     * Checks whether a player would be denied admission for a UUID or current IP ban.
+     *
+     * @param uuid player UUID
+     * @param ip current player IP, or {@code null} to check only the UUID
+     * @return result of the check
+     */
+    CompletableFuture<Boolean> isBanned(UUID uuid, @Nullable String ip);
 
     /**
      * Removes active bans for a player.

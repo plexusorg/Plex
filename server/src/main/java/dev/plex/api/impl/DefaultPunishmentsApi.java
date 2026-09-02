@@ -4,9 +4,7 @@ import dev.plex.Plex;
 import dev.plex.api.punishment.IndefiniteBanView;
 import dev.plex.api.punishment.PunishmentRequest;
 import dev.plex.api.punishment.PunishmentsApi;
-import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.Punishment;
-import dev.plex.punishment.PunishmentType;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -24,6 +22,7 @@ final class DefaultPunishmentsApi implements PunishmentsApi
     @Override public Optional<IndefiniteBanView> indefiniteBanByName(String name) { return Optional.ofNullable(plugin.getPunishmentManager().getIndefiniteBanByUsername(Objects.requireNonNull(name, "name"))).map(DefaultIndefiniteBanView::new); }
     @Override public Optional<IndefiniteBanView> indefiniteBanByIp(String ip) { return Optional.ofNullable(plugin.getPunishmentManager().getIndefiniteBanByIP(Objects.requireNonNull(ip, "ip"))).map(DefaultIndefiniteBanView::new); }
     @Override public CompletableFuture<Boolean> isBanned(UUID uuid) { return plugin.getPunishmentManager().isBanned(Objects.requireNonNull(uuid, "uuid")); }
+    @Override public CompletableFuture<Boolean> isBanned(UUID uuid, String ip) { return plugin.getPunishmentManager().isBanned(Objects.requireNonNull(uuid, "uuid"), ip); }
     @Override public CompletableFuture<Boolean> unban(UUID uuid) { return plugin.getPunishmentManager().unban(Objects.requireNonNull(uuid, "uuid")); }
 
     @Override
@@ -34,9 +33,8 @@ final class DefaultPunishmentsApi implements PunishmentsApi
         punishment.setSource(request.source());
         punishment.setPunisherReference(request.punisherReference());
         punishment.setIp(request.ip());
-        punishment.setType(PunishmentType.valueOf(request.type().name()));
+        punishment.setType(request.type());
         punishment.setReason(request.reason());
-        punishment.setActive(true);
         punishment.setEndDate(request.endDate());
         return plugin.getPlayerService().findPlayer(request.punished()).thenCompose(player ->
         {
