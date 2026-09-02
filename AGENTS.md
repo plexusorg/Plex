@@ -27,6 +27,9 @@ These rules apply to the whole Plex repository. Apply the same standards when a 
 - Prefer ordinary control flow over streams, nested futures, or callback chains when the ordinary form is clearer.
 - Do not use an `AtomicReference`, concurrent collection, snapshot, lock, or `volatile` for state that is local or
   sequential. For shared state, identify the threads that share it before choosing synchronization.
+- Always use primitive boolean literals; never use boxed boolean constants.
+- Do not use reflection to access a declared dependency or to hide a classpath/configuration error. Declare the correct
+  artifact and plugin dependency, then call its typed API directly.
 - Avoid manual `CompletableFuture` bridges unless adapting a genuinely callback-only API. Future callbacks may execute
   on the thread that completes them; schedule only the Bukkit operation that actually requires an owner.
 - Do not catch `Throwable`. Catch specific recoverable exceptions. Never leave an empty catch block.
