@@ -92,6 +92,7 @@ public class GameRuleUtil
             boolean value = Boolean.parseBoolean(valueString);
             world.setGameRule(boolRule, value);
             PlexLog.debug("Setting game rule " + gameRuleName + " for world " + world.getName() + " with value " + value);
+            return;
         }
         if (type == Integer.class)
         {
