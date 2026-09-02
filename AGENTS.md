@@ -17,6 +17,30 @@ These rules apply to the whole Plex repository. Apply the same standards when a 
 - Do not edit generated output, build directories, bundled assets, or dependency code.
 - Do not commit, push, deploy, or modify live services unless the user explicitly asks.
 
+## Root-cause gate
+
+Do not edit code until the failure is understood well enough to state its root cause in one concrete sentence.
+
+1. Reproduce or trace the exact failing path. Read the source at the failing line and its direct callers.
+2. Inspect the relevant live state read-only. For dependency failures, verify the installed plugin, enabled state,
+   version, resolved artifact, package name, generated plugin descriptor, load order, and classpath declaration.
+3. Inspect the exact resolved dependency source and current Paper source/documentation when their contracts matter.
+4. Compare the evidence with the intended direct implementation. Distinguish an absent optional capability from a
+   broken dependency declaration, wrong artifact, stale deployment, or programming error.
+5. State the root cause before proposing a change. If the evidence does not support one, keep investigating rather than
+   adding a workaround.
+6. Fix the cause at its owning layer with the smallest typed change. Do not suppress the symptom.
+
+- A fallback is valid only for an expected runtime state, such as a genuinely absent optional plugin. It is not valid
+  for a wrong artifact, unresolved class, stale schema, inconsistent API contract, or other configuration/programming
+  error.
+- If a declared dependency cannot be called normally, stop. Verify and fix the dependency metadata or deployment; do
+  not reach for reflection, classloader tricks, broad catches, or duplicated implementations.
+- If the proposed fix is more complex than the code that failed, treat that as evidence the root cause is still unknown
+  and investigate again.
+- When the user identifies a simpler intended design, stop extending the current approach. Re-evaluate from that design
+  before making another edit.
+
 ## Keep code simple
 
 - Use direct API calls when they are already correct. Do not replace `sender.sendMessage(...)` or
@@ -40,6 +64,11 @@ These rules apply to the whole Plex repository. Apply the same standards when a 
 - Comments should explain a non-obvious contract, invariant, or workaround. Do not narrate the code. Avoid ceremonial
   Javadocs that merely restate a method name.
 - Follow the existing Allman brace style and avoid unrelated formatting churn.
+
+Before considering a change complete, inspect the diff and remove complexity introduced during debugging: reflection,
+boxed primitives, unnecessary schedulers, wrappers, compatibility branches, broad catches, redundant null checks,
+temporary fallbacks, and one-use abstractions. Every remaining complication must have a concrete contract or ownership
+reason.
 
 ## Paper and Folia threading
 
