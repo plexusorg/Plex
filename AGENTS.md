@@ -143,6 +143,11 @@ log only a message when the stack matters.
 Use primitive Boolean literals. Comments explain non-obvious contracts or workarounds, not code narration. Avoid
 ceremonial Javadocs, preserve Allman braces, and avoid unrelated formatting churn.
 
+Always import referenced types normally. Never use fully qualified class names inline in fields, signatures,
+annotations, generic arguments, method bodies, or constructor calls as a shortcut around adding an import. Resolve
+simple-name collisions deliberately with the narrowest readable exception rather than scattering qualified names
+through the implementation.
+
 ## Performance-aware state
 
 Efficiency is part of correctness on hot paths. Caches, indexes, batching, coalesced futures, and bounded concurrency are
@@ -186,6 +191,13 @@ Verify uncertainty against the resolved Paper/Folia source or current official d
 
 Use Paper's schedulers directly; Plex must not mirror them in its API. The scheduler is selected by the state being
 accessed, not by a general desire to be "thread safe":
+
+Do not reflexively schedule code. A scheduler hop is justified only by a proven execution-ownership crossing, an
+explicit delay/repetition requirement, or blocking work that must leave a region thread. Before adding one, identify
+the current thread/context, the exact state owner, and the smallest operation that must cross the boundary. If those
+cannot be named, do not schedule it. Never wrap an entire command, listener, callback, message, log statement,
+permission check, configuration read, immutable computation, or Redis debug output in a scheduler merely because a
+scheduler exists. Remove redundant hops rather than moving them to a different scheduler API.
 
 Authoritative references: [Paper Folia support](https://docs.papermc.io/paper/dev/folia-support/),
 [EntityScheduler](https://jd.papermc.io/paper/io/papermc/paper/threadedregions/scheduler/EntityScheduler.html),
