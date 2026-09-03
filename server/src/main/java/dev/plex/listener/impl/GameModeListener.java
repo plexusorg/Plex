@@ -32,7 +32,6 @@ public class GameModeListener extends ServerListenerBase
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onSpectatorTeleport(PlayerTeleportEvent event)
     {
-        if (event.getCause() != PlayerTeleportEvent.TeleportCause.SPECTATE) return;
         Player player = event.getPlayer();
         if (plugin.getPunishmentManager().isFiniteBanRestricted(player.getUniqueId()))
         {
@@ -40,6 +39,7 @@ public class GameModeListener extends ServerListenerBase
             player.sendMessage(plugin.getPunishmentManager().finiteBanMessage(player.getUniqueId()));
             return;
         }
+        if (event.getCause() != PlayerTeleportEvent.TeleportCause.SPECTATE) return;
         if (!player.hasPermission("plex.gamemode.spectator.teleport"))
         {
             event.setCancelled(true);

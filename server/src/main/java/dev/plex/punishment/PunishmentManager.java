@@ -193,6 +193,11 @@ public class PunishmentManager
         return finiteBanEnforcement.restrictionMessage(uuid);
     }
 
+    public void restoreFiniteBanInventory(org.bukkit.entity.Player player)
+    {
+        finiteBanEnforcement.restoreInventory(player);
+    }
+
     public boolean isActiveBan(Punishment punishment)
     {
         return punishment.getType().isBan() && isPunishmentActive(punishment);

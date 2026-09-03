@@ -10,6 +10,7 @@ import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -22,6 +23,7 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.GameMode;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.Nullable;
 
@@ -38,6 +40,7 @@ final class FiniteBanEnforcement
     private final Set<UUID> protectedFromEviction = new LinkedHashSet<>();
     private final Map<UUID, Integer> removingBanOwners = new LinkedHashMap<>();
     private final Set<UUID> unresolvedAdmissions = new LinkedHashSet<>();
+    private final Set<UUID> restoringInventories = new LinkedHashSet<>();
     private final Map<UUID, Long> refreshVersions = new LinkedHashMap<>();
     private final Map<UUID, Integer> joinedCloseDebts = new LinkedHashMap<>();
     private long nextAdmissionToken;
@@ -239,6 +242,31 @@ final class FiniteBanEnforcement
                 plugin.config.getString("banning.ban_url"));
     }
 
+    void restoreInventory(Player player)
+    {
+        ItemStack[] contents;
+        synchronized (this)
+        {
+            OnlineRestriction restriction = restrictions.get(player.getUniqueId());
+            if (restriction == null || restriction.inventoryContents == null
+                    || restoringInventories.contains(player.getUniqueId())) return;
+            contents = cloneContents(restriction.inventoryContents);
+            if (Arrays.equals(contents, player.getInventory().getContents())) return;
+            restoringInventories.add(player.getUniqueId());
+        }
+        try
+        {
+            player.getInventory().setContents(contents);
+        }
+        finally
+        {
+            synchronized (this)
+            {
+                restoringInventories.remove(player.getUniqueId());
+            }
+        }
+    }
+
     CompletableFuture<Void> refreshMatching(UUID uuid, @Nullable String ip)
     {
         String canonicalIp = BanDecisionService.canonicalIp(ip);
@@ -427,54 +455,51 @@ final class FiniteBanEnforcement
         });
     }
 
-    private CompletableFuture<Void> activate(Player player, String ip, Punishment punishment, @Nullable Long expectedVersion)
+    private CompletableFuture<Void> activate(Player player, String ip, Punishment punishment, long expectedVersion)
     {
         BossBar bar = BossBar.bossBar(Punishment.generateBanStatusMessage(punishment), 1.0f,
                 BossBar.Color.RED, BossBar.Overlay.PROGRESS);
         OnlineRestriction replacement = new OnlineRestriction(punishment, bar);
-        OnlineRestriction previous;
-        boolean wasRestricted;
-        boolean shouldEvict;
-        synchronized (this)
-        {
-            OnlinePlayer online = onlinePlayers.get(player.getUniqueId());
-            if (online == null || online.player() != player) return CompletableFuture.completedFuture(null);
-            if (expectedVersion != null && refreshVersions.getOrDefault(player.getUniqueId(), 0L) != expectedVersion)
-                return CompletableFuture.completedFuture(null);
-            if (expectedVersion == null) refreshVersions.merge(player.getUniqueId(), 1L, Long::sum);
-            previous = restrictions.put(player.getUniqueId(), replacement);
-            wasRestricted = previous != null && isEffective(previous.punishment);
-            replacement.previous = previous;
-            protectedFromEviction.remove(player.getUniqueId());
-            shouldEvict = evicting.contains(player.getUniqueId());
-        }
-        if (previous != null && previous.expiryTask != null) previous.expiryTask.cancel();
-        scheduleExpiry(player.getUniqueId(), ip, replacement);
         CompletableFuture<Void> completion = new CompletableFuture<>();
         ScheduledTask task = plugin.getApi().scheduler().runEntity(player, ignored ->
         {
-            synchronized (this)
+            ActivationPlan plan = installRestriction(player, replacement, expectedVersion);
+            if (plan == null)
             {
-                if (restrictions.get(player.getUniqueId()) != replacement)
-                {
-                    completion.complete(null);
-                    return;
-                }
+                completion.complete(null);
+                return;
             }
+            if (plan.previous() != null && plan.previous().expiryTask != null) plan.previous().expiryTask.cancel();
+            scheduleExpiry(player.getUniqueId(), ip, replacement);
             if (!player.getPersistentDataContainer().has(previousGameModeKey, PersistentDataType.STRING))
             {
                 player.getPersistentDataContainer().set(previousGameModeKey, PersistentDataType.STRING, player.getGameMode().name());
             }
-            hidePreviousBossBars(player, previous);
+            hidePreviousBossBars(player, plan.previous());
             player.showBossBar(bar);
             player.setGameMode(GameMode.SPECTATOR);
             player.sendMessage(Punishment.generateBanMessage(punishment, plugin.config.getString("banning.ban_url")));
+            if (plan.shouldEvict()) evict(player, null);
+            if (!plan.wasRestricted()) enforceBuffer();
             completion.complete(null);
         }, () -> completion.complete(null));
         if (task == null) completion.complete(null);
-        if (shouldEvict) evict(player, null);
-        if (!wasRestricted) enforceBuffer();
         return completion;
+    }
+
+    private synchronized @Nullable ActivationPlan installRestriction(Player player, OnlineRestriction replacement,
+                                                                      long expectedVersion)
+    {
+        OnlinePlayer online = onlinePlayers.get(player.getUniqueId());
+        if (online == null || online.player() != player) return null;
+        if (refreshVersions.getOrDefault(player.getUniqueId(), 0L) != expectedVersion) return null;
+        OnlineRestriction previous = restrictions.get(player.getUniqueId());
+        replacement.previous = previous;
+        replacement.inventoryContents = inventorySnapshot(player, previous);
+        restrictions.put(player.getUniqueId(), replacement);
+        protectedFromEviction.remove(player.getUniqueId());
+        return new ActivationPlan(previous, previous != null && isEffective(previous.punishment),
+                evicting.contains(player.getUniqueId()));
     }
 
     private CompletableFuture<Void> release(Player player, long expectedVersion)
@@ -670,6 +695,22 @@ final class FiniteBanEnforcement
                 : BanDecisionService.canonicalIp(player.getAddress().getAddress().getHostAddress());
     }
 
+    private static ItemStack[] cloneContents(ItemStack[] contents)
+    {
+        ItemStack[] clone = new ItemStack[contents.length];
+        for (int index = 0; index < contents.length; index++)
+        {
+            clone[index] = contents[index] == null ? null : contents[index].clone();
+        }
+        return clone;
+    }
+
+    private static ItemStack[] inventorySnapshot(Player player, @Nullable OnlineRestriction previous)
+    {
+        if (previous != null && previous.inventoryContents != null) return cloneContents(previous.inventoryContents);
+        return cloneContents(player.getInventory().getContents());
+    }
+
     private static boolean isEffective(@Nullable Punishment punishment)
     {
         return punishment != null && punishment.isActive() && punishment.getEndDate() != null
@@ -682,6 +723,7 @@ final class FiniteBanEnforcement
     private record OnlinePlayer(Player player, String ip, long connectionToken) { }
     private record JoinPlan(@Nullable PendingAdmission admission, @Nullable OnlinePlayer victim,
                             boolean rejectIncoming, long admissionVersion) { }
+    private record ActivationPlan(@Nullable OnlineRestriction previous, boolean wasRestricted, boolean shouldEvict) { }
 
     private static final class OnlineRestriction
     {
@@ -689,6 +731,7 @@ final class FiniteBanEnforcement
         private final BossBar bar;
         private ScheduledTask expiryTask;
         private OnlineRestriction previous;
+        private ItemStack[] inventoryContents;
 
         private OnlineRestriction(Punishment punishment, BossBar bar)
         {
