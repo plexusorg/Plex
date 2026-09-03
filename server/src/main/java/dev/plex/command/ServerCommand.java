@@ -16,6 +16,7 @@ import dev.plex.command.exception.ConsoleMustDefinePlayerException;
 import dev.plex.command.exception.ConsoleOnlyException;
 import dev.plex.command.exception.PlayerNotBannedException;
 import dev.plex.command.exception.PlayerNotFoundException;
+import dev.plex.player.PlexPlayer;
 import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.util.PlexUtils;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
@@ -24,8 +25,12 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.UUID;
 import net.kyori.adventure.text.Component;
+import org.bukkit.Bukkit;
+import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -64,8 +69,6 @@ public abstract class ServerCommand implements PlexCommand
         return commandSpec;
     }
 
-    protected abstract Component execute(@NotNull ServerCommandContext context);
-
     @Override
     public final LiteralCommandNode<CommandSourceStack> buildCommand()
     {
@@ -102,9 +105,10 @@ public abstract class ServerCommand implements PlexCommand
         return Commands.argument(name, IntegerArgumentType.integer(0));
     }
 
-    protected int executeCommand(CommandContext<CommandSourceStack> context, String... args)
+    protected int executeCommand(CommandContext<CommandSourceStack> context,
+                                 Function<ServerCommandContext, Component> execution)
     {
-        return dispatchCommand(context, args);
+        return dispatchCommand(context, execution);
     }
 
     protected String string(CommandContext<CommandSourceStack> context, String name)
@@ -115,30 +119,6 @@ public abstract class ServerCommand implements PlexCommand
     protected int integer(CommandContext<CommandSourceStack> context, String name)
     {
         return IntegerArgumentType.getInteger(context, name);
-    }
-
-    protected String[] argsWithGreedy(String greedy)
-    {
-        return splitExecutionArgs(greedy);
-    }
-
-    protected String[] argsWithGreedy(String first, String greedy)
-    {
-        String[] greedyArgs = argsWithGreedy(greedy);
-        String[] args = new String[greedyArgs.length + 1];
-        args[0] = first;
-        System.arraycopy(greedyArgs, 0, args, 1, greedyArgs.length);
-        return args;
-    }
-
-    protected String[] argsWithGreedy(String first, String second, String greedy)
-    {
-        String[] greedyArgs = argsWithGreedy(greedy);
-        String[] args = new String[greedyArgs.length + 2];
-        args[0] = first;
-        args[1] = second;
-        System.arraycopy(greedyArgs, 0, args, 2, greedyArgs.length);
-        return args;
     }
 
     protected SuggestionProvider<CommandSourceStack> suggest(Supplier<Collection<String>> suggestions)
@@ -261,38 +241,88 @@ public abstract class ServerCommand implements PlexCommand
         return commandSource != RequiredCommandSource.IN_GAME;
     }
 
-    private int dispatchCommand(CommandContext<CommandSourceStack> brigadierContext, String[] args)
+    private int dispatchCommand(CommandContext<CommandSourceStack> brigadierContext,
+                                Function<ServerCommandContext, Component> execution)
     {
-        ServerCommandContext context = new ServerCommandContext(plugin, this, brigadierContext, args);
+        return dispatchCommand(new ServerCommandContext(this, brigadierContext), execution);
+    }
+
+    protected Player getNonNullPlayer(String name)
+    {
+        Player player;
+        try
+        {
+            player = Bukkit.getPlayer(UUID.fromString(name));
+        }
+        catch (IllegalArgumentException ignored)
+        {
+            player = Bukkit.getPlayer(name);
+        }
+        if (player == null)
+        {
+            throw new PlayerNotFoundException();
+        }
+        return player;
+    }
+
+    protected PlexPlayer getOnlinePlexPlayer(String name)
+    {
+        PlexPlayer plexPlayer = plugin.getPlayerService().cachedPlayer(getNonNullPlayer(name).getUniqueId());
+        if (plexPlayer == null)
+        {
+            throw new PlayerNotFoundException();
+        }
+        return plexPlayer;
+    }
+
+    protected PlexPlayer getCachedPlexPlayer(UUID uuid)
+    {
+        PlexPlayer plexPlayer = plugin.getPlayerService().cachedPlayer(uuid);
+        if (plexPlayer == null)
+        {
+            throw new PlayerNotFoundException();
+        }
+        return plexPlayer;
+    }
+
+    protected World getNonNullWorld(String name)
+    {
+        World world = Bukkit.getWorld(name);
+        if (world == null)
+        {
+            throw new CommandFailException(PlexUtils.messageString("worldNotFound"));
+        }
+        return world;
+    }
+
+    protected String normalizeGreedyString(String greedy)
+    {
+        return greedy.isBlank() ? "" : String.join(" ", greedy.trim().split("\\s+"));
+    }
+
+    private int dispatchCommand(ServerCommandContext context,
+                                Function<ServerCommandContext, Component> execution)
+    {
         CommandSender sender = context.sender();
         try
         {
-            Component component = this.execute(context);
+            Component component = execution.apply(context);
             if (component != null)
             {
-                context.send(sender, component);
+                sender.sendMessage(component);
             }
         }
         catch (PlayerNotFoundException | CommandFailException | ConsoleOnlyException |
                ConsoleMustDefinePlayerException | PlayerNotBannedException | NumberFormatException ex)
         {
-            context.send(sender, context.exceptionComponent(ex));
+            sender.sendMessage(context.exceptionComponent(ex));
         }
         return com.mojang.brigadier.Command.SINGLE_SUCCESS;
     }
 
     private boolean hasCachedPlexPlayer(Player player)
     {
-        return plugin.getPlayerCache().contains(player.getUniqueId());
-    }
-
-    private String[] splitExecutionArgs(String rawArgs)
-    {
-        if (rawArgs.isBlank())
-        {
-            return new String[0];
-        }
-        return rawArgs.trim().split("\\s+");
+        return plugin.getPlayerService().isCached(player.getUniqueId());
     }
 
     public @NotNull Plex getPlugin()

@@ -1,5 +1,6 @@
 package dev.plex.command.impl;
 
+import dev.plex.util.PlexUtils;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.sk89q.worldedit.IncompleteRegionException;
 import dev.plex.command.ServerCommand;
@@ -33,54 +34,38 @@ public final class ProtectCMD extends ServerCommand
     @Override
     protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
     {
-        command.executes(context -> executeCommand(context));
+        command.executes(context -> executeCommand(context, ServerCommandContext::usage));
 
-        command.then(literal("create")
-                .then(word("region")
-                        .then(word("preset")
-                                .suggests(suggest(worldGuard::presetNames))
-                                .executes(context -> executeCommand(context, "create", string(context, "region"), string(context, "preset")))
-                                .then(nonNegativeInteger("radius")
-                                        .executes(context -> executeCommand(context, "create", string(context, "region"),
-                                                string(context, "preset"), Integer.toString(integer(context, "radius"))))))));
+        var create = literal("create");
+        var region = word("region");
+        var preset = word("preset").suggests(suggest(worldGuard::presetNames));
+        preset.executes(context -> executeCommand(context, commandContext -> protect(commandContext,
+                () -> create(commandContext, string(context, "region"), string(context, "preset"), null))));
+        preset.then(nonNegativeInteger("radius").executes(context -> executeCommand(context, commandContext ->
+                protect(commandContext, () -> create(commandContext, string(context, "region"),
+                        string(context, "preset"), integer(context, "radius"))))));
+        command.then(create.then(region.then(preset)));
 
-        command.then(literal("apply")
-                .then(word("region")
-                        .suggests((context, builder) -> suggestMatching(builder, currentWorldRegions(context.getSource())))
-                        .then(word("preset")
-                                .suggests(suggest(worldGuard::presetNames))
-                                .executes(context -> executeCommand(context, "apply", string(context, "region"), string(context, "preset"))))));
-
-        command.then(literal("remove")
-                .then(word("region")
-                        .suggests((context, builder) -> suggestMatching(builder, currentWorldRegions(context.getSource())))
-                        .executes(context -> executeCommand(context, "remove", string(context, "region")))));
-        command.then(literal("list").executes(context -> executeCommand(context, "list")));
-        command.then(literal("presets").executes(context -> executeCommand(context, "presets")));
-        command.then(literal("reload").executes(context -> executeCommand(context, "reload")));
+        command.then(literal("apply").then(word("region")
+                .suggests((context, builder) -> suggestMatching(builder, currentWorldRegions(context.getSource())))
+                .then(word("preset").suggests(suggest(worldGuard::presetNames))
+                        .executes(context -> executeCommand(context, commandContext -> protect(commandContext,
+                                () -> apply(commandContext, string(context, "region"), string(context, "preset"))))))));
+        command.then(literal("remove").then(word("region")
+                .suggests((context, builder) -> suggestMatching(builder, currentWorldRegions(context.getSource())))
+                .executes(context -> executeCommand(context, commandContext -> protect(commandContext,
+                        () -> remove(commandContext, string(context, "region")))))));
+        command.then(literal("list").executes(context -> executeCommand(context, this::list)));
+        command.then(literal("presets").executes(context -> executeCommand(context, this::presets)));
+        command.then(literal("reload").executes(context -> executeCommand(context, commandContext ->
+                PlexUtils.messageComponent("protectReloaded", worldGuard.reload()))));
     }
 
-    @Override
-    protected Component execute(@NotNull ServerCommandContext context)
+    private Component protect(ServerCommandContext context, ProtectionOperation operation)
     {
-        String[] args = context.args();
-        if (args.length == 0)
-        {
-            return context.usage();
-        }
-
         try
         {
-            return switch (args[0])
-            {
-                case "create" -> create(context, args);
-                case "apply" -> apply(context, args);
-                case "remove" -> remove(context, args);
-                case "list" -> list(context);
-                case "presets" -> presets(context);
-                case "reload" -> context.messageComponent("protectReloaded", worldGuard.reload());
-                default -> context.usage();
-            };
+            return operation.execute();
         }
         catch (ProtectionException ex)
         {
@@ -88,7 +73,7 @@ public final class ProtectCMD extends ServerCommand
         }
         catch (IncompleteRegionException ex)
         {
-            return context.messageComponent("protectSelectionIncomplete");
+            return PlexUtils.messageComponent("protectSelectionIncomplete");
         }
     }
 
@@ -96,61 +81,48 @@ public final class ProtectCMD extends ServerCommand
     {
         return switch (exception.reason())
         {
-            case "region-exists" -> context.messageComponent("protectRegionExists", exception.detail());
-            case "region-not-found" -> context.messageComponent("protectRegionNotFound", exception.detail());
-            case "preset-not-found" -> context.messageComponent("protectPresetNotFound", exception.detail());
-            case "invalid-region-id" -> context.messageComponent("protectInvalidRegionId", exception.detail());
-            case "manager-unavailable" -> context.messageComponent("protectManagerUnavailable", exception.detail());
-            case "player-only" -> context.messageComponent("protectPlayerOnly");
-            case "unsupported-region" -> context.messageComponent("protectUnsupportedRegion", exception.detail());
-            case "managed-other-world" -> context.messageComponent("protectManagedOtherWorld", exception.detail());
-            default -> context.messageComponent("protectInvalidPreset", exception.detail());
+            case "region-exists" -> PlexUtils.messageComponent("protectRegionExists", exception.detail());
+            case "region-not-found" -> PlexUtils.messageComponent("protectRegionNotFound", exception.detail());
+            case "preset-not-found" -> PlexUtils.messageComponent("protectPresetNotFound", exception.detail());
+            case "invalid-region-id" -> PlexUtils.messageComponent("protectInvalidRegionId", exception.detail());
+            case "manager-unavailable" -> PlexUtils.messageComponent("protectManagerUnavailable", exception.detail());
+            case "player-only" -> PlexUtils.messageComponent("protectPlayerOnly");
+            case "unsupported-region" -> PlexUtils.messageComponent("protectUnsupportedRegion", exception.detail());
+            case "managed-other-world" -> PlexUtils.messageComponent("protectManagedOtherWorld", exception.detail());
+            default -> PlexUtils.messageComponent("protectInvalidPreset", exception.detail());
         };
     }
 
-    private Component create(ServerCommandContext context, String[] args) throws IncompleteRegionException
+    private Component create(ServerCommandContext context, String region, String preset, Integer radius) throws IncompleteRegionException
     {
-        if (args.length < 3)
-        {
-            return context.usage("/protect create <region> <preset> [radius]");
-        }
         Player player = requirePlayer(context);
-        if (args.length == 3)
+        if (radius == null)
         {
-            worldGuard.createFromSelection(player, args[1], args[2]);
+            worldGuard.createFromSelection(player, region, preset);
         }
         else
         {
-            int radius = Integer.parseInt(args[3]);
             if (radius < 1)
             {
-                return context.messageComponent("protectInvalidRadius");
+                return PlexUtils.messageComponent("protectInvalidRadius");
             }
-            worldGuard.createAround(player, args[1], args[2], radius);
+            worldGuard.createAround(player, region, preset, radius);
         }
-        return context.messageComponent("protectRegionCreated", args[1], args[2], player.getWorld().getName());
+        return PlexUtils.messageComponent("protectRegionCreated", region, preset, player.getWorld().getName());
     }
 
-    private Component apply(ServerCommandContext context, String[] args)
+    private Component apply(ServerCommandContext context, String region, String preset)
     {
-        if (args.length != 3)
-        {
-            return context.usage("/protect apply <region> <preset>");
-        }
         Player player = requirePlayer(context);
-        worldGuard.applyPreset(player.getWorld(), args[1], args[2]);
-        return context.messageComponent("protectPresetApplied", args[2], args[1]);
+        worldGuard.applyPreset(player.getWorld(), region, preset);
+        return PlexUtils.messageComponent("protectPresetApplied", preset, region);
     }
 
-    private Component remove(ServerCommandContext context, String[] args)
+    private Component remove(ServerCommandContext context, String region)
     {
-        if (args.length != 2)
-        {
-            return context.usage("/protect remove <region>");
-        }
         Player player = requirePlayer(context);
-        worldGuard.remove(player.getWorld(), args[1]);
-        return context.messageComponent("protectRegionRemoved", args[1], player.getWorld().getName());
+        worldGuard.remove(player.getWorld(), region);
+        return PlexUtils.messageComponent("protectRegionRemoved", region, player.getWorld().getName());
     }
 
     private Component list(ServerCommandContext context)
@@ -158,15 +130,15 @@ public final class ProtectCMD extends ServerCommand
         Collection<String> names = worldGuard.managedRegionNames();
         if (names.isEmpty())
         {
-            return context.messageComponent("protectNoRegions");
+            return PlexUtils.messageComponent("protectNoRegions");
         }
-        context.send(context.sender(), context.messageComponent("protectRegionListHeader", names.size()));
+        context.sender().sendMessage(PlexUtils.messageComponent("protectRegionListHeader", names.size()));
         for (String name : names)
         {
             ConfigurationSection region = worldGuard.config().getConfigurationSection("regions." + name);
             if (region != null)
             {
-                context.send(context.sender(), context.messageComponent("protectRegionListEntry", name,
+                context.sender().sendMessage(PlexUtils.messageComponent("protectRegionListEntry", name,
                         region.getString("world", "?"), region.getString("preset", "custom")));
             }
         }
@@ -178,13 +150,13 @@ public final class ProtectCMD extends ServerCommand
         Collection<String> names = worldGuard.presetNames();
         if (names.isEmpty())
         {
-            return context.messageComponent("protectNoPresets");
+            return PlexUtils.messageComponent("protectNoPresets");
         }
-        context.send(context.sender(), context.messageComponent("protectPresetListHeader", names.size()));
+        context.sender().sendMessage(PlexUtils.messageComponent("protectPresetListHeader", names.size()));
         for (String name : names)
         {
             String description = worldGuard.config().getString("presets." + name + ".description", "No description");
-            context.send(context.sender(), context.messageComponent("protectPresetListEntry", name, description));
+            context.sender().sendMessage(PlexUtils.messageComponent("protectPresetListEntry", name, description));
         }
         return null;
     }
@@ -206,5 +178,11 @@ public final class ProtectCMD extends ServerCommand
             return worldGuard.regionNames(player.getWorld());
         }
         return List.of();
+    }
+
+    @FunctionalInterface
+    private interface ProtectionOperation
+    {
+        Component execute() throws IncompleteRegionException;
     }
 }

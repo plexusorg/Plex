@@ -2,6 +2,7 @@ package dev.plex.command;
 
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
@@ -22,6 +23,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.BiFunction;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -32,13 +34,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * Convenience base for module commands that execute from string-array arguments.
- *
- * <p>Commands that need a custom Brigadier tree can override
- * {@link #configureCommand(LiteralArgumentBuilder)} while keeping the same
- * command definition and helper methods.</p>
- */
+/** Convenience base for module commands with typed Brigadier command trees. */
 public abstract class SimplePlexCommand implements PlexCommand
 {
     private final CommandSpec commandSpec;
@@ -93,44 +89,43 @@ public abstract class SimplePlexCommand implements PlexCommand
         return command.build();
     }
 
-    /**
-     * Configures the Brigadier command tree for this command.
-     *
-     * <p>The default tree accepts optional greedy string arguments and dispatches
-     * them to {@link #execute(CommandSender, Player, String[])}.</p>
-     *
-     * @param command root command literal builder
-     */
-    protected void configureCommand(LiteralArgumentBuilder<CommandSourceStack> command)
+    /** Configures this command's typed Brigadier tree. */
+    protected abstract void configureCommand(LiteralArgumentBuilder<CommandSourceStack> command);
+
+    protected RequiredArgumentBuilder<CommandSourceStack, String> word(String name)
     {
-        command.executes(context -> dispatchCommand(context, new String[0]));
-        command.then(Commands.argument("args", StringArgumentType.greedyString())
-                .suggests(this::suggest)
-                .executes(context -> dispatchCommand(context, splitExecutionArgs(StringArgumentType.getString(context, "args")))));
+        return Commands.argument(name, StringArgumentType.word());
     }
 
-    /**
-     * Executes this command.
-     *
-     * @param sender command sender
-     * @param player player sender, or {@code null} when the sender is not a player
-     * @param args command arguments
-     * @return component to send to the sender, or {@code null} to send no response
-     */
-    protected abstract Component execute(@NotNull CommandSender sender, @Nullable Player player, @NotNull String[] args);
-
-    /**
-     * Returns tab-completion suggestions for this command.
-     *
-     * @param sender command sender
-     * @param alias command alias used by the sender
-     * @param args current command arguments
-     * @return suggested completions
-     * @throws IllegalArgumentException if the arguments are invalid
-     */
-    protected @NotNull List<String> suggestions(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException
+    protected RequiredArgumentBuilder<CommandSourceStack, String> greedyString(String name)
     {
-        return List.of();
+        return Commands.argument(name, StringArgumentType.greedyString());
+    }
+
+    protected String string(CommandContext<CommandSourceStack> context, String name)
+    {
+        return StringArgumentType.getString(context, name);
+    }
+
+    /** Suggests matching values using Brigadier's current argument prefix. */
+    protected CompletableFuture<Suggestions> suggestMatching(SuggestionsBuilder builder, Collection<String> values)
+    {
+        String remaining = builder.getRemaining().toLowerCase(Locale.ROOT);
+        for (String value : values)
+        {
+            if (value.toLowerCase(Locale.ROOT).startsWith(remaining))
+            {
+                builder.suggest(value);
+            }
+        }
+        return builder.buildFuture();
+    }
+
+    protected int executeCommand(CommandContext<CommandSourceStack> context,
+                                 BiFunction<CommandSender, Player, Component> execution)
+    {
+        CommandSender sender = context.getSource().getSender();
+        return dispatchCommand(context, () -> execution.apply(sender, sender instanceof Player player ? player : null));
     }
 
     /**
@@ -415,7 +410,8 @@ public abstract class SimplePlexCommand implements PlexCommand
         return api().messages().miniMessage(value);
     }
 
-    private int dispatchCommand(CommandContext<CommandSourceStack> context, String[] args)
+    private int dispatchCommand(CommandContext<CommandSourceStack> context,
+                                java.util.function.Supplier<Component> execution)
     {
         CommandSender sender = context.getSource().getSender();
         if (!validateSourceAndPermission(sender))
@@ -425,7 +421,7 @@ public abstract class SimplePlexCommand implements PlexCommand
 
         try
         {
-            Component component = execute(sender, sender instanceof Player player ? player : null, args);
+            Component component = execution.get();
             if (component != null)
             {
                 send(sender, component);
@@ -477,66 +473,6 @@ public abstract class SimplePlexCommand implements PlexCommand
             return false;
         }
         return true;
-    }
-
-    private CompletableFuture<Suggestions> suggest(CommandContext<CommandSourceStack> context, SuggestionsBuilder builder)
-    {
-        CommandSender sender = context.getSource().getSender();
-        if (!canUse(context.getSource()))
-        {
-            return builder.buildFuture();
-        }
-
-        String remaining = builder.getRemaining();
-        String[] args = splitSuggestionArgs(remaining);
-        List<String> completions = suggestions(sender, aliasFromInput(context.getInput()), args);
-        return suggestLastToken(builder, completions);
-    }
-
-    private CompletableFuture<Suggestions> suggestLastToken(SuggestionsBuilder builder, Collection<String> suggestions)
-    {
-        String remaining = builder.getRemaining();
-        int tokenStart = remaining.lastIndexOf(' ') + 1;
-        String currentToken = remaining.substring(tokenStart).toLowerCase(Locale.ROOT);
-        SuggestionsBuilder tokenBuilder = tokenStart == 0 ? builder : builder.createOffset(builder.getStart() + tokenStart);
-        for (String suggestion : suggestions)
-        {
-            if (suggestion.toLowerCase(Locale.ROOT).startsWith(currentToken))
-            {
-                tokenBuilder.suggest(suggestion);
-            }
-        }
-        return tokenBuilder.buildFuture();
-    }
-
-    private String aliasFromInput(String input)
-    {
-        String trimmed = input.trim();
-        if (trimmed.isEmpty())
-        {
-            return getName();
-        }
-
-        String label = trimmed.split("\\s+", 2)[0];
-        return label.startsWith("/") ? label.substring(1) : label;
-    }
-
-    private String[] splitExecutionArgs(String rawArgs)
-    {
-        if (rawArgs.isBlank())
-        {
-            return new String[0];
-        }
-        return rawArgs.trim().split("\\s+");
-    }
-
-    private String[] splitSuggestionArgs(String rawArgs)
-    {
-        if (rawArgs.isEmpty())
-        {
-            return new String[] {""};
-        }
-        return rawArgs.stripLeading().split("\\s+", -1);
     }
 
     private Component exceptionComponent(RuntimeException ex)

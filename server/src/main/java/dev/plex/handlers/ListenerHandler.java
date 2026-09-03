@@ -10,7 +10,6 @@ import dev.plex.listener.impl.BookListener;
 import dev.plex.listener.impl.ChatListener;
 import dev.plex.listener.impl.CommandListener;
 import dev.plex.listener.impl.FreezeListener;
-import dev.plex.listener.impl.GameModeListener;
 import dev.plex.listener.impl.GameRuleListener;
 import dev.plex.listener.impl.MobListener;
 import dev.plex.listener.impl.MuteListener;
@@ -49,7 +48,6 @@ public class ListenerHandler
         registerIfEnabled("chat.enabled", () -> new ChatListener(plugin));
         register(() -> new CommandListener(plugin));
         register(() -> new FreezeListener(plugin));
-        register(() -> new GameModeListener(plugin));
         register(() -> new GameRuleListener(plugin));
         register(() -> new MobListener(plugin));
         register(() -> new MuteListener(plugin));

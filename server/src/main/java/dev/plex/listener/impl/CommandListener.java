@@ -2,7 +2,6 @@ package dev.plex.listener.impl;
 
 import dev.plex.Plex;
 import dev.plex.listener.ServerListenerBase;
-import dev.plex.player.PlexPlayer;
 import dev.plex.util.PlexUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -21,23 +20,22 @@ public class CommandListener extends ServerListenerBase
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event)
     {
-        Bukkit.getOnlinePlayers().stream().filter(pl ->
+        Player sender = event.getPlayer();
+        String senderName = sender.getName();
+        String command = event.getMessage();
+        plugin.getPlayerService().cachedPlayers().forEach(plexPlayer ->
         {
-            PlexPlayer player = plugin.getPlayerCache().getPlexPlayer(pl.getUniqueId());
-            return player.isCommandSpy() && hasCommandSpy(plugin.getPlayerCache().getPlexPlayer(pl.getUniqueId()));
-        }).forEach(pl ->
-        {
-            Player player = event.getPlayer();
-            String command = event.getMessage();
-            if (!pl.getUniqueId().equals(player.getUniqueId()))
+            if (!plexPlayer.isCommandSpy() || plexPlayer.getUuid().equals(sender.getUniqueId())) return;
+            Player recipient = Bukkit.getPlayer(plexPlayer.getUuid());
+            if (recipient == null) return;
+            plugin.getApi().scheduler().runEntity(recipient, () ->
             {
-                pl.sendMessage(PlexUtils.messageComponent("commandSpyFormat", Component.text(player.getName()), Component.text(command)));
-            }
+                if (recipient.hasPermission("plex.commandspy"))
+                {
+                    recipient.sendMessage(PlexUtils.messageComponent("commandSpyFormat",
+                            Component.text(senderName), Component.text(command)));
+                }
+            });
         });
-    }
-
-    private boolean hasCommandSpy(PlexPlayer plexPlayer)
-    {
-        return plexPlayer.getPlayer().hasPermission("plex.commandspy");
     }
 }

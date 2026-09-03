@@ -5,6 +5,7 @@ import dev.plex.command.ServerCommand;
 import dev.plex.command.ServerCommandContext;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
+import dev.plex.util.EntityRemovalUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,37 +40,37 @@ public class MobPurgeCMD extends ServerCommand
     @Override
     protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
     {
-        command.executes(context -> executeCommand(context));
+        command.executes(context -> executeCommand(context,
+                commandContext -> executeTyped(commandContext, null)));
         command.then(word("mob")
                 .suggests(suggest(this::getAllMobs))
-                .executes(context -> executeCommand(context, string(context, "mob"))));
+                .executes(context -> executeCommand(context,
+                        commandContext -> executeTyped(commandContext, string(context, "mob")))));
     }
 
-    @Override
-    protected Component execute(@NotNull ServerCommandContext context)
+    private Component executeTyped(ServerCommandContext context, String requestedMob)
     {
         CommandSender sender = context.sender();
         Player playerSender = context.player();
-        String[] args = context.args();
         EntityType type = null;
         String mobName = null;
-        if (args.length > 0)
+        if (requestedMob != null)
         {
             try
             {
-                type = EntityType.valueOf(args[0].toUpperCase());
+                type = EntityType.valueOf(requestedMob.toUpperCase());
             }
             catch (Exception e)
             {
-                PlexLog.debug("A genius tried and failed removing the following invalid mob: " + args[0].toUpperCase());
-                context.send(sender, context.messageComponent("notAValidMob"));
+                PlexLog.debug("A genius tried and failed removing the following invalid mob: " + requestedMob.toUpperCase());
+                sender.sendMessage(PlexUtils.messageComponent("notAValidMob"));
                 return null;
             }
             if (!MOB_TYPES.contains(type))
             {
                 PlexLog.debug(Arrays.deepToString(MOB_TYPES.toArray()));
-                PlexLog.debug("A genius tried to remove a mob that doesn't exist: " + args[0].toUpperCase());
-                sender.sendMessage(context.messageComponent("notAValidMobButValidEntity"));
+                PlexLog.debug("A genius tried to remove a mob that doesn't exist: " + requestedMob.toUpperCase());
+                sender.sendMessage(PlexUtils.messageComponent("notAValidMobButValidEntity"));
                 return null;
             }
         }
@@ -80,45 +81,33 @@ public class MobPurgeCMD extends ServerCommand
                     .collect(Collectors.joining(" "));
             PlexLog.debug("The args aren't null so the mob is: " + mobName);
         }
-        int count = purgeMobs(type);
+        EntityType selectedType = type;
+        String selectedName = mobName;
+        EntityRemovalUtil.removeLoaded(plugin, entity -> entity instanceof LivingEntity
+                && !(entity instanceof Player) && (selectedType == null || entity.getType() == selectedType))
+                .thenAccept(counts -> report(context, sender, selectedType, selectedName,
+                        counts.values().stream().mapToInt(Integer::intValue).sum()));
+        return null;
+    }
+
+    private void report(ServerCommandContext context, CommandSender sender, EntityType type, String mobName, int count)
+    {
         if (type != null)
         {
-            PlexUtils.broadcast(context.messageComponent("removedEntitiesOfTypes", context.senderName(), count, mobName));
+            PlexUtils.broadcast(PlexUtils.messageComponent("removedEntitiesOfTypes", context.senderName(), count, mobName));
             PlexLog.debug("All " + count + " of " + mobName + " were removed");
         }
         else
         {
-            PlexUtils.broadcast(context.messageComponent("removedMobs", context.senderName(), count));
+            PlexUtils.broadcast(PlexUtils.messageComponent("removedMobs", context.senderName(), count));
             PlexLog.debug("All " + count + " valid mobs were removed");
         }
-        sender.sendMessage(context.messageComponent("amountOfMobsRemoved", count, type != null ? mobName + multipleS(count) : context.messageString(count == 1 ? "mobSingular" : "mobPlural")));
-        return null;
+        sender.sendMessage(PlexUtils.messageComponent("amountOfMobsRemoved", count, type != null ? mobName + multipleS(count) : PlexUtils.messageString(count == 1 ? "mobSingular" : "mobPlural")));
     }
 
     private String multipleS(int count)
     {
         return (count == 1 ? "" : "s");
-    }
-
-    private int purgeMobs(EntityType type)
-    {
-        int removed = 0;
-        for (World world : Bukkit.getWorlds())
-        {
-            for (Entity entity : world.getLivingEntities())
-            {
-                if (entity instanceof LivingEntity && !(entity instanceof Player))
-                {
-                    if (type != null && !entity.getType().equals(type))
-                    {
-                        continue;
-                    }
-                    entity.remove();
-                    removed++;
-                }
-            }
-        }
-        return removed;
     }
 
     private List<String> getAllMobs()

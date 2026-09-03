@@ -26,23 +26,17 @@ public class RawSayCMD extends ServerCommand
     @Override
     protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
     {
-        command.executes(context -> executeCommand(context));
+        command.executes(context -> executeCommand(context, ServerCommandContext::usage));
         command.then(greedyString("message")
-                .executes(context -> executeCommand(context, argsWithGreedy(string(context, "message")))));
+                .executes(context -> executeCommand(context, commandContext -> say(commandContext,
+                        normalizeGreedyString(string(context, "message"))))));
     }
 
-    @Override
-    protected Component execute(@NotNull ServerCommandContext context)
+    private Component say(ServerCommandContext context, String message)
     {
         CommandSender sender = context.sender();
         Player playerSender = context.player();
-        String[] args = context.args();
-        if (args.length == 0)
-        {
-            return context.usage();
-        }
-
-        PlexUtils.broadcast(StringUtils.join(args, " "));
+        PlexUtils.broadcast(message);
         return null;
     }
 

@@ -45,7 +45,7 @@ public class ChatListener extends ServerListenerBase
     @EventHandler(priority = EventPriority.LOWEST)
     public void onChat(AsyncChatEvent event)
     {
-        PlexPlayer plexPlayer = plugin.getPlayerCache().getPlexPlayer(event.getPlayer().getUniqueId());
+        PlexPlayer plexPlayer = plugin.getPlayerService().cachedPlayer(event.getPlayer().getUniqueId());
         PlexChatRenderer renderer = new PlexChatRenderer();
         renderer.format = SafeMiniMessage.mmDeserialize(plugin.config.getString("chat.format"));
         PRE_RENDERER.accept(event, plexPlayer);

@@ -12,13 +12,9 @@ public interface PlayerRepository
 
     PlexPlayer getByUUID(UUID uuid, boolean loadExtraData);
 
-    PlexPlayer getByUUID(UUID uuid);
-
     String getNameByUUID(UUID uuid);
 
     PlexPlayer getByName(String username, boolean loadExtraData);
-
-    PlexPlayer getByName(String username);
 
     PlexPlayer getByIP(String ip);
 

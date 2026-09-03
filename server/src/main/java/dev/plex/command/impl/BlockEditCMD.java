@@ -12,6 +12,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 
 public class BlockEditCMD extends ServerCommand
 {
@@ -29,78 +31,98 @@ public class BlockEditCMD extends ServerCommand
     protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
     {
         command.then(literal("list")
-                .executes(context -> executeCommand(context, "list")));
+                .executes(context -> executeCommand(context, this::list)));
         command.then(literal("purge")
-                .executes(context -> executeCommand(context, "purge")));
+                .executes(context -> executeCommand(context, this::purge)));
         command.then(literal("all")
-                .executes(context -> executeCommand(context, "all")));
+                .executes(context -> executeCommand(context, this::blockAll)));
         command.then(playerArgument("player")
-                .executes(context -> executeCommand(context, string(context, "player"))));
+                .executes(context -> executeCommand(context,
+                        commandContext -> togglePlayer(commandContext, string(context, "player")))));
     }
 
-    @Override
-    protected Component execute(@NotNull ServerCommandContext context)
+    private Component list(ServerCommandContext context)
     {
         CommandSender sender = context.sender();
-        String[] args = context.args();
-        if (args[0].equalsIgnoreCase("list"))
+        sender.sendMessage(PlexUtils.messageComponent("listOfPlayersBlocked"));
+        for (String player : BlockListener.blockedPlayers)
         {
-            context.send(sender, context.messageComponent("listOfPlayersBlocked"));
-
-            for (String player : BlockListener.blockedPlayers)
-            {
-                context.send(sender, context.messageComponent("blockeditListEntry", player));
-            }
-            if (BlockListener.blockedPlayers.isEmpty())
-            {
-                context.send(sender, context.messageComponent("blockeditListNone"));
-            }
-            return null;
+            sender.sendMessage(PlexUtils.messageComponent("blockeditListEntry", player));
         }
-        else if (args[0].equalsIgnoreCase("purge"))
+        if (BlockListener.blockedPlayers.isEmpty())
         {
-            PlexUtils.broadcast(context.messageComponent("unblockingEdits", context.senderName(), context.messageString("blockeditAllPlayers")));
-            int count = BlockListener.blockedPlayers.size();
-            BlockListener.blockedPlayers.clear();
-            return context.messageComponent("blockeditSize", context.messageString("blockeditUnblockedAction"), count);
+            sender.sendMessage(PlexUtils.messageComponent("blockeditListNone"));
         }
-        else if (args[0].equalsIgnoreCase("all"))
+        return null;
+    }
+
+    private Component purge(ServerCommandContext context)
+    {
+        PlexUtils.broadcast(PlexUtils.messageComponent("unblockingEdits", context.senderName(), PlexUtils.messageString("blockeditAllPlayers")));
+        int count = BlockListener.blockedPlayers.size();
+        BlockListener.blockedPlayers.clear();
+        return PlexUtils.messageComponent("blockeditSize", PlexUtils.messageString("blockeditUnblockedAction"), count);
+    }
+
+    private Component blockAll(ServerCommandContext context)
+    {
+        PlexUtils.broadcast(PlexUtils.messageComponent("blockingEdits", context.senderName(), PlexUtils.messageString("blockeditAllNonAdmins")));
+        var captures = plugin.getPlayerService().cachedPlayers().stream()
+                .map(player -> Bukkit.getPlayer(player.getUuid()))
+                .filter(Objects::nonNull)
+                .map(player -> blockIfAllowed(context, player))
+                .toList();
+        CompletableFuture.allOf(captures.toArray(CompletableFuture[]::new)).thenRun(() ->
         {
-            PlexUtils.broadcast(context.messageComponent("blockingEdits", context.senderName(), context.messageString("blockeditAllNonAdmins")));
-            int count = 0;
-            for (final Player player : Bukkit.getOnlinePlayers())
-            {
-                if (!context.silentCheckPermission(player, "plex.blockedit"))
-                {
-                    BlockListener.blockedPlayers.add(player.getName());
-                    ++count;
-                }
-            }
+            long count = captures.stream().filter(CompletableFuture::join).count();
+            context.sender().sendMessage(PlexUtils.messageComponent("blockeditSize",
+                    PlexUtils.messageString("blockeditBlockedAction"), count));
+        });
+        return null;
+    }
 
-            return context.messageComponent("blockeditSize", context.messageString("blockeditBlockedAction"), count);
-        }
+    private CompletableFuture<Boolean> blockIfAllowed(ServerCommandContext context, Player player)
+    {
+        CompletableFuture<Boolean> result = new CompletableFuture<>();
+        boolean scheduled = plugin.getApi().scheduler().executeEntity(player, () ->
+        {
+            boolean blocked = !context.silentCheckPermission(player, "plex.blockedit");
+            if (blocked) BlockListener.blockedPlayers.add(player.getName());
+            result.complete(blocked);
+        }, () -> result.complete(false), 0L);
+        if (!scheduled) result.complete(false);
+        return result;
+    }
 
-        final Player player = context.getNonNullPlayer(args[0]);
+    private Component togglePlayer(ServerCommandContext context, String playerName)
+    {
+        CommandSender sender = context.sender();
+        final Player player = getNonNullPlayer(playerName);
+        plugin.getApi().scheduler().runEntity(player, () -> togglePlayerOwned(context, sender, player));
+        return null;
+    }
+
+    private void togglePlayerOwned(ServerCommandContext context, CommandSender sender, Player player)
+    {
         if (!BlockListener.blockedPlayers.contains(player.getName()))
         {
             if (context.silentCheckPermission(player, "plex.blockedit"))
             {
-                context.send(sender, context.messageComponent("higherRankThanYou"));
-                return null;
+                sender.sendMessage(PlexUtils.messageComponent("higherRankThanYou"));
+                return;
             }
-            PlexUtils.broadcast(context.messageComponent("blockingEdits", context.senderName(), player.getName()));
+            PlexUtils.broadcast(PlexUtils.messageComponent("blockingEdits", context.senderName(), player.getName()));
             BlockListener.blockedPlayers.add(player.getName());
-            context.send(player, context.messageComponent("editsModified", context.messageString("blockeditBlockedState")));
-            context.send(sender, context.messageComponent("editsBlocked", player.getName()));
+            player.sendMessage(PlexUtils.messageComponent("editsModified", PlexUtils.messageString("blockeditBlockedState")));
+            sender.sendMessage(PlexUtils.messageComponent("editsBlocked", player.getName()));
         }
         else
         {
-            PlexUtils.broadcast(context.messageComponent("unblockingEdits", context.senderName(), player.getName()));
+            PlexUtils.broadcast(PlexUtils.messageComponent("unblockingEdits", context.senderName(), player.getName()));
             BlockListener.blockedPlayers.remove(player.getName());
-            context.send(player, context.messageComponent("editsModified", context.messageString("blockeditUnblockedState")));
-            context.send(sender, context.messageComponent("editsUnblocked", player.getName()));
+            player.sendMessage(PlexUtils.messageComponent("editsModified", PlexUtils.messageString("blockeditUnblockedState")));
+            sender.sendMessage(PlexUtils.messageComponent("editsUnblocked", player.getName()));
         }
-        return null;
     }
 
 }

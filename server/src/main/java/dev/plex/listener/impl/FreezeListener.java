@@ -22,7 +22,7 @@ public class FreezeListener extends ServerListenerBase
 
     private boolean isFrozen(UUID uuid)
     {
-        PlexPlayer plexPlayer = plugin.getPlayerService().getCachedPlayer(uuid);
+        PlexPlayer plexPlayer = plugin.getPlayerService().cachedPlayer(uuid);
         return plexPlayer != null && plexPlayer.isFrozen();
     }
 }

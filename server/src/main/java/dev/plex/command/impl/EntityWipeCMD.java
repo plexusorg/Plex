@@ -5,6 +5,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
 import dev.plex.command.ServerCommandContext;
 import dev.plex.util.PlexUtils;
+import dev.plex.util.EntityRemovalUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,85 +41,76 @@ public class EntityWipeCMD extends ServerCommand
     @Override
     protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
     {
-        command.executes(context -> executeCommand(context));
+        command.executes(context -> executeCommand(context, commandContext ->
+                wipe(commandContext, new WipeRequest(List.of(), 0))));
         command.then(greedyString("entities")
                 .suggests(suggestGreedyWords(() ->
                 {
-                    List<String> entities = new ArrayList<>();
-                    for (World world : Bukkit.getWorlds())
-                    {
-                        for (Entity entity : world.getEntities())
-                        {
-                            if (entity.getType() != EntityType.PLAYER)
-                            {
-                                entities.add(entity.getType().name());
-                            }
-                        }
-                    }
-                    return entities;
+                    return Arrays.stream(EntityType.values()).filter(type -> type != EntityType.PLAYER)
+                            .map(EntityType::name).toList();
                 }))
-                .executes(context -> executeCommand(context, argsWithGreedy(string(context, "entities")))));
+                .executes(context -> executeCommand(context, commandContext ->
+                        wipe(commandContext, parseRequest(normalizeGreedyString(string(context, "entities")))))));
     }
 
-    @Override
-    protected Component execute(@NotNull ServerCommandContext context)
+    private WipeRequest parseRequest(String entities)
+    {
+        List<String> arguments = Arrays.asList(entities.split(" "));
+        Integer parsedRadius = Ints.tryParse(arguments.getLast());
+        boolean radiusSpecified = parsedRadius != null && parsedRadius != Integer.MIN_VALUE;
+        int radius = radiusSpecified ? parsedRadius : 0;
+        int entityArgumentCount = arguments.size() - Boolean.compare(radiusSpecified, false);
+        return new WipeRequest(new LinkedList<>(arguments.subList(0, entityArgumentCount)), radius);
+    }
+
+    private Component wipe(ServerCommandContext context, WipeRequest request)
     {
         CommandSender sender = context.sender();
         Player playerSender = context.player();
-        String[] args = context.args();
         List<String> entityBlacklist = plugin.entities.getStringList("entitywipe_list");
-
-        String lastArgument = Arrays.stream(args).reduce((first, second) -> second).orElse("");
-        Integer parsedRadius = Ints.tryParse(lastArgument);
-        boolean radiusSpecified = parsedRadius != null && parsedRadius != Integer.MIN_VALUE;
-        int radius = radiusSpecified ? parsedRadius : 0;
-        int entityArgumentCount = args.length - Boolean.compare(radiusSpecified, false);
-        List<String> entityWhitelist = new LinkedList<>(Arrays.asList(args).subList(0, entityArgumentCount));
+        int radius = request.radius();
+        List<String> entityWhitelist = request.entityTypes();
 
         boolean useBlacklist = entityWhitelist.isEmpty();
         Collection<String> selectedTypes = selectedEntityTypes(context, sender,
                 useBlacklist ? entityBlacklist : entityWhitelist, useBlacklist);
         Player radiusCenter = Optional.ofNullable(playerSender).filter(player -> radius != 0).orElse(null);
         int range = Math.abs(radius);
-        Collection<Entity> entities = radiusCenter != null
-                ? radiusCenter.getWorld().getNearbyEntities(radiusCenter.getLocation(), range, range, range,
-                        entity -> radiusCenter.getLocation().distanceSquared(entity.getLocation()) <= range * range)
-                : Bukkit.getWorlds().stream().flatMap(world -> world.getEntities().stream()).toList();
-        HashMap<String, Integer> entityCounts = new HashMap<>();
+        org.bukkit.Location center = radiusCenter == null ? null : radiusCenter.getLocation().clone();
+        double rangeSquared = (double)range * range;
+        EntityRemovalUtil.removeLoaded(plugin, entity -> selected(entity, selectedTypes, useBlacklist)
+                        && (center == null || entity.getWorld().equals(center.getWorld())
+                        && entity.getLocation().distanceSquared(center) <= rangeSquared))
+                .thenAccept(counts -> reportRemoval(context, sender, useBlacklist, counts));
+        return null;
+    }
 
-        for (Entity entity : entities)
-        {
-            if (entity.getType() == EntityType.PLAYER)
-            {
-                continue;
-            }
-            String type = entity.getType().name();
-            if (selectedTypes.contains(type) == useBlacklist)
-            {
-                continue;
-            }
-            entity.remove();
-            entityCounts.merge(type, 1, Integer::sum);
-        }
+    private boolean selected(Entity entity, Collection<String> selectedTypes, boolean useBlacklist)
+    {
+        return entity.getType() != EntityType.PLAYER
+                && selectedTypes.contains(entity.getType().name()) != useBlacklist;
+    }
 
+    private void reportRemoval(ServerCommandContext context, CommandSender sender, boolean useBlacklist,
+                               java.util.Map<String, Integer> entityCounts)
+    {
         int entityCount = entityCounts.values().stream().mapToInt(a -> a).sum();
 
         if (useBlacklist)
         {
-            PlexUtils.broadcast(context.messageComponent("removedEntities", context.senderName(), entityCount));
+            PlexUtils.broadcast(PlexUtils.messageComponent("removedEntities", context.senderName(), entityCount));
         }
         else
         {
             if (entityCount == 0)
             {
-                sender.sendMessage(context.messageComponent("noRemovedEntities"));
-                return null;
+                sender.sendMessage(PlexUtils.messageComponent("noRemovedEntities"));
+                return;
             }
             String list = String.join(", ", entityCounts.keySet());
             list = list.replaceAll("(, )(?!.*\1)", (list.indexOf(", ") == list.lastIndexOf(", ") ? "" : ",") + " and ");
-            PlexUtils.broadcast(context.messageComponent("removedEntitiesOfTypes", context.senderName(), entityCount, list));
+            PlexUtils.broadcast(PlexUtils.messageComponent("removedEntitiesOfTypes", context.senderName(), entityCount, list));
         }
-        return null;
     }
 
     private Collection<String> selectedEntityTypes(ServerCommandContext context, CommandSender sender,
@@ -137,9 +129,11 @@ public class EntityWipeCMD extends ServerCommand
             }
             catch (IllegalArgumentException ignored)
             {
-                context.send(sender, context.messageComponent("invalidEntityType", name));
+                sender.sendMessage(PlexUtils.messageComponent("invalidEntityType", name));
             }
         }
         return types;
     }
+
+    private record WipeRequest(List<String> entityTypes, int radius) { }
 }

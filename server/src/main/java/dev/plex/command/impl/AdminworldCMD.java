@@ -1,5 +1,6 @@
 package dev.plex.command.impl;
 
+import dev.plex.util.PlexUtils;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
 import dev.plex.command.ServerCommandContext;
@@ -28,24 +29,18 @@ public class AdminworldCMD extends ServerCommand
     @Override
     protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
     {
-        command.executes(context -> executeCommand(context));
+        command.executes(context -> executeCommand(context, this::executeTyped));
     }
 
-    @Override
-    protected Component execute(@NotNull ServerCommandContext context)
+    private Component executeTyped(ServerCommandContext context)
     {
         CommandSender sender = context.sender();
         Player playerSender = context.player();
-        String[] args = context.args();
         assert playerSender != null;
         // TODO: Add adminworld settings
-        if (args.length == 0)
-        {
-            Location loc = new Location(Bukkit.getWorld("adminworld"), 0, 50, 0);
-            playerSender.teleportAsync(loc);
-            return context.messageComponent("teleportedToWorld", "adminworld");
-        }
-        return null;
+        Location loc = new Location(Bukkit.getWorld("adminworld"), 0, 50, 0);
+        playerSender.teleportAsync(loc);
+        return PlexUtils.messageComponent("teleportedToWorld", "adminworld");
     }
 
 }

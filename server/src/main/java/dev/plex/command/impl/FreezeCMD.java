@@ -32,26 +32,20 @@ public class FreezeCMD extends ServerCommand
     @Override
     protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
     {
-        command.executes(context -> executeCommand(context));
+        command.executes(context -> executeCommand(context, ServerCommandContext::usage));
         command.then(playerArgument("player")
-                .executes(context -> executeCommand(context, string(context, "player"))));
+                .executes(context -> executeCommand(context, commandContext -> executeTyped(commandContext, string(context, "player")))));
     }
 
-    @Override
-    protected Component execute(@NotNull ServerCommandContext context)
+    private Component executeTyped(ServerCommandContext context, String playerName)
     {
         CommandSender sender = context.sender();
-        String[] args = context.args();
-        if (args.length != 1)
-        {
-            return context.usage();
-        }
-        Player player = context.getNonNullPlayer(args[0]);
-        PlexPlayer punishedPlayer = context.getPlexPlayer(player);
+        Player player = getNonNullPlayer(playerName);
+        PlexPlayer punishedPlayer = plugin.getPlayerService().cachedPlayer(player.getUniqueId());
 
         if (plugin.getPunishmentManager().hasActivePunishment(punishedPlayer, PunishmentType.FREEZE))
         {
-            return context.messageComponent("playerFrozen");
+            return PlexUtils.messageComponent("playerFrozen");
         }
 
         Punishment punishment = new Punishment(punishedPlayer.getUuid(), context.getUUID(sender));
@@ -66,9 +60,9 @@ public class FreezeCMD extends ServerCommand
             if (failure != null)
             {
                 PlexLog.error("Unable to freeze {0}: {1}", punishedPlayer.getUuid(), failure.getMessage());
-                context.send(sender, Component.text("Unable to persist the freeze; no action was taken."));
+                sender.sendMessage(Component.text("Unable to persist the freeze; no action was taken."));
             }
-            else PlexUtils.broadcast(context.messageComponent("frozePlayer", context.senderName(), player.getName()));
+            else PlexUtils.broadcast(PlexUtils.messageComponent("frozePlayer", context.senderName(), player.getName()));
         });
         return null;
     }

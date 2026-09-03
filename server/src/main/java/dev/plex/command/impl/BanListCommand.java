@@ -1,5 +1,6 @@
 package dev.plex.command.impl;
 
+import dev.plex.util.PlexUtils;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
 import dev.plex.command.ServerCommandContext;
@@ -26,40 +27,40 @@ public class BanListCommand extends ServerCommand
     @Override
     protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
     {
-        command.executes(context -> executeCommand(context));
+        command.executes(context -> executeCommand(context, this::list));
         command.then(literal("purge")
-                .executes(context -> executeCommand(context, "purge")));
+                .executes(context -> executeCommand(context, this::clear)));
         command.then(literal("clear")
-                .executes(context -> executeCommand(context, "clear")));
+                .executes(context -> executeCommand(context, this::clear)));
     }
 
-    @Override
-    protected Component execute(@NotNull ServerCommandContext context)
+    private Component list(ServerCommandContext context)
     {
         CommandSender sender = context.sender();
-        String[] args = context.args();
-        if (args.length == 0)
-        {
-            plugin.getPunishmentManager().getActiveBans().whenComplete((punishments, throwable) ->
-            {
-                if (throwable != null)
-                {
-                    PlexLog.warn("Unable to load active bans: {0}", throwable.getMessage());
-                    context.send(sender, Component.text("Unable to load active bans."));
-                    return;
-                }
-                String names = StringUtils.join(punishments.stream()
-                        .map(punishment -> StringUtils.defaultIfBlank(punishment.getResolvedPunishedName(),
-                                punishment.getPunished().toString())).toList(), ", ");
-                context.send(sender, context.messageComponent("activeBansList", punishments.size(), names));
-            });
-            return null;
-        }
         plugin.getPunishmentManager().getActiveBans().whenComplete((punishments, throwable) ->
         {
             if (throwable != null)
             {
-                context.send(sender, Component.text("Unable to load active bans."));
+                PlexLog.warn("Unable to load active bans: {0}", throwable.getMessage());
+                sender.sendMessage(Component.text("Unable to load active bans."));
+                return;
+            }
+            String names = StringUtils.join(punishments.stream()
+                    .map(punishment -> StringUtils.defaultIfBlank(punishment.getResolvedPunishedName(),
+                            punishment.getPunished().toString())).toList(), ", ");
+            sender.sendMessage(PlexUtils.messageComponent("activeBansList", punishments.size(), names));
+        });
+        return null;
+    }
+
+    private Component clear(ServerCommandContext context)
+    {
+        CommandSender sender = context.sender();
+        plugin.getPunishmentManager().getActiveBans().whenComplete((punishments, throwable) ->
+        {
+            if (throwable != null)
+            {
+                sender.sendMessage(Component.text("Unable to load active bans."));
                 return;
             }
             var uuids = punishments.stream().map(dev.plex.punishment.Punishment::getPunished).distinct().toList();
@@ -67,8 +68,8 @@ public class BanListCommand extends ServerCommand
                             .toArray(java.util.concurrent.CompletableFuture[]::new))
                     .whenComplete((unused, failure) ->
                     {
-                        if (failure != null) context.send(sender, Component.text("Unable to clear all active bans."));
-                        else context.send(sender, context.messageComponent("unbannedPlayers", uuids.size()));
+                        if (failure != null) sender.sendMessage(Component.text("Unable to clear all active bans."));
+                        else sender.sendMessage(PlexUtils.messageComponent("unbannedPlayers", uuids.size()));
                     });
         });
         return null;

@@ -31,79 +31,67 @@ public class TagCMD extends ServerCommand
     @Override
     protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
     {
-        command.executes(context -> executeCommand(context));
+        command.executes(context -> executeCommand(context, this::usage));
         command.then(literal("set")
-                .executes(context -> executeCommand(context, "set"))
+                .executes(context -> executeCommand(context,
+                        commandContext -> commandContext.usage("/tag set <prefix>")))
                 .then(greedyString("prefix")
-                        .executes(context -> executeCommand(context, argsWithGreedy("set", string(context, "prefix"))))));
+                        .executes(context -> executeCommand(context,
+                                commandContext -> set(commandContext, string(context, "prefix"))))));
         command.then(literal("clear")
-                .executes(context -> executeCommand(context, "clear"))
+                .executes(context -> executeCommand(context, this::clearOwn))
                 .then(playerArgument("player")
-                        .executes(context -> executeCommand(context, "clear", string(context, "player")))));
+                        .executes(context -> executeCommand(context,
+                                commandContext -> clearOther(commandContext, string(context, "player"))))));
     }
 
-    @Override
-    protected Component execute(@NotNull ServerCommandContext context)
+    private Component usage(ServerCommandContext context)
     {
-        CommandSender sender = context.sender();
+        return context.player() == null ? context.usage("/tag clear <player>") : context.usage();
+    }
+
+    private Component set(ServerCommandContext context, String prefix)
+    {
         Player playerSender = context.player();
-        String[] args = context.args();
-        if (args.length == 0)
+        if (playerSender == null)
         {
-            if (playerSender == null)
-            {
-                return context.usage("/tag clear <player>");
-            }
-            return context.usage();
+            return PlexUtils.messageComponent("noPermissionConsole");
         }
-
-        if (args[0].equalsIgnoreCase("set"))
-        {
-            if (playerSender == null)
-            {
-                return context.messageComponent("noPermissionConsole");
-            }
-            assert playerSender != null;
-            PlexPlayer player = plugin.getPlayerService().getPlayer(playerSender.getUniqueId());
-            if (args.length < 2)
-            {
-                return context.usage("/tag set <prefix>");
-            }
-
-            Component convertedComponent = PlexUtils.stringToComponent(StringUtils.join(args, " ", 1, args.length));
+        PlexPlayer player = plugin.getPlayerService().cachedPlayer(playerSender.getUniqueId());
+        String normalizedPrefix = String.join(" ", prefix.trim().split("\\s+"));
+        Component convertedComponent = PlexUtils.stringToComponent(normalizedPrefix);
 
             if (PlainTextComponentSerializer.plainText().serialize(convertedComponent).length() > plugin.config.getInt("chat.max-tag-length", 16))
             {
-                return context.messageComponent("maximumPrefixLength", plugin.config.getInt("chat.max-tag-length", 16));
+                return PlexUtils.messageComponent("maximumPrefixLength", plugin.config.getInt("chat.max-tag-length", 16));
             }
 
-            player.setPrefix(MiniMessage.miniMessage().serialize(convertedComponent));
-            plugin.getPlayerService().update(player);
-            return context.messageComponent("prefixSetTo", MiniMessage.miniMessage().serialize(convertedComponent));
-        }
+        player.setPrefix(MiniMessage.miniMessage().serialize(convertedComponent));
+        plugin.getPlayerService().update(player);
+        return PlexUtils.messageComponent("prefixSetTo", MiniMessage.miniMessage().serialize(convertedComponent));
+    }
 
-        if (args[0].equalsIgnoreCase("clear"))
+    private Component clearOwn(ServerCommandContext context)
+    {
+        Player playerSender = context.player();
+        if (playerSender == null)
         {
-            if (args.length == 1)
-            {
-                if (playerSender == null)
-                {
-                    return context.messageComponent("noPermissionConsole");
-                }
-
-                PlexPlayer player = plugin.getPlayerService().getPlayer(playerSender.getUniqueId());
-                player.setPrefix(null);
-                plugin.getPlayerService().update(player);
-                return context.messageComponent("prefixCleared");
-            }
-            context.checkPermission(sender, "plex.tag.clear.others");
-            Player target = context.getNonNullPlayer(args[1]);
-            PlexPlayer plexTarget = plugin.getPlayerService().getPlayer(target.getUniqueId());
-            plexTarget.setPrefix(null);
-            plugin.getPlayerService().update(plexTarget);
-            return context.messageComponent("otherPrefixCleared", target.getName());
+            return PlexUtils.messageComponent("noPermissionConsole");
         }
-        return context.usage();
+        PlexPlayer player = plugin.getPlayerService().cachedPlayer(playerSender.getUniqueId());
+        player.setPrefix(null);
+        plugin.getPlayerService().update(player);
+        return PlexUtils.messageComponent("prefixCleared");
+    }
+
+    private Component clearOther(ServerCommandContext context, String playerName)
+    {
+        context.checkPermission(context.sender(), "plex.tag.clear.others");
+        Player target = getNonNullPlayer(playerName);
+        PlexPlayer plexTarget = plugin.getPlayerService().cachedPlayer(target.getUniqueId());
+        plexTarget.setPrefix(null);
+        plugin.getPlayerService().update(plexTarget);
+        return PlexUtils.messageComponent("otherPrefixCleared", target.getName());
     }
 
 }

@@ -63,7 +63,7 @@ public class AntiNukerListener extends ServerListenerBase
     private CompletableFuture<Void> issueBan(Player player)
     {
         UUID uuid = player.getUniqueId();
-        PlexPlayer plexPlayer = plugin.getPlayerService().getCachedPlayer(uuid);
+        PlexPlayer plexPlayer = plugin.getPlayerService().cachedPlayer(uuid);
         if (plexPlayer == null)
         {
             return CompletableFuture.failedFuture(new IllegalStateException("player session is not loaded"));

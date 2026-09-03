@@ -23,6 +23,8 @@ import org.jetbrains.annotations.NotNull;
 
 public class BanCMD extends ServerCommand
 {
+    private final BanRollbackReporter rollbackReporter;
+
     public BanCMD()
     {
         super(command("ban")
@@ -31,92 +33,78 @@ public class BanCMD extends ServerCommand
             .aliases("offlineban,gtfo")
             .permission("plex.ban")
             .build());
+        rollbackReporter = new BanRollbackReporter(plugin);
     }
     @Override
     protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
     {
-        command.executes(context -> executeCommand(context));
+        command.executes(context -> executeCommand(context, ServerCommandContext::usage));
         command.then(playerArgument("player")
-                .executes(context -> executeCommand(context, string(context, "player")))
+                .executes(context -> executeCommand(context, commandContext ->
+                        ban(commandContext, string(context, "player"), BanReason.parse(null))))
                 .then(greedyString("message")
                         .suggests((context, builder) -> suggestOptionalFlags(builder, List.of("-rb")))
-                        .executes(context -> executeCommand(context, argsWithGreedy(string(context, "player"), string(context, "message"))))));
+                        .executes(context -> executeCommand(context, commandContext -> ban(commandContext,
+                                string(context, "player"), BanReason.parse(normalizeGreedyString(string(context, "message"))))))));
     }
 
-    @Override
-    protected Component execute(@NotNull ServerCommandContext context)
+    private Component ban(ServerCommandContext context, String playerName, BanReason reason)
     {
         CommandSender sender = context.sender();
-        String[] args = context.args();
-        if (args.length == 0)
+        plugin.getPlayerService().findPlayer(playerName).whenComplete((plexPlayer, lookupFailure) ->
         {
-            return context.usage();
-        }
+            if (lookupFailure != null)
+            {
+                PlexLog.error("Unable to load player {0}: {1}", playerName, lookupFailure.getMessage());
+                sender.sendMessage(Component.text("Unable to load the player."));
+                return;
+            }
+            if (plexPlayer == null)
+            {
+                sender.sendMessage(PlexUtils.messageComponent("playerNotFound"));
+                return;
+            }
 
-        final PlexPlayer plexPlayer = plugin.getPlayerService().getPlayer(args[0]);
-
-        if (plexPlayer == null)
-        {
-            throw new PlayerNotFoundException();
-        }
-
-        plugin.getPunishmentManager().isBanned(plexPlayer.getUuid(), BanKickUtil.currentOrLastIp(plexPlayer)).whenComplete((aBoolean, throwable) ->
-        {
+            BanKickUtil.currentOrLastIp(plugin, plexPlayer).thenCompose(ip ->
+                    plugin.getPunishmentManager().isBanned(plexPlayer.getUuid(), ip).thenApply(banned -> new BanState(ip, banned)))
+                    .whenComplete((banState, throwable) ->
+            {
             if (throwable != null)
             {
                 PlexLog.error("Unable to check ban state for {0}: {1}", plexPlayer.getName(), throwable.getMessage());
-                context.send(sender, Component.text("Unable to check the player's ban state."));
+                sender.sendMessage(Component.text("Unable to check the player's ban state."));
                 return;
             }
-            if (aBoolean)
+            if (banState.banned())
             {
-                context.send(sender, context.messageComponent("playerBanned"));
+                sender.sendMessage(PlexUtils.messageComponent("playerBanned"));
                 return;
             }
             Punishment punishment = new Punishment(plexPlayer.getUuid(), context.getUUID(sender));
             punishment.setResolvedPunisherName(context.senderName());
             punishment.setType(PunishmentType.BAN);
-            boolean rollBack = false;
-            punishment.setReason(context.messageString("noReasonProvided"));
-            if (args.length > 1)
-            {
-                List<String> reason = new ArrayList<>(Arrays.asList(args).subList(1, args.length));
-                rollBack = reason.getFirst().equals("-rb") || reason.getLast().equals("-rb");
-                if (reason.getFirst().equals("-rb")) reason.removeFirst();
-                if (!reason.isEmpty() && reason.getLast().equals("-rb")) reason.removeLast();
-                if (!reason.isEmpty()) punishment.setReason(String.join(" ", reason));
-            }
-            punishment.setIp(BanKickUtil.currentOrLastIp(plexPlayer));
-            final boolean shouldRollBack = rollBack;
+            punishment.setReason(reason.text() == null ? PlexUtils.messageString("noReasonProvided") : reason.text());
+            punishment.setIp(banState.ip());
             plugin.getPunishmentManager().punish(plexPlayer, punishment).whenComplete((unused, failure) ->
             {
                 if (failure != null)
                 {
                     PlexLog.error("Unable to ban {0}: {1}", plexPlayer.getName(), failure.getMessage());
-                    context.send(sender, Component.text("Unable to persist the ban; no action was taken."));
+                    sender.sendMessage(Component.text("Unable to persist the ban; no action was taken."));
                     return;
                 }
-                PlexUtils.broadcast(context.messageComponent("banningPlayer", context.senderName(), plexPlayer.getName()));
+                PlexUtils.broadcast(PlexUtils.messageComponent("banningPlayer", context.senderName(), plexPlayer.getName()));
                 PlexLog.debug("(From /ban command) PunishedPlayer UUID: " + plexPlayer.getUuid());
-                if (shouldRollBack) reportRollback(context, sender, plexPlayer.getName());
+                if (reason.rollback()) rollbackReporter.report(sender, plexPlayer.getName());
+            });
             });
         });
 
         return null;
     }
 
-    private void reportRollback(ServerCommandContext context, CommandSender sender, String playerName)
+    private record BanState(String ip, boolean banned)
     {
-        plugin.getApi().rollback().rollbackLastDay(sender, playerName).whenComplete((count, failure) ->
-        {
-            if (failure != null)
-            {
-                PlexLog.error("Unable to rollback {0}: {1}", playerName, failure.getMessage());
-                context.send(sender, context.messageComponent("prismRollbackError", failure.getMessage()));
-            }
-            else if (count == 0) context.send(sender, context.messageComponent("prismNoResult", count));
-            else context.send(sender, context.messageComponent("prismRollbackMessage", count));
-        });
     }
 
 }

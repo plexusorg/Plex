@@ -12,11 +12,10 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.URLConnection;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 import net.kyori.adventure.text.Component;
 import org.apache.logging.log4j.Logger;
@@ -32,15 +31,10 @@ import org.jetbrains.annotations.Nullable;
  */
 public abstract class PlexModule
 {
-    private final Set<PlexCommand> commands = new LinkedHashSet<>();
-    private final Set<Listener> listeners = new LinkedHashSet<>();
-
-    private PlexApi api;
-    private TaskScope scheduler;
+    private ModuleLifecycle lifecycle;
     private ModuleConfiguration messages;
     private PlexModuleFile plexModuleFile;
     private File dataFolder;
-    private File moduleJar;
     private Logger logger;
 
     /**
@@ -57,7 +51,7 @@ public abstract class PlexModule
      */
     public PlexApi api()
     {
-        return requireApi();
+        return requireLifecycle().api();
     }
 
     /**
@@ -88,13 +82,7 @@ public abstract class PlexModule
      */
     public void registerListener(Listener listener)
     {
-        Objects.requireNonNull(listener, "listener");
-        if (listeners.contains(listener))
-        {
-            throw new IllegalStateException("Listener is already registered");
-        }
-        requireApi().listeners().register(listener);
-        listeners.add(listener);
+        requireLifecycle().registerListener(listener);
     }
 
     /**
@@ -105,11 +93,25 @@ public abstract class PlexModule
      */
     public TaskScope scheduler()
     {
-        if (scheduler == null)
-        {
-            throw new IllegalStateException("Module task scheduler is not available");
-        }
-        return scheduler;
+        return requireLifecycle().scheduler();
+    }
+
+    /**
+     * Disconnects a player during module shutdown. The lifecycle owner schedules
+     * the kick because this module's task scope is canceled immediately afterward.
+     *
+     * @param player player to disconnect
+     * @param reason disconnect reason
+     */
+    public void kickPlayerOnShutdown(org.bukkit.entity.Player player, Component reason)
+    {
+        requireLifecycle().kickPlayerOnShutdown(player, reason);
+    }
+
+    /** Keeps this module's classloader open until its bounded asynchronous shutdown work finishes. */
+    public void completeShutdownBeforeClose(CompletableFuture<Void> completion)
+    {
+        requireLifecycle().completeShutdownBeforeClose(completion);
     }
 
     /**
@@ -120,19 +122,7 @@ public abstract class PlexModule
      */
     public void registerListener(Listener listener, EventRule<?>... rules)
     {
-        Objects.requireNonNull(listener, "listener");
-        Objects.requireNonNull(rules, "rules");
-        for (EventRule<?> rule : rules)
-        {
-            Objects.requireNonNull(rule, "rule");
-        }
-        if (listeners.contains(listener))
-        {
-            throw new IllegalStateException("Listener is already registered");
-        }
-        requireApi().listeners().register(listener);
-        requireApi().listeners().register(listener, rules);
-        listeners.add(listener);
+        requireLifecycle().registerListener(listener, rules);
     }
 
     /**
@@ -143,9 +133,7 @@ public abstract class PlexModule
      */
     public Listener registerEventRules(EventRule<?>... rules)
     {
-        Listener listener = requireApi().listeners().register(rules);
-        listeners.add(listener);
-        return listener;
+        return requireLifecycle().registerEventRules(rules);
     }
 
     /**
@@ -155,9 +143,7 @@ public abstract class PlexModule
      */
     public void unregisterListener(Listener listener)
     {
-        Objects.requireNonNull(listener, "listener");
-        listeners.remove(listener);
-        requireApi().listeners().unregister(listener);
+        requireLifecycle().unregisterListener(listener);
     }
 
     /**
@@ -170,14 +156,7 @@ public abstract class PlexModule
      */
     public void registerCommand(PlexCommand command)
     {
-        Objects.requireNonNull(command, "command");
-        if (commands.contains(command))
-        {
-            throw new IllegalStateException("Command is already registered");
-        }
-        bindCommand(command);
-        requireApi().commands().register(command);
-        commands.add(command);
+        requireLifecycle().registerCommand(command);
     }
 
     /**
@@ -190,9 +169,7 @@ public abstract class PlexModule
      */
     public void unregisterCommand(PlexCommand command)
     {
-        Objects.requireNonNull(command, "command");
-        commands.remove(command);
-        requireApi().commands().unregister(command);
+        requireLifecycle().unregisterCommand(command);
     }
 
     /**
@@ -206,7 +183,7 @@ public abstract class PlexModule
     {
         Objects.requireNonNull(name, "name");
         String normalizedName = name.toLowerCase(Locale.ROOT);
-        return commands.stream()
+        return requireLifecycle().commands().stream()
                 .filter(command -> command.getName().equalsIgnoreCase(name) || command.getAliases().stream()
                         .map(alias -> alias.toLowerCase(Locale.ROOT))
                         .anyMatch(normalizedName::equals))
@@ -249,26 +226,6 @@ public abstract class PlexModule
     }
 
     /**
-     * Returns the commands tracked by this module.
-     *
-     * @return commands tracked by this module
-     */
-    public List<PlexCommand> getCommands()
-    {
-        return List.copyOf(commands);
-    }
-
-    /**
-     * Returns the listeners tracked by this module.
-     *
-     * @return listeners tracked by this module
-     */
-    public List<Listener> getListeners()
-    {
-        return List.copyOf(listeners);
-    }
-
-    /**
      * Returns information read from this module's module.yml.
      *
      * @return module information
@@ -289,16 +246,6 @@ public abstract class PlexModule
     }
 
     /**
-     * Returns the JAR file this module was loaded from.
-     *
-     * @return the JAR file this module was loaded from
-     */
-    public File getModuleJar()
-    {
-        return moduleJar;
-    }
-
-    /**
      * Returns the module logger.
      *
      * @return module logger
@@ -315,7 +262,7 @@ public abstract class PlexModule
      */
     public void loadMessages(String fileName)
     {
-        messages = requireApi().moduleConfigs().create(this, fileName);
+        messages = api().moduleConfigs().create(this, fileName);
         messages.load();
     }
 
@@ -339,7 +286,7 @@ public abstract class PlexModule
      */
     public Component messageComponent(String entry, Object... objects)
     {
-        return api.messages().miniMessage(messageString(entry, objects));
+        return api().messages().miniMessage(messageString(entry, objects));
     }
 
     /**
@@ -362,7 +309,7 @@ public abstract class PlexModule
      */
     public Component messageComponent(String entry, Component... objects)
     {
-        Component component = api.messages().miniMessage(messageString(entry));
+        Component component = api().messages().miniMessage(messageString(entry));
         for (int i = 0; i < objects.length; i++)
         {
             int finalI = i;
@@ -383,7 +330,7 @@ public abstract class PlexModule
         String message = messages == null ? null : messages.getString(entry);
         if (message == null)
         {
-            return api.messages().messageString(entry, objects);
+            return api().messages().messageString(entry, objects);
         }
         for (int i = 0; i < objects.length; i++)
         {
@@ -392,20 +339,9 @@ public abstract class PlexModule
         return message;
     }
 
-    void setApi(PlexApi api)
+    void setLifecycle(ModuleLifecycle lifecycle)
     {
-        this.api = api;
-        this.scheduler = api.scheduler().taskScope();
-        commands.forEach(this::bindCommand);
-    }
-
-    private void bindCommand(PlexCommand command)
-    {
-        if (api != null)
-        {
-            command.bindApi(api);
-        }
-        command.bindModule(this);
+        this.lifecycle = lifecycle;
     }
 
     void setPlexModuleFile(PlexModuleFile plexModuleFile)
@@ -418,30 +354,17 @@ public abstract class PlexModule
         this.dataFolder = dataFolder;
     }
 
-    void setModuleJar(File moduleJar)
-    {
-        this.moduleJar = moduleJar;
-    }
-
     void setLogger(Logger logger)
     {
         this.logger = logger;
     }
 
-    void cancelTasks()
+    private ModuleLifecycle requireLifecycle()
     {
-        if (scheduler != null)
-        {
-            scheduler.cancelAll();
-        }
-    }
-
-    private PlexApi requireApi()
-    {
-        if (api == null)
+        if (lifecycle == null)
         {
             throw new IllegalStateException("Plex API is not available");
         }
-        return api;
+        return lifecycle;
     }
 }

@@ -24,7 +24,7 @@ public class TabListener extends ServerListenerBase
     public void onPlayerJoin(PlayerJoinEvent event)
     {
         Player player = event.getPlayer();
-        PlexPlayer plexPlayer = plugin.getPlayerService().getPlayer(player.getUniqueId());
+        PlexPlayer plexPlayer = plugin.getPlayerService().cachedPlayer(player.getUniqueId());
         player.playerListName(PlexUtils.mmDeserialize(PlayerMeta.getColor(plugin.config, plexPlayer) + player.getName()));
     }
 }

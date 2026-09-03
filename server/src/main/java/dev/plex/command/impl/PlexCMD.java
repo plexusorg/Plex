@@ -35,52 +35,36 @@ public class PlexCMD extends ServerCommand
     @Override
     protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
     {
-        command.executes(context -> executeCommand(context));
-        command.then(literal("reload")
-                .executes(context -> executeCommand(context, "reload")));
-        command.then(literal("update")
-                .executes(context -> executeCommand(context, "update")));
-        command.then(literal("modules")
-                .executes(context -> executeCommand(context, "modules"))
-                .then(literal("reload")
-                        .executes(context -> executeCommand(context, "modules", "reload")))
-                .then(literal("update")
-                        .executes(context -> executeCommand(context, "modules", "update")))
-                .then(literal("install")
-                        .then(word("name")
-                                .executes(context -> executeCommand(context, "modules", "install", string(context, "name")))))
-                .then(literal("uninstall")
-                        .then(word("name")
-                                .suggests(suggest(() -> plugin.getModuleManager().getModules().stream()
-                                        .map(module -> module.getPlexModuleFile().getName())
-                                        .collect(Collectors.toList())))
-                                .executes(context -> executeCommand(context, "modules", "uninstall", string(context, "name")))
-                                .then(literal("-rmdir")
-                                        .executes(context -> executeCommand(context, "modules", "uninstall", string(context, "name"), "-rmdir"))))));
+        command.executes(context -> executeCommand(context, this::information));
+        command.then(literal("reload").executes(context -> executeCommand(context, this::reload)));
+        command.then(literal("update").executes(context -> executeCommand(context, this::update)));
+
+        LiteralArgumentBuilder<CommandSourceStack> modules = literal("modules")
+                .executes(context -> executeCommand(context, this::modules));
+        modules.then(literal("reload").executes(context -> executeCommand(context, this::reloadModules)));
+        modules.then(literal("update").executes(context -> executeCommand(context, this::updateModules)));
+        modules.then(literal("install").then(word("name").executes(context -> executeCommand(context,
+                commandContext -> installModule(commandContext, string(context, "name"))))));
+        modules.then(literal("uninstall").then(word("name")
+                .suggests(suggest(() -> plugin.getModuleManager().getModules().stream()
+                        .map(module -> module.getPlexModuleFile().getName()).collect(Collectors.toList())))
+                .executes(context -> executeCommand(context, commandContext ->
+                        uninstallModule(commandContext, string(context, "name"), false)))
+                .then(literal("-rmdir").executes(context -> executeCommand(context, commandContext ->
+                        uninstallModule(commandContext, string(context, "name"), true))))));
+        command.then(modules);
     }
 
-    @Override
-    protected Component execute(@NotNull ServerCommandContext context)
+    private Component information(ServerCommandContext context)
     {
-        String[] args = context.args();
-        if (args.length == 0)
-        {
-            CommandSender sender = context.sender();
-            context.send(sender, context.mmString("<light_purple>Plex - A new freedom plugin."));
-            context.send(sender, context.mmString("<light_purple>Plugin version: <gold>" + plugin.getPluginMeta().getVersion() + " #" + BuildInfo.getNumber() + " <light_purple>Git: <gold>" + BuildInfo.shortenCommit(BuildInfo.getCommit())));
-            context.send(sender, context.mmString("<light_purple>Authors: <gold>Telesphoreo, Taahh"));
-            context.send(sender, context.mmString("<light_purple>Built by: <gold>" + BuildInfo.getAuthor() + " <light_purple>on <gold>" + BuildInfo.getDate()));
-            context.send(sender, context.mmString("<light_purple>Run <gold>/plex modules <light_purple>to see a list of modules."));
+        CommandSender sender = context.sender();
+            sender.sendMessage(PlexUtils.mmDeserialize("<light_purple>Plex - A new freedom plugin."));
+            sender.sendMessage(PlexUtils.mmDeserialize("<light_purple>Plugin version: <gold>" + plugin.getPluginMeta().getVersion() + " #" + BuildInfo.getNumber() + " <light_purple>Git: <gold>" + BuildInfo.shortenCommit(BuildInfo.getCommit())));
+            sender.sendMessage(PlexUtils.mmDeserialize("<light_purple>Authors: <gold>Telesphoreo, Taahh"));
+            sender.sendMessage(PlexUtils.mmDeserialize("<light_purple>Built by: <gold>" + BuildInfo.getAuthor() + " <light_purple>on <gold>" + BuildInfo.getDate()));
+            sender.sendMessage(PlexUtils.mmDeserialize("<light_purple>Run <gold>/plex modules <light_purple>to see a list of modules."));
             plugin.getApi().scheduler().runAsync(() -> plugin.getUpdateChecker().getUpdateStatusMessage(sender, true, 2));
-            return null;
-        }
-        return switch (args[0])
-        {
-            case "reload" -> reload(context);
-            case "modules" -> modules(context, args);
-            case "update" -> update(context);
-            default -> context.usage();
-        };
+        return null;
     }
 
     private Component reload(ServerCommandContext context)
@@ -89,49 +73,47 @@ public class PlexCMD extends ServerCommand
         context.checkPermission(sender, "plex.reload");
         plugin.config.load();
         PlexLog.setDebugEnabled(plugin.config.getBoolean("debug"));
-        context.send(sender, "Reloaded config file");
+        sender.sendMessage("Reloaded config file");
         plugin.entities.load();
-        context.send(sender, "Reloaded entities file");
+        sender.sendMessage("Reloaded entities file");
         plugin.worlds.load();
-        context.send(sender, "Reloaded worlds file");
+        sender.sendMessage("Reloaded worlds file");
         plugin.messages.load();
         PlexUtils.configure(plugin.config, plugin.messages);
-        context.send(sender, "Reloaded messages file");
+        sender.sendMessage("Reloaded messages file");
         plugin.toggles.load();
-        context.send(sender, "Reloaded toggles file");
+        sender.sendMessage("Reloaded toggles file");
         plugin.indefBans.load(false);
         plugin.getPunishmentManager().mergeIndefiniteBans();
-        context.send(sender, "Reloaded indefinite bans");
+        sender.sendMessage("Reloaded indefinite bans");
         plugin.getServiceManager().endServices();
         plugin.getServiceManager().startServices();
-        context.send(sender, "Restarted services.");
+        sender.sendMessage("Restarted services.");
         TimeUtils.TIMEZONE = plugin.config.getString("server.timezone", "Etc/UTC");
-        context.send(sender, "Set timezone to: " + TimeUtils.TIMEZONE);
-        context.send(sender, "Plex successfully reloaded.");
+        sender.sendMessage("Set timezone to: " + TimeUtils.TIMEZONE);
+        sender.sendMessage("Plex successfully reloaded.");
         return null;
     }
 
-    private Component modules(ServerCommandContext context, String[] args)
+    private Component modules(ServerCommandContext context)
     {
-        if (args.length == 1)
-        {
-            return context.mmString("<gold>Modules (" + plugin.getModuleManager().getModules().size() + "): <yellow>" + StringUtils.join(plugin.getModuleManager().getModules().stream().map(PlexModule::getPlexModuleFile).map(PlexModuleFile::getName).collect(Collectors.toList()), ", "));
-        }
-        return switch (args[1])
-        {
-            case "reload" -> reloadModules(context);
-            case "update" -> updateModules(context);
-            case "install" -> installModule(context, args);
-            case "uninstall" -> uninstallModule(context, args);
-            default -> context.usage();
-        };
+        return PlexUtils.mmDeserialize("<gold>Modules (" + plugin.getModuleManager().getModules().size() + "): <yellow>" + StringUtils.join(plugin.getModuleManager().getModules().stream().map(PlexModule::getPlexModuleFile).map(PlexModuleFile::getName).collect(Collectors.toList()), ", "));
     }
 
     private Component reloadModules(ServerCommandContext context)
     {
         context.checkPermission(context.sender(), "plex.modules.reload");
-        plugin.getModuleManager().reloadModules();
-        return context.mmString("<green>All modules reloaded!");
+        plugin.getModuleManager().reloadModules().whenComplete((ignored, failure) ->
+        {
+            if (failure != null)
+            {
+                PlexLog.error("Failed to reload modules", failure);
+                context.sender().sendMessage(PlexUtils.mmDeserialize("<red>Failed to reload modules. Check the server log."));
+                return;
+            }
+            context.sender().sendMessage(PlexUtils.mmDeserialize("<green>All modules reloaded!"));
+        });
+        return null;
     }
 
     private Component updateModules(ServerCommandContext context)
@@ -157,44 +139,49 @@ public class PlexCMD extends ServerCommand
             int failedCount = failed;
             plugin.getApi().scheduler().runGlobal(() ->
             {
-                plugin.getModuleManager().reloadModules();
-                sender.sendMessage(context.messageComponent("moduleUpdateSummary", updatedCount, skippedCount, failedCount));
+                plugin.getModuleManager().reloadModules().whenComplete((ignored, failure) ->
+                {
+                    if (failure != null)
+                    {
+                        PlexLog.error("Failed to reload updated modules", failure);
+                    }
+                    sender.sendMessage(PlexUtils.messageComponent("moduleUpdateSummary", updatedCount, skippedCount, failedCount));
+                });
             });
         });
         return null;
     }
 
-    private Component installModule(ServerCommandContext context, String[] args)
+    private Component installModule(ServerCommandContext context, String moduleName)
     {
         context.checkPermission(context.sender(), "plex.modules.install");
-        if (args.length < 3)
-        {
-            return context.usage();
-        }
-        String moduleName = args[2];
         plugin.getApi().scheduler().runAsync(() -> plugin.getUpdateChecker().installModuleJar(context.sender(), moduleName));
-        return context.mmString("<green>Installing module <yellow>" + moduleName + "<green>...");
+        return PlexUtils.mmDeserialize("<green>Installing module <yellow>" + moduleName + "<green>...");
     }
 
-    private Component uninstallModule(ServerCommandContext context, String[] args)
+    private Component uninstallModule(ServerCommandContext context, String moduleName, boolean removeData)
     {
         context.checkPermission(context.sender(), "plex.modules.uninstall");
-        if (args.length < 3)
+        plugin.getModuleManager().uninstallModule(moduleName, removeData).whenComplete((result, failure) ->
         {
-            return context.usage();
-        }
-        String moduleName = args[2];
-        boolean removeData = args.length == 4 && "-rmdir".equals(args[3]);
-        return switch (plugin.getModuleManager().uninstallModule(moduleName, removeData))
-        {
-            case NOT_FOUND -> context.mmString("<red>No installed module named <yellow>" + moduleName + "<red> was found.");
-            case FAILED -> context.mmString("<red>Failed to delete the JAR for <yellow>" + moduleName + "<red>. Check the server log.");
-            case REMOVED ->
+            if (failure != null)
             {
-                context.send(context.sender(), context.mmString("<green>Uninstalled module <yellow>" + moduleName + "<green>" + (removeData ? " and its data folder" : "") + "."));
-                yield context.messageComponent("moduleRestartRequired");
+                PlexLog.error("Failed to uninstall module " + moduleName, failure);
+                context.sender().sendMessage(PlexUtils.mmDeserialize("<red>Failed to uninstall module <yellow>" + moduleName + "<red>. Check the server log."));
+                return;
             }
-        };
+            switch (result)
+            {
+                case NOT_FOUND -> context.sender().sendMessage(PlexUtils.mmDeserialize("<red>No installed module named <yellow>" + moduleName + "<red> was found."));
+                case FAILED -> context.sender().sendMessage(PlexUtils.mmDeserialize("<red>Failed to delete the JAR for <yellow>" + moduleName + "<red>. Check the server log."));
+                case REMOVED ->
+                {
+                    context.sender().sendMessage(PlexUtils.mmDeserialize("<green>Uninstalled module <yellow>" + moduleName + "<green>" + (removeData ? " and its data folder" : "") + "."));
+                    context.sender().sendMessage(PlexUtils.messageComponent("moduleRestartRequired"));
+                }
+            }
+        });
+        return null;
     }
 
     private Component update(ServerCommandContext context)
@@ -206,11 +193,11 @@ public class PlexCMD extends ServerCommand
             UpdateChecker.UpdateCheckResult result = plugin.getUpdateChecker().checkForUpdates(false);
             if (result.status() == UpdateChecker.UpdateCheckStatus.UPDATE_AVAILABLE)
             {
-                plugin.getUpdateChecker().updateJar(sender, result.metadata(), () -> sender.sendMessage(context.mmString("<red>Alert: Restart the server for the new JAR file to be applied.")));
+                plugin.getUpdateChecker().updateJar(sender, result.metadata(), () -> sender.sendMessage(PlexUtils.mmDeserialize("<red>Alert: Restart the server for the new JAR file to be applied.")));
             }
             else if (result.status() == UpdateChecker.UpdateCheckStatus.UP_TO_DATE)
             {
-                sender.sendMessage(context.mmString("<red>Plex is already up to date!"));
+                sender.sendMessage(PlexUtils.mmDeserialize("<red>Plex is already up to date!"));
             }
             else
             {

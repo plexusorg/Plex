@@ -27,19 +27,20 @@ public class AutoWipeService implements Listener
     private final Plex plugin;
     private final Map<UUID, Entity> entities = new ConcurrentHashMap<>();
     private Set<EntityType> entityTypes = Set.of();
+    private volatile ScheduledTask task;
 
     public AutoWipeService(Plex plugin)
     {
         this.plugin = plugin;
     }
 
-    public boolean shouldStart()
+    public synchronized void start()
     {
-        return plugin.entities.getBoolean("autowipe.enabled");
-    }
-
-    public void onStart()
-    {
+        stop();
+        if (!plugin.entities.getBoolean("autowipe.enabled"))
+        {
+            return;
+        }
         entityTypes = configuredTypes();
         Bukkit.getPluginManager().registerEvents(this, plugin);
         for (World world : Bukkit.getWorlds())
@@ -52,16 +53,31 @@ public class AutoWipeService implements Listener
                 });
             }
         }
+        task = plugin.getApi().scheduler().runGlobalTimer(this::run, 1L, 20L * repeatInSeconds());
     }
 
-    public void onEnd()
+    public synchronized void stop()
     {
+        if (task != null)
+        {
+            task.cancel();
+            task = null;
+        }
         HandlerList.unregisterAll(this);
         entities.clear();
     }
 
-    public void run(ScheduledTask task)
+    public boolean isRunning()
     {
+        return task != null;
+    }
+
+    public synchronized void run(ScheduledTask task)
+    {
+        if (this.task != task)
+        {
+            return;
+        }
         entities.forEach((uuid, entity) -> entity.getScheduler().run(plugin, ignored ->
         {
             if (entityTypes.contains(entity.getType())) entity.remove();
@@ -96,7 +112,7 @@ public class AutoWipeService implements Listener
         }
     }
 
-    public int repeatInSeconds()
+    private int repeatInSeconds()
     {
         return Math.max(1, plugin.entities.getInt("autowipe.interval"));
     }

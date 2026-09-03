@@ -3,7 +3,6 @@ package dev.plex.storage.punishment;
 import dev.plex.api.punishment.PunishmentSource;
 import dev.plex.punishment.Punishment;
 import dev.plex.api.punishment.PunishmentType;
-import dev.plex.storage.database.entity.PunishmentEntity;
 import dev.plex.storage.repository.PunishmentRepository;
 import dev.plex.storage.repository.PunishmentRepository.BanRemoval;
 import dev.plex.util.PlexLog;
@@ -88,20 +87,22 @@ public class SQLPunishment implements PunishmentRepository
         return CompletableFuture.runAsync(() ->
         {
             PlexLog.debug("Persisting punishment for " + punishment.getPunished());
-            PunishmentEntity e = toEntity(punishment);
+            PunishmentSource source = punishment.getSource() == null
+                    ? (punishment.getPunisher() == null ? PunishmentSource.CONSOLE : PunishmentSource.PLAYER)
+                    : punishment.getSource();
             jdbi.useHandle(h -> h.createUpdate(
                                 "INSERT INTO punishments (punished_uuid, punisher_uuid, source, punisher_reference, ip, type, reason, active, issueDate, endDate) " +
                                         "VALUES (:punishedUuid, :punisherUuid, :source, :punisherReference, :ip, :type, :reason, :active, :issueDate, :endDate)")
-                        .bind("punishedUuid", e.getPunishedUuid())
-                        .bind("punisherUuid", e.getPunisherUuid())
-                        .bind("source", e.getSource())
-                        .bind("punisherReference", e.getPunisherReference())
-                        .bind("ip", e.getIp())
-                        .bind("type", e.getType())
-                        .bind("reason", e.getReason())
-                        .bind("active", e.isActive())
-                        .bind("issueDate", e.getIssueDate())
-                        .bind("endDate", e.getEndDate())
+                        .bind("punishedUuid", punishment.getPunished().toString())
+                        .bind("punisherUuid", punishment.getPunisher() == null ? null : punishment.getPunisher().toString())
+                        .bind("source", source.name())
+                        .bind("punisherReference", punishment.getPunisherReference())
+                        .bind("ip", punishment.getIp())
+                        .bind("type", punishment.getType().name())
+                        .bind("reason", punishment.getReason())
+                        .bind("active", punishment.isActive())
+                        .bind("issueDate", punishment.getIssueDate().toInstant().toEpochMilli())
+                        .bind("endDate", punishment.getEndDate() == null ? null : punishment.getEndDate().toInstant().toEpochMilli())
                     .execute());
         }, executor);
     }
@@ -144,65 +145,27 @@ public class SQLPunishment implements PunishmentRepository
                 .execute());
     }
 
-    private static PunishmentEntity mapRow(java.sql.ResultSet rs) throws java.sql.SQLException
+    private Punishment mapPunishment(java.sql.ResultSet result) throws java.sql.SQLException
     {
-        PunishmentEntity e = new PunishmentEntity();
-        e.setId(rs.getLong("id"));
-        e.setPunishedUuid(rs.getString("punished_uuid"));
-        e.setPunisherUuid(rs.getString("punisher_uuid"));
-        e.setSource(rs.getString("source"));
-        e.setPunisherReference(rs.getString("punisher_reference"));
-        e.setIp(rs.getString("ip"));
-        e.setType(rs.getString("type"));
-        e.setReason(rs.getString("reason"));
-        e.setActive(rs.getBoolean("active"));
-        e.setIssueDate(rs.getLong("issueDate"));
-        long endDate = rs.getLong("endDate");
-        e.setEndDate(rs.wasNull() ? null : endDate);
-        return e;
-    }
-
-    private Punishment toPunishment(PunishmentEntity entity)
-    {
-        UUID punisher = entity.getPunisherUuid() == null || entity.getPunisherUuid().isBlank() ? null : UUID.fromString(entity.getPunisherUuid());
-        Punishment punishment = new Punishment(UUID.fromString(entity.getPunishedUuid()), punisher);
-        punishment.setActive(entity.isActive());
-        punishment.setType(PunishmentType.valueOf(entity.getType()));
-        punishment.setSource(entity.getSource() == null ? punishment.getSource() : PunishmentSource.valueOf(entity.getSource()));
-        punishment.setPunisherReference(entity.getPunisherReference());
-        punishment.setIssueDate(ZonedDateTime.ofInstant(Instant.ofEpochMilli(entity.getIssueDate()), TimeUtils.zoneId()));
-        punishment.setEndDate(entity.getEndDate() == null ? null : ZonedDateTime.ofInstant(Instant.ofEpochMilli(entity.getEndDate()), TimeUtils.zoneId()));
+        String punisherUuid = result.getString("punisher_uuid");
+        UUID punisher = punisherUuid == null || punisherUuid.isBlank() ? null : UUID.fromString(punisherUuid);
+        Punishment punishment = new Punishment(UUID.fromString(result.getString("punished_uuid")), punisher);
+        punishment.setActive(result.getBoolean("active"));
+        punishment.setType(PunishmentType.valueOf(result.getString("type")));
+        String source = result.getString("source");
+        punishment.setSource(source == null ? punishment.getSource() : PunishmentSource.valueOf(source));
+        punishment.setPunisherReference(result.getString("punisher_reference"));
+        punishment.setIssueDate(ZonedDateTime.ofInstant(Instant.ofEpochMilli(result.getLong("issueDate")), TimeUtils.zoneId()));
+        long endDate = result.getLong("endDate");
+        punishment.setEndDate(result.wasNull() ? null : ZonedDateTime.ofInstant(Instant.ofEpochMilli(endDate), TimeUtils.zoneId()));
         if (punishment.getType() == PunishmentType.BAN && punishment.getEndDate() == null)
         {
             punishment.setEndDate(punishment.getIssueDate().plus(PunishmentType.STANDARD_BAN_DURATION));
         }
-        punishment.setReason(entity.getReason());
-        punishment.setIp(entity.getIp());
+        punishment.setReason(result.getString("reason"));
+        punishment.setIp(result.getString("ip"));
+        punishment.setResolvedPunisherName(result.getString("resolved_punisher_name"));
+        punishment.setResolvedPunishedName(result.getString("resolved_punished_name"));
         return punishment;
-    }
-
-    private Punishment mapPunishment(java.sql.ResultSet rs) throws java.sql.SQLException
-    {
-        Punishment punishment = toPunishment(mapRow(rs));
-        punishment.setResolvedPunisherName(rs.getString("resolved_punisher_name"));
-        punishment.setResolvedPunishedName(rs.getString("resolved_punished_name"));
-        return punishment;
-    }
-
-    private PunishmentEntity toEntity(Punishment punishment)
-    {
-        PunishmentEntity entity = new PunishmentEntity();
-        entity.setPunishedUuid(punishment.getPunished().toString());
-        entity.setPunisherUuid(punishment.getPunisher() == null ? null : punishment.getPunisher().toString());
-        PunishmentSource source = punishment.getSource() == null ? (punishment.getPunisher() == null ? PunishmentSource.CONSOLE : PunishmentSource.PLAYER) : punishment.getSource();
-        entity.setSource(source.name());
-        entity.setPunisherReference(punishment.getPunisherReference());
-        entity.setIp(punishment.getIp());
-        entity.setType(punishment.getType().name());
-        entity.setReason(punishment.getReason());
-        entity.setActive(punishment.isActive());
-        entity.setIssueDate(punishment.getIssueDate().toInstant().toEpochMilli());
-        entity.setEndDate(punishment.getEndDate() == null ? null : punishment.getEndDate().toInstant().toEpochMilli());
-        return entity;
     }
 }

@@ -1,5 +1,6 @@
 package dev.plex.command.impl;
 
+import dev.plex.util.PlexUtils;
 import dev.plex.command.PlexCommand;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
@@ -33,38 +34,21 @@ public class DebugCMD extends ServerCommand
     @Override
     protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
     {
-        command.executes(context -> executeCommand(context));
+        command.executes(context -> executeCommand(context, ServerCommandContext::usage));
         command.then(literal("redis")
-                .executes(context -> executeCommand(context, "redis")));
+                .executes(context -> executeCommand(context, this::redis)));
         command.then(literal("redis-reset")
                 .then(playerArgument("player")
-                        .executes(context -> executeCommand(context, "redis-reset", string(context, "player")))));
+                        .executes(context -> executeCommand(context,
+                                commandContext -> resetRedis(commandContext, string(context, "player"))))));
         command.then(literal("gamerules")
-                .executes(context -> executeCommand(context, "gamerules")));
+                .executes(context -> executeCommand(context, this::gamerules)));
         command.then(literal("aliases")
                 .then(word("command")
-                        .executes(context -> executeCommand(context, "aliases", string(context, "command")))));
+                        .executes(context -> executeCommand(context,
+                                commandContext -> aliases(commandContext, string(context, "command"))))));
         command.then(literal("pagination")
-                .executes(context -> executeCommand(context, "pagination")));
-    }
-
-    @Override
-    protected Component execute(@NotNull ServerCommandContext context)
-    {
-        String[] args = context.args();
-        if (args.length == 0)
-        {
-            return context.usage();
-        }
-        return switch (args[0])
-        {
-            case "redis" -> redis(context);
-            case "redis-reset" -> resetRedis(context, args);
-            case "gamerules" -> gamerules(context);
-            case "aliases" -> aliases(context, args);
-            case "pagination" -> pagination(context);
-            default -> context.usage();
-        };
+                .executes(context -> executeCommand(context, this::pagination)));
     }
 
     private Component redis(ServerCommandContext context)
@@ -74,26 +58,22 @@ public class DebugCMD extends ServerCommand
             throw new CommandFailException("&cRedis is not enabled.");
         }
         plugin.getRedisConnection().execute(jedis -> jedis.set("test", "123"));
-        context.send(context.sender(), "Set test to 123. Now outputting key test...");
+        context.sender().sendMessage("Set test to 123. Now outputting key test...");
         String value = plugin.getRedisConnection().query(jedis -> jedis.get("test"));
-        context.send(context.sender(), value);
+        context.sender().sendMessage(value);
         return null;
     }
 
-    private Component resetRedis(ServerCommandContext context, String[] args)
+    private Component resetRedis(ServerCommandContext context, String playerName)
     {
-        if (args.length != 2)
-        {
-            return context.usage();
-        }
-        Player player = context.getNonNullPlayer(args[1]);
+        Player player = getNonNullPlayer(playerName);
         String key = player.getUniqueId().toString();
         if (!plugin.getRedisConnection().query(jedis -> jedis.exists(key)))
         {
-            return context.messageComponent("redisResetPlayerNotFound");
+            return PlexUtils.messageComponent("redisResetPlayerNotFound");
         }
         plugin.getRedisConnection().execute(jedis -> jedis.del(key));
-        return context.messageComponent("redisResetSuccessful", player.getName());
+        return PlexUtils.messageComponent("redisResetSuccessful", player.getName());
     }
 
     private Component gamerules(ServerCommandContext context)
@@ -112,24 +92,19 @@ public class DebugCMD extends ServerCommand
                     PlexLog.log("Set specific gamerules for world: " + world);
             }
         }
-        return context.messageComponent("reappliedGamerules");
+        return PlexUtils.messageComponent("reappliedGamerules");
     }
 
-    private Component aliases(ServerCommandContext context, String[] args)
+    private Component aliases(ServerCommandContext context, String commandName)
     {
-        if (args.length != 2)
-        {
-            return context.usage();
-        }
-        String commandName = args[1];
         PlexCommand plexCommand = plugin.getCommandHandler().getCommand(commandName);
         if (plexCommand != null)
         {
-            return context.messageComponent("commandAliases", commandName, Arrays.toString(plexCommand.getAliases().toArray(new String[0])));
+            return PlexUtils.messageComponent("commandAliases", commandName, Arrays.toString(plexCommand.getAliases().toArray(new String[0])));
         }
         Command command = plugin.getServer().getCommandMap().getCommand(commandName);
-        return command == null ? context.messageComponent("commandNotFound")
-                : context.messageComponent("commandAliases", commandName, Arrays.toString(command.getAliases().toArray(new String[0])));
+        return command == null ? PlexUtils.messageComponent("commandNotFound")
+                : PlexUtils.messageComponent("commandAliases", commandName, Arrays.toString(command.getAliases().toArray(new String[0])));
     }
 
     private Component pagination(ServerCommandContext context)
@@ -137,7 +112,7 @@ public class DebugCMD extends ServerCommand
         Player player = context.player();
         if (player == null)
         {
-            return context.messageComponent("noPermissionConsole");
+            return PlexUtils.messageComponent("noPermissionConsole");
         }
         new MaterialDialog().open(player);
         return null;

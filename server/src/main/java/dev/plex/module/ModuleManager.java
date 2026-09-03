@@ -2,6 +2,7 @@ package dev.plex.module;
 
 import com.google.common.collect.Lists;
 import dev.plex.Plex;
+import dev.plex.api.module.ModulesApi;
 import dev.plex.module.exception.ModuleLoadException;
 import dev.plex.storage.module.ModuleNames;
 import dev.plex.util.PlexLog;
@@ -16,25 +17,41 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Collection;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
 
-import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bukkit.configuration.file.YamlConfiguration;
 
-@Getter
-public class ModuleManager
+public class ModuleManager implements ModulesApi
 {
     private final Plex plugin;
-    private final List<PlexModule> modules = Lists.newArrayList();
+    private final List<LoadedModule> loadedModules = Lists.newArrayList();
+    private volatile List<LoadedModule> loadedSnapshot = List.of();
+    private CompletableFuture<Void> lifecycleTail = CompletableFuture.completedFuture(null);
+    private volatile CompletableFuture<Void> activeClosures = CompletableFuture.completedFuture(null);
+    private boolean shuttingDown;
 
     public ModuleManager(Plex plugin)
     {
         this.plugin = plugin;
     }
 
-    public void loadAllModules()
+    public void load()
     {
-        this.modules.clear();
+        discoverModules();
+        loadModules();
+        publishSnapshot();
+    }
+
+    private void discoverModules()
+    {
+        this.loadedModules.clear();
         File[] moduleFiles = plugin.getModulesFolder().listFiles();
         if (moduleFiles == null)
         {
@@ -67,13 +84,13 @@ public class ModuleManager
                 throw new ModuleLoadException("Plex module main class must be defined by " + file.getName());
             }
             PlexModule module = type.getConstructor().newInstance();
-            module.setApi(plugin.getApi());
+            File dataFolder = new File(plugin.getModulesFolder(), moduleFile.getName());
+            dataFolder.mkdirs();
             module.setPlexModuleFile(moduleFile);
-            module.setModuleJar(file);
-            module.setDataFolder(new File(plugin.getModulesFolder(), moduleFile.getName()));
-            module.getDataFolder().mkdirs();
-            module.setLogger(LogManager.getLogger(moduleFile.getName()));
-            modules.add(module);
+            module.setDataFolder(dataFolder);
+            Logger logger = LogManager.getLogger(moduleFile.getName());
+            module.setLogger(logger);
+            loadedModules.add(new LoadedModule(module, plugin.getApi(), moduleFile, file, dataFolder, loader));
             loader = null;
         }
         catch (IOException | ReflectiveOperationException | ClassCastException | ModuleLoadException e)
@@ -143,33 +160,34 @@ public class ModuleManager
 
     private void rejectDuplicate(PlexModuleFile moduleFile) throws ModuleLoadException
     {
-        if (modules.stream().anyMatch(loaded -> loaded.getPlexModuleFile().getName().equalsIgnoreCase(moduleFile.getName())))
+        if (loadedModules.stream().anyMatch(loaded -> loaded.descriptor().getName().equalsIgnoreCase(moduleFile.getName())))
         {
             throw new ModuleLoadException("Plex module name is already in use: " + moduleFile.getName());
         }
         String storagePrefix = ModuleNames.prefix(moduleFile.getName());
-        if (modules.stream().anyMatch(loaded -> ModuleNames.prefix(loaded).equals(storagePrefix)))
+        if (loadedModules.stream().anyMatch(loaded -> ModuleNames.prefix(loaded.module()).equals(storagePrefix)))
         {
             throw new ModuleLoadException("Plex module storage name is already in use: " + storagePrefix);
         }
     }
 
-    public void loadModules()
+    private void loadModules()
     {
-        Iterator<PlexModule> iterator = modules.iterator();
+        Iterator<LoadedModule> iterator = loadedModules.iterator();
         while (iterator.hasNext())
         {
-            PlexModule module = iterator.next();
-            PlexLog.log("Loading module " + module.getPlexModuleFile().getName() + " with version " + module.getPlexModuleFile().getVersion());
+            LoadedModule loaded = iterator.next();
+            PlexModule module = loaded.module();
+            PlexLog.log("Loading module " + loaded.descriptor().getName() + " with version " + loaded.descriptor().getVersion());
             try
             {
                 module.load();
             }
             catch (RuntimeException | LinkageError ex)
             {
-                PlexLog.error("Module " + module.getPlexModuleFile().getName() + " failed to load", ex);
-                cleanupContributions(module);
-                closeClassLoader(module);
+                PlexLog.error("Module " + loaded.descriptor().getName() + " failed to load", ex);
+                loaded.cleanupContributions();
+                loaded.close();
                 iterator.remove();
             }
         }
@@ -177,70 +195,101 @@ public class ModuleManager
 
     public void enableModules()
     {
-        Iterator<PlexModule> iterator = modules.iterator();
+        Iterator<LoadedModule> iterator = loadedModules.iterator();
         while (iterator.hasNext())
         {
-            PlexModule module = iterator.next();
-            PlexLog.log("Enabling module " + module.getPlexModuleFile().getName() + " with version " + module.getPlexModuleFile().getVersion());
+            LoadedModule loaded = iterator.next();
+            PlexModule module = loaded.module();
+            PlexLog.log("Enabling module " + loaded.descriptor().getName() + " with version " + loaded.descriptor().getVersion());
             try
             {
                 module.enable();
             }
             catch (RuntimeException | LinkageError ex)
             {
-                PlexLog.error("Module " + module.getPlexModuleFile().getName() + " failed to enable", ex);
+                PlexLog.error("Module " + loaded.descriptor().getName() + " failed to enable", ex);
                 try
                 {
                     module.disable();
                 }
                 catch (RuntimeException | LinkageError cleanupFailure)
                 {
-                    PlexLog.error("Module " + module.getPlexModuleFile().getName()
+                    PlexLog.error("Module " + loaded.descriptor().getName()
                             + " also failed rollback disable", cleanupFailure);
                 }
-                cleanupContributions(module);
-                closeClassLoader(module);
+                loaded.cleanupContributions();
+                loaded.close();
                 iterator.remove();
             }
         }
+        publishSnapshot();
     }
 
-    public void disableModules()
+    private void disableModules()
     {
-        this.modules.forEach(module ->
+        this.loadedModules.forEach(loaded ->
         {
-            PlexLog.log("Disabling module " + module.getPlexModuleFile().getName() + " with version " + module.getPlexModuleFile().getVersion());
+            PlexModule module = loaded.module();
+            PlexLog.log("Disabling module " + loaded.descriptor().getName() + " with version " + loaded.descriptor().getVersion());
             try
             {
                 module.disable();
             }
             catch (RuntimeException | LinkageError ex)
             {
-                PlexLog.error("Module " + module.getPlexModuleFile().getName() + " failed to disable", ex);
+                PlexLog.error("Module " + loaded.descriptor().getName() + " failed to disable", ex);
             }
             finally
             {
-                cleanupContributions(module);
+                loaded.cleanupContributions();
             }
         });
     }
 
-    public void unloadModules()
+    public CompletableFuture<Void> unloadModules()
     {
-        this.disableModules();
-        this.modules.forEach(this::closeClassLoader);
-        this.modules.clear();
+        return queueLifecycle(this::unloadModulesOnGlobal);
     }
 
-    public void reloadModules()
+    /**
+     * Begins module shutdown while the server itself is already on the global owner.
+     */
+    public CompletableFuture<Void> unloadModulesDuringServerShutdown()
     {
-        unloadModules();
-        reloadFromDisk();
+        CompletableFuture<Void> previousClosures;
+        synchronized (this)
+        {
+            shuttingDown = true;
+            previousClosures = activeClosures;
+        }
+        return CompletableFuture.allOf(previousClosures, beginUnloadModules());
+    }
+
+    private CompletableFuture<Void> beginUnloadModules()
+    {
+        this.disableModules();
+        CompletableFuture<?>[] closures = this.loadedModules.stream()
+                .map(LoadedModule::close).toArray(CompletableFuture[]::new);
+        this.loadedModules.clear();
+        publishSnapshot();
+        activeClosures = CompletableFuture.allOf(closures);
+        return activeClosures;
+    }
+
+    public CompletableFuture<Void> reloadModules()
+    {
+        return queueLifecycle(() -> unloadModulesOnGlobal()
+                .thenCompose(ignored -> reloadAfterLifecycleOperation()));
+    }
+
+    private CompletableFuture<Void> unloadModulesOnGlobal()
+    {
+        return onGlobalResult(this::beginUnloadModules).thenCompose(closures -> closures);
     }
 
     private void reloadFromDisk()
     {
-        loadAllModules();
+        discoverModules();
         loadModules();
         enableModules();
         if (plugin.getCommandHandler() != null && plugin.getCommandHandler().requiresLifecycleReload())
@@ -267,31 +316,120 @@ public class ModuleManager
      * @param removeData whether to also delete the module's data folder
      * @return the outcome of the uninstall request
      */
-    public UninstallResult uninstallModule(String name, boolean removeData)
+    public CompletableFuture<UninstallResult> uninstallModule(String name, boolean removeData)
     {
-        PlexModule target = modules.stream()
-                .filter(module -> module.getPlexModuleFile().getName().equalsIgnoreCase(name))
+        return queueLifecycle(() -> onGlobalResult(() -> prepareUninstall(name))
+                .thenCompose(target ->
+                {
+                    if (target == null)
+                    {
+                        return CompletableFuture.completedFuture(UninstallResult.NOT_FOUND);
+                    }
+                    return target.closure().thenApplyAsync(ignored ->
+                            {
+                                boolean deleted = target.jar().delete();
+                                if (deleted && removeData && target.dataFolder().isDirectory())
+                                {
+                                    deleteRecursively(target.dataFolder());
+                                }
+                                return deleted ? UninstallResult.REMOVED : UninstallResult.FAILED;
+                            }, plugin.getApi().scheduler().asyncExecutor())
+                            .thenCompose(result -> reloadAfterLifecycleOperation().thenApply(ignored -> result));
+                }));
+    }
+
+    private UninstallTarget prepareUninstall(String name)
+    {
+        LoadedModule target = loadedModules.stream()
+                .filter(module -> module.descriptor().getName().equalsIgnoreCase(name))
                 .findFirst()
                 .orElse(null);
-        if (target == null)
+        return target == null ? null
+                : new UninstallTarget(target.jar(), target.dataFolder(), beginUnloadModules());
+    }
+
+    private synchronized <T> CompletableFuture<T> queueLifecycle(Supplier<CompletableFuture<T>> operation)
+    {
+        if (shuttingDown)
         {
-            return UninstallResult.NOT_FOUND;
+            return CompletableFuture.failedFuture(new IllegalStateException("Module lifecycle is shutting down"));
         }
+        CompletableFuture<T> result = lifecycleTail.handle((ignored, failure) -> null)
+                .thenCompose(ignored ->
+                {
+                    synchronized (this)
+                    {
+                        if (shuttingDown)
+                        {
+                            return CompletableFuture.failedFuture(
+                                    new IllegalStateException("Module lifecycle is shutting down"));
+                        }
+                        return operation.get();
+                    }
+                });
+        lifecycleTail = result.handle((ignored, failure) -> null);
+        return result;
+    }
 
-        File moduleJar = target.getModuleJar();
-        File dataFolder = target.getDataFolder();
-
-        unloadModules();
-
-        boolean deleted = moduleJar.delete();
-        if (deleted && removeData && dataFolder.isDirectory())
+    private CompletableFuture<Void> reloadAfterLifecycleOperation()
+    {
+        synchronized (this)
         {
-            deleteRecursively(dataFolder);
+            if (shuttingDown)
+            {
+                return CompletableFuture.completedFuture(null);
+            }
         }
+        return onGlobal(() ->
+        {
+            synchronized (this)
+            {
+                if (shuttingDown)
+                {
+                    return;
+                }
+            }
+            reloadFromDisk();
+        });
+    }
 
-        reloadFromDisk();
+    private CompletableFuture<Void> onGlobal(Runnable action)
+    {
+        CompletableFuture<Void> completion = new CompletableFuture<>();
+        plugin.getApi().scheduler().executeGlobal(() ->
+        {
+            try
+            {
+                action.run();
+                completion.complete(null);
+            }
+            catch (RuntimeException | LinkageError failure)
+            {
+                completion.completeExceptionally(failure);
+            }
+        });
+        return completion;
+    }
 
-        return deleted ? UninstallResult.REMOVED : UninstallResult.FAILED;
+    private <T> CompletableFuture<T> onGlobalResult(Supplier<T> action)
+    {
+        CompletableFuture<T> completion = new CompletableFuture<>();
+        plugin.getApi().scheduler().executeGlobal(() ->
+        {
+            try
+            {
+                completion.complete(action.get());
+            }
+            catch (RuntimeException | LinkageError failure)
+            {
+                completion.completeExceptionally(failure);
+            }
+        });
+        return completion;
+    }
+
+    private record UninstallTarget(File jar, File dataFolder, CompletableFuture<Void> closure)
+    {
     }
 
     private void deleteRecursively(File file)
@@ -310,42 +448,34 @@ public class ModuleManager
         }
     }
 
-    private void cleanupContributions(PlexModule module)
+    public List<PlexModule> getModules()
     {
-        String name = module.getPlexModuleFile().getName();
-        try
-        {
-            module.getCommands().forEach(module::unregisterCommand);
-            module.getListeners().forEach(module::unregisterListener);
-        }
-        catch (RuntimeException | LinkageError ex)
-        {
-            PlexLog.error("Could not unregister all contributions from module " + name, ex);
-        }
-        try
-        {
-            module.cancelTasks();
-        }
-        catch (RuntimeException | LinkageError ex)
-        {
-            PlexLog.error("Could not cancel tasks for module " + name, ex);
-        }
+        return loadedSnapshot.stream().map(LoadedModule::module).toList();
     }
 
-    private void closeClassLoader(PlexModule module)
+    @Override
+    public Collection<PlexModuleFile> loadedModules()
     {
-        ClassLoader classLoader = module.getClass().getClassLoader();
-        if (!(classLoader instanceof URLClassLoader loader))
-        {
-            return;
-        }
-        try
-        {
-            loader.close();
-        }
-        catch (IOException ex)
-        {
-            PlexLog.error("Could not close module " + module.getPlexModuleFile().getName() + " classloader", ex);
-        }
+        return loadedSnapshot.stream().map(LoadedModule::descriptor).toList();
+    }
+
+    @Override
+    public Optional<PlexModuleFile> module(String name)
+    {
+        String normalizedName = Objects.requireNonNull(name, "name").toLowerCase(Locale.ROOT);
+        return loadedSnapshot.stream().map(LoadedModule::descriptor)
+                .filter(module -> module.getName().toLowerCase(Locale.ROOT).equals(normalizedName))
+                .findFirst();
+    }
+
+    public File moduleJar(PlexModule module)
+    {
+        return loadedSnapshot.stream().filter(loaded -> loaded.module() == module)
+                .findFirst().orElseThrow(() -> new IllegalArgumentException("Module is not loaded")).jar();
+    }
+
+    private void publishSnapshot()
+    {
+        loadedSnapshot = List.copyOf(loadedModules);
     }
 }

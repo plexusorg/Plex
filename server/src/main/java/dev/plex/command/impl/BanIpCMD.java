@@ -1,5 +1,6 @@
 package dev.plex.command.impl;
 
+import dev.plex.util.PlexUtils;
 import com.google.common.net.InetAddresses;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
@@ -27,62 +28,60 @@ public class BanIpCMD extends ServerCommand
     @Override
     protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
     {
-        command.executes(context -> executeCommand(context));
+        command.executes(context -> executeCommand(context, ServerCommandContext::usage));
         command.then(word("target")
                 .suggests(suggestPlayers())
-                .executes(context -> executeCommand(context, string(context, "target")))
+                .executes(context -> executeCommand(context, commandContext -> executeTyped(commandContext, string(context, "target"), null)))
                 .then(greedyString("reason")
-                        .executes(context -> executeCommand(context,
-                                argsWithGreedy(string(context, "target"), string(context, "reason"))))));
+                        .executes(context -> executeCommand(context, commandContext -> executeTyped(commandContext,
+                                string(context, "target"), normalizeGreedyString(string(context, "reason")))))));
     }
 
-    @Override
-    protected Component execute(@NotNull ServerCommandContext context)
+    private Component executeTyped(ServerCommandContext context, String targetName, String suppliedReason)
     {
-        String[] args = context.args();
-        if (args.length == 0)
-        {
-            return context.usage();
-        }
-
-        String ip = resolveIp(args[0]);
-        if (ip == null)
-        {
-            return context.messageComponent("invalidIpOrPlayer");
-        }
-        String reason = args.length > 1
-                ? StringUtils.join(args, " ", 1, args.length)
-                : context.messageString("noReasonProvided");
-        if (!plugin.getPunishmentManager().banIp(ip, reason))
-        {
-            return context.messageComponent("ipAlreadyBanned");
-        }
-
-        context.send(context.sender(), context.messageComponent("banningIp", context.senderName(), ip));
-        Component kickMessage = Punishment.generateIndefBanMessageWithReason(
-                "IP", plugin.config.getString("banning.ban_url"), reason);
-        BanKickUtil.kickPlayersWithIp(plugin, ip, kickMessage);
-        return null;
-    }
-
-    private String resolveIp(String target)
-    {
-        String candidate = target;
+        String candidate = targetName;
         if (candidate.length() > 1 && candidate.startsWith("[") && candidate.endsWith("]"))
         {
             candidate = candidate.substring(1, candidate.length() - 1);
         }
         if (InetAddresses.isInetAddress(candidate))
         {
-            return BanDecisionService.canonicalIp(candidate);
-        }
-
-        PlexPlayer player = plugin.getPlayerService().getPlayer(target);
-        if (player == null)
-        {
+            banIp(context, BanDecisionService.canonicalIp(candidate), suppliedReason);
             return null;
         }
-        String ip = BanKickUtil.currentOrLastIp(player);
-        return ip.isEmpty() ? null : ip;
+        plugin.getPlayerService().findPlayer(targetName).whenComplete((player, failure) ->
+        {
+            if (failure != null)
+            {
+                context.sender().sendMessage(Component.text("Unable to load the player."));
+                return;
+            }
+            if (player == null)
+            {
+                context.sender().sendMessage(PlexUtils.messageComponent("invalidIpOrPlayer"));
+                return;
+            }
+            BanKickUtil.currentOrLastIp(plugin, player).thenAccept(ip ->
+            {
+                if (ip.isEmpty()) context.sender().sendMessage(PlexUtils.messageComponent("invalidIpOrPlayer"));
+                else banIp(context, ip, suppliedReason);
+            });
+        });
+        return null;
+    }
+
+    private void banIp(ServerCommandContext context, String ip, String suppliedReason)
+    {
+        String reason = suppliedReason == null ? PlexUtils.messageString("noReasonProvided") : suppliedReason;
+        if (!plugin.getPunishmentManager().banIp(ip, reason))
+        {
+            context.sender().sendMessage(PlexUtils.messageComponent("ipAlreadyBanned"));
+            return;
+        }
+
+        context.sender().sendMessage(PlexUtils.messageComponent("banningIp", context.senderName(), ip));
+        Component kickMessage = Punishment.generateIndefBanMessageWithReason(
+                "IP", plugin.config.getString("banning.ban_url"), reason);
+        BanKickUtil.kickPlayersWithIp(plugin, ip, kickMessage);
     }
 }

@@ -155,12 +155,12 @@ public class UpdateChecker
             case MINECRAFT_TOO_OLD:
                 List<String> newerSupportedVersions = sortedSupportedVersions(result.metadata());
                 sender.sendMessage(PlexUtils.messageComponent("updateRequiresNewerMinecraft",
-                        result.metadata().version(), channel.id(), firstSupportedVersion(newerSupportedVersions), getRunningMinecraftVersion(), String.join(", ", newerSupportedVersions)));
+                        result.metadata().version(), channel.id(), newerSupportedVersions.get(0), getRunningMinecraftVersion(), String.join(", ", newerSupportedVersions)));
                 break;
             case MINECRAFT_TOO_NEW:
                 List<String> olderSupportedVersions = sortedSupportedVersions(result.metadata());
                 sender.sendMessage(PlexUtils.messageComponent("updateUnsupportedNewerMinecraft",
-                        result.metadata().version(), channel.id(), lastSupportedVersion(olderSupportedVersions), getRunningMinecraftVersion(), String.join(", ", olderSupportedVersions)));
+                        result.metadata().version(), channel.id(), olderSupportedVersions.get(olderSupportedVersions.size() - 1), getRunningMinecraftVersion(), String.join(", ", olderSupportedVersions)));
                 break;
             case MINECRAFT_UNLISTED:
                 List<String> listedVersions = sortedSupportedVersions(result.metadata());
@@ -214,8 +214,15 @@ public class UpdateChecker
     {
         updateJar(sender, name, List.of(), () ->
         {
-            plugin.getModuleManager().reloadModules();
-            sender.sendMessage(PlexUtils.messageComponent("moduleRestartRequired"));
+            plugin.getModuleManager().reloadModules().whenComplete((ignored, failure) ->
+            {
+                if (failure != null)
+                {
+                    PlexLog.error("Failed to reload modules after installing " + name, failure);
+                    return;
+                }
+                sender.sendMessage(PlexUtils.messageComponent("moduleRestartRequired"));
+            });
         });
     }
 
@@ -337,16 +344,6 @@ public class UpdateChecker
         List<String> supportedVersions = new ArrayList<>(metadata.minecraftVersions());
         supportedVersions.sort(UpdateChecker::compareMinecraftVersions);
         return supportedVersions;
-    }
-
-    private String firstSupportedVersion(List<String> supportedVersions)
-    {
-        return supportedVersions.isEmpty() ? "unknown" : supportedVersions.get(0);
-    }
-
-    private String lastSupportedVersion(List<String> supportedVersions)
-    {
-        return supportedVersions.isEmpty() ? "unknown" : supportedVersions.get(supportedVersions.size() - 1);
     }
 
     private static int compareMinecraftVersions(String left, String right)

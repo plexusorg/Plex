@@ -1,5 +1,6 @@
 package dev.plex.command.impl;
 
+import dev.plex.util.PlexUtils;
 import com.google.common.collect.Lists;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
@@ -8,6 +9,7 @@ import dev.plex.command.source.RequiredCommandSource;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.regex.Pattern;
 
 import io.papermc.paper.command.brigadier.CommandSourceStack;
@@ -34,7 +36,7 @@ public class WorldCMD extends ServerCommand
     @Override
     protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
     {
-        command.executes(context -> executeCommand(context));
+        command.executes(context -> executeCommand(context, ServerCommandContext::usage));
         command.then(word("world")
                 .suggests((context, builder) ->
                 {
@@ -42,48 +44,67 @@ public class WorldCMD extends ServerCommand
                     {
                         return builder.buildFuture();
                     }
-                    List<String> completions = Lists.newArrayList();
-                    for (World world : Bukkit.getWorlds())
+                    UUID playerId = player.getUniqueId();
+                    boolean canViewPlayerWorlds = player.hasPermission("plex.world.playerworlds");
+                    CompletableFuture<com.mojang.brigadier.suggestion.Suggestions> suggestions = new CompletableFuture<>();
+                    plugin.getApi().scheduler().runGlobal(() ->
                     {
-                        String worldName = world.getName();
-                        try
+                        List<String> completions = Lists.newArrayList();
+                        for (World world : Bukkit.getWorlds())
                         {
-                            UUID uuid = UUID.fromString(worldName);
-                            if (uuid.equals(player.getUniqueId()) || player.hasPermission("plex.world.playerworlds"))
+                            String worldName = world.getName();
+                            try
+                            {
+                                UUID uuid = UUID.fromString(worldName);
+                                if (uuid.equals(playerId) || canViewPlayerWorlds) completions.add(worldName);
+                            }
+                            catch (IllegalArgumentException ignored)
                             {
                                 completions.add(worldName);
                             }
                         }
-                        catch (Exception e)
+                        suggestMatching(builder, completions).whenComplete((result, failure) ->
                         {
-                            completions.add(worldName);
-                        }
-                    }
-                    return suggestMatching(builder, completions);
+                            if (failure == null) suggestions.complete(result);
+                            else suggestions.completeExceptionally(failure);
+                        });
+                    });
+                    return suggestions;
                 })
-                .executes(context -> executeCommand(context, string(context, "world"))));
+                .executes(context -> executeCommand(context,
+                        commandContext -> executeTyped(commandContext, string(context, "world")))));
     }
 
-    @Override
-    protected Component execute(@NotNull ServerCommandContext context)
+    private Component executeTyped(ServerCommandContext context, String worldName)
     {
         CommandSender sender = context.sender();
         Player playerSender = context.player();
-        String[] args = context.args();
         assert playerSender != null;
-        if (args.length != 1)
+        boolean canVisitPlayerWorlds = playerSender.hasPermission("plex.world.playerworlds");
+        plugin.getApi().scheduler().runGlobal(() ->
         {
-            return context.usage();
-        }
-
-        World world = context.getNonNullWorld(args[0]);
-        boolean playerWorld = args[0].matches("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}");
-        if (playerWorld && plugin.getModuleManager().getModules().stream().anyMatch(plexModule -> plexModule.getPlexModuleFile().getName().equalsIgnoreCase("Module-TFMExtras")))
-        {
-            context.checkPermission(playerSender, "plex.world.playerworlds");
-        }
-        playerSender.teleportAsync(world.getSpawnLocation());
-        return context.messageComponent("playerWorldTeleport", world.getName());
+            World world = Bukkit.getWorld(worldName);
+            if (world == null)
+            {
+                sender.sendMessage(PlexUtils.messageComponent("worldNotFound"));
+                return;
+            }
+            boolean playerWorld = UUID_PATTERN.matcher(worldName).matches();
+            boolean playerWorldsEnabled = plugin.getModuleManager().getModules().stream()
+                    .anyMatch(module -> module.getPlexModuleFile().getName().equalsIgnoreCase("Module-TFMExtras"));
+            if (playerWorld && playerWorldsEnabled && !canVisitPlayerWorlds)
+            {
+                sender.sendMessage(PlexUtils.messageComponent("noPermissionNode", "plex.world.playerworlds"));
+                return;
+            }
+            org.bukkit.Location spawn = world.getSpawnLocation().clone();
+            plugin.getApi().scheduler().runEntity(playerSender, () ->
+            {
+                playerSender.teleportAsync(spawn);
+                playerSender.sendMessage(PlexUtils.messageComponent("playerWorldTeleport", world.getName()));
+            });
+        });
+        return null;
     }
 
 }

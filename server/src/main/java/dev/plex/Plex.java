@@ -2,7 +2,6 @@ package dev.plex;
 
 import dev.plex.api.PlexApi;
 import dev.plex.api.impl.DefaultPlexApi;
-import dev.plex.cache.PlayerCache;
 import dev.plex.command.PlexCommand;
 import dev.plex.command.ServerCommand;
 import dev.plex.config.Config;
@@ -13,6 +12,7 @@ import dev.plex.hook.PrismHook;
 import dev.plex.hook.WorldGuardHook;
 import dev.plex.module.ModuleManager;
 import dev.plex.network.ProxyVanishBridge;
+import dev.plex.note.NotesService;
 import dev.plex.player.PlayerService;
 import dev.plex.punishment.PunishmentManager;
 import dev.plex.services.ServiceManager;
@@ -42,6 +42,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -76,8 +78,6 @@ public class Plex extends JavaPlugin
     private ThreadPoolExecutor databaseExecutor;
     private RedisConnection redisConnection;
 
-    private PlayerCache playerCache;
-    private PlayerRepository playerRepository;
     private PlayerModuleDataRepository playerModuleDataRepository;
     private PlayerService playerService;
     private ProxyVanishBridge proxyVanishBridge;
@@ -91,6 +91,7 @@ public class Plex extends JavaPlugin
     private ServiceManager serviceManager;
     private PunishmentManager punishmentManager;
     private UpdateChecker updateChecker;
+    private NotesService notesService;
     private PlexApi api;
     private WorldSpawnSignManager worldSpawnSignManager;
 
@@ -120,7 +121,9 @@ public class Plex extends JavaPlugin
         entities = new Config(this, "entities.yml");
         worlds = new Config(this, "worlds.yml");
         build.load(this);
-        api = new DefaultPlexApi(this, MODULE_API_COMPATIBILITY_VERSION);
+        notesService = new NotesService(this);
+        moduleManager = new ModuleManager(this);
+        api = new DefaultPlexApi(this, MODULE_API_COMPATIBILITY_VERSION, notesService);
         installModuleApiRuntimes();
 
         modulesFolder = new File(this.getDataFolder() + File.separator + "modules");
@@ -129,9 +132,7 @@ public class Plex extends JavaPlugin
             modulesFolder.mkdir();
         }
 
-        moduleManager = new ModuleManager(this);
-        moduleManager.loadAllModules();
-        moduleManager.loadModules();
+        moduleManager.load();
 
         //this.setChatHandler(new ChatListener.ChatHandlerImpl());
     }
@@ -169,8 +170,6 @@ public class Plex extends JavaPlugin
         databaseExecutor = new ThreadPoolExecutor(4, 4, 0L, TimeUnit.MILLISECONDS,
                 new ArrayBlockingQueue<>(512), databaseThreads(), new ThreadPoolExecutor.AbortPolicy());
         redisConnection = new RedisConnection(this);
-
-        playerCache = new PlayerCache();
 
         PlexLog.log("Attempting to connect to DB: {0}", plugin.config.getString("data.db.name"));
         PlexLog.log("Connected to " + storageType.name().toUpperCase());
@@ -249,10 +248,10 @@ public class Plex extends JavaPlugin
         }
 
         punishmentRepository = new SQLPunishment(database.getJdbi(), databaseExecutor);
-        playerRepository = new SQLPlayerData(database.getJdbi(), punishmentRepository, storageType);
+        PlayerRepository playerRepository = new SQLPlayerData(database.getJdbi(), punishmentRepository, storageType);
         playerModuleDataRepository = new SQLPlayerModuleData(database.getJdbi(), storageType);
         noteRepository = new SQLNotes(database.getJdbi(), databaseExecutor);
-        playerService = new PlayerService(playerCache, playerRepository, databaseExecutor);
+        playerService = new PlayerService(playerRepository, databaseExecutor);
         proxyVanishBridge = new ProxyVanishBridge(this);
 
         worldSpawnSignManager = new WorldSpawnSignManager(this);
@@ -316,7 +315,23 @@ public class Plex extends JavaPlugin
             serviceManager.endServices();
         }
 
-        moduleManager.unloadModules();
+        try
+        {
+            moduleManager.unloadModulesDuringServerShutdown().get(10, TimeUnit.SECONDS);
+        }
+        catch (TimeoutException failure)
+        {
+            PlexLog.error("Timed out waiting for modules to finish shutting down", failure);
+        }
+        catch (ExecutionException failure)
+        {
+            PlexLog.error("A module failed to finish shutting down", failure.getCause());
+        }
+        catch (InterruptedException failure)
+        {
+            Thread.currentThread().interrupt();
+            PlexLog.error("Interrupted while waiting for modules to finish shutting down", failure);
+        }
 
         if (playerService != null)
         {
@@ -434,8 +449,9 @@ public class Plex extends JavaPlugin
         Bukkit.getOnlinePlayers().forEach(player ->
         {
             java.util.UUID playerId = player.getUniqueId();
+            dev.plex.player.PlexPlayer expected = playerService.cachedPlayer(playerId);
             String ip = player.getAddress() == null ? "" : player.getAddress().getAddress().getHostAddress();
-            playerService.prepareSession(playerId, player.getName(), ip).whenComplete((plexPlayer, failure) ->
+            playerService.reloadSession(playerId, player.getName(), ip).whenComplete((plexPlayer, failure) ->
             {
                 if (failure != null)
                 {
@@ -444,8 +460,10 @@ public class Plex extends JavaPlugin
                 }
                 api.scheduler().runEntity(player, () ->
                 {
-                    playerService.cache(plexPlayer);
-                    punishmentManager.restoreTimedState(plexPlayer);
+                    if (player.isOnline() && playerService.attachReloadedSession(playerId, expected, plexPlayer))
+                    {
+                        punishmentManager.restoreTimedState(plexPlayer);
+                    }
                 });
             });
         });

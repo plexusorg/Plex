@@ -1,10 +1,12 @@
 package dev.plex.command.impl;
 
+import dev.plex.util.PlexUtils;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
 import dev.plex.command.ServerCommandContext;
 import dev.plex.player.PlexPlayer;
+import dev.plex.util.PlexLog;
 
 
 import io.papermc.paper.command.brigadier.CommandSourceStack;
@@ -27,52 +29,64 @@ public class RemoveLoginMessageCMD extends ServerCommand
     @Override
     protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
     {
-        command.executes(context -> executeCommand(context));
+        command.executes(context -> executeCommand(context, this::removeOwn));
         command.then(literal("-o")
                 .requires(source -> canUsePermission(source, "plex.removeloginmessage.others"))
-                .executes(context -> executeCommand(context, "-o"))
+                .executes(context -> executeCommand(context,
+                        commandContext -> PlexUtils.messageComponent("specifyPlayer")))
                 .then(playerArgument("player")
-                        .executes(context -> executeCommand(context, "-o", string(context, "player")))));
+                        .executes(context -> executeCommand(context,
+                                commandContext -> removeOther(commandContext, string(context, "player"))))));
     }
 
-    @Override
-    protected Component execute(@NotNull ServerCommandContext context)
+    private Component removeOwn(ServerCommandContext context)
     {
-        CommandSender sender = context.sender();
         Player playerSender = context.player();
-        String[] args = context.args();
-        if (args.length == 0 && !context.isConsole(sender))
+        if (playerSender != null)
         {
-            if (playerSender != null)
+            PlexPlayer plexPlayer = plugin.getPlayerService().cachedPlayer(playerSender.getUniqueId());
+            plexPlayer.setLoginMessage("");
+            plugin.getPlayerService().update(plexPlayer).whenComplete((unused, failure) ->
             {
-                PlexPlayer plexPlayer = plugin.getPlayerCache().getPlexPlayer(playerSender.getUniqueId());
-                plexPlayer.setLoginMessage("");
-                plugin.getPlayerService().update(plexPlayer);
-                return context.messageComponent("removedOwnLoginMessage");
-            }
+                if (failure != null)
+                {
+                    PlexLog.warn("Unable to remove login message for {0}: {1}", plexPlayer.getUuid(), failure.getMessage());
+                    context.sender().sendMessage(Component.text("Unable to save the login message."));
+                }
+                else context.sender().sendMessage(PlexUtils.messageComponent("removedOwnLoginMessage"));
+            });
+            return null;
         }
-        else if (args[0].equalsIgnoreCase("-o"))
+        return PlexUtils.messageComponent("noPermissionConsole");
+    }
+
+    private Component removeOther(ServerCommandContext context, String playerName)
+    {
+        context.checkPermission(context.sender(), "plex.removeloginmessage.others");
+        plugin.getPlayerService().findPlayer(playerName).whenComplete((plexPlayer, failure) ->
         {
-            context.checkPermission(sender, "plex.removeloginmessage.others");
-
-            if (args.length < 2)
+            if (failure != null)
             {
-                return context.messageComponent("specifyPlayer");
+                PlexLog.warn("Unable to load player {0}: {1}", playerName, failure.getMessage());
+                context.sender().sendMessage(Component.text("Unable to load the player."));
+                return;
             }
-
-            PlexPlayer plexPlayer = plugin.getPlayerService().getPlayer(args[1]);
             if (plexPlayer == null)
             {
-                return context.messageComponent("playerNotFound");
+                context.sender().sendMessage(PlexUtils.messageComponent("playerNotFound"));
+                return;
             }
             plexPlayer.setLoginMessage("");
-            plugin.getPlayerService().update(plexPlayer);
-            return context.messageComponent("removedOtherLoginMessage", plexPlayer.getName());
-        }
-        else
-        {
-            return context.messageComponent("noPermissionConsole");
-        }
+            plugin.getPlayerService().update(plexPlayer).whenComplete((unused, updateFailure) ->
+            {
+                if (updateFailure != null)
+                {
+                    PlexLog.warn("Unable to remove login message for {0}: {1}", plexPlayer.getUuid(), updateFailure.getMessage());
+                    context.sender().sendMessage(Component.text("Unable to save the login message."));
+                }
+                else context.sender().sendMessage(PlexUtils.messageComponent("removedOtherLoginMessage", plexPlayer.getName()));
+            });
+        });
         return null;
     }
 

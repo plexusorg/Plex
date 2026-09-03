@@ -26,30 +26,24 @@ public class LockupCMD extends ServerCommand
     @Override
     protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
     {
-        command.executes(context -> executeCommand(context));
+        command.executes(context -> executeCommand(context, ServerCommandContext::usage));
         command.then(playerArgument("player")
-                .executes(context -> executeCommand(context, string(context, "player"))));
+                .executes(context -> executeCommand(context, commandContext -> executeTyped(commandContext, string(context, "player")))));
     }
 
-    @Override
-    protected Component execute(@NotNull ServerCommandContext context)
+    private Component executeTyped(ServerCommandContext context, String playerName)
     {
         CommandSender sender = context.sender();
         Player playerSender = context.player();
-        String[] args = context.args();
-        if (args.length != 1)
-        {
-            return context.usage();
-        }
-        Player player = context.getNonNullPlayer(args[0]);
-        PlexPlayer punishedPlayer = context.getOfflinePlexPlayer(player.getUniqueId());
+        Player player = getNonNullPlayer(playerName);
+        PlexPlayer punishedPlayer = getCachedPlexPlayer(player.getUniqueId());
 
         punishedPlayer.setLockedUp(!punishedPlayer.isLockedUp());
         if (punishedPlayer.isLockedUp())
         {
             player.openInventory(player.getInventory());
         }
-        PlexUtils.broadcast(context.messageComponent(punishedPlayer.isLockedUp() ? "lockedUpPlayer" : "unlockedPlayer", context.senderName(), player.getName()));
+        PlexUtils.broadcast(PlexUtils.messageComponent(punishedPlayer.isLockedUp() ? "lockedUpPlayer" : "unlockedPlayer", context.senderName(), player.getName()));
         return null;
     }
 

@@ -1,93 +1,53 @@
 package dev.plex.util;
 
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
+import dev.plex.api.logging.LoggingApi;
 
-public class PlexLog
+public final class PlexLog
 {
-    private static final ComponentLogger logger = ComponentLogger.logger("");
-    private static boolean debugEnabled;
+    private static final PlexLogger LOGGER = new PlexLogger();
+
+    private PlexLog()
+    {
+    }
+
+    public static LoggingApi api()
+    {
+        return LOGGER;
+    }
 
     public static void log(String message, Object... strings)
     {
-        for (int i = 0; i < strings.length; i++)
-        {
-            if (strings[i] == null)
-            {
-                continue;
-            }
-            if (message.contains("{" + i + "}"))
-            {
-                message = message.replace("{" + i + "}", strings[i].toString());
-            }
-        }
-        logger.info(PlexUtils.mmDeserialize("<yellow>[Plex] <gray>" + message));
+        LOGGER.info(message, strings);
     }
 
     public static void log(Component component)
     {
-        logger.info(Component.text("[Plex] ").color(NamedTextColor.YELLOW).append(component).colorIfAbsent(NamedTextColor.GRAY));
+        LOGGER.info(component);
     }
 
     public static void error(String message, Object... strings)
     {
-        for (int i = 0; i < strings.length; i++)
-        {
-            if (strings[i] == null)
-            {
-                continue;
-            }
-            if (message.contains("{" + i + "}"))
-            {
-                message = message.replace("{" + i + "}", strings[i].toString());
-            }
-        }
-        logger.error(PlexUtils.mmDeserialize("<red>[Plex Error] <gold>" + message));
+        LOGGER.error(message, strings);
     }
 
     public static void error(String message, Throwable throwable)
     {
-        logger.error(PlexUtils.mmDeserialize("<red>[Plex Error] <gold>" + message), throwable);
+        LOGGER.error(message, throwable);
     }
 
     public static void warn(String message, Object... strings)
     {
-        for (int i = 0; i < strings.length; i++)
-        {
-            if (strings[i] == null)
-            {
-                continue;
-            }
-            if (message.contains("{" + i + "}"))
-            {
-                message = message.replace("{" + i + "}", strings[i].toString());
-            }
-        }
-        logger.warn(PlexUtils.mmDeserialize("<#eb7c0e>[Plex Warning] <gold>" + message));
+        LOGGER.warn(message, strings);
     }
 
     public static void setDebugEnabled(boolean debugEnabled)
     {
-        PlexLog.debugEnabled = debugEnabled;
+        LOGGER.setDebugEnabled(debugEnabled);
     }
 
     public static void debug(String message, Object... strings)
     {
-        if (debugEnabled)
-        {
-            for (int i = 0; i < strings.length; i++)
-            {
-                if (strings[i] == null)
-                {
-                    continue;
-                }
-                if (message.contains("{" + i + "}"))
-                {
-                    message = message.replace("{" + i + "}", strings[i].toString());
-                }
-            }
-            logger.info(PlexUtils.mmDeserialize("<dark_purple>[Plex Debug] <gold>" + message));
-        }
+        LOGGER.debug(message, strings);
     }
 }

@@ -32,31 +32,25 @@ public class MuteCMD extends ServerCommand
     @Override
     protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
     {
-        command.executes(context -> executeCommand(context));
+        command.executes(context -> executeCommand(context, ServerCommandContext::usage));
         command.then(playerArgument("player")
-                .executes(context -> executeCommand(context, string(context, "player"))));
+                .executes(context -> executeCommand(context, commandContext -> executeTyped(commandContext, string(context, "player")))));
     }
 
-    @Override
-    protected Component execute(@NotNull ServerCommandContext context)
+    private Component executeTyped(ServerCommandContext context, String playerName)
     {
         CommandSender sender = context.sender();
-        String[] args = context.args();
-        if (args.length != 1)
-        {
-            return context.usage();
-        }
-        Player player = context.getNonNullPlayer(args[0]);
-        PlexPlayer punishedPlayer = context.getOfflinePlexPlayer(player.getUniqueId());
+        Player player = getNonNullPlayer(playerName);
+        PlexPlayer punishedPlayer = getCachedPlexPlayer(player.getUniqueId());
 
         if (plugin.getPunishmentManager().hasActivePunishment(punishedPlayer, PunishmentType.MUTE))
         {
-            return context.messageComponent("playerMuted");
+            return PlexUtils.messageComponent("playerMuted");
         }
 
         if (context.silentCheckPermission(player, "plex.mute"))
         {
-            context.send(sender, context.messageComponent("higherRankThanYou"));
+            sender.sendMessage(PlexUtils.messageComponent("higherRankThanYou"));
             return null;
         }
 
@@ -72,9 +66,9 @@ public class MuteCMD extends ServerCommand
             if (failure != null)
             {
                 PlexLog.error("Unable to mute {0}: {1}", punishedPlayer.getUuid(), failure.getMessage());
-                context.send(sender, Component.text("Unable to persist the mute; no action was taken."));
+                sender.sendMessage(Component.text("Unable to persist the mute; no action was taken."));
             }
-            else PlexUtils.broadcast(context.messageComponent("mutedPlayer", context.senderName(), player.getName()));
+            else PlexUtils.broadcast(PlexUtils.messageComponent("mutedPlayer", context.senderName(), player.getName()));
         });
         return null;
     }

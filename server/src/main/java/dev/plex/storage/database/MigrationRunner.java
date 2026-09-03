@@ -5,6 +5,7 @@ import dev.plex.storage.StorageType;
 import dev.plex.util.PlexLog;
 
 import javax.sql.DataSource;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.JarURLConnection;
@@ -50,10 +51,11 @@ public class MigrationRunner
                 version -> readCore(classLoader, version), Function.identity());
     }
 
-    public void runModule(DataSource dataSource, PlexModule module, String scope, Function<String, String> tableResolver) throws SQLException
+    public void runModule(DataSource dataSource, PlexModule module, File moduleJar, String scope,
+                          Function<String, String> tableResolver) throws SQLException
     {
         String resourceDirectory = migrationDirectory();
-        run(dataSource, scope, discoverModule(module, resourceDirectory),
+        run(dataSource, scope, discoverModule(module, moduleJar, resourceDirectory),
                 version -> readModule(module, version), tableResolver);
     }
 
@@ -197,10 +199,10 @@ public class MigrationRunner
         return requireMigrations(versions, resourceDirectory);
     }
 
-    private List<String> discoverModule(PlexModule module, String resourceDirectory) throws SQLException
+    private List<String> discoverModule(PlexModule module, File moduleJar, String resourceDirectory) throws SQLException
     {
         TreeSet<String> versions = new TreeSet<>();
-        try (JarFile jar = new JarFile(module.getModuleJar()))
+        try (JarFile jar = new JarFile(moduleJar))
         {
             addMigrations(versions, jar, resourceDirectory);
         }

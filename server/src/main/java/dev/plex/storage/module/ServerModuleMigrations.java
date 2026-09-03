@@ -25,6 +25,7 @@ public class ServerModuleMigrations implements ModuleMigrations
         plugin.getDatabase().getMigrationRunner().runModule(
                 plugin.getDatabase().getDataSource(),
                 module,
+                plugin.getModuleManager().moduleJar(module),
                 storage.scope(),
                 storage::quotedTable
         );

@@ -4,9 +4,10 @@ import dev.plex.Plex;
 import dev.plex.listener.ServerListenerBase;
 import dev.plex.util.PlexUtils;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
@@ -26,7 +27,7 @@ public class BlockListener extends ServerListenerBase
     }
 
     private static final List<Material> SIGNS = Arrays.stream(Material.values()).filter((mat) -> mat.name().endsWith("_SIGN")).toList();
-    public static final List<String> blockedPlayers = new ArrayList<>();
+    public static final Set<String> blockedPlayers = ConcurrentHashMap.newKeySet();
 
     @EventHandler(priority = EventPriority.LOW)
     public void onBlockPlace(BlockPlaceEvent event)

@@ -2,7 +2,6 @@ package dev.plex.storage.player;
 
 import dev.plex.player.PlexPlayer;
 import dev.plex.storage.StorageType;
-import dev.plex.storage.database.entity.PlayerEntity;
 import dev.plex.storage.repository.PlayerRepository;
 import dev.plex.storage.repository.PunishmentRepository;
 import org.jdbi.v3.core.Handle;
@@ -35,7 +34,7 @@ public class SQLPlayerData implements PlayerRepository
 
     public boolean exists(String username)
     {
-        return jdbi.withHandle(h -> h.createQuery("SELECT 1 FROM players WHERE last_known_name = :n")
+        return jdbi.withHandle(h -> h.createQuery("SELECT 1 FROM players WHERE LOWER(last_known_name) = LOWER(:n)")
                 .bind("n", username).mapTo(Integer.class).findFirst().isPresent());
     }
 
@@ -43,9 +42,8 @@ public class SQLPlayerData implements PlayerRepository
     {
         PlexPlayer player = jdbi.withHandle(h ->
             {
-                PlayerEntity e = h.createQuery("SELECT * FROM players WHERE uuid = :u")
-                        .bind("u", uuid.toString()).map((rs, ctx) -> mapRow(rs)).findFirst().orElse(null);
-                return toPlayer(h, e);
+                return h.createQuery("SELECT * FROM players WHERE uuid = :u")
+                        .bind("u", uuid.toString()).map((rs, ctx) -> mapPlayer(h, rs)).findFirst().orElse(null);
             });
         return loadExtraData(player, loadExtraData);
     }
@@ -56,25 +54,14 @@ public class SQLPlayerData implements PlayerRepository
                 .bind("u", uuid.toString()).mapTo(String.class).findFirst().orElse(null));
     }
 
-    public PlexPlayer getByUUID(UUID uuid)
-    {
-        return getByUUID(uuid, true);
-    }
-
     public PlexPlayer getByName(String username, boolean loadExtraData)
     {
         PlexPlayer player = jdbi.withHandle(h ->
             {
-                PlayerEntity e = h.createQuery("SELECT * FROM players WHERE last_known_name = :n LIMIT 1")
-                        .bind("n", username).map((rs, ctx) -> mapRow(rs)).findFirst().orElse(null);
-                return toPlayer(h, e);
+                return h.createQuery("SELECT * FROM players WHERE LOWER(last_known_name) = LOWER(:n) LIMIT 1")
+                        .bind("n", username).map((rs, ctx) -> mapPlayer(h, rs)).findFirst().orElse(null);
             });
         return loadExtraData(player, loadExtraData);
-    }
-
-    public PlexPlayer getByName(String username)
-    {
-        return getByName(username, true);
     }
 
     public PlexPlayer getByIP(String ip)
@@ -87,9 +74,8 @@ public class SQLPlayerData implements PlayerRepository
                 {
                     return null;
                 }
-                PlayerEntity e = h.createQuery("SELECT * FROM players WHERE uuid = :u")
-                        .bind("u", uuid).map((rs, ctx) -> mapRow(rs)).findFirst().orElse(null);
-                return toPlayer(h, e);
+                return h.createQuery("SELECT * FROM players WHERE uuid = :u")
+                        .bind("u", uuid).map((rs, ctx) -> mapPlayer(h, rs)).findFirst().orElse(null);
             });
         return loadExtraData(player, true);
     }
@@ -115,16 +101,17 @@ public class SQLPlayerData implements PlayerRepository
         update(player);
     }
 
-    private static PlayerEntity mapRow(java.sql.ResultSet rs) throws java.sql.SQLException
+    private PlexPlayer mapPlayer(Handle handle, java.sql.ResultSet result) throws java.sql.SQLException
     {
-        PlayerEntity e = new PlayerEntity();
-        e.setUuid(rs.getString("uuid"));
-        e.setLastKnownName(rs.getString("last_known_name"));
-        e.setLoginMessage(rs.getString("login_msg"));
-        e.setPrefix(rs.getString("prefix"));
-        e.setStaffChat(rs.getBoolean("staffChat"));
-        e.setCommandSpy(rs.getBoolean("commandspy"));
-        return e;
+        String uuid = result.getString("uuid");
+        PlexPlayer player = new PlexPlayer(UUID.fromString(uuid));
+        player.setName(result.getString("last_known_name"));
+        player.setLoginMessage(result.getString("login_msg"));
+        player.setPrefix(result.getString("prefix"));
+        player.setStaffChat(result.getBoolean("staffChat"));
+        player.setIps(loadIps(handle, uuid));
+        player.setCommandSpy(result.getBoolean("commandspy"));
+        return player;
     }
 
     private List<String> loadIps(Handle h, String uuid)
@@ -140,23 +127,6 @@ public class SQLPlayerData implements PlayerRepository
             h.createUpdate(storageType.playerIpInsertSql())
                     .bind("u", playerUuid).bind("ip", ip).execute();
         }
-    }
-
-    private PlexPlayer toPlayer(Handle h, PlayerEntity entity)
-    {
-        if (entity == null)
-        {
-            return null;
-        }
-
-        PlexPlayer plexPlayer = new PlexPlayer(UUID.fromString(entity.getUuid()));
-        plexPlayer.setName(entity.getLastKnownName());
-        plexPlayer.setLoginMessage(entity.getLoginMessage());
-        plexPlayer.setPrefix(entity.getPrefix());
-        plexPlayer.setStaffChat(entity.isStaffChat());
-        plexPlayer.setIps(loadIps(h, entity.getUuid()));
-        plexPlayer.setCommandSpy(entity.isCommandSpy());
-        return plexPlayer;
     }
 
     private PlexPlayer loadExtraData(PlexPlayer player, boolean load)

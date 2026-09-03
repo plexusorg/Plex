@@ -30,28 +30,26 @@ public class UnbanCMD extends ServerCommand
     @Override
     protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
     {
-        command.executes(context -> executeCommand(context));
+        command.executes(context -> executeCommand(context, ServerCommandContext::usage));
         command.then(playerArgument("player")
-                .executes(context -> executeCommand(context, string(context, "player"))));
+                .executes(context -> executeCommand(context, commandContext -> executeTyped(commandContext, string(context, "player")))));
     }
 
-    @Override
-    protected Component execute(@NotNull ServerCommandContext context)
+    private Component executeTyped(ServerCommandContext context, String playerName)
     {
         CommandSender sender = context.sender();
-        String[] args = context.args();
-        if (args.length == 0)
+        plugin.getPlayerService().findPlayer(playerName).whenComplete((target, lookupFailure) ->
         {
-            return context.usage();
-        }
-
-        if (args.length == 1)
-        {
-            PlexPlayer target = plugin.getPlayerService().getPlayer(args[0]);
-
+            if (lookupFailure != null)
+            {
+                PlexLog.error("Unable to load player {0}: {1}", playerName, lookupFailure.getMessage());
+                sender.sendMessage(Component.text("Unable to load the player."));
+                return;
+            }
             if (target == null)
             {
-                throw new PlayerNotFoundException();
+                sender.sendMessage(PlexUtils.messageComponent("playerNotFound"));
+                return;
             }
 
             plugin.getPunishmentManager().unban(target.getUuid()).whenComplete((changed, failure) ->
@@ -59,12 +57,12 @@ public class UnbanCMD extends ServerCommand
                     if (failure != null)
                     {
                         PlexLog.error("Unable to unban {0}: {1}", target.getUuid(), failure.getMessage());
-                        context.send(sender, Component.text("Unable to persist the unban; no action was taken."));
+                        sender.sendMessage(Component.text("Unable to persist the unban; no action was taken."));
                     }
-                    else if (!changed) context.send(sender, context.messageComponent("playerNotBanned"));
-                    else PlexUtils.broadcast(context.messageComponent("unbanningPlayer", context.senderName(), target.getName()));
+                    else if (!changed) sender.sendMessage(PlexUtils.messageComponent("playerNotBanned"));
+                    else PlexUtils.broadcast(PlexUtils.messageComponent("unbanningPlayer", context.senderName(), target.getName()));
                 });
-        }
+        });
         return null;
     }
 

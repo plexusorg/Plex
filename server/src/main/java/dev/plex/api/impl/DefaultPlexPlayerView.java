@@ -7,7 +7,6 @@ import dev.plex.api.punishment.PunishmentType;
 import dev.plex.player.PlexPlayer;
 import java.util.List;
 import java.util.UUID;
-import org.bukkit.entity.Player;
 
 record DefaultPlexPlayerView(Plex plugin, PlexPlayer player) implements PlexPlayerView
 {
@@ -20,5 +19,4 @@ record DefaultPlexPlayerView(Plex plugin, PlexPlayer player) implements PlexPlay
     @Override public boolean muted() { return plugin.getPunishmentManager().hasActivePunishment(player, PunishmentType.MUTE); }
     @Override public boolean lockedUp() { return player.isLockedUp(); }
     @Override public boolean staffChat() { return player.isStaffChat(); }
-    @Override public Player bukkitPlayer() { return player.getPlayer(); }
 }

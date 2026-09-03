@@ -1,5 +1,6 @@
 package dev.plex.command.impl;
 
+import dev.plex.util.PlexUtils;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
@@ -28,23 +29,21 @@ public class CommandSpyCMD extends ServerCommand
     @Override
     protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
     {
-        command.executes(context -> executeCommand(context));
+        command.executes(context -> executeCommand(context, this::executeTyped));
     }
 
-    @Override
-    protected Component execute(@NotNull ServerCommandContext context)
+    private Component executeTyped(ServerCommandContext context)
     {
         CommandSender sender = context.sender();
         Player playerSender = context.player();
-        String[] args = context.args();
         if (playerSender != null)
         {
-            PlexPlayer plexPlayer = plugin.getPlayerCache().getPlexPlayer(playerSender.getUniqueId());
+            PlexPlayer plexPlayer = plugin.getPlayerService().cachedPlayer(playerSender.getUniqueId());
             plexPlayer.setCommandSpy(!plexPlayer.isCommandSpy());
             plugin.getPlayerService().update(plexPlayer);
-            context.send(sender, context.messageComponent("toggleCommandSpy")
+            sender.sendMessage(PlexUtils.messageComponent("toggleCommandSpy")
                     .append(Component.space())
-                    .append(plexPlayer.isCommandSpy() ? context.messageComponent("enabled") : context.messageComponent("disabled")));
+                    .append(plexPlayer.isCommandSpy() ? PlexUtils.messageComponent("enabled") : PlexUtils.messageComponent("disabled")));
         }
         return null;
     }

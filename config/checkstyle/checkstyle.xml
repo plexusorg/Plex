@@ -4,9 +4,12 @@
     "https://checkstyle.org/dtds/configuration_1_3.dtd">
 
 <module name="Checker">
+    <module name="SuppressWarningsFilter"/>
     <module name="TreeWalker">
+        <module name="SuppressWarningsHolder"/>
         <module name="CyclomaticComplexity">
-            <property name="max" value="20"/>
+            <property name="max" value="15"/>
+            <property name="switchBlockAsSingleDecisionPoint" value="true"/>
         </module>
     </module>
 </module>

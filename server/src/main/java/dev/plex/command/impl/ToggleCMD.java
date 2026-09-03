@@ -26,49 +26,34 @@ public class ToggleCMD extends ServerCommand
     @Override
     protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
     {
-        command.executes(context -> executeCommand(context));
+        command.executes(context -> executeCommand(context, this::openOrList));
         command.then(literal("explosions")
-                .executes(context -> executeCommand(context, "explosions")));
+                .executes(context -> executeCommand(context, commandContext -> toggle(commandContext, "explosions"))));
         command.then(literal("fluidspread")
-                .executes(context -> executeCommand(context, "fluidspread")));
+                .executes(context -> executeCommand(context, commandContext -> toggle(commandContext, "fluidspread"))));
         command.then(literal("drops")
-                .executes(context -> executeCommand(context, "drops")));
+                .executes(context -> executeCommand(context, commandContext -> toggle(commandContext, "drops"))));
         command.then(literal("redstone")
-                .executes(context -> executeCommand(context, "redstone")));
+                .executes(context -> executeCommand(context, commandContext -> toggle(commandContext, "redstone"))));
         command.then(literal("pvp")
-                .executes(context -> executeCommand(context, "pvp")));
+                .executes(context -> executeCommand(context, commandContext -> toggle(commandContext, "pvp"))));
         command.then(literal("chat")
-                .executes(context -> executeCommand(context, "chat")));
+                .executes(context -> executeCommand(context, this::toggleChat)));
     }
 
-    @Override
-    protected Component execute(@NotNull ServerCommandContext context)
+    private Component toggleChat(ServerCommandContext context)
+    {
+        PlexUtils.broadcast(PlexUtils.messageComponent("chatToggled", context.senderName(), PlexUtils.messageString(plugin.toggles.getBoolean("chat") ? "stateOff" : "stateOn")));
+        return toggle(context, "chat");
+    }
+
+    private Component openOrList(ServerCommandContext context)
     {
         CommandSender sender = context.sender();
         Player playerSender = context.player();
-        String[] args = context.args();
-        if (args.length > 0)
-        {
-            switch (args[0].toLowerCase())
-            {
-                case "explosions", "fluidspread", "drops", "redstone", "pvp" ->
-                {
-                    return toggle(context, args[0].toLowerCase());
-                }
-                case "chat" ->
-                {
-                    PlexUtils.broadcast(PlexUtils.messageComponent("chatToggled", context.senderName(), context.messageString(plugin.toggles.getBoolean("chat") ? "stateOff" : "stateOn")));
-                    return toggle(context, "chat");
-                }
-                default ->
-                {
-                    return context.messageComponent("invalidToggle");
-                }
-            }
-        }
         if (context.isConsole(sender) || playerSender == null)
         {
-            sender.sendMessage(context.messageComponent("toggleAvailable"));
+            sender.sendMessage(PlexUtils.messageComponent("toggleAvailable"));
             sender.sendMessage(toggleListItem(context, "toggleExplosions", "explosions"));
             sender.sendMessage(toggleListItem(context, "toggleFluidSpread", "fluidspread"));
             sender.sendMessage(toggleListItem(context, "toggleDrops", "drops"));
@@ -83,19 +68,19 @@ public class ToggleCMD extends ServerCommand
 
     private Component toggleListItem(ServerCommandContext context, String nameKey, String toggle)
     {
-        return context.messageComponent("toggleListItem", context.messageString(nameKey), status(context, toggle));
+        return PlexUtils.messageComponent("toggleListItem", PlexUtils.messageString(nameKey), status(context, toggle));
     }
 
     private Component toggle(ServerCommandContext context, String toggle)
     {
         plugin.toggles.set(toggle, !plugin.getToggles().getBoolean(toggle));
         plugin.toggles.save();
-        return context.messageComponent("toggleCommandResult", context.messageString(toggleNameKey(toggle)), status(context, toggle));
+        return PlexUtils.messageComponent("toggleCommandResult", PlexUtils.messageString(toggleNameKey(toggle)), status(context, toggle));
     }
 
     private String status(ServerCommandContext context, String toggle)
     {
-        return context.messageString(plugin.toggles.getBoolean(toggle) ? "stateEnabled" : "stateDisabled");
+        return PlexUtils.messageString(plugin.toggles.getBoolean(toggle) ? "stateEnabled" : "stateDisabled");
     }
 
     private String toggleNameKey(String toggle)

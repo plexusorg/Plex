@@ -35,33 +35,32 @@ public class AdminChatCMD extends ServerCommand
     @Override
     protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
     {
-        command.executes(context -> executeCommand(context));
+        command.executes(context -> executeCommand(context, this::toggle));
         command.then(greedyString("message")
-                .executes(context -> executeCommand(context, argsWithGreedy(string(context, "message")))));
+                .executes(context -> executeCommand(context, commandContext ->
+                        sendMessage(commandContext, normalizeGreedyString(string(context, "message"))))));
     }
 
-    @Override
-    protected Component execute(@NotNull ServerCommandContext context)
+    private Component toggle(ServerCommandContext context)
+    {
+        Player playerSender = context.player();
+        if (playerSender != null)
+        {
+            PlexPlayer player = plugin.getPlayerService().cachedPlayer(playerSender.getUniqueId());
+            player.setStaffChat(!player.isStaffChat());
+            return PlexUtils.messageComponent("adminChatToggled", PlexUtils.messageString(player.isStaffChat() ? "stateOn" : "stateOff"));
+        }
+        return context.usage();
+    }
+
+    private Component sendMessage(ServerCommandContext context, String message)
     {
         CommandSender sender = context.sender();
         Player playerSender = context.player();
-        String[] args = context.args();
-        PlexPlayer player;
-        if (args.length == 0)
-        {
-            if (playerSender != null)
-            {
-                player = plugin.getPlayerCache().getPlexPlayer(playerSender.getUniqueId());
-                player.setStaffChat(!player.isStaffChat());
-                return context.messageComponent("adminChatToggled", context.messageString(player.isStaffChat() ? "stateOn" : "stateOff"));
-            }
-            return context.usage();
-        }
-
         String prefix;
         if (playerSender != null)
         {
-            player = plugin.getPlayerCache().getPlexPlayer(playerSender.getUniqueId());
+            PlexPlayer player = plugin.getPlayerService().cachedPlayer(playerSender.getUniqueId());
             prefix = PlexUtils.mmSerialize(VaultHook.getPrefix(player));
         }
         else
@@ -69,7 +68,6 @@ public class AdminChatCMD extends ServerCommand
             prefix = "<dark_gray>[<dark_purple>Console<dark_gray>]";
         }
         PlexLog.debug("admin chat prefix: {0}", prefix);
-        String message = StringUtils.join(args, " ");
         StaffChatMessageEvent staffChatEvent = new StaffChatMessageEvent(
                 sender,
                 SafeMiniMessage.mmDeserialize(message),
@@ -82,7 +80,7 @@ public class AdminChatCMD extends ServerCommand
         }
         Component eventMessage = staffChatEvent.getMessage();
         String serializedMessage = SafeMiniMessage.mmSerialize(eventMessage);
-        plugin.getServer().getConsoleSender().sendMessage(context.messageComponent("adminChatFormat", context.senderName(), prefix, serializedMessage));
+        plugin.getServer().getConsoleSender().sendMessage(PlexUtils.messageComponent("adminChatFormat", context.senderName(), prefix, serializedMessage));
         MessageUtil.sendStaffChat(plugin, sender, eventMessage, PlexUtils.adminChat(context.senderName(), prefix, serializedMessage).toArray(UUID[]::new));
         return null;
     }

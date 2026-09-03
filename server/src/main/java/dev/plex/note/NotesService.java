@@ -1,4 +1,4 @@
-package dev.plex.api.impl;
+package dev.plex.note;
 
 import dev.plex.Plex;
 import dev.plex.api.note.NotesApi;
@@ -11,11 +11,11 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import org.jetbrains.annotations.Nullable;
 
-final class DefaultNotesApi implements NotesApi
+public final class NotesService implements NotesApi
 {
     private final Plex plugin;
 
-    DefaultNotesApi(Plex plugin)
+    public NotesService(Plex plugin)
     {
         this.plugin = plugin;
     }

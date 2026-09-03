@@ -33,33 +33,31 @@ public class PunishmentsCMD extends ServerCommand
     @Override
     protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
     {
-        command.executes(context -> executeCommand(context));
+        command.executes(context -> executeCommand(context, commandContext -> executeTyped(commandContext, null)));
         command.then(playerArgument("player")
-                .executes(context -> executeCommand(context, string(context, "player"))));
+                .executes(context -> executeCommand(context, commandContext -> executeTyped(commandContext, string(context, "player")))));
     }
 
-    @Override
-    protected Component execute(@NotNull ServerCommandContext context)
+    private Component executeTyped(ServerCommandContext context, String playerName)
     {
         CommandSender sender = context.sender();
         Player playerSender = context.player();
-        String[] args = context.args();
-        PunishmentDialog dialog = new PunishmentDialog(plugin.getPlayerService());
-        if (args.length == 0)
+        PunishmentDialog dialog = new PunishmentDialog(plugin.getPlayerService(), plugin.getApi().scheduler());
+        if (playerName == null)
         {
             dialog.open(playerSender);
         }
         else
         {
-            if (!plugin.getPlayerService().hasPlayedBefore(args[0]))
+            plugin.getPlayerService().findPlayer(playerName).whenComplete((player, failure) ->
             {
-                throw new PlayerNotFoundException();
-            }
-
-            final OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(args[0]);
-            final PlexPlayer player = offlinePlayer.isOnline() ? context.getOnlinePlexPlayer(args[0]) : context.getOfflinePlexPlayer(offlinePlayer.getUniqueId());
-
-            dialog.open(playerSender, player);
+                plugin.getApi().scheduler().runEntity(playerSender, () ->
+                {
+                    if (failure != null) playerSender.sendMessage(Component.text("Unable to load the player's punishments."));
+                    else if (player == null) playerSender.sendMessage(dev.plex.util.PlexUtils.messageComponent("playerNotFound"));
+                    else dialog.open(playerSender, player);
+                });
+            });
         }
 
         return null;

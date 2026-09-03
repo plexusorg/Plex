@@ -3,6 +3,7 @@ package dev.plex.menu.dialog;
 import dev.plex.player.PlayerService;
 import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.Punishment;
+import dev.plex.api.scheduler.SchedulerApi;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.TimeUtils;
 import io.papermc.paper.dialog.Dialog;
@@ -14,11 +15,14 @@ import io.papermc.paper.registry.data.dialog.type.DialogType;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickCallback;
-import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 public class PunishmentDialog
@@ -29,10 +33,12 @@ public class PunishmentDialog
             .build();
 
     private final PlayerService playerService;
+    private final SchedulerApi scheduler;
 
-    public PunishmentDialog(PlayerService playerService)
+    public PunishmentDialog(PlayerService playerService, SchedulerApi scheduler)
     {
         this.playerService = playerService;
+        this.scheduler = scheduler;
     }
 
     public void open(Player player)
@@ -42,12 +48,26 @@ public class PunishmentDialog
 
     public void open(Player viewer, PlexPlayer punishedPlayer)
     {
-        viewer.showDialog(playerPunishmentsDialog(punishedPlayer));
+        Map<UUID, CompletableFuture<String>> names = punishedPlayer.getPunishments().stream()
+                .map(Punishment::getPunisher)
+                .filter(java.util.Objects::nonNull)
+                .distinct()
+                .collect(Collectors.toMap(Function.identity(), playerService::findName));
+        CompletableFuture.allOf(names.values().toArray(CompletableFuture[]::new)).whenComplete((unused, failure) ->
+                scheduler.runEntity(viewer, () ->
+                {
+                    if (failure != null)
+                    {
+                        viewer.sendMessage(Component.text("Unable to load punishment details."));
+                        return;
+                    }
+                    viewer.showDialog(playerPunishmentsDialog(punishedPlayer, names));
+                }));
     }
 
     private Dialog playerListDialog()
     {
-        List<ActionButton> actions = Bukkit.getOnlinePlayers().stream()
+        List<ActionButton> actions = playerService.cachedPlayers().stream()
                 .map(this::playerButton)
                 .toList();
 
@@ -61,7 +81,7 @@ public class PunishmentDialog
                 .type(DialogType.multiAction(actions, closeButton(), 2)));
     }
 
-    private Dialog playerPunishmentsDialog(PlexPlayer punishedPlayer)
+    private Dialog playerPunishmentsDialog(PlexPlayer punishedPlayer, Map<UUID, CompletableFuture<String>> names)
     {
         List<DialogBody> body = new ArrayList<>();
         List<Punishment> punishments = punishedPlayer.getPunishments();
@@ -72,7 +92,7 @@ public class PunishmentDialog
         }
         else
         {
-            punishments.forEach(punishment -> body.add(DialogBody.plainMessage(punishmentSummary(punishment), 320)));
+            punishments.forEach(punishment -> body.add(DialogBody.plainMessage(punishmentSummary(punishment, names), 320)));
         }
 
         return Dialog.create(builder -> builder.empty()
@@ -85,11 +105,11 @@ public class PunishmentDialog
                 .type(DialogType.multiAction(List.of(backButton()), closeButton(), 2)));
     }
 
-    private ActionButton playerButton(Player player)
+    private ActionButton playerButton(PlexPlayer player)
     {
         return ActionButton.builder(Component.text(player.getName()))
                 .width(150)
-                .action(DialogAction.customClick((response, audience) -> openPunishments(audience, player), CALLBACK_OPTIONS))
+                .action(DialogAction.customClick((response, audience) -> openPunishments(audience, player.getUuid()), CALLBACK_OPTIONS))
                 .build();
     }
 
@@ -114,25 +134,34 @@ public class PunishmentDialog
                 .build();
     }
 
-    private void openPunishments(Audience audience, OfflinePlayer selectedPlayer)
+    private void openPunishments(Audience audience, UUID selectedPlayer)
     {
         if (!(audience instanceof Player viewer))
         {
             return;
         }
 
-        PlexPlayer punishedPlayer = playerService.getPlayer(selectedPlayer.getUniqueId());
-        if (punishedPlayer == null)
-        {
-            viewer.sendMessage(PlexUtils.messageComponent("punishmentPlayerNotFound"));
-            return;
-        }
-        open(viewer, punishedPlayer);
+        playerService.findPlayer(selectedPlayer).whenComplete((punishedPlayer, failure) ->
+                scheduler.runEntity(viewer, () ->
+                {
+                    if (failure != null)
+                    {
+                        viewer.sendMessage(Component.text("Unable to load the player's punishments."));
+                    }
+                    else if (punishedPlayer == null)
+                    {
+                        viewer.sendMessage(PlexUtils.messageComponent("punishmentPlayerNotFound"));
+                    }
+                    else
+                    {
+                        open(viewer, punishedPlayer);
+                    }
+                }));
     }
 
-    private Component punishmentSummary(Punishment punishment)
+    private Component punishmentSummary(Punishment punishment, Map<UUID, CompletableFuture<String>> names)
     {
-        String punisher = punishment.getPunisher() == null ? "CONSOLE" : playerService.getNameByUUID(punishment.getPunisher());
+        String punisher = punishment.getPunisher() == null ? "CONSOLE" : names.get(punishment.getPunisher()).join();
         return Component.text(punishment.getType().name() + "\n"
                 + "By: " + punisher + "\n"
                 + "Issued: " + TimeUtils.useTimezone(punishment.getIssueDate()) + "\n"

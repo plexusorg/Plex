@@ -32,24 +32,26 @@ public class UnmuteCMD extends ServerCommand
     @Override
     protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
     {
-        command.executes(context -> executeCommand(context));
+        command.executes(context -> executeCommand(context, ServerCommandContext::usage));
         command.then(playerArgument("player")
-                .executes(context -> executeCommand(context, string(context, "player"))));
+                .executes(context -> executeCommand(context, commandContext -> executeTyped(commandContext, string(context, "player")))));
     }
 
-    @Override
-    protected Component execute(@NotNull ServerCommandContext context)
+    private Component executeTyped(ServerCommandContext context, String playerName)
     {
         CommandSender sender = context.sender();
-        String[] args = context.args();
-        if (args.length != 1)
+        plugin.getPlayerService().findPlayer(playerName).whenComplete((punishedPlayer, lookupFailure) ->
         {
-            return context.usage();
+        if (lookupFailure != null)
+        {
+            PlexLog.error("Unable to load player {0}: {1}", playerName, lookupFailure.getMessage());
+            sender.sendMessage(Component.text("Unable to load the player."));
+            return;
         }
-        PlexPlayer punishedPlayer = plugin.getPlayerService().getPlayer(args[0]);
         if (punishedPlayer == null)
         {
-            throw new PlayerNotFoundException();
+            sender.sendMessage(PlexUtils.messageComponent("playerNotFound"));
+            return;
         }
 
         if (!plugin.getPunishmentManager().hasActivePunishment(punishedPlayer, PunishmentType.MUTE))
@@ -62,10 +64,11 @@ public class UnmuteCMD extends ServerCommand
                     if (failure != null)
                     {
                         PlexLog.error("Unable to unmute {0}: {1}", punishedPlayer.getUuid(), failure.getMessage());
-                        context.send(sender, Component.text("Unable to persist the unmute; no action was taken."));
+                        sender.sendMessage(Component.text("Unable to persist the unmute; no action was taken."));
                     }
-                    else PlexUtils.broadcast(context.messageComponent("unmutedPlayer", context.senderName(), punishedPlayer.getName()));
+                    else PlexUtils.broadcast(PlexUtils.messageComponent("unmutedPlayer", context.senderName(), punishedPlayer.getName()));
                 });
+        });
         return null;
     }
 

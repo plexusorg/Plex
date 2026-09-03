@@ -66,7 +66,7 @@ public class PlayerListener extends ServerListenerBase
             PlexUtils.broadcast(PlexUtils.stringToComponent(loginMessage));
         }
 
-        plugin.getApi().notes().list(plexPlayer.getUuid()).whenComplete((notes, ex) ->
+        plugin.getNotesService().list(plexPlayer.getUuid()).whenComplete((notes, ex) ->
         {
             if (ex != null)
             {
@@ -75,7 +75,7 @@ public class PlayerListener extends ServerListenerBase
             }
             if (!notes.isEmpty())
             {
-                if (plugin.getPlayerService().getCachedPlayer(plexPlayer.getUuid()) == plexPlayer)
+                if (plugin.getPlayerService().cachedPlayer(plexPlayer.getUuid()) == plexPlayer)
                 {
                     PlexUtils.broadcastToAdmins(PlexUtils.messageComponent(notes.size() == 1 ? "playerNoteAlert" : "playerNoteAlertPlural", plexPlayer.getName(), notes.size()), "plex.notes.notify");
                 }
@@ -96,7 +96,7 @@ public class PlayerListener extends ServerListenerBase
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerInventoryClose(InventoryCloseEvent event)
     {
-        PlexPlayer player = plugin.getPlayerService().getCachedPlayer(event.getPlayer().getUniqueId());
+        PlexPlayer player = plugin.getPlayerService().cachedPlayer(event.getPlayer().getUniqueId());
         if (player != null && player.isLockedUp())
         {
             event.getPlayer().getScheduler().runDelayed(plugin, scheduledTask -> event.getPlayer().openInventory(event.getInventory()), null, 1L);
@@ -106,7 +106,7 @@ public class PlayerListener extends ServerListenerBase
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onInventoryClick(InventoryClickEvent event)
     {
-        PlexPlayer player = plugin.getPlayerService().getCachedPlayer(event.getWhoClicked().getUniqueId());
+        PlexPlayer player = plugin.getPlayerService().cachedPlayer(event.getWhoClicked().getUniqueId());
         if (player != null && player.isLockedUp())
         {
             event.setCancelled(true);

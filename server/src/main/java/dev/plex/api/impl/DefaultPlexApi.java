@@ -16,6 +16,7 @@ import dev.plex.api.rollback.RollbackApi;
 import dev.plex.api.scheduler.SchedulerApi;
 import dev.plex.api.storage.StorageApi;
 import dev.plex.hook.RollbackManager;
+import dev.plex.util.PlexLog;
 
 public final class DefaultPlexApi implements PlexApi
 {
@@ -34,17 +35,17 @@ public final class DefaultPlexApi implements PlexApi
     private final SchedulerApi scheduler;
     private final StorageApi storage;
 
-    public DefaultPlexApi(Plex plugin, int apiCompatibilityVersion)
+    public DefaultPlexApi(Plex plugin, int apiCompatibilityVersion, NotesApi notes)
     {
         this.apiCompatibilityVersion = apiCompatibilityVersion;
         this.configuration = new DefaultConfigurationApi(plugin);
-        this.modules = new DefaultModulesApi(plugin);
+        this.modules = plugin.getModuleManager();
         this.commands = new DefaultCommandApi(plugin);
         this.listeners = new DefaultListenerApi(plugin);
         this.moduleConfigs = new DefaultModuleConfigApi();
-        this.logging = new DefaultLoggingApi();
+        this.logging = PlexLog.api();
         this.messages = new DefaultMessageApi();
-        this.notes = new DefaultNotesApi(plugin);
+        this.notes = notes;
         this.players = new DefaultPlayersApi(plugin);
         this.punishments = new DefaultPunishmentsApi(plugin);
         this.rollback = new RollbackManager(plugin);

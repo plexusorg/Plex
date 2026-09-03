@@ -1,210 +1,314 @@
 # Plex engineering rules
 
-These rules apply to the whole Plex repository. Apply the same standards when a Plex change also touches a sibling
-`Module-*` repository.
+These rules apply to Plex and to any sibling `Module-*` repository affected by a Plex change.
 
-## Default approach
+## Decision order
 
-- Prefer the shortest direct implementation that clearly satisfies the current requirement.
-- Do not change code merely to route it through a new API, helper, manager, service, facade, or scheduler.
-- Every new abstraction, compatibility path, fallback, concurrency primitive, and validation layer must solve a
-  concrete current problem. "Just in case" is not a requirement.
-- Delete obsolete complexity instead of wrapping or preserving it. Plex 2.0 is unreleased; do not add compatibility
-  shims for unreleased behavior.
-- Before deleting or changing an API, search all callers, tests, and affected sibling modules. Do not assume repository-
-  local searches find consumers of a published API.
-- Preserve established behavior unless the task explicitly changes it. Do not mix unrelated redesigns into a fix.
-- Involve the user before choosing among materially different behaviors. If a change would alter user-visible behavior,
-  permissions, compatibility, persistence semantics, operational output, or another contract and the intended result is
-  not explicit, present the evidence and ask which behavior the user wants before editing. Do not silently infer policy
-  from what is easiest to implement or what satisfies a metric.
-- Use subagents for work that is not small when the work can be divided into clear, independently reviewable scopes.
-  Keep one owner responsible for integration, resolve overlapping edits explicitly, and run the post-change review loop
-  over the combined diff; delegation does not replace judgment or verification.
-- Do not edit generated output, build directories, bundled assets, or dependency code.
-- Do not commit, push, deploy, or modify live services unless the user explicitly asks.
+When concerns compete, decide in this order:
 
-## Root-cause gate
+1. Preserve explicitly intended behavior and product policy.
+2. Be correct at real trust, persistence, lifecycle, and thread-ownership boundaries.
+3. Keep demonstrated hot paths efficient and resistant to resource amplification.
+4. Put behavior beside the state or resource that owns it.
+5. Within those constraints, use the fewest concepts, hops, states, and mechanisms.
 
-Do not edit code until the failure is understood well enough to state its root cause in one concrete sentence.
+Simplicity means the shortest interaction chain that satisfies the contract. It does not mean deleting useful caching,
+blocking a region thread, or ignoring failures. Correctness does not mean speculative guards, wrappers, schedulers,
+retries, or repeated validation.
 
-1. Reproduce or trace the exact failing path. Read the source at the failing line and its direct callers.
-2. Inspect the relevant live state read-only. For dependency failures, verify the installed plugin, enabled state,
-   version, resolved artifact, package name, generated plugin descriptor, load order, and classpath declaration.
-3. Inspect the exact resolved dependency source and current Paper source/documentation when their contracts matter.
-4. Compare the evidence with the intended direct implementation. Distinguish an absent optional capability from a
-   broken dependency declaration, wrong artifact, stale deployment, or programming error.
-5. State the root cause before proposing a change. If the evidence does not support one, keep investigating rather than
-   adding a workaround.
-6. Fix the cause at its owning layer with the smallest typed change. Do not suppress the symptom.
+If materially different choices affect behavior, permissions, compatibility, persistence, performance, or operational
+output, show the evidence and ask the user which contract is intended before editing.
 
-- A fallback is valid only for an expected runtime state, such as a genuinely absent optional plugin. It is not valid
-  for a wrong artifact, unresolved class, stale schema, inconsistent API contract, or other configuration/programming
-  error.
-- If a declared dependency cannot be called normally, stop. Verify and fix the dependency metadata or deployment; do
-  not reach for reflection, classloader tricks, broad catches, or duplicated implementations.
-- If the proposed fix is more complex than the code that failed, treat that as evidence the root cause is still unknown
-  and investigate again.
-- When the user identifies a simpler intended design, stop extending the current approach. Re-evaluate from that design
-  before making another edit.
+### Example: efficient ban admission
 
-## Keep code simple
+Bad:
 
-- Production methods and constructors must have cyclomatic complexity no greater than 20, as enforced by Checkstyle.
-- Treat a complexity violation as evidence that the method probably contains unnecessary behavior, states, or defensive
-  ceremony. Simplify or delete those first; method extraction is not the default remediation.
-- Do not satisfy the complexity limit by mechanically extracting branches into helper methods. Any extracted method
-  must be independently justified by a cohesive responsibility, even if complexity enforcement did not exist. The
-  extraction must make the design simpler, not merely distribute one decision tree across methods.
-- Do not suppress a cyclomatic-complexity violation as a routine fix. Any exceptional algorithm whose complexity is
-  genuinely inherent requires an explicit justification before a narrowly scoped suppression is added.
-- Use direct API calls when they are already correct. Do not replace `sender.sendMessage(...)` or
-  `player.sendMessage(...)` with a Plex wrapper that adds no behavior.
-- A public API exposes a stable capability; it is not mandatory indirection for Plex's own code.
-- Do not create one-use helpers unless they name a genuinely non-obvious boundary or remove meaningful duplication.
-- Do not introduce an overload matrix without demonstrated callers for each shape.
-- Prefer ordinary control flow over streams, nested futures, or callback chains when the ordinary form is clearer.
-- Do not use an `AtomicReference`, concurrent collection, snapshot, lock, or `volatile` for state that is local or
-  sequential. For shared state, identify the threads that share it before choosing synchronization.
-- Always use primitive boolean literals; never use boxed boolean constants.
-- Do not use reflection to access a declared dependency or to hide a classpath/configuration error. Declare the correct
-  artifact and plugin dependency, then call its typed API directly.
-- Avoid manual `CompletableFuture` bridges unless adapting a genuinely callback-only API. Future callbacks may execute
-  on the thread that completes them; schedule only the Bukkit operation that actually requires an owner.
-- Do not catch `Throwable`. Catch specific recoverable exceptions. Never leave an empty catch block.
-- Do not silently turn programming, dependency, renderer, or lifecycle failures into degraded behavior. Surface and log
-  the failure so it can be fixed.
-- Null-check and validate at trust boundaries such as HTTP, JSON, configuration, files, networks, and databases. Do not
-  defensively check values that a non-null typed API contract guarantees.
-- Comments should explain a non-obvious contract, invariant, or workaround. Do not narrate the code. Avoid ceremonial
-  Javadocs that merely restate a method name.
-- Follow the existing Allman brace style and avoid unrelated formatting churn.
+```text
+join -> permission check -> adapter -> manager -> another permission check
+     -> database -> date check -> another activity check -> kick wrapper
+```
 
-Before considering a change complete, inspect the diff and remove complexity introduced during debugging: reflection,
-boxed primitives, unnecessary schedulers, wrappers, compatibility branches, broad catches, redundant null checks,
-temporary fallbacks, and one-use abstractions. Every remaining complication must have a concrete contract or ownership
-reason.
+Better:
 
-## Post-change review loop
+```text
+pre-login -> admission owner -> maintained in-memory UUID/IP decision -> allow or deny
+```
 
-- After implementation and before final verification, ask independent reviewer agents to inspect the complete diff for
-  behavior regressions, reward-hacked metrics, unnecessary complexity or extraction, API-boundary violations, and
-  Paper/Folia ownership mistakes.
-- Treat reviewer findings as hypotheses. Trace each against the pre-change behavior, direct callers, and relevant
-  contracts; fix only findings supported by evidence.
-- After fixing justified findings, repeat the independent review on the new complete diff. Continue until a review round
-  produces no justified findings.
-- Only then run the required build, focused tests, `git diff --check`, and final diff inspection. Report rejected findings
-  when they involved a meaningful tradeoff.
+Repeated attempts must not repeatedly query storage. If decisions are loaded on demand, negative results or in-flight
+loads must be cached/coalesced too. The admission owner evaluates effectiveness and bypass policy once; callers consume
+that answer.
 
-## Paper and Folia threading
+## Investigate before changing
 
-Do not treat Folia as a reason to schedule every Bukkit call. Verify behavior against the exact resolved Paper/Folia
-source or current official documentation rather than memory.
+For a bug, trace the failing path and state the supported root cause before editing. Read the failing line, callers,
+state owner, final side effect, and relevant resolved dependency or Paper source. For dependency failures, verify the
+installed/enabled plugin and version, resolved artifact/package, generated descriptor, load order, and classpath before
+changing code. Missing required dependencies are not permission to use reflection or fallbacks.
 
-- A player command runs on that player's owning region. A single-entity event runs on that entity's owning region.
-  Direct operations on that player, including messaging and ordinary self-inventory changes, are correct there.
-- Adventure and `CommandSender` messaging does not need a scheduler wrapper.
-- Use an entity scheduler only when code originates outside the entity's owning region (for example an HTTP handler,
-  asynchronous database callback, global task, or another entity's region) and needs entity-owned state, or for delayed
-  work that must follow the entity.
-- Use a region scheduler for location, chunk, block, and other region-owned world state. Do not use it for entity work.
-- Use the global-region scheduler only for global-region-owned state and global timers. It is not a generic "main
-  thread" and must not wrap messages or ordinary plugin state.
-- Console command execution is global-region work. Player command execution is player-region work. Cross-player
-  mutations belong on the target player's entity scheduler.
-- `AsyncChatEvent` may be asynchronous. Do not iterate `Bukkit.getOnlinePlayers()` from an asynchronous chat callback;
-  use the event viewers/renderer or cross an ownership boundary only for the operation that requires it.
-- `Bukkit.getOnlinePlayers()` is a live view. Do not iterate it asynchronously. Snapshot it only when a real asynchronous
-  handoff requires a snapshot.
-- Do not teleport during `PlayerJoinEvent`; delay it or choose the appropriate spawn-location event. Prefer
-  `teleportAsync` where Paper requires asynchronous chunk loading.
-- In `InventoryClickEvent`, defer operations Paper requires on the next tick, such as opening, closing, or replacing the
-  current inventory view. Do not defer unrelated work.
-- Any scheduler added "for Folia" must have a specific ownership or event-contract justification. Keep
-  `folia-supported: true` honest.
+For organizational work, map the complete interaction chain first. Every hop must:
 
-## Plex API and module boundaries
+- own state or resource lifetime;
+- enforce domain policy;
+- transform a real boundary representation; or
+- cross a real execution/ownership boundary.
 
-- Design shared Plex capabilities API-first. Define the contract and domain types in `api`, implement that contract in
-  `server`, and have server code use the same API instead of maintaining a separate server-only implementation model.
-- Do not build a feature around server classes and later add API interfaces, mirror DTOs, adapters, or conversion layers
-  that duplicate it. The API contract is the source of truth; the server is one implementation of it.
-- Put a capability in the API when Plex modules or other consumers reasonably need it. Keep genuinely private
-  implementation details in `server`; API-first does not mean exposing every helper or internal class.
-- Keep the public API small and capability-oriented. Do not expose implementation plumbing for convenience.
-- `PlexModule.scheduler()` exists for ownership crossings, delayed work, asynchronous work, and module task lifecycle.
-  It is not the default route for every operation.
-- Do not add `module.respond(...)`, `module.send(...)`, or similar wrappers around a one-line platform call.
-- When changing the Plex API, search every sibling Plex module for the old contract and build all affected modules
-  against the current local Plex checkout.
-- Treat third-party plugin integrations as optional unless the feature cannot exist without them. Check the capability,
-  warn once when it is unavailable, skip only the integration code, and expose that state to affected API/frontend
-  consumers. Do not disable unrelated module features or produce a linkage-error stack trace for an absent optional
-  plugin.
-- Missing required plugins should fail module enablement with a clear exception. Let the module lifecycle log the error
-  and disable/remove the module; do not log once and continue half-enabled.
-- Use the module logger for module failures and include the throwable. Use Plex's logging facilities for core lifecycle
-  failures. Do not use `printStackTrace`, `System.out`, or log only `exception.getMessage()` when the stack trace matters.
+A hop that only forwards, renames, reschedules, or relocates an operation is a removal candidate. When the user points
+to a simpler intended design, stop extending the current approach and reconsider it from that design.
 
-## Punishments and storage
+Preserve intentional contracts, not every accident in the implementation. If current paths disagree—such as cached and
+database name lookup using different case rules—report the conflict and ask which behavior is intended.
 
-- Migration `001` is the schema source of truth for the unreleased Plex 2.0 line. Update it directly rather than
-  manufacturing compatibility migrations for unreleased schemas.
-- Core and module migration runners discover ordered migration resources from the active dialect directory. Module code
-  must not construct or pass a list of migration filenames.
-- Do not reintroduce `customTime`. Punishment duration rules belong to `PunishmentType` and the punishment API.
-- A standard `BAN` lasts exactly 24 hours. Use `PunishmentType.STANDARD_BAN_DURATION`/the fixed-duration contract rather
-  than duplicating a literal or accepting a caller-supplied ban duration.
-- Punishment effectiveness is not equivalent to `endDate > now`. Respect the authoritative active state and bypass/admin
-  rules exposed by the API. Commands and HTTP clients must not reconstruct different activity rules.
-- Keep SQL rows, repositories, API DTOs, commands, and HTTP clients aligned whenever punishment fields or semantics
-  change. Search all of them as one change.
-- Validate migrations against every supported dialect. Do not make live database changes as part of source work.
+Before changing a public API, search Plex, all sibling modules, and known external consumers. Plex 2.0 is unreleased;
+delete obsolete unreleased behavior instead of adding compatibility shims.
 
-## HTTP modules
+`apiCompatibility` remains `1` throughout unreleased Plex 2.0 development. Breaking an in-development module API and
+updating every sibling module does not justify incrementing it; change the compatibility number only for an actual
+released API generation.
 
-- Jetty servlet threads and executor threads are not Bukkit entity or region threads. Validate request input and bound
-  blocking work with an appropriate timeout.
-- Parse requests and construct responses on the HTTP thread. Schedule only the platform state access or mutation that
-  requires Bukkit ownership.
-- Concurrency protection is justified for state genuinely shared by Jetty, executor, scheduler, and region threads.
-  Document that boundary; do not spread concurrent containers everywhere else.
-- Frontend and backend request contracts must be changed together. Check parameter names, nullability, response fields,
-  and error status handling end to end.
-- Renderer/import/startup failures must be visible and logged. Do not silently fall back to plain text for a broken
-  renderer and call that success.
-- Target the project's resolved Paper version directly. Do not add reflection-based version compatibility when the
-  compile-time API already provides the required value.
+### Example: the gamerule regression
 
-## Live-state safety gate
+Changing an `if / else if / else` dispatch into independent `if` statements appeared simpler, but the Boolean branch
+fell through to the unknown-type error. Compilation and a lower-looking branch structure did not preserve the complete
+operation. Trace every outcome before rewriting control flow.
 
-Documentation is historical context, not authority for mutable external state. For deployments, databases, IAM/RBAC,
-roles, grants, ownership, migrations, secrets, infrastructure, and production services:
+## Organize around ownership
 
-1. Inspect the relevant live state read-only before making changes.
-2. Compare live state with repository documentation and configuration.
-3. If live state and documentation disagree, stop immediately.
-4. Report the exact discrepancy and ask the user to clarify.
-5. Never reconcile live state to documentation without explicit approval.
-6. A missing documented role, resource, permission, schema, or prerequisite is evidence that documentation may be stale;
-   it is not authorization to recreate it.
-7. A failed operation does not authorize repairing permissions, provisioning prerequisites, changing ownership, or
-   altering infrastructure.
-8. Authorization to deploy or rerun a pipeline applies only to that named deployment or pipeline.
-9. Never create, alter, drop, grant, revoke, or reassign a database role or privilege unless the user explicitly requests
-   that exact class of change in the current turn.
-10. If a permission change appears necessary, show the environment, current live state, proposed exact changes, expected
-    impact, and rollback plan, then wait for explicit approval.
+Prefer:
 
-## Verification
+```text
+entry point -> actual behavior owner -> required external boundary
+```
 
-- Establish what passes before a broad cleanup. Do not attribute pre-existing failures to the current edit.
-- Build Plex from the repository root with `./gradlew build` (`.\gradlew.bat build --console=plain` on Windows).
-- Build an affected sibling module against the local Plex checkout with
-  `.\gradlew.bat build --include-build C:\Users\telesphoreo\IdeaProjects\Plex --console=plain`.
-- For the Module-HTTPD frontend, run `bun run check` in `Module-HTTPD/src/main/frontend`.
-- Run `git diff --check` and inspect the final diff. Every changed line must trace to the requested fix or a verified
-  cleanup required by it.
-- Report what was changed, what was deliberately left alone, and the exact verification run. Never claim success from
-  compilation alone when behavior needs a focused test.
+Avoid contexts, facades, `Default*Api` adapters, managers, and services unless every link has a distinct job.
+
+- Context objects carry invocation state; they are not messaging, lookup, parsing, or scheduling facades.
+- Let the actual owner implement a public capability when practical.
+- Keep an adapter when it provides isolation, redaction, immutability, or real representation conversion.
+- Core code may call its internal owner directly when it needs internal types. It must share public semantics, not the
+  public facade's call path.
+- A lifecycle object is justified when it owns resources created and released together.
+- Prefer one readable sequential method over one decision tree scattered through one-use helpers.
+- Extract only a cohesive responsibility that would make sense without a metric.
+
+Ask whether an organizational change shortened the interaction chain or merely moved it.
+
+### Example: API ownership
+
+Audit a chain such as:
+
+```text
+ModulesApi -> DefaultModulesApi -> ModuleManager -> module state
+```
+
+If the manager owns the state and can return the public projection without exposing mutable internals, it may implement
+the interface directly. If the adapter enforces a real boundary, retain it. The example is a question to prove, not a
+mandate to create or remove a class.
+
+### Example: module lifetime
+
+Classloader, task scope, registrations, descriptor, and data directory genuinely share a loaded module's lifetime. One
+internal owner for those resources is justified. A separate manager for each cleanup step is not.
+
+## Directness, validation, and failures
+
+Use a platform call directly when it is already correct. Do not wrap ordinary messaging, permission checks, logging,
+configuration reads, or player-local operations merely for consistency.
+
+Bad:
+
+```text
+command -> context.send -> scheduler -> module.respond -> player.sendMessage
+```
+
+Better:
+
+```java
+player.sendMessage(component);
+```
+
+Adventure messaging needs no scheduler. If recipient discovery is unsafe, fix discovery rather than inventing scheduled
+message delivery.
+
+Validate untrusted HTTP, JSON, configuration, file, network, and database input once at ingress. After conversion to a
+valid internal value, rely on that invariant. Revalidate only at an independent trust boundary.
+
+Expected optional absence may disable only that integration, with one clear warning and availability exposed where
+needed. Broken required dependencies, malformed internal state, renderer failures, and lifecycle failures stay visible
+and fail the affected component rather than leaving it half-enabled. A missing required plugin fails module enablement;
+let the lifecycle disable/remove the module rather than continuing half-enabled. Use the module logger for module
+failures and Plex logging for core lifecycle failures; include the throwable when its stack matters. Do not use
+reflection to hide a declared dependency, catch `Throwable`, leave empty catches, use `printStackTrace`/`System.out`, or
+log only a message when the stack matters.
+
+Use primitive Boolean literals. Comments explain non-obvious contracts or workarounds, not code narration. Avoid
+ceremonial Javadocs, preserve Allman braces, and avoid unrelated formatting churn.
+
+## Performance-aware state
+
+Efficiency is part of correctness on hot paths. Caches, indexes, batching, coalesced futures, and bounded concurrency are
+warranted when they prevent demonstrated blocking, repeated I/O, duplicate work, or resource amplification. Keep the
+mechanism beside the operation it accelerates.
+
+For each cache or concurrency mechanism, identify what applies: the cost avoided; owner and sharing threads/processes;
+authoritative source; key/cardinality; population and invalidation; expiry/bounds only where staleness or growth requires
+them; and failure behavior. Do not add expiry, locks, retries, snapshots, or more cache layers merely to complete a
+checklist. Natural bounds and mutation-driven invalidation can be sufficient.
+
+### Example: punishment state
+
+The relevant durable or configured source remains authoritative, but repeated joins should use an in-memory admission
+view. Successful mutations update or invalidate affected UUID/IP decisions. Redis may propagate cross-server
+invalidation but must not implement separate ban semantics or automatically make local punishment depend on Redis.
+
+### Example: warranted HTTP complexity
+
+Module-HTTPD inventory streaming has real subscription/backpressure state, entity-owned inventory capture, and a writer
+executor. Organize those responsibilities by owner; do not replace them with one synchronous loop or split every branch
+into a manager.
+
+## Paper and Folia ownership
+
+Identify the current execution context and accessed state. Schedule only the smallest operation whose owner differs.
+
+- Player commands run on that player's region; console commands are global-region work.
+- Many synchronous single-entity events run on the entity owner, but verify the exact event contract.
+- Messaging is not an entity mutation and needs no scheduler.
+- Cross-player mutations use the target player's entity scheduler.
+- Location, chunk, and block state uses the relevant region scheduler.
+- Global scheduling does not grant ownership of players or live collections.
+- Never iterate the live `Bukkit.getOnlinePlayers()` view asynchronously.
+- `AsyncChatEvent` may be asynchronous; use its viewers/renderer or cross only the required boundary.
+- Do not teleport during `PlayerJoinEvent`; use the proper spawn event or delayed/async teleport contract.
+- Defer inventory-view replacement from `InventoryClickEvent` when Paper requires the next tick.
+
+Verify uncertainty against the resolved Paper/Folia source or current official documentation. Keep
+`folia-supported: true` honest.
+
+### Example: cross-player game mode
+
+A self game-mode change is direct. For another player, schedule only the target-owned mutation. Messaging itself remains
+direct, but success output must follow the intended completion/failure semantics, including a retired entity. Do not put
+the entire command or its messages inside the target scheduler.
+
+### Example: HTTP inventory mutation
+
+A Jetty request parses and validates on its HTTP thread, then schedules only the `PlayerInventory` mutation on the
+target entity. Response construction and logging remain HTTP work.
+
+## API, async, and domain boundaries
+
+Design public capabilities from stable behavior modules need, not current server layout. Keep one implementation and one
+set of semantics. A public interface does not require a pass-through implementation; a public view that freezes or
+redacts internal state is a real boundary. Do not create mirror DTOs or overloads without demonstrated consumers.
+
+`PlexModule.scheduler()` exists for real ownership crossings, delayed/async work, and module task lifetime. It is not the
+default path for ordinary operations. Build every affected sibling module against the local Plex checkout after an API
+change.
+
+Blocking database/network work must not run on a player or region thread. Put the async boundary at the component that
+owns the blocking operation; do not offer competing sync/async versions for callers to choose incorrectly. Future
+callbacks run on their completing thread. Avoid redundant executor hops, nested completion chains, and manual future
+bridges. Schedule only the resulting Bukkit operation that needs an owner.
+
+For a punishment mutation, preserve the applicable ordering:
+
+```text
+validate once -> persist -> update/invalidate local state -> platform effect -> report success
+```
+
+Do not broadcast, kick, or report success before required persistence succeeds. Best-effort Redis publication does not
+gate local effects unless the chosen cross-server contract explicitly says it must.
+
+Use one authoritative admission decision for SQL punishment effectiveness. Do not reconstruct it in commands, HTTP,
+listeners, and repositories. Current configured indefinite-ban checks and SQL admission have different bypass behavior;
+do not merge or change that policy without an explicit user decision.
+
+Stable contracts:
+
+- A standard `BAN` lasts exactly 24 hours through `PunishmentType.STANDARD_BAN_DURATION`.
+- Do not reintroduce `customTime`.
+- Migration `001` is the schema source of truth for unreleased Plex 2.0; update it directly instead of adding
+  compatibility migrations for unreleased schema changes.
+- Migration runners discover ordered resources from the active dialect directory.
+- Keep SQL rows, repositories, API types, commands, caches, and HTTP clients aligned with punishment semantics.
+- Validate source migrations for every supported dialect; never alter a live database during source work.
+
+For HTTP modules, bound blocking work with a timeout, change frontend/backend contracts together, and document state
+shared among Jetty, executors, schedulers, and regions. Target the resolved Paper API instead of reflective compatibility.
+
+## Complexity and cleanup
+
+Checkstyle enforces cyclomatic complexity no greater than 15 in Plex and every module. It is a build guard, not a design
+target or proof of equivalence. Plex's Checkstyle configuration counts a `switch` block as one dispatch decision;
+decisions inside its cases still count. Use a switch only for genuine dispatch on one value; do not encode unrelated
+conditions or state into a switch to lower the score. Review an entry point and its one-use callees as one operation.
+
+Do not pass the metric by moving branches into helpers, adding facades, replacing direct control flow with streams or
+callbacks, repackaging distinct fixed operations into a one-use collection/loop/compound expression/giant string,
+deleting necessary performance state, or changing behavior. Normal loops remain appropriate for genuinely homogeneous
+runtime collections. First look for behavior proven obsolete by caller/contract tracing, duplicate parsing, repeated
+policy checks, and unnecessary states or branches. Extraction is justified only when the extracted code has a cohesive
+responsibility, removes meaningful duplication, or owns policy, state, lifecycle, a boundary, or an algorithm
+independently of the metric.
+
+Readable sequential orchestration is not high decision complexity. In `PlexCMD`, ten explicit `service.reload()` calls
+belong together when they are fixed, intentionally ordered command behavior and no authoritative service collection
+already exists. Do not hide them in a one-use `reloadServices()` helper, a collection loop, or a fluent/string
+construction merely to change a metric. The same applies to straightforward version and plugin information output: keep
+the operation visible unless a real reusable owner exists.
+
+If cohesive code still exceeds the limit and splitting it would damage readability or encapsulation, a narrow
+`@SuppressWarnings("checkstyle:CyclomaticComplexity")` on that method is more honest than fake extraction. Before adding
+one, record why the decisions are inherent, inspect the method and its one-use callees as one operation, and have an
+independent reviewer inspect the complete method and suppression rationale. Never use `all`, file-wide suppression, or
+class/type/package-level complexity suppression; suppress only the individual method or constructor. Do not suppress to
+avoid removing accidental complexity. Ask: what decisions were removed, what hops/types/helpers were added, and would
+each extraction still exist if Checkstyle were disabled?
+
+Example: a typed Brigadier tree followed by reconstructed `String[]` and a second parser contains two representations.
+Moving the second parser into helpers does not simplify it; one authoritative parse should pass typed values to behavior.
+
+Do not combine feature work, policy changes, and structural cleanup. Correctness issues found during an organizational
+audit should be separate, attributable changes.
+
+## Review and verification
+
+Keep changes narrow. Do not edit generated output, build directories, bundled assets, or dependencies. Do not commit,
+push, deploy, or modify live services unless explicitly requested.
+
+Before behavior-affecting organizational, async, persistence, or ownership work, record relevant inputs, identity,
+policy decisions, output, logging, ordering, side effects, and thread ownership. A small fix needs only its affected path.
+Do not add tests unless the user explicitly requests them; run existing relevant tests where present.
+
+For non-small changes:
+
+1. Delegate independent scopes when useful, with one integration owner.
+2. Have independent reviewers inspect the complete diff for regressions, unnecessary hops, metric gaming, lost
+   performance, API mistakes, and ownership errors.
+3. Validate findings against callers and contracts; reject speculative changes.
+4. After justified fixes, perform one fresh complete-diff review. Repeat only after material behavior/architecture edits.
+5. Run required builds, practical runtime smoke checks, `git diff --check`, and final diff inspection.
+
+Establish a baseline before broad cleanup. Every changed line must trace to the request or required cleanup. Report what
+changed, what remained, and exact verification commands/results. Compilation, Checkstyle, lower LOC, fewer methods, or
+reviewer approval alone do not prove equivalence.
+
+Verification commands:
+
+- Plex: `.\gradlew.bat build --console=plain`
+- Module: `.\gradlew.bat build --include-build C:\Users\telesphoreo\IdeaProjects\Plex --console=plain`
+- Module-HTTPD frontend: `bun run check` in `Module-HTTPD/src/main/frontend`
+
+## Live-state safety
+
+Documentation is not authority for mutable deployments, databases, roles/grants, ownership, secrets, infrastructure, or
+production services. Before an authorized operational change, inspect live state read-only and compare it with repository
+assumptions. If they disagree, stop and report the exact discrepancy. Never reconcile live state to documentation
+without explicit approval.
+
+A missing documented resource is evidence documentation may be stale, not permission to recreate it. A failed operation
+does not authorize provisioning or repairs. Deployment/pipeline authorization does not authorize incidental IAM, role,
+grant, schema, secret, ownership, or infrastructure changes. Never create, alter, drop, grant, revoke, or reassign a
+database role or privilege unless that exact class of change was explicitly requested in the current turn. If permission
+changes appear necessary, show the environment, current state, exact changes, impact, and rollback, then wait for
+approval.

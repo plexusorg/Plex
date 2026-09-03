@@ -162,7 +162,7 @@ public class PunishmentManager
         return plugin.getPunishmentRepository().removeBan(uuid).thenApply(removal ->
         {
             if (!removal.changed()) return false;
-            PlexPlayer player = plugin.getPlayerService().getCachedPlayer(uuid);
+            PlexPlayer player = plugin.getPlayerService().cachedPlayer(uuid);
             if (player != null)
             {
                 player.getPunishments().stream()
@@ -301,7 +301,7 @@ public class PunishmentManager
                 PlexLog.error("Failed to expire {0} for {1}: {2}", type, player.getUuid(), failure.getMessage());
                 return;
             }
-            PlexPlayer current = plugin.getPlayerService().getCachedPlayer(player.getUuid());
+            PlexPlayer current = plugin.getPlayerService().cachedPlayer(player.getUuid());
             if (current == null) return;
             current.getPunishments().stream()
                     .filter(p -> p.getType() == type && p.getEndDate() != null && !p.getEndDate().isAfter(now))

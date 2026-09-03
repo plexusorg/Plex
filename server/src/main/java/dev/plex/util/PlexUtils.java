@@ -6,18 +6,19 @@ import dev.plex.Plex;
 import dev.plex.config.Config;
 import dev.plex.listener.impl.ChatListener;
 import dev.plex.util.minimessage.SafeMiniMessage;
+import io.papermc.paper.ServerBuildInfo;
 
 import java.time.Month;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Stack;
 import java.util.UUID;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -27,10 +28,7 @@ import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Particle;
-import org.bukkit.command.Command;
-import org.bukkit.command.PluginCommandYamlParser;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 
 public class PlexUtils
 {
@@ -54,12 +52,6 @@ public class PlexUtils
             );
 
     private static final Pattern LEGACY_FORMATTING_PATTERN = Pattern.compile(".*(?i)(([§&])((#[a-f0-9]{3,6})|([0-9a-fklmnor]))).*");
-
-    public static <T> T addToArrayList(List<T> list, T object)
-    {
-        list.add(object);
-        return object;
-    }
 
     public static void disabledEffect(Player player, Location location)
     {
@@ -86,54 +78,12 @@ public class PlexUtils
 
     public static boolean isFolia()
     {
-        try
-        {
-            Class.forName("io.papermc.paper.threadedregions.ThreadedRegionizer");
-        }
-        catch (Exception e)
-        {
-            return false;
-        }
-
-        return true;
+        return ServerBuildInfo.buildInfo().isBrandCompatible(Key.key("papermc", "folia"));
     }
 
     public static boolean hasVanishPlugin()
     {
         return Bukkit.getPluginManager().isPluginEnabled("SuperVanish") || Bukkit.getPluginManager().isPluginEnabled("PremiumVanish");
-    }
-
-    public static boolean isPluginCMD(String cmd, String pluginName)
-    {
-        Plugin plugin = Bukkit.getServer().getPluginManager().getPlugin(pluginName);
-        if (plugin == null)
-        {
-            PlexLog.error(pluginName + " can not be found on the server! Make sure it is spelt correctly!");
-            return false;
-        }
-        List<Command> cmds = PluginCommandYamlParser.parse(plugin);
-        for (Command pluginCmd : cmds)
-        {
-            List<String> cmdAliases = !pluginCmd.getAliases().isEmpty() ? pluginCmd.getAliases().stream().map(String::toLowerCase).toList() : null;
-            if (pluginCmd.getName().equalsIgnoreCase(cmd) || (cmdAliases != null && cmdAliases.contains(cmd.toLowerCase())))
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public static Component removeHoverAndClick(Component component)
-    {
-        Stack<Component> components = new Stack<>();
-        components.push(component);
-        while (!components.isEmpty())
-        {
-            Component curr = components.pop();
-            curr.clickEvent(null).hoverEvent(null);
-            curr.children().forEach(components::push);
-        }
-        return component;
     }
 
     public static Component stringToComponent(String input)
@@ -217,26 +167,6 @@ public class PlexUtils
         catch (Exception e)
         {
             PlexLog.warn("Unable to get text of component", e.getLocalizedMessage());
-            return "";
-        }
-    }
-
-    public static String getTextFromComponents(Component... components)
-    {
-        try
-        {
-            StringBuilder builder = new StringBuilder();
-
-            for (Component component : components)
-            {
-                builder.append(getTextFromComponent(component));
-            }
-
-            return builder.toString();
-        }
-        catch (Exception e)
-        {
-            PlexLog.warn("Unable to get text of components", e.getLocalizedMessage());
             return "";
         }
     }

@@ -28,7 +28,7 @@ public class VanishListener extends ServerListenerBase
             return;
         }
 
-        PlexPlayer plexPlayer = plugin.getPlayerService().getPlayer(event.getPlayer().getUniqueId());
+        PlexPlayer plexPlayer = plugin.getPlayerService().cachedPlayer(event.getPlayer().getUniqueId());
         if (plexPlayer == null)
         {
             PlexLog.warn("Unable to load Plex player data for {0}; skipping reappear messages.", event.getPlayer().getName());

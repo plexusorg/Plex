@@ -36,88 +36,67 @@ public class SmiteCMD extends ServerCommand
     @Override
     protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
     {
-        command.executes(context -> executeCommand(context));
+        command.executes(context -> executeCommand(context, ServerCommandContext::usage));
         command.then(playerArgument("player")
-                .executes(context -> executeCommand(context, string(context, "player")))
+                .executes(context -> executeCommand(context, commandContext ->
+                        smite(commandContext, string(context, "player"), SmiteOptions.EMPTY)))
                 .then(greedyString("reason")
                         .suggests((context, builder) -> suggestOptionalFlags(builder, List.of("-ci", "-q")))
-                        .executes(context -> executeCommand(context, argsWithGreedy(string(context, "player"), string(context, "reason"))))));
+                        .executes(context -> executeCommand(context, commandContext -> smite(commandContext,
+                                string(context, "player"), parseOptions(normalizeGreedyString(string(context, "reason"))))))));
     }
 
-    @Override
-    protected Component execute(@NotNull ServerCommandContext context)
+    private SmiteOptions parseOptions(String tail)
+    {
+        List<String> reasonParts = new ArrayList<>();
+        boolean silent = false;
+        boolean clearInventory = false;
+        for (String token : tail.split(" "))
+        {
+            if (token.equalsIgnoreCase("-q")) silent = true;
+            else if (token.equalsIgnoreCase("-ci")) clearInventory = true;
+            else reasonParts.add(token);
+        }
+        return new SmiteOptions(reasonParts.isEmpty() ? null : String.join(" ", reasonParts), silent, clearInventory);
+    }
+
+    private Component smite(ServerCommandContext context, String playerName, SmiteOptions options)
     {
         CommandSender sender = context.sender();
-        String[] args = context.args();
-        if (args.length < 1)
-        {
-            return context.usage();
-        }
-
-        String reason = null;
-        boolean silent = false;
-        boolean clearInv = false;
-
-        if (args.length >= 2)
-        {
-            List<String> reasonParts = new ArrayList<>();
-            for (int i = 1; i < args.length; i++)
-            {
-                if (args[i].equalsIgnoreCase("-q"))
-                {
-                    silent = true;
-                    continue;
-                }
-                if (args[i].equalsIgnoreCase("-ci"))
-                {
-                    clearInv = true;
-                    continue;
-                }
-                reasonParts.add(args[i]);
-            }
-
-            if (!reasonParts.isEmpty())
-            {
-                reason = StringUtils.join(reasonParts, " ");
-            }
-        }
-
-        final Player player = context.getNonNullPlayer(args[0]);
-        final PlexPlayer plexPlayer = context.getPlexPlayer(player);
+        final Player player = getNonNullPlayer(playerName);
+        final PlexPlayer plexPlayer = plugin.getPlayerService().cachedPlayer(player.getUniqueId());
 
         Punishment punishment = new Punishment(plexPlayer.getUuid(), context.getUUID(sender));
         punishment.setType(PunishmentType.SMITE);
         punishment.setIp(player.getAddress().getAddress().getHostAddress().trim());
-        String finalReason = reason != null ? reason : context.messageString("noReasonProvided");
+        String finalReason = options.reason() != null ? options.reason() : PlexUtils.messageString("noReasonProvided");
         punishment.setReason(finalReason);
-        boolean finalSilent = silent;
-        boolean finalClearInv = clearInv;
         plugin.getPunishmentManager().punish(plexPlayer, punishment).whenComplete((unused, failure) ->
         {
             if (failure != null)
             {
                 PlexLog.error("Unable to persist smite for {0}: {1}", player.getName(), failure.getMessage());
-                context.send(sender, Component.text("Unable to persist the smite; no action was taken."));
+                sender.sendMessage(Component.text("Unable to persist the smite; no action was taken."));
                 return;
             }
-            if (!finalSilent)
+            if (!options.silent())
             {
-                PlexUtils.broadcast(context.messageComponent("smiteBroadcast", player.getName(), finalReason, context.senderName()));
+                PlexUtils.broadcast(PlexUtils.messageComponent("smiteBroadcast", player.getName(), finalReason, context.senderName()));
             }
             else
             {
-                context.send(sender, context.messageComponent("smittenQuietly", player.getName()));
+                sender.sendMessage(PlexUtils.messageComponent("smittenQuietly", player.getName()));
             }
             plugin.getApi().scheduler().runEntity(player,
-                    () -> applySmite(context, player, finalReason, finalClearInv));
+                    () -> applySmite(context, player, finalReason, options.clearInventory()));
         });
         return null;
     }
 
     private void applySmite(ServerCommandContext context, Player player, String reason, boolean clearInventory)
     {
-        Title title = Title.title(context.messageComponent("smiteTitleHeader"),
-                context.messageComponent("smiteTitleMessage", reason, context.senderName()));
+        Title title = Title.title(PlexUtils.messageComponent("smiteTitleHeader"),
+                PlexUtils.messageComponent("smiteTitleMessage", reason, context.senderName()));
         player.showTitle(title);
         player.setGameMode(GameMode.SURVIVAL);
         if (clearInventory) player.getInventory().clear();
@@ -132,7 +111,12 @@ public class SmiteCMD extends ServerCommand
             }
         }
         player.setHealth(0.0);
-        context.send(player, context.messageComponent("smitten", reason));
+        player.sendMessage(PlexUtils.messageComponent("smitten", reason));
+    }
+
+    private record SmiteOptions(String reason, boolean silent, boolean clearInventory)
+    {
+        private static final SmiteOptions EMPTY = new SmiteOptions(null, false, false);
     }
 
 }

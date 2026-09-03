@@ -33,61 +33,56 @@ public class TempmuteCMD extends ServerCommand
     @Override
     protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
     {
-        command.executes(context -> executeCommand(context));
+        command.executes(context -> executeCommand(context, ServerCommandContext::usage));
         command.then(playerArgument("player")
                 .then(word("time")
-                        .executes(context -> executeCommand(context, string(context, "player"), string(context, "time")))
+                        .executes(context -> executeCommand(context, commandContext -> tempmute(commandContext,
+                                string(context, "player"), string(context, "time"), null)))
                         .then(greedyString("reason")
-                                .executes(context -> executeCommand(context, argsWithGreedy(string(context, "player"), string(context, "time"), string(context, "reason")))))));
+                                .executes(context -> executeCommand(context, commandContext -> tempmute(commandContext,
+                                        string(context, "player"), string(context, "time"),
+                                        normalizeGreedyString(string(context, "reason"))))))));
     }
 
-    @Override
-    protected Component execute(@NotNull ServerCommandContext context)
+    private Component tempmute(ServerCommandContext context, String playerName, String time, String suppliedReason)
     {
         CommandSender sender = context.sender();
-        String[] args = context.args();
-        if (args.length < 2)
-        {
-            return context.usage();
-        }
-
-        Player player = context.getNonNullPlayer(args[0]);
-        PlexPlayer punishedPlayer = context.getOfflinePlexPlayer(player.getUniqueId());
+        Player player = getNonNullPlayer(playerName);
+        PlexPlayer punishedPlayer = getCachedPlexPlayer(player.getUniqueId());
 
         if (plugin.getPunishmentManager().hasActivePunishment(punishedPlayer, PunishmentType.MUTE))
         {
-            return context.messageComponent("playerMuted");
+            return PlexUtils.messageComponent("playerMuted");
         }
 
         if (context.silentCheckPermission(player, "plex.tempmute"))
         {
-            context.send(sender, context.messageComponent("higherRankThanYou"));
+            sender.sendMessage(PlexUtils.messageComponent("higherRankThanYou"));
             return null;
         }
 
         ZonedDateTime endDate;
         try
         {
-            endDate = TimeUtils.createDate(args[1]);
+            endDate = TimeUtils.createDate(time);
         }
         catch (NumberFormatException e)
         {
-            return context.messageComponent("invalidTimeFormat");
+            return PlexUtils.messageComponent("invalidTimeFormat");
         }
 
         if (endDate.isBefore(ZonedDateTime.now()))
         {
-            return context.messageComponent("timeMustBeFuture");
+            return PlexUtils.messageComponent("timeMustBeFuture");
         }
 
         ZonedDateTime oneWeekFromNow = ZonedDateTime.now().plus(PunishmentType.MUTE.maximumDuration().orElseThrow());
         if (endDate.isAfter(oneWeekFromNow))
         {
-            return context.messageComponent("maxTimeExceeded");
+            return PlexUtils.messageComponent("maxTimeExceeded");
         }
 
-        final String reason = args.length >= 3 ? String.join(" ", Arrays.copyOfRange(args, 2, args.length))
-                : context.messageString("noReasonProvided");
+        final String reason = suppliedReason == null ? PlexUtils.messageString("noReasonProvided") : suppliedReason;
 
         Punishment punishment = new Punishment(punishedPlayer.getUuid(), context.getUUID(sender));
         punishment.setEndDate(endDate);
@@ -100,9 +95,9 @@ public class TempmuteCMD extends ServerCommand
             if (failure != null)
             {
                 PlexLog.error("Unable to tempmute {0}: {1}", punishedPlayer.getUuid(), failure.getMessage());
-                context.send(sender, Component.text("Unable to persist the mute; no action was taken."));
+                sender.sendMessage(Component.text("Unable to persist the mute; no action was taken."));
             }
-            else PlexUtils.broadcast(context.messageComponent("tempMutedPlayer", context.senderName(), player.getName(), TimeUtils.formatRelativeTime(endDate)));
+            else PlexUtils.broadcast(PlexUtils.messageComponent("tempMutedPlayer", context.senderName(), player.getName(), TimeUtils.formatRelativeTime(endDate)));
         });
         return null;
     }

@@ -1,66 +1,43 @@
 package dev.plex.player;
 
-import dev.plex.cache.PlayerCache;
 import dev.plex.storage.repository.PlayerRepository;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 public class PlayerService
 {
-    private final PlayerCache playerCache;
+    private final ConcurrentMap<UUID, PlexPlayer> players = new ConcurrentHashMap<>();
     private final PlayerRepository playerRepository;
     private final Executor executor;
     private final ConcurrentHashMap<UUID, CompletableFuture<PlexPlayer>> preparedSessions = new ConcurrentHashMap<>();
 
-    public PlayerService(PlayerCache playerCache, PlayerRepository playerRepository, Executor executor)
+    public PlayerService(PlayerRepository playerRepository, Executor executor)
     {
-        this.playerCache = playerCache;
         this.playerRepository = playerRepository;
         this.executor = executor;
     }
 
-    public boolean hasPlayedBefore(UUID uuid)
+    public CompletableFuture<Boolean> playerExists(UUID uuid)
     {
-        return playerRepository.exists(uuid);
+        return read(() -> playerRepository.exists(uuid));
     }
 
-    public boolean hasPlayedBefore(String username)
+    public CompletableFuture<Boolean> playerExists(String username)
     {
-        return playerRepository.exists(username);
-    }
-
-    public PlexPlayer getPlayer(UUID uuid)
-    {
-        return getPlayer(uuid, true);
-    }
-
-    public PlexPlayer getPlayer(UUID uuid, boolean loadExtraData)
-    {
-        PlexPlayer cached = playerCache.getPlexPlayer(uuid);
-        if (cached != null) return cached;
-
-        return playerRepository.getByUUID(uuid, loadExtraData);
-    }
-
-    public PlexPlayer getPlayer(String username)
-    {
-        return getPlayer(username, true);
-    }
-
-    public PlexPlayer getPlayer(String username, boolean loadExtraData)
-    {
-        Optional<PlexPlayer> plexPlayer = playerCache.snapshot().stream().filter(player -> player.getName().equalsIgnoreCase(username)).findFirst();
-        return plexPlayer.orElseGet(() -> playerRepository.getByName(username, loadExtraData));
+        return read(() -> playerRepository.exists(username));
     }
 
     public CompletableFuture<PlexPlayer> findPlayer(UUID uuid)
     {
-        PlexPlayer cached = playerCache.getPlexPlayer(uuid);
+        PlexPlayer cached = cachedPlayer(uuid);
         return cached == null
                 ? read(() -> playerRepository.getByUUID(uuid, true))
                 : CompletableFuture.completedFuture(cached);
@@ -68,7 +45,7 @@ public class PlayerService
 
     public CompletableFuture<PlexPlayer> findPlayer(String username)
     {
-        Optional<PlexPlayer> cached = playerCache.snapshot().stream()
+        Optional<PlexPlayer> cached = cachedPlayers().stream()
                 .filter(player -> player.getName().equalsIgnoreCase(username))
                 .findFirst();
         return cached.isPresent()
@@ -78,31 +55,22 @@ public class PlayerService
 
     public CompletableFuture<String> findName(UUID uuid)
     {
-        PlexPlayer cached = playerCache.getPlexPlayer(uuid);
+        PlexPlayer cached = cachedPlayer(uuid);
         return cached == null
                 ? read(() -> playerRepository.getNameByUUID(uuid))
                 : CompletableFuture.completedFuture(cached.getName());
     }
 
-    public PlexPlayer getPlayerByIP(String ip)
+    public CompletableFuture<PlexPlayer> findPlayerByIp(String ip)
     {
-        PlexPlayer player = playerCache.snapshot().stream().filter(plexPlayer -> plexPlayer.getIps().contains(ip)).findFirst().orElse(null);
+        String canonicalIp = dev.plex.punishment.admission.BanDecisionService.canonicalIp(ip);
+        PlexPlayer player = cachedPlayers().stream()
+                .filter(plexPlayer -> plexPlayer.getIps().contains(canonicalIp)).findFirst().orElse(null);
         if (player != null)
         {
-            return player;
+            return CompletableFuture.completedFuture(player);
         }
-
-        return playerRepository.getByIP(ip);
-    }
-
-    public String getNameByUUID(UUID uuid)
-    {
-        PlexPlayer player = playerCache.getPlexPlayer(uuid);
-        if (player != null)
-        {
-            return player.getName();
-        }
-        return playerRepository.getNameByUUID(uuid);
+        return read(() -> playerRepository.getByIP(canonicalIp));
     }
 
     public CompletableFuture<Void> update(PlexPlayer plexPlayer)
@@ -139,9 +107,10 @@ public class PlayerService
         }
     }
 
-    public PlexPlayer getCachedPlayer(UUID uuid) { return playerCache.getPlexPlayer(uuid); }
-    public boolean isCached(UUID uuid) { return playerCache.contains(uuid); }
-    public void cache(PlexPlayer player) { playerCache.put(player); }
+    public PlexPlayer cachedPlayer(UUID uuid) { return players.get(uuid); }
+    public boolean isCached(UUID uuid) { return players.containsKey(uuid); }
+    public void cache(PlexPlayer player) { players.put(player.getUuid(), player); }
+    public Collection<PlexPlayer> cachedPlayers() { return List.copyOf(players.values()); }
 
     public CompletableFuture<PlexPlayer> prepareSession(UUID uuid, String username, String ip)
     {
@@ -151,39 +120,8 @@ public class PlayerService
         if (existing != null) return existing;
         try
         {
-            CompletableFuture.supplyAsync(() ->
-            {
-                PlexPlayer player = playerRepository.getByUUID(uuid, true);
-                if (player == null)
-                {
-                    player = new PlexPlayer(uuid);
-                    player.setName(username);
-                    if (!normalizedIp.isEmpty())
-                    {
-                        player.getIps().add(normalizedIp);
-                    }
-                    playerRepository.insert(player);
-                }
-                else
-                {
-                    boolean changed = false;
-                    if (!normalizedIp.isEmpty() && !player.getIps().contains(normalizedIp))
-                    {
-                        player.getIps().add(normalizedIp);
-                        changed = true;
-                    }
-                    if (!player.getName().equals(username))
-                    {
-                        player.setName(username);
-                        changed = true;
-                    }
-                    if (changed)
-                    {
-                        playerRepository.update(player);
-                    }
-                }
-                return player;
-            }, executor).whenComplete((player, failure) ->
+            CompletableFuture.supplyAsync(() -> loadSession(uuid, username, normalizedIp), executor)
+                    .whenComplete((player, failure) ->
             {
                 if (failure == null)
                 {
@@ -205,23 +143,62 @@ public class PlayerService
         return pending;
     }
 
+    public CompletableFuture<PlexPlayer> reloadSession(UUID uuid, String username, String ip)
+    {
+        String normalizedIp = dev.plex.punishment.admission.BanDecisionService.canonicalIp(ip);
+        return read(() -> loadSession(uuid, username, normalizedIp));
+    }
+
+    public boolean attachReloadedSession(UUID uuid, PlexPlayer expected, PlexPlayer reloaded)
+    {
+        return expected == null
+                ? players.putIfAbsent(uuid, reloaded) == null
+                : players.replace(uuid, expected, reloaded);
+    }
+
+    private PlexPlayer loadSession(UUID uuid, String username, String normalizedIp)
+    {
+        PlexPlayer player = playerRepository.getByUUID(uuid, true);
+        if (player == null)
+        {
+            player = new PlexPlayer(uuid);
+            player.setName(username);
+            if (!normalizedIp.isEmpty()) player.getIps().add(normalizedIp);
+            playerRepository.insert(player);
+            return player;
+        }
+        boolean changed = false;
+        if (!normalizedIp.isEmpty() && !player.getIps().contains(normalizedIp))
+        {
+            player.getIps().add(normalizedIp);
+            changed = true;
+        }
+        if (!player.getName().equals(username))
+        {
+            player.setName(username);
+            changed = true;
+        }
+        if (changed) playerRepository.update(player);
+        return player;
+    }
+
     public PlexPlayer attachPreparedSession(UUID uuid)
     {
         CompletableFuture<PlexPlayer> pending = preparedSessions.remove(uuid);
         PlexPlayer player = pending == null ? null : pending.getNow(null);
-        if (player != null) playerCache.put(player);
+        if (player != null) cache(player);
         return player;
     }
 
     public CompletableFuture<Void> detachAndSave(UUID uuid)
     {
-        PlexPlayer player = playerCache.remove(uuid);
+        PlexPlayer player = players.remove(uuid);
         return player == null ? CompletableFuture.completedFuture(null) : update(player);
     }
 
     public CompletableFuture<Void> flush()
     {
-        CompletableFuture<?>[] operations = playerCache.snapshot().stream()
+        CompletableFuture<?>[] operations = cachedPlayers().stream()
                 .map(this::update).toArray(CompletableFuture[]::new);
         return CompletableFuture.allOf(operations);
     }

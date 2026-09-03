@@ -1,6 +1,5 @@
 package dev.plex.command.impl;
 
-import com.google.common.collect.Lists;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
 import dev.plex.command.ServerCommandContext;
@@ -9,6 +8,8 @@ import dev.plex.meta.PlayerMeta;
 import dev.plex.util.PlexUtils;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
@@ -32,51 +33,71 @@ public class ListCMD extends ServerCommand
     @Override
     protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
     {
-        command.executes(context -> executeCommand(context));
+        command.executes(context -> executeCommand(context,
+                commandContext -> executeTyped(commandContext, ListMode.DEFAULT)));
         command.then(literal("-d")
-                .executes(context -> executeCommand(context, "-d")));
+                .executes(context -> executeCommand(context,
+                        commandContext -> executeTyped(commandContext, ListMode.DISPLAY_NAMES))));
         command.then(literal("-v")
                 .requires(source -> canUsePermission(source, "plex.list.vanished"))
-                .executes(context -> executeCommand(context, "-v")));
+                .executes(context -> executeCommand(context,
+                        commandContext -> executeTyped(commandContext, ListMode.VANISHED))));
     }
 
-    @Override
-    protected Component execute(@NotNull ServerCommandContext context)
+    private Component executeTyped(ServerCommandContext context, ListMode mode)
     {
         CommandSender sender = context.sender();
-        Player playerSender = context.player();
-        String[] args = context.args();
-        List<Player> players = Lists.newArrayList(Bukkit.getOnlinePlayers());
-        if (args.length > 0 && args[0].equalsIgnoreCase("-v"))
+        List<CompletableFuture<ListedPlayer>> captures = plugin.getPlayerService().cachedPlayers().stream()
+                .map(player -> Bukkit.getPlayer(player.getUuid()))
+                .filter(Objects::nonNull)
+                .map(this::capture)
+                .toList();
+        int maxPlayers = Bukkit.getMaxPlayers();
+        CompletableFuture.allOf(captures.toArray(CompletableFuture[]::new)).thenRun(() ->
         {
-            context.checkPermission(sender, "plex.list.vanished");
-            players.removeIf(player -> !PlayerMeta.isVanished(player));
-        }
-        else
+            List<ListedPlayer> players = captures.stream().map(CompletableFuture::join)
+                    .filter(Objects::nonNull)
+                    .filter(player -> mode == ListMode.VANISHED ? player.vanished() : !player.vanished())
+                    .toList();
+            sender.sendMessage(PlexUtils.messageComponent(players.size() == 1 ? "listHeader" : "listHeaderPlural",
+                    players.size(), maxPlayers));
+            if (!players.isEmpty()) sender.sendMessage(playerList(players, mode));
+        });
+        return null;
+    }
+
+    private CompletableFuture<ListedPlayer> capture(Player player)
+    {
+        CompletableFuture<ListedPlayer> result = new CompletableFuture<>();
+        boolean scheduled = plugin.getApi().scheduler().executeEntity(player, () ->
         {
-            players.removeIf(PlayerMeta::isVanished);
-        }
+            var cachedPlayer = plugin.getPlayerService().cachedPlayer(player.getUniqueId());
+            if (cachedPlayer == null)
+            {
+                result.complete(null);
+                return;
+            }
+            Component prefix = VaultHook.getPrefix(cachedPlayer);
+            result.complete(new ListedPlayer(prefix == null ? Component.empty() : prefix, player.getName(),
+                    player.displayName(), PlayerMeta.isVanished(player)));
+        }, () -> result.complete(null), 0L);
+        if (!scheduled) result.complete(null);
+        return result;
+    }
+
+    private Component playerList(List<ListedPlayer> players, ListMode mode)
+    {
         Component list = Component.empty();
-        Component header = PlexUtils.messageComponent(players.size() == 1 ? "listHeader" : "listHeaderPlural", players.size(), Bukkit.getMaxPlayers());
-        context.send(sender, header);
-        if (players.isEmpty())
-        {
-            return null;
-        }
         for (int i = 0; i < players.size(); i++)
         {
-            Player player = players.get(i);
-            Component prefix = VaultHook.getPrefix(context.getPlexPlayer(player));
-            if (prefix == null)
-            {
-                prefix = Component.empty();
-            }
+            ListedPlayer player = players.get(i);
+            Component prefix = player.prefix();
             if (!List.of(Component.empty(), Component.space()).contains(prefix))
             {
                 list = list.append(prefix).append(Component.space());
             }
-            list = list.append(Component.text(player.getName()).color(NamedTextColor.WHITE));
-            if (List.of(args).contains("-d"))
+            list = list.append(Component.text(player.name()).color(NamedTextColor.WHITE));
+            if (mode == ListMode.DISPLAY_NAMES)
             {
                 list = list.append(Component.space());
                 list = list.append(Component.text("(").color(NamedTextColor.WHITE));
@@ -89,6 +110,15 @@ public class ListCMD extends ServerCommand
             }
         }
         return list;
+    }
+
+    private record ListedPlayer(Component prefix, String name, Component displayName, boolean vanished) {}
+
+    private enum ListMode
+    {
+        DEFAULT,
+        DISPLAY_NAMES,
+        VANISHED
     }
 
     }

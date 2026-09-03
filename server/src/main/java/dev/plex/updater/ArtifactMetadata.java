@@ -174,6 +174,8 @@ public final class ArtifactMetadata
         return isSafeArtifactFileName(fallback + ".jar") ? fallback + ".jar" : "update.jar";
     }
 
+    // This trust-boundary validator keeps its ordered, field-specific failure messages together.
+    @SuppressWarnings("checkstyle:CyclomaticComplexity")
     private Optional<String> validateCommon(UpdateChannel requestedChannel)
     {
         if (schemaVersion != CURRENT_SCHEMA_VERSION)

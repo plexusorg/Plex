@@ -1,5 +1,6 @@
 package dev.plex.command.impl;
 
+import dev.plex.util.PlexUtils;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.api.note.PlayerNote;
@@ -11,6 +12,8 @@ import dev.plex.util.TimeUtils;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Consumer;
+import java.util.concurrent.CompletableFuture;
 
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
@@ -32,59 +35,49 @@ public class NotesCMD extends ServerCommand
     @Override
     protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
     {
-        command.executes(context -> executeCommand(context));
-        command.then(playerArgument("player")
-                .then(literal("list")
-                        .executes(context -> executeCommand(context, string(context, "player"), "list")))
-                .then(literal("clear")
-                        .executes(context -> executeCommand(context, string(context, "player"), "clear")))
-                .then(literal("add")
-                        .then(greedyString("note")
-                                .executes(context -> executeCommand(context, argsWithGreedy(string(context, "player"), "add", string(context, "note"))))))
-                .then(literal("remove")
-                        .then(nonNegativeInteger("id")
-                                .executes(context -> executeCommand(context, string(context, "player"), "remove", String.valueOf(integer(context, "id")))))));
+        command.executes(context -> executeCommand(context, ServerCommandContext::usage));
+        var playerNode = playerArgument("player");
+        playerNode.then(literal("list").executes(context -> executeCommand(context, commandContext ->
+                findPlayer(commandContext, string(context, "player"), player -> list(commandContext, player)))));
+        playerNode.then(literal("clear").executes(context -> executeCommand(context, commandContext ->
+                findPlayer(commandContext, string(context, "player"), player -> clear(commandContext, player)))));
+        playerNode.then(literal("add").then(greedyString("note").executes(context -> executeCommand(context, commandContext ->
+                findPlayer(commandContext, string(context, "player"),
+                        player -> add(commandContext, player, string(context, "note")))))));
+        playerNode.then(literal("remove").then(nonNegativeInteger("id").executes(context -> executeCommand(context, commandContext ->
+                findPlayer(commandContext, string(context, "player"),
+                        player -> remove(commandContext, player, integer(context, "id")))))));
+        command.then(playerNode);
     }
 
-    @Override
-    protected Component execute(@NotNull ServerCommandContext context)
+    private Component findPlayer(ServerCommandContext context, String playerName, Consumer<PlexPlayer> action)
     {
-        String[] args = context.args();
-        if (args.length < 2)
+        plugin.getPlayerService().findPlayer(playerName).whenComplete((player, failure) ->
         {
-            return context.usage();
-        }
-
-        PlexPlayer plexPlayer = plugin.getPlayerService().getPlayer(args[0]);
-
-        if (plexPlayer == null)
-        {
-            return context.messageComponent("playerNotFound");
-        }
-
-        return switch (args[1])
-        {
-            case "list" -> list(context, plexPlayer);
-            case "add" -> add(context, plexPlayer, args);
-            case "remove" -> remove(context, plexPlayer, args);
-            case "clear" -> clear(context, plexPlayer);
-            default -> context.usage();
-        };
+            if (failure != null)
+            {
+                PlexLog.warn("Unable to load player {0}: {1}", playerName, failure.getMessage());
+                context.sender().sendMessage(Component.text("Unable to load the player."));
+            }
+            else if (player == null) context.sender().sendMessage(PlexUtils.messageComponent("playerNotFound"));
+            else action.accept(player);
+        });
+        return null;
     }
 
     private Component list(ServerCommandContext context, PlexPlayer player)
     {
-        plugin.getApi().notes().list(player.getUuid()).whenComplete((notes, failure) ->
+        plugin.getNotesService().list(player.getUuid()).whenComplete((notes, failure) ->
         {
             if (failure != null)
             {
                 PlexLog.warn("Unable to list notes for {0}: {1}", player.getUuid(), failure.getMessage());
-                context.send(context.sender(), Component.text("Unable to load notes."));
+                context.sender().sendMessage(Component.text("Unable to load notes."));
                 return;
             }
             if (notes.isEmpty())
             {
-                context.send(context.sender(), context.messageComponent("noNotes"));
+                context.sender().sendMessage(PlexUtils.messageComponent("noNotes"));
                 return;
             }
             readNotes(context, player, notes);
@@ -92,79 +85,84 @@ public class NotesCMD extends ServerCommand
         return null;
     }
 
-    private Component add(ServerCommandContext context, PlexPlayer player, String[] args)
+    private Component add(ServerCommandContext context, PlexPlayer player, String content)
     {
         Player author = context.player();
-        if (args.length < 3 || author == null)
+        if (author == null)
         {
             return context.usage();
         }
-        String content = StringUtils.join(ArrayUtils.subarray(args, 2, args.length), " ");
-        plugin.getApi().notes().add(player.getUuid(), content, author.getUniqueId()).whenComplete((unused, failure) ->
+        String normalizedContent = String.join(" ", content.trim().split("\\s+"));
+        plugin.getNotesService().add(player.getUuid(), normalizedContent, author.getUniqueId()).whenComplete((unused, failure) ->
         {
             if (failure != null)
             {
                 PlexLog.warn("Unable to add note for {0}: {1}", player.getUuid(), failure.getMessage());
-                context.send(context.sender(), Component.text("Unable to add note."));
+                context.sender().sendMessage(Component.text("Unable to add note."));
                 return;
             }
-            context.send(context.sender(), context.messageComponent("noteAdded"));
+            context.sender().sendMessage(PlexUtils.messageComponent("noteAdded"));
         });
         return null;
     }
 
-    private Component remove(ServerCommandContext context, PlexPlayer player, String[] args)
+    private Component remove(ServerCommandContext context, PlexPlayer player, int id)
     {
-        if (args.length < 3)
-        {
-            return context.usage();
-        }
-        int id = Integer.parseInt(args[2]);
-        plugin.getApi().notes().remove(player.getUuid(), id).whenComplete((deleted, failure) ->
+        plugin.getNotesService().remove(player.getUuid(), id).whenComplete((deleted, failure) ->
         {
             if (failure != null)
             {
                 PlexLog.warn("Unable to remove note {0} for {1}: {2}", id, player.getUuid(), failure.getMessage());
-                context.send(context.sender(), Component.text("Unable to remove note."));
+                context.sender().sendMessage(Component.text("Unable to remove note."));
                 return;
             }
-            context.send(context.sender(), deleted ? context.messageComponent("removedNote", id) : context.messageComponent("noteNotFound"));
+            context.sender().sendMessage(deleted ? PlexUtils.messageComponent("removedNote", id) : PlexUtils.messageComponent("noteNotFound"));
         });
         return null;
     }
 
     private Component clear(ServerCommandContext context, PlexPlayer player)
     {
-        plugin.getApi().notes().clear(player.getUuid()).whenComplete((count, failure) ->
+        plugin.getNotesService().clear(player.getUuid()).whenComplete((count, failure) ->
         {
             if (failure != null)
             {
                 PlexLog.warn("Unable to clear notes for {0}: {1}", player.getUuid(), failure.getMessage());
-                context.send(context.sender(), Component.text("Unable to clear notes."));
+                context.sender().sendMessage(Component.text("Unable to clear notes."));
                 return;
             }
-            context.send(context.sender(), context.messageComponent("clearedNotes", count));
+            context.sender().sendMessage(PlexUtils.messageComponent("clearedNotes", count));
         });
         return null;
     }
 
     private void readNotes(ServerCommandContext context, PlexPlayer plexPlayer, List<PlayerNote> notes)
     {
-        Component noteList = context.messageComponent("notesHeader", plexPlayer.getName());
-        for (PlayerNote note : notes)
+        CompletableFuture<?>[] names = notes.stream()
+                .map(note -> note.author() == null
+                        ? CompletableFuture.completedFuture("CONSOLE")
+                        : plugin.getPlayerService().findName(note.author()).thenApply(name ->
+                                name == null || name.isBlank() ? note.author().toString() : name))
+                .toArray(CompletableFuture[]::new);
+        CompletableFuture.allOf(names).whenComplete((unused, failure) ->
         {
-            Component noteLine = context.messageComponent("notePrefix", note.id(), authorName(note.author()), TimeUtils.useTimezone(note.timestamp()));
-            noteLine = noteLine.append(context.messageComponent("noteLine", note.content()));
-            noteList = noteList.append(Component.newline()).append(noteLine);
-        }
-        context.send(context.sender(), noteList);
-    }
-
-    private String authorName(UUID uuid)
-    {
-        if (uuid == null) return "CONSOLE";
-        String name = plugin.getPlayerService().getNameByUUID(uuid);
-        return name == null || name.isBlank() ? uuid.toString() : name;
+            if (failure != null)
+            {
+                PlexLog.warn("Unable to load note authors for {0}: {1}", plexPlayer.getUuid(), failure.getMessage());
+                context.sender().sendMessage(Component.text("Unable to load notes."));
+                return;
+            }
+            Component noteList = PlexUtils.messageComponent("notesHeader", plexPlayer.getName());
+            for (int index = 0; index < notes.size(); index++)
+            {
+                PlayerNote note = notes.get(index);
+                Component noteLine = PlexUtils.messageComponent("notePrefix", note.id(), names[index].join(),
+                        TimeUtils.useTimezone(note.timestamp()));
+                noteList = noteList.append(Component.newline()).append(noteLine)
+                        .append(PlexUtils.messageComponent("noteLine", note.content()));
+            }
+            context.sender().sendMessage(noteList);
+        });
     }
 
 }

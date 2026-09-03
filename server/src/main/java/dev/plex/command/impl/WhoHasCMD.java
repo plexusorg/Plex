@@ -1,11 +1,14 @@
 package dev.plex.command.impl;
 
+import dev.plex.util.PlexUtils;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
 import dev.plex.command.ServerCommandContext;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
@@ -31,56 +34,75 @@ public class WhoHasCMD extends ServerCommand
     @Override
     protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
     {
-        command.executes(context -> executeCommand(context));
+        command.executes(context -> executeCommand(context, ServerCommandContext::usage));
         command.then(word("material")
                 .suggests(suggest(() -> Arrays.stream(Material.values()).map(Enum::name).toList()))
-                .executes(context -> executeCommand(context, string(context, "material")))
+                .executes(context -> executeCommand(context,
+                        commandContext -> executeTyped(commandContext, string(context, "material"), false)))
                 .then(literal("clear")
-                        .executes(context -> executeCommand(context, string(context, "material"), "clear"))));
+                        .executes(context -> executeCommand(context,
+                                commandContext -> executeTyped(commandContext, string(context, "material"), true)))));
     }
 
-    @Override
-    protected Component execute(@NotNull ServerCommandContext context)
+    private Component executeTyped(ServerCommandContext context, String materialName, boolean clearInventory)
     {
         CommandSender sender = context.sender();
         Player playerSender = context.player();
-        String[] args = context.args();
-        if (args.length == 0)
-        {
-            return context.usage();
-        }
-
-        final Material material = Material.getMaterial(args[0].toUpperCase());
+        final Material material = Material.getMaterial(materialName.toUpperCase());
 
         if (material == null)
         {
-            return context.messageComponent("materialNotFound", args[0]);
+            return PlexUtils.messageComponent("materialNotFound", materialName);
         }
-
-        boolean clearInventory = args.length > 1 && args[1].equalsIgnoreCase("clear");
 
         if (clearInventory && !sender.hasPermission("plex.whohas.clear"))
         {
-            return context.messageComponent("noPermissionNode", "plex.whohas.clear");
+            return PlexUtils.messageComponent("noPermissionNode", "plex.whohas.clear");
         }
 
-        List<TextComponent> players = Bukkit.getOnlinePlayers().stream().filter(player ->
-                player.getInventory().contains(material)).map(player ->
+        List<CompletableFuture<TextComponent>> captures = plugin.getPlayerService().cachedPlayers().stream()
+                .map(player -> Bukkit.getPlayer(player.getUuid()))
+                .filter(Objects::nonNull)
+                .map(player -> capture(player, material, clearInventory))
+                .toList();
+        CompletableFuture.allOf(captures.toArray(CompletableFuture[]::new)).thenRun(() ->
         {
+            List<TextComponent> players = captures.stream().map(CompletableFuture::join)
+                    .filter(Objects::nonNull).toList();
+            sender.sendMessage(result(material, clearInventory, players));
+        });
+        return null;
+    }
+
+    private CompletableFuture<TextComponent> capture(Player player, Material material, boolean clearInventory)
+    {
+        CompletableFuture<TextComponent> result = new CompletableFuture<>();
+        boolean scheduled = plugin.getApi().scheduler().executeEntity(player, () ->
+        {
+            if (!player.getInventory().contains(material))
+            {
+                result.complete(null);
+                return;
+            }
             if (clearInventory)
             {
                 player.getInventory().remove(material);
                 player.updateInventory();
             }
-            return Component.text(player.getName());
-        }).toList();
+            result.complete(Component.text(player.getName()));
+        }, () -> result.complete(null), 0L);
+        if (!scheduled) result.complete(null);
+        return result;
+    }
 
+    private Component result(Material material, boolean clearInventory, List<TextComponent> players)
+    {
         return players.isEmpty() ?
-                context.messageComponent("nobodyHasThatMaterial") :
+                PlexUtils.messageComponent("nobodyHasThatMaterial") :
                 (clearInventory ?
-                        context.messageComponent("playersMaterialCleared", Component.text(material.name()),
+                        PlexUtils.messageComponent("playersMaterialCleared", Component.text(material.name()),
                                 Component.join(JoinConfiguration.commas(true), players)) :
-                        context.messageComponent("playersWithMaterial", Component.text(material.name()),
+                        PlexUtils.messageComponent("playersWithMaterial", Component.text(material.name()),
                                 Component.join(JoinConfiguration.commas(true), players)));
     }
 

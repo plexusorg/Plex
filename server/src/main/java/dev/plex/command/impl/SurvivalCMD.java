@@ -4,7 +4,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
 import dev.plex.command.ServerCommandContext;
 import dev.plex.command.exception.CommandFailException;
-import dev.plex.event.GameModeUpdateEvent;
+import dev.plex.util.GameModeUtil;
 import dev.plex.util.PlexUtils;
 
 
@@ -29,44 +29,38 @@ public class SurvivalCMD extends ServerCommand
     @Override
     protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
     {
-        command.executes(context -> executeCommand(context));
+        command.executes(context -> executeCommand(context, commandContext -> executeTyped(commandContext, null)));
         command.then(word("target")
                 .requires(source -> canUsePermission(source, "plex.gamemode.survival.others"))
                 .suggests(suggestPlayersAndAll("plex.gamemode.survival.others"))
-                .executes(context -> executeCommand(context, string(context, "target"))));
+                .executes(context -> executeCommand(context, commandContext -> executeTyped(commandContext, string(context, "target")))));
     }
 
-    @Override
-    protected Component execute(@NotNull ServerCommandContext context)
+    private Component executeTyped(ServerCommandContext context, String target)
     {
         CommandSender sender = context.sender();
         Player playerSender = context.player();
-        String[] args = context.args();
-        if (args.length == 0)
+        if (target == null)
         {
             if (context.isConsole(sender))
             {
-                throw new CommandFailException(context.messageString("consoleMustDefinePlayer"));
+                throw new CommandFailException(PlexUtils.messageString("consoleMustDefinePlayer"));
             }
-            Bukkit.getServer().getPluginManager().callEvent(new GameModeUpdateEvent(sender, playerSender, GameMode.SURVIVAL));
+            GameModeUtil.update(plugin, sender, playerSender, GameMode.SURVIVAL);
             return null;
         }
 
         if (context.checkPermission(sender, "plex.gamemode.survival.others"))
         {
-            if (args[0].equals("-a"))
+            if (target.equals("-a"))
             {
-                for (Player targetPlayer : Bukkit.getServer().getOnlinePlayers())
-                {
-                    targetPlayer.setGameMode(GameMode.SURVIVAL);
-                    context.send(targetPlayer, context.messageComponent("gameModeSetTo", "survival"));
-                }
-                PlexUtils.broadcast(context.messageComponent("setEveryoneGameMode", context.senderName(), "survival"));
+                GameModeUtil.updateAll(plugin, GameMode.SURVIVAL, true).thenRun(() ->
+                    PlexUtils.broadcast(PlexUtils.messageComponent("setEveryoneGameMode", context.senderName(), "survival")));
                 return null;
             }
 
-            Player nPlayer = context.getNonNullPlayer(args[0]);
-            Bukkit.getServer().getPluginManager().callEvent(new GameModeUpdateEvent(sender, nPlayer, GameMode.SURVIVAL));
+            Player nPlayer = getNonNullPlayer(target);
+            GameModeUtil.update(plugin, sender, nPlayer, GameMode.SURVIVAL);
             return null;
         }
         return null;
