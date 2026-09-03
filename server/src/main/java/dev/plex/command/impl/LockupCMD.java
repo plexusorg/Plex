@@ -1,5 +1,7 @@
 package dev.plex.command.impl;
 
+import org.bukkit.Bukkit;
+
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
 import dev.plex.command.ServerCommandContext;
@@ -38,12 +40,13 @@ public class LockupCMD extends ServerCommand
         Player player = getNonNullPlayer(playerName);
         PlexPlayer punishedPlayer = getCachedPlexPlayer(player.getUniqueId());
 
-        punishedPlayer.setLockedUp(!punishedPlayer.isLockedUp());
-        if (punishedPlayer.isLockedUp())
+        player.getScheduler().run(plugin, task ->
         {
-            player.openInventory(player.getInventory());
-        }
-        PlexUtils.broadcast(PlexUtils.messageComponent(punishedPlayer.isLockedUp() ? "lockedUpPlayer" : "unlockedPlayer", context.senderName(), player.getName()));
+            punishedPlayer.setLockedUp(!punishedPlayer.isLockedUp());
+            if (punishedPlayer.isLockedUp()) player.openInventory(player.getInventory());
+            PlexUtils.broadcast(PlexUtils.messageComponent(punishedPlayer.isLockedUp()
+                    ? "lockedUpPlayer" : "unlockedPlayer", context.senderName(), player.getName()));
+        }, null);
         return null;
     }
 

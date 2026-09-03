@@ -1,10 +1,11 @@
 package dev.plex.util;
 
+import org.bukkit.Bukkit;
+
 import dev.plex.Plex;
 import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.admission.BanDecisionService;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 
@@ -30,12 +31,11 @@ public final class BanKickUtil
     private static void kickMatchingPlayers(Plex plugin, java.util.UUID uuid, String ip, Component message)
     {
         String canonicalIp = BanDecisionService.canonicalIp(ip);
-        plugin.getApi().scheduler().runGlobal(() ->
+        Bukkit.getGlobalRegionScheduler().run(plugin, task ->
         {
-            List<Player> onlinePlayers = List.copyOf(Bukkit.getOnlinePlayers());
-            for (Player player : onlinePlayers)
+            for (Player player : List.copyOf(Bukkit.getOnlinePlayers()))
             {
-                plugin.getApi().scheduler().runEntity(player, () ->
+                player.getScheduler().run(plugin, entityTask ->
                 {
                     if (uuid != null && player.getUniqueId().equals(uuid))
                     {
@@ -48,7 +48,7 @@ public final class BanKickUtil
                     }
                     String playerIp = BanDecisionService.canonicalIp(player.getAddress().getAddress().getHostAddress());
                     if (canonicalIp.equals(playerIp)) BungeeUtil.kickPlayer(plugin, player, message);
-                });
+                }, null);
             }
         });
     }
@@ -59,31 +59,21 @@ public final class BanKickUtil
                 ? ""
                 : BanDecisionService.canonicalIp(plexPlayer.getIps().getLast());
         CompletableFuture<String> result = new CompletableFuture<>();
-        plugin.getApi().scheduler().runGlobal(() ->
+        Player player = Bukkit.getPlayer(plexPlayer.getUuid());
+        if (player == null)
         {
-            Player player = List.copyOf(Bukkit.getOnlinePlayers()).stream()
-                    .filter(onlinePlayer -> onlinePlayer.getUniqueId().equals(plexPlayer.getUuid()))
-                    .findFirst()
-                    .orElse(null);
-            if (player == null)
+            return CompletableFuture.completedFuture(lastIp);
+        }
+        ScheduledTask task = player.getScheduler().run(plugin, scheduledTask ->
+        {
+            if (player.getAddress() == null || player.getAddress().getAddress() == null)
             {
                 result.complete(lastIp);
                 return;
             }
-            ScheduledTask task = plugin.getApi().scheduler().runEntity(player, scheduledTask ->
-            {
-                if (player.getAddress() == null || player.getAddress().getAddress() == null)
-                {
-                    result.complete(lastIp);
-                    return;
-                }
-                result.complete(BanDecisionService.canonicalIp(player.getAddress().getAddress().getHostAddress()));
-            }, () -> result.complete(lastIp));
-            if (task == null)
-            {
-                result.complete(lastIp);
-            }
-        });
+            result.complete(BanDecisionService.canonicalIp(player.getAddress().getAddress().getHostAddress()));
+        }, () -> result.complete(lastIp));
+        if (task == null) result.complete(lastIp);
         return result;
     }
 }

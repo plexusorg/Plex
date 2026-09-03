@@ -1,12 +1,16 @@
 package dev.plex.util;
 
+import net.kyori.adventure.text.minimessage.MiniMessage;
+
+import org.bukkit.Bukkit;
+
 import com.google.common.base.CharMatcher;
 import com.google.common.collect.Lists;
+import io.papermc.paper.ServerBuildInfo;
 import dev.plex.Plex;
 import dev.plex.config.Config;
 import dev.plex.listener.impl.ChatListener;
 import dev.plex.util.minimessage.SafeMiniMessage;
-import io.papermc.paper.ServerBuildInfo;
 
 import java.time.Month;
 import java.time.ZoneId;
@@ -21,13 +25,12 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.TextDecoration;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
 public class PlexUtils
@@ -58,7 +61,7 @@ public class PlexUtils
         Particle.CLOUD.builder().location(location).receivers(player).extra(0).offset(0.5, 0.5, 0.5).count(5).spawn();
         Particle.FLAME.builder().location(location).receivers(player).extra(0).offset(0.5, 0.5, 0.5).count(3).spawn();
         Particle.SOUL_FIRE_FLAME.builder().location(location).receivers(player).offset(0.5, 0.5, 0.5).extra(0).count(2).spawn();
-        player.playSound(location, org.bukkit.Sound.BLOCK_FIRE_EXTINGUISH, 0.5f, 0.5f);
+        player.playSound(location, Sound.BLOCK_FIRE_EXTINGUISH, 0.5f, 0.5f);
     }
 
     public static void disabledEffectMultiple(Player[] players, Location location)
@@ -73,17 +76,17 @@ public class PlexUtils
         Particle.SOUL_FIRE_FLAME.builder().location(location).receivers(players).offset(0.5, 0.5, 0.5).extra(0).count(2)
                 .spawn();
         // note that the sound is played to everyone who is close enough to hear it
-        players[0].getWorld().playSound(location, org.bukkit.Sound.BLOCK_FIRE_EXTINGUISH, 0.5f, 0.5f);
-    }
-
-    public static boolean isFolia()
-    {
-        return ServerBuildInfo.buildInfo().isBrandCompatible(Key.key("papermc", "folia"));
+        players[0].getWorld().playSound(location, Sound.BLOCK_FIRE_EXTINGUISH, 0.5f, 0.5f);
     }
 
     public static boolean hasVanishPlugin()
     {
         return Bukkit.getPluginManager().isPluginEnabled("SuperVanish") || Bukkit.getPluginManager().isPluginEnabled("PremiumVanish");
+    }
+
+    public static boolean isFolia()
+    {
+        return ServerBuildInfo.buildInfo().isBrandCompatible(Key.key("papermc", "folia"));
     }
 
     public static Component stringToComponent(String input)
@@ -176,9 +179,9 @@ public class PlexUtils
         return Bukkit.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList());
     }
 
-    public static void broadcast(String s)
+    public static void broadcast(String message)
     {
-        Bukkit.broadcast(MINI_MESSAGE.deserialize(s));
+        Bukkit.broadcast(MINI_MESSAGE.deserialize(message));
     }
 
     public static void broadcast(Component component)

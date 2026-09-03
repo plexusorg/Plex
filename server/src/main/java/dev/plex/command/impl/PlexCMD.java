@@ -1,5 +1,8 @@
 package dev.plex.command.impl;
 
+import org.bukkit.Bukkit;
+
+
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
 import dev.plex.command.ServerCommandContext;
@@ -63,7 +66,7 @@ public class PlexCMD extends ServerCommand
             sender.sendMessage(PlexUtils.mmDeserialize("<light_purple>Authors: <gold>Telesphoreo, Taahh"));
             sender.sendMessage(PlexUtils.mmDeserialize("<light_purple>Built by: <gold>" + BuildInfo.getAuthor() + " <light_purple>on <gold>" + BuildInfo.getDate()));
             sender.sendMessage(PlexUtils.mmDeserialize("<light_purple>Run <gold>/plex modules <light_purple>to see a list of modules."));
-            plugin.getApi().scheduler().runAsync(() -> plugin.getUpdateChecker().getUpdateStatusMessage(sender, true, 2));
+            plugin.getUpdateChecker().getUpdateStatusMessageAsync(sender, true, 2);
         return null;
     }
 
@@ -120,7 +123,7 @@ public class PlexCMD extends ServerCommand
     {
         CommandSender sender = context.sender();
         context.checkPermission(sender, "plex.modules.update");
-        plugin.getApi().scheduler().runAsync(() ->
+        java.util.concurrent.CompletableFuture.runAsync(() ->
         {
             int updated = 0;
             int skipped = 0;
@@ -137,25 +140,23 @@ public class PlexCMD extends ServerCommand
             int updatedCount = updated;
             int skippedCount = skipped;
             int failedCount = failed;
-            plugin.getApi().scheduler().runGlobal(() ->
+            plugin.getModuleManager().reloadModules().whenComplete((ignored, failure) ->
             {
-                plugin.getModuleManager().reloadModules().whenComplete((ignored, failure) ->
+                if (failure != null)
                 {
-                    if (failure != null)
-                    {
-                        PlexLog.error("Failed to reload updated modules", failure);
-                    }
-                    sender.sendMessage(PlexUtils.messageComponent("moduleUpdateSummary", updatedCount, skippedCount, failedCount));
-                });
+                    PlexLog.error("Failed to reload updated modules", failure);
+                }
+                sender.sendMessage(PlexUtils.messageComponent("moduleUpdateSummary", updatedCount, skippedCount, failedCount));
             });
-        });
+        }, plugin.getIoExecutor());
         return null;
     }
 
     private Component installModule(ServerCommandContext context, String moduleName)
     {
         context.checkPermission(context.sender(), "plex.modules.install");
-        plugin.getApi().scheduler().runAsync(() -> plugin.getUpdateChecker().installModuleJar(context.sender(), moduleName));
+        java.util.concurrent.CompletableFuture.runAsync(
+                () -> plugin.getUpdateChecker().installModuleJar(context.sender(), moduleName), plugin.getIoExecutor());
         return PlexUtils.mmDeserialize("<green>Installing module <yellow>" + moduleName + "<green>...");
     }
 
@@ -188,7 +189,7 @@ public class PlexCMD extends ServerCommand
     {
         CommandSender sender = context.sender();
         context.checkPermission(sender, "plex.update");
-        plugin.getApi().scheduler().runAsync(() ->
+        java.util.concurrent.CompletableFuture.runAsync(() ->
         {
             UpdateChecker.UpdateCheckResult result = plugin.getUpdateChecker().checkForUpdates(false);
             if (result.status() == UpdateChecker.UpdateCheckStatus.UPDATE_AVAILABLE)
@@ -203,7 +204,7 @@ public class PlexCMD extends ServerCommand
             {
                 plugin.getUpdateChecker().sendResultMessage(sender, result, 2);
             }
-        });
+        }, plugin.getIoExecutor());
         return null;
     }
 

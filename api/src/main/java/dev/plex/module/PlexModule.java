@@ -1,9 +1,10 @@
 package dev.plex.module;
 
+import net.kyori.adventure.text.minimessage.MiniMessage;
+
 import dev.plex.api.PlexApi;
 import dev.plex.api.config.ModuleConfiguration;
-import dev.plex.api.listener.EventRule;
-import dev.plex.api.scheduler.TaskScope;
+import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import dev.plex.command.PlexCommand;
 
 import java.io.File;
@@ -20,14 +21,15 @@ import java.util.concurrent.CompletableFuture;
 import net.kyori.adventure.text.Component;
 import org.apache.logging.log4j.Logger;
 import org.bukkit.event.Listener;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * Base class for Plex modules.
  *
- * <p>Use {@link #api()} for Plex services. Use {@link #scheduler()} for module
- * tasks.</p>
+ * <p>Use {@link #api()} for Plex services. Register native Paper tasks with
+ * {@link #ownTask(ScheduledTask)} so Plex can cancel them when the module unloads.</p>
  */
 public abstract class PlexModule
 {
@@ -85,15 +87,16 @@ public abstract class PlexModule
         requireLifecycle().registerListener(listener);
     }
 
-    /**
-     * Returns this module's task scheduler.
-     * Plex cancels its tasks when it unloads the module.
-     *
-     * @return module task scheduler
-     */
-    public TaskScope scheduler()
+    /** Returns the Paper plugin that owns this module's native scheduled tasks. */
+    public Plugin plugin()
     {
-        return requireLifecycle().scheduler();
+        return requireLifecycle().plugin();
+    }
+
+    /** Registers a native Paper task for cancellation when this module unloads. */
+    public <T extends ScheduledTask> @Nullable T ownTask(@Nullable T task)
+    {
+        return requireLifecycle().ownTask(task);
     }
 
     /**
@@ -112,28 +115,6 @@ public abstract class PlexModule
     public void completeShutdownBeforeClose(CompletableFuture<Void> completion)
     {
         requireLifecycle().completeShutdownBeforeClose(completion);
-    }
-
-    /**
-     * Registers and tracks event rules owned by a listener.
-     *
-     * @param listener listener that owns the registrations
-     * @param rules event rules to register
-     */
-    public void registerListener(Listener listener, EventRule<?>... rules)
-    {
-        requireLifecycle().registerListener(listener, rules);
-    }
-
-    /**
-     * Registers event rules and tracks their listener owner.
-     *
-     * @param rules event rules to register
-     * @return listener that owns the registrations
-     */
-    public Listener registerEventRules(EventRule<?>... rules)
-    {
-        return requireLifecycle().registerEventRules(rules);
     }
 
     /**

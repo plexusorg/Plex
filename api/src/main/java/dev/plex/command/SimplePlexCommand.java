@@ -8,7 +8,6 @@ import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import dev.plex.api.PlexApi;
-import dev.plex.api.scheduler.SchedulerApi;
 import dev.plex.command.exception.CommandFailException;
 import dev.plex.command.exception.ConsoleMustDefinePlayerException;
 import dev.plex.command.exception.ConsoleOnlyException;
@@ -30,6 +29,8 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
+import org.bukkit.plugin.Plugin;
+import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -143,15 +144,17 @@ public abstract class SimplePlexCommand implements PlexCommand
         return api;
     }
 
-    /**
-     * Returns the task scheduler for this command.
-     * Plex tracks tasks from module commands with their module.
-     *
-     * @return command task scheduler
-     */
-    protected SchedulerApi scheduler()
+    /** Returns the Paper plugin that owns native tasks scheduled by this command. */
+    protected Plugin taskOwner()
     {
-        return module == null ? api().scheduler() : module.scheduler();
+        if (module == null) throw new IllegalStateException("Core commands use their Plex plugin instance directly");
+        return module.plugin();
+    }
+
+    /** Registers a native Paper task with this command's module lifetime. */
+    protected <T extends ScheduledTask> @Nullable T ownTask(@Nullable T task)
+    {
+        return module == null ? task : module.ownTask(task);
     }
 
     /**

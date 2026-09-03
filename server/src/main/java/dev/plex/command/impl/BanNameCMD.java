@@ -1,5 +1,7 @@
 package dev.plex.command.impl;
 
+import org.bukkit.Bukkit;
+
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
 import dev.plex.command.ServerCommandContext;
@@ -9,7 +11,6 @@ import dev.plex.util.PlexUtils;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
 import org.apache.commons.lang3.StringUtils;
-import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 
 public class BanNameCMD extends ServerCommand
@@ -55,8 +56,8 @@ public class BanNameCMD extends ServerCommand
                 .filter(player -> player.getName().equalsIgnoreCase(username))
                 .map(player -> Bukkit.getPlayer(player.getUuid()))
                 .filter(java.util.Objects::nonNull)
-                .forEach(player -> plugin.getApi().scheduler().runEntity(player,
-                        () -> BungeeUtil.kickPlayer(plugin, player, kickMessage)));
+                .forEach(player -> player.getScheduler().run(plugin,
+                        task -> BungeeUtil.kickPlayer(plugin, player, kickMessage), null));
         return null;
     }
 }

@@ -184,6 +184,42 @@ Identify the current execution context and accessed state. Schedule only the sma
 Verify uncertainty against the resolved Paper/Folia source or current official documentation. Keep
 `folia-supported: true` honest.
 
+Use Paper's schedulers directly; Plex must not mirror them in its API. The scheduler is selected by the state being
+accessed, not by a general desire to be "thread safe":
+
+Authoritative references: [Paper Folia support](https://docs.papermc.io/paper/dev/folia-support/),
+[EntityScheduler](https://jd.papermc.io/paper/io/papermc/paper/threadedregions/scheduler/EntityScheduler.html),
+[RegionScheduler](https://jd.papermc.io/paper/io/papermc/paper/threadedregions/scheduler/RegionScheduler.html),
+[GlobalRegionScheduler](https://jd.papermc.io/paper/io/papermc/paper/threadedregions/scheduler/GlobalRegionScheduler.html),
+and [AsyncScheduler](https://jd.papermc.io/paper/io/papermc/paper/threadedregions/scheduler/AsyncScheduler.html).
+
+```java
+// Entity-owned mutation from another region or an async callback.
+player.getScheduler().run(plugin, task -> player.getInventory().clear(), retiredCallback);
+
+// Block/chunk-owned work.
+Bukkit.getRegionScheduler().run(plugin, location, task -> location.getBlock().setType(material));
+
+// Truly global Bukkit state, such as world-list or game-rule orchestration.
+Bukkit.getGlobalRegionScheduler().run(plugin, task -> reloadGlobalState());
+
+// Blocking work which touches no Bukkit state belongs to that component's executor.
+CompletableFuture.supplyAsync(repository::load, repositoryExecutor);
+```
+
+Paper's entity scheduler follows a moving entity and runs on its owning region. Supply a retired callback when the
+caller needs completion or cleanup if the entity disappears; also handle a `null` task result. Region scheduling owns
+the supplied location or chunk, not arbitrary entities in that region. The global-region scheduler owns only global
+state and is not a substitute for the old main thread. The async scheduler grants no Bukkit ownership and must not be
+used as Plex's general I/O executor. A component that owns database, network, filesystem, or other blocking work also
+owns (or is passed) the executor for that work. Paper's async scheduler remains appropriate for a Paper-owned delayed
+or repeating timer that does not access region state; its callback should hand blocking work to the component owner.
+
+Modules call the same native Paper APIs with `module.plugin()` as the task owner and pass every retained or delayed task
+to `module.ownTask(...)` so module unload cancels it. `ownTask` is lifecycle resource registration, not a scheduling
+facade. Do not schedule a message, permission check, immutable transformation, configuration read, logging call, or
+already-owned operation merely so the module can call `ownTask`.
+
 ### Example: cross-player game mode
 
 A self game-mode change is direct. For another player, schedule only the target-owned mutation. Messaging itself remains
@@ -201,9 +237,11 @@ Design public capabilities from stable behavior modules need, not current server
 set of semantics. A public interface does not require a pass-through implementation; a public view that freezes or
 redacts internal state is a real boundary. Do not create mirror DTOs or overloads without demonstrated consumers.
 
-`PlexModule.scheduler()` exists for real ownership crossings, delayed/async work, and module task lifetime. It is not the
-default path for ordinary operations. Build every affected sibling module against the local Plex checkout after an API
-change.
+Removing a Paper mirror means removing a public subsystem facade that shadows Paper's own model, such as a scheduler or
+listener-registration API. It does not mean deleting focused Plex conveniences that add product semantics, such as
+configured MiniMessage rendering, recipient policy, or domain-specific broadcast behavior.
+
+Build every affected sibling module against the local Plex checkout after an API change.
 
 Blocking database/network work must not run on a player or region thread. Put the async boundary at the component that
 owns the blocking operation; do not offer competing sync/async versions for callers to choose incorrectly. Future

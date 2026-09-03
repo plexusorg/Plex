@@ -2,7 +2,7 @@ package dev.plex.listener.impl;
 
 import dev.plex.Plex;
 import dev.plex.abuse.AbuseTracker;
-import dev.plex.api.listener.EventRule;
+import dev.plex.listener.EventRule;
 import dev.plex.listener.ServerListenerBase;
 import dev.plex.util.PlexUtils;
 import io.papermc.paper.event.player.AsyncChatEvent;
@@ -23,7 +23,7 @@ public class AntiSpamListener extends ServerListenerBase
     public AntiSpamListener(Plex plugin)
     {
         super(plugin);
-        plugin.getApi().listeners().register(this,
+        registerRules(
                 EventRule.of(AsyncChatEvent.class, EventPriority.NORMAL, event -> checkForSpam(event.getPlayer(), event)),
                 EventRule.of(PlayerCommandPreprocessEvent.class, EventPriority.HIGHEST, event -> checkForSpam(event.getPlayer(), event)));
     }

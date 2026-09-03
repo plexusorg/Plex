@@ -2,7 +2,7 @@ package dev.plex.listener.impl;
 
 import dev.plex.Plex;
 import dev.plex.abuse.AbuseTracker;
-import dev.plex.api.listener.EventRule;
+import dev.plex.listener.EventRule;
 import dev.plex.listener.ServerListenerBase;
 import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.Punishment;
@@ -29,7 +29,7 @@ public class AntiNukerListener extends ServerListenerBase
     public AntiNukerListener(Plex plugin)
     {
         super(plugin);
-        plugin.getApi().listeners().register(this,
+        registerRules(
                 EventRule.of(BlockPlaceEvent.class, EventPriority.HIGH, event -> checkForNuker(event.getPlayer(), event)),
                 EventRule.of(BlockBreakEvent.class, EventPriority.HIGH, event -> checkForNuker(event.getPlayer(), event)));
     }

@@ -1,5 +1,7 @@
 package dev.plex.world;
 
+import org.bukkit.Bukkit;
+
 import dev.plex.Plex;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import java.util.Locale;
@@ -9,7 +11,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
-import org.bukkit.Bukkit;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -44,7 +45,7 @@ public final class WorldSpawnSignManager
         {
             return;
         }
-        watchdog = plugin.getApi().scheduler().runGlobalTimer(task -> restoreLoadedWorlds(), 1L, WATCHDOG_PERIOD_TICKS);
+        watchdog = Bukkit.getGlobalRegionScheduler().runAtFixedRate(plugin, task -> restoreLoadedWorlds(), 1L, WATCHDOG_PERIOD_TICKS);
     }
 
     public void stop()
@@ -89,11 +90,11 @@ public final class WorldSpawnSignManager
         {
             return;
         }
-        plugin.getApi().scheduler().runRegionLater(
+        Bukkit.getRegionScheduler().runDelayed(plugin,
                 world,
                 SIGN_X >> 4,
                 SIGN_Z >> 4,
-                () -> restoreNow(world, protectedSign),
+                task -> restoreNow(world, protectedSign),
                 1L);
     }
 
@@ -101,7 +102,7 @@ public final class WorldSpawnSignManager
     {
         String configKey = configKey(world);
         if (configKey == null) return;
-        plugin.getApi().scheduler().executeRegion(
+        Bukkit.getRegionScheduler().execute(plugin,
                 world,
                 SIGN_X >> 4,
                 SIGN_Z >> 4,

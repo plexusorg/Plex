@@ -1,7 +1,11 @@
 package dev.plex.listener.impl;
 
+import net.kyori.adventure.text.minimessage.MiniMessage;
+
+import org.bukkit.Bukkit;
+
 import dev.plex.Plex;
-import dev.plex.api.listener.EventRule;
+import dev.plex.listener.EventRule;
 import dev.plex.listener.ServerListenerBase;
 import io.papermc.paper.event.block.PlayerShearBlockEvent;
 import io.papermc.paper.event.entity.EntityCompostItemEvent;
@@ -17,8 +21,6 @@ import io.papermc.paper.event.player.PlayerToggleEntityAgeLockEvent;
 import java.util.Locale;
 import java.util.Set;
 import java.util.function.Function;
-import net.kyori.adventure.text.minimessage.MiniMessage;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.Command;
@@ -142,7 +144,7 @@ public class WorldListener extends ServerListenerBase
             rule(InventoryClickEvent.class, InventoryClickEvent::getWhoClicked, event -> inventoryWorld(event.getView())),
             rule(InventoryDragEvent.class, InventoryDragEvent::getWhoClicked, event -> inventoryWorld(event.getView())),
         };
-        plugin.getApi().listeners().register(this, rules);
+        registerRules(rules);
     }
 
     private void registerEntryEvents()
@@ -155,7 +157,7 @@ public class WorldListener extends ServerListenerBase
             EventRule.of(PlayerChangedWorldEvent.class, EventPriority.HIGHEST, event -> enforceEntry(event.getPlayer(), event.getFrom())),
             EventRule.of(PlayerRespawnEvent.class, EventPriority.HIGHEST, this::onPlayerRespawn),
         };
-        plugin.getApi().listeners().register(this, rules);
+        registerRules(rules);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

@@ -1,5 +1,7 @@
 package dev.plex.command.impl;
 
+import org.bukkit.Bukkit;
+
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
@@ -12,7 +14,6 @@ import dev.plex.player.PlexPlayer;
 
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -42,7 +43,7 @@ public class PunishmentsCMD extends ServerCommand
     {
         CommandSender sender = context.sender();
         Player playerSender = context.player();
-        PunishmentDialog dialog = new PunishmentDialog(plugin.getPlayerService(), plugin.getApi().scheduler());
+        PunishmentDialog dialog = new PunishmentDialog(plugin, plugin.getPlayerService());
         if (playerName == null)
         {
             dialog.open(playerSender);
@@ -51,12 +52,9 @@ public class PunishmentsCMD extends ServerCommand
         {
             plugin.getPlayerService().findPlayer(playerName).whenComplete((player, failure) ->
             {
-                plugin.getApi().scheduler().runEntity(playerSender, () ->
-                {
-                    if (failure != null) playerSender.sendMessage(Component.text("Unable to load the player's punishments."));
-                    else if (player == null) playerSender.sendMessage(dev.plex.util.PlexUtils.messageComponent("playerNotFound"));
-                    else dialog.open(playerSender, player);
-                });
+                if (failure != null) playerSender.sendMessage(Component.text("Unable to load the player's punishments."));
+                else if (player == null) playerSender.sendMessage(dev.plex.util.PlexUtils.messageComponent("playerNotFound"));
+                else dialog.open(playerSender, player);
             });
         }
 

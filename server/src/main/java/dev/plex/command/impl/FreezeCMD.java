@@ -1,5 +1,7 @@
 package dev.plex.command.impl;
 
+import org.bukkit.Bukkit;
+
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
 import dev.plex.command.ServerCommandContext;
@@ -7,6 +9,7 @@ import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.Punishment;
 import dev.plex.api.punishment.PunishmentType;
 import dev.plex.util.PlexUtils;
+import dev.plex.util.BanKickUtil;
 import dev.plex.util.TimeUtils;
 import dev.plex.util.PlexLog;
 
@@ -52,10 +55,13 @@ public class FreezeCMD extends ServerCommand
         ZonedDateTime date = ZonedDateTime.now(TimeUtils.zoneId());
         punishment.setEndDate(date.plusSeconds(plugin.config.getInt("punishments.freeze-timer", 300)));
         punishment.setType(PunishmentType.FREEZE);
-        punishment.setIp(player.getAddress().getAddress().getHostAddress().trim());
         punishment.setReason("");
 
-        plugin.getPunishmentManager().punish(punishedPlayer, punishment).whenComplete((unused, failure) ->
+        BanKickUtil.currentOrLastIp(plugin, punishedPlayer).thenCompose(ip ->
+        {
+            punishment.setIp(ip);
+            return plugin.getPunishmentManager().punish(punishedPlayer, punishment);
+        }).whenComplete((unused, failure) ->
         {
             if (failure != null)
             {

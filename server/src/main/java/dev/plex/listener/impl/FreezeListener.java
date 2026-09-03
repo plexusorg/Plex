@@ -2,7 +2,7 @@ package dev.plex.listener.impl;
 
 import dev.plex.Plex;
 
-import dev.plex.api.listener.EventRule;
+import dev.plex.listener.EventRule;
 import dev.plex.listener.ServerListenerBase;
 import dev.plex.player.PlexPlayer;
 import java.util.UUID;
@@ -15,7 +15,7 @@ public class FreezeListener extends ServerListenerBase
     public FreezeListener(Plex plugin)
     {
         super(plugin);
-        plugin.getApi().listeners().register(this,
+        registerRules(
                 EventRule.blocking(PlayerMoveEvent.class, EventPriority.NORMAL, event -> isFrozen(event.getPlayer().getUniqueId())),
                 EventRule.blocking(PlayerTeleportEvent.class, EventPriority.NORMAL, event -> isFrozen(event.getPlayer().getUniqueId())));
     }

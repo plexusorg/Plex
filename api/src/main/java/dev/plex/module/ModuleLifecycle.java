@@ -1,20 +1,23 @@
 package dev.plex.module;
 
 import dev.plex.api.PlexApi;
-import dev.plex.api.listener.EventRule;
-import dev.plex.api.scheduler.TaskScope;
+import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import dev.plex.command.PlexCommand;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.event.Listener;
 
 interface ModuleLifecycle
 {
     PlexApi api();
 
-    TaskScope scheduler();
+    Plugin plugin();
+
+    <T extends ScheduledTask> @org.jetbrains.annotations.Nullable T ownTask(
+            @org.jetbrains.annotations.Nullable T task);
 
     void kickPlayerOnShutdown(Player player, Component reason);
 
@@ -27,10 +30,6 @@ interface ModuleLifecycle
     List<PlexCommand> commands();
 
     void registerListener(Listener listener);
-
-    void registerListener(Listener listener, EventRule<?>... rules);
-
-    Listener registerEventRules(EventRule<?>... rules);
 
     void unregisterListener(Listener listener);
 

@@ -1,7 +1,8 @@
 package dev.plex.util;
 
-import dev.plex.Plex;
 import org.bukkit.Bukkit;
+
+import dev.plex.Plex;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
@@ -24,7 +25,7 @@ public final class EntityRemovalUtil
     public static CompletableFuture<Map<String, Integer>> removeLoaded(Plex plugin, Predicate<Entity> selected)
     {
         CompletableFuture<Map<String, Integer>> completion = new CompletableFuture<>();
-        plugin.getApi().scheduler().runGlobal(() ->
+        Bukkit.getGlobalRegionScheduler().run(plugin, task ->
         {
             List<Chunk> chunks = new ArrayList<>();
             for (World world : Bukkit.getWorlds())
@@ -41,7 +42,7 @@ public final class EntityRemovalUtil
             AtomicInteger remaining = new AtomicInteger(chunks.size());
             for (Chunk chunk : chunks)
             {
-                plugin.getApi().scheduler().runRegion(chunk.getWorld(), chunk.getX(), chunk.getZ(), () ->
+                Bukkit.getRegionScheduler().run(plugin, chunk.getWorld(), chunk.getX(), chunk.getZ(), regionTask ->
                 {
                     for (Entity entity : chunk.getEntities())
                     {

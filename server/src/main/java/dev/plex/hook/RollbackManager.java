@@ -1,5 +1,8 @@
 package dev.plex.hook;
 
+import org.bukkit.Bukkit;
+
+
 import dev.plex.Plex;
 import dev.plex.api.rollback.RollbackApi;
 import java.util.Collections;
@@ -32,7 +35,7 @@ public class RollbackManager implements RollbackApi
         if (plugin.getPrismHook() != null && plugin.getPrismHook().hasPrism())
         {
             CompletableFuture<Integer> result = new CompletableFuture<>();
-            plugin.getApi().scheduler().runGlobal(() ->
+            Bukkit.getGlobalRegionScheduler().run(plugin, task ->
             {
                 try
                 {
@@ -53,7 +56,7 @@ public class RollbackManager implements RollbackApi
         {
             return CompletableFuture.supplyAsync(() -> plugin.getCoreProtectHook().coreProtectAPI()
                     .performRollback(seconds, Collections.singletonList(playerName), null, null, null, null, 0, null).size(),
-                    plugin.getApi().scheduler().asyncExecutor());
+                    plugin.getIoExecutor());
         }
 
         return CompletableFuture.failedFuture(new IllegalStateException("No rollback integration is available"));

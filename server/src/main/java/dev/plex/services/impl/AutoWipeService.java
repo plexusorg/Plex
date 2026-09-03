@@ -1,5 +1,7 @@
 package dev.plex.services.impl;
 
+import org.bukkit.Bukkit;
+
 import dev.plex.Plex;
 import dev.plex.util.PlexLog;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
@@ -9,7 +11,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
@@ -47,13 +48,13 @@ public class AutoWipeService implements Listener
         {
             for (Chunk chunk : world.getLoadedChunks())
             {
-                plugin.getApi().scheduler().executeRegion(world, chunk.getX(), chunk.getZ(), () ->
+                Bukkit.getRegionScheduler().execute(plugin, world, chunk.getX(), chunk.getZ(), () ->
                 {
                     if (chunk.isLoaded()) index(chunk);
                 });
             }
         }
-        task = plugin.getApi().scheduler().runGlobalTimer(this::run, 1L, 20L * repeatInSeconds());
+        task = Bukkit.getGlobalRegionScheduler().runAtFixedRate(plugin, this::run, 1L, 20L * repeatInSeconds());
     }
 
     public synchronized void stop()

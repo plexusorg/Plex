@@ -1,7 +1,7 @@
 package dev.plex.listener.impl;
 
 import dev.plex.Plex;
-import dev.plex.api.listener.EventRule;
+import dev.plex.listener.EventRule;
 import dev.plex.listener.ServerListenerBase;
 import dev.plex.world.WorldSpawnSignManager;
 import java.util.List;
@@ -67,7 +67,7 @@ public final class WorldSpawnSignListener extends ServerListenerBase
             blockStateRule(SpongeAbsorbEvent.class, SpongeAbsorbEvent::getBlocks, event -> event.getBlock().getWorld()),
             blockStateRule(PortalCreateEvent.class, PortalCreateEvent::getBlocks, PortalCreateEvent::getWorld),
         };
-        plugin.getApi().listeners().register(this, rules);
+        registerRules(rules);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)

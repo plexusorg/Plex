@@ -1,5 +1,7 @@
 package dev.plex.util;
 
+import org.bukkit.Bukkit;
+
 import dev.plex.Plex;
 import dev.plex.module.PlexModule;
 import dev.plex.module.PlexModuleFile;
@@ -22,9 +24,9 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HexFormat;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
@@ -203,11 +205,16 @@ public class UpdateChecker
         return result.status() == UpdateCheckStatus.UPDATE_AVAILABLE;
     }
 
+    public CompletableFuture<Boolean> getUpdateStatusMessageAsync(CommandSender sender, boolean cached, int verbosity)
+    {
+        return CompletableFuture.supplyAsync(() -> getUpdateStatusMessage(sender, cached, verbosity), plugin.getIoExecutor());
+    }
+
     public void updateJar(CommandSender sender, ArtifactMetadata metadata, Runnable onSuccess)
     {
         File copyTo = new File(Bukkit.getUpdateFolderFile(), metadata.fileName());
         sender.sendMessage(PlexUtils.messageComponent("updateDownloading", metadata.fileName()));
-        plugin.getApi().scheduler().runAsync(() -> downloadAndInstall(sender, metadata, copyTo, onSuccess));
+        downloadAndInstall(sender, metadata, copyTo, onSuccess);
     }
 
     public void installModuleJar(CommandSender sender, String name)
@@ -263,7 +270,7 @@ public class UpdateChecker
             File copyTo = new File(plugin.getModulesFolder(), metadata.fileName());
 
             sender.sendMessage(PlexUtils.messageComponent("updateDownloading", metadata.fileName()));
-            plugin.getApi().scheduler().runAsync(() -> downloadAndInstall(sender, metadata, copyTo, onSuccess));
+            downloadAndInstall(sender, metadata, copyTo, onSuccess);
         }
         catch (UpdateMetadataClient.MetadataException e)
         {

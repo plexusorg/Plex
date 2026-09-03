@@ -1,5 +1,7 @@
 package dev.plex.command.impl;
 
+import org.bukkit.Bukkit;
+
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
 import dev.plex.command.ServerCommandContext;
@@ -14,7 +16,6 @@ import java.util.concurrent.CompletableFuture;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -69,7 +70,7 @@ public class ListCMD extends ServerCommand
     private CompletableFuture<ListedPlayer> capture(Player player)
     {
         CompletableFuture<ListedPlayer> result = new CompletableFuture<>();
-        boolean scheduled = plugin.getApi().scheduler().executeEntity(player, () ->
+        boolean scheduled = player.getScheduler().execute(plugin, () ->
         {
             var cachedPlayer = plugin.getPlayerService().cachedPlayer(player.getUniqueId());
             if (cachedPlayer == null)

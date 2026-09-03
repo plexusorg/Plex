@@ -1,4 +1,4 @@
-package dev.plex.api.listener;
+package dev.plex.listener;
 
 import java.util.Objects;
 import java.util.function.Consumer;

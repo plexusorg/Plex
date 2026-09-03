@@ -1,5 +1,7 @@
 package dev.plex.punishment;
 
+import org.bukkit.Bukkit;
+
 import dev.plex.Plex;
 import dev.plex.api.punishment.PunishmentType;
 import dev.plex.player.PlexPlayer;
@@ -9,7 +11,6 @@ import dev.plex.util.PlexUtils;
 import dev.plex.util.TimeUtils;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import lombok.Getter;
-import org.bukkit.Bukkit;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
@@ -109,7 +110,7 @@ public class PunishmentManager
 
     public CompletableFuture<Optional<Punishment>> decideAdmission(UUID uuid, @Nullable String ip)
     {
-        return CompletableFuture.supplyAsync(() -> hasBanBypass(uuid), plugin.getApi().scheduler().asyncExecutor())
+        return CompletableFuture.supplyAsync(() -> hasBanBypass(uuid), plugin.getIoExecutor())
                 .thenCompose(hasBypass -> hasBypass
                         ? CompletableFuture.completedFuture(Optional.empty())
                         : banDecisionService.decide(uuid, ip));
@@ -368,7 +369,7 @@ public class PunishmentManager
         if (deadline == null) return;
 
         long ticks = Math.max(1L, ChronoUnit.MILLIS.between(now, deadline) / 50L);
-        ScheduledTask replacement = plugin.getApi().scheduler().runGlobalLater(task ->
+        ScheduledTask replacement = Bukkit.getGlobalRegionScheduler().runDelayed(plugin, task ->
         {
             if (timedTasks.remove(key, task)) expireRows(player, type, ZonedDateTime.now(TimeUtils.zoneId()), true);
         }, ticks);

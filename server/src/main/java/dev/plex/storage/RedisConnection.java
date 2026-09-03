@@ -3,6 +3,8 @@ package dev.plex.storage;
 import dev.plex.Plex;
 import dev.plex.util.PlexLog;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -13,6 +15,8 @@ public final class RedisConnection implements AutoCloseable
 {
     private final Plex plugin;
     private final boolean enabled;
+    private final ExecutorService executor = Executors.newThreadPerTaskExecutor(
+            Thread.ofVirtual().name("Plex-Redis-", 0).factory());
     private volatile boolean closed;
     private RedisSubscriber subscriber;
 
@@ -38,12 +42,16 @@ public final class RedisConnection implements AutoCloseable
         }
     }
 
+    public <T> CompletableFuture<T> queryAsync(Function<Jedis, T> action)
+    {
+        return CompletableFuture.supplyAsync(() -> query(action), executor);
+    }
+
     public CompletableFuture<Long> publishAsync(String channel, String message)
     {
         try
         {
-            return CompletableFuture.supplyAsync(() -> query(jedis -> jedis.publish(channel, message)),
-                    plugin.getApi().scheduler().asyncExecutor());
+            return queryAsync(jedis -> jedis.publish(channel, message));
         }
         catch (RuntimeException ex)
         {
@@ -81,6 +89,7 @@ public final class RedisConnection implements AutoCloseable
     {
         if (closed) return;
         closed = true;
+        executor.shutdownNow();
         if (subscriber != null)
         {
             subscriber.close();

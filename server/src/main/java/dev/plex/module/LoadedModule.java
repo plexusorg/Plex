@@ -1,8 +1,7 @@
 package dev.plex.module;
 
 import dev.plex.api.PlexApi;
-import dev.plex.api.listener.EventRule;
-import dev.plex.api.scheduler.TaskScope;
+import dev.plex.Plex;
 import dev.plex.command.PlexCommand;
 import dev.plex.util.PlexLog;
 import java.io.File;
@@ -15,15 +14,21 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
+import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
+import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.Nullable;
 
 final class LoadedModule implements ModuleLifecycle
 {
     private final PlexModule module;
     private final PlexApi api;
-    private final TaskScope scheduler;
+    private final Set<ScheduledTask> tasks = ConcurrentHashMap.newKeySet();
+    private volatile boolean acceptingTasks = true;
     private final PlexModuleFile descriptor;
     private final File jar;
     private final File dataFolder;
@@ -37,7 +42,6 @@ final class LoadedModule implements ModuleLifecycle
     {
         this.module = module;
         this.api = api;
-        this.scheduler = api.scheduler().taskScope();
         this.descriptor = descriptor;
         this.jar = jar;
         this.dataFolder = dataFolder;
@@ -72,15 +76,38 @@ final class LoadedModule implements ModuleLifecycle
     }
 
     @Override
-    public TaskScope scheduler()
+    public Plugin plugin()
     {
-        return scheduler;
+        return Plex.get();
+    }
+
+    @Override
+    public <T extends ScheduledTask> @Nullable T ownTask(@Nullable T task)
+    {
+        if (task == null) return null;
+        if (!acceptingTasks)
+        {
+            task.cancel();
+            throw new IllegalStateException("Module is unloading");
+        }
+        tasks.removeIf(LoadedModule::finished);
+        tasks.add(task);
+        if (!acceptingTasks && tasks.remove(task)) task.cancel();
+        return task;
+    }
+
+    private static boolean finished(ScheduledTask task)
+    {
+        ScheduledTask.ExecutionState state = task.getExecutionState();
+        return state == ScheduledTask.ExecutionState.FINISHED
+                || state == ScheduledTask.ExecutionState.CANCELLED
+                || state == ScheduledTask.ExecutionState.CANCELLED_RUNNING;
     }
 
     @Override
     public void kickPlayerOnShutdown(Player player, Component reason)
     {
-        api.scheduler().executeEntity(player, () -> player.kick(reason), () -> { }, 0L);
+        player.getScheduler().execute(Plex.get(), () -> player.kick(reason), null, 0L);
     }
 
     @Override
@@ -148,7 +175,7 @@ final class LoadedModule implements ModuleLifecycle
         }
         try
         {
-            api.listeners().register(listener);
+            Plex.get().getServer().getPluginManager().registerEvents(listener, Plex.get());
         }
         catch (RuntimeException | LinkageError failure)
         {
@@ -158,46 +185,11 @@ final class LoadedModule implements ModuleLifecycle
     }
 
     @Override
-    public void registerListener(Listener listener, EventRule<?>... rules)
-    {
-        Objects.requireNonNull(rules, "rules");
-        for (EventRule<?> rule : rules)
-        {
-            Objects.requireNonNull(rule, "rule");
-        }
-        registerListener(listener);
-        try
-        {
-            api.listeners().register(listener, rules);
-        }
-        catch (RuntimeException | LinkageError failure)
-        {
-            try
-            {
-                unregisterListener(listener);
-            }
-            catch (RuntimeException | LinkageError cleanupFailure)
-            {
-                failure.addSuppressed(cleanupFailure);
-            }
-            throw failure;
-        }
-    }
-
-    @Override
-    public Listener registerEventRules(EventRule<?>... rules)
-    {
-        Listener listener = api.listeners().register(rules);
-        listeners.add(listener);
-        return listener;
-    }
-
-    @Override
     public void unregisterListener(Listener listener)
     {
         Objects.requireNonNull(listener, "listener");
         listeners.remove(listener);
-        api.listeners().unregister(listener);
+        HandlerList.unregisterAll(listener);
     }
 
     @Override
@@ -232,7 +224,9 @@ final class LoadedModule implements ModuleLifecycle
         }
         try
         {
-            scheduler.cancelAll();
+            acceptingTasks = false;
+            tasks.forEach(ScheduledTask::cancel);
+            tasks.clear();
         }
         catch (RuntimeException | LinkageError failure)
         {

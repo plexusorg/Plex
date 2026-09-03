@@ -1,9 +1,9 @@
 package dev.plex.menu.dialog;
 
+import dev.plex.Plex;
 import dev.plex.player.PlayerService;
 import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.Punishment;
-import dev.plex.api.scheduler.SchedulerApi;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.TimeUtils;
 import io.papermc.paper.dialog.Dialog;
@@ -33,12 +33,12 @@ public class PunishmentDialog
             .build();
 
     private final PlayerService playerService;
-    private final SchedulerApi scheduler;
+    private final Plex plugin;
 
-    public PunishmentDialog(PlayerService playerService, SchedulerApi scheduler)
+    public PunishmentDialog(Plex plugin, PlayerService playerService)
     {
+        this.plugin = plugin;
         this.playerService = playerService;
-        this.scheduler = scheduler;
     }
 
     public void open(Player player)
@@ -54,7 +54,7 @@ public class PunishmentDialog
                 .distinct()
                 .collect(Collectors.toMap(Function.identity(), playerService::findName));
         CompletableFuture.allOf(names.values().toArray(CompletableFuture[]::new)).whenComplete((unused, failure) ->
-                scheduler.runEntity(viewer, () ->
+                viewer.getScheduler().run(plugin, task ->
                 {
                     if (failure != null)
                     {
@@ -62,7 +62,7 @@ public class PunishmentDialog
                         return;
                     }
                     viewer.showDialog(playerPunishmentsDialog(punishedPlayer, names));
-                }));
+                }, null));
     }
 
     private Dialog playerListDialog()
@@ -142,7 +142,7 @@ public class PunishmentDialog
         }
 
         playerService.findPlayer(selectedPlayer).whenComplete((punishedPlayer, failure) ->
-                scheduler.runEntity(viewer, () ->
+                viewer.getScheduler().run(plugin, task ->
                 {
                     if (failure != null)
                     {
@@ -156,7 +156,7 @@ public class PunishmentDialog
                     {
                         open(viewer, punishedPlayer);
                     }
-                }));
+                }, null));
     }
 
     private Component punishmentSummary(Punishment punishment, Map<UUID, CompletableFuture<String>> names)

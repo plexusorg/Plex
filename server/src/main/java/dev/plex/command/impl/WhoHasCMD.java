@@ -1,5 +1,7 @@
 package dev.plex.command.impl;
 
+import org.bukkit.Bukkit;
+
 import dev.plex.util.PlexUtils;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
@@ -14,7 +16,6 @@ import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
 import net.kyori.adventure.text.TextComponent;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -77,7 +78,7 @@ public class WhoHasCMD extends ServerCommand
     private CompletableFuture<TextComponent> capture(Player player, Material material, boolean clearInventory)
     {
         CompletableFuture<TextComponent> result = new CompletableFuture<>();
-        boolean scheduled = plugin.getApi().scheduler().executeEntity(player, () ->
+        boolean scheduled = player.getScheduler().execute(plugin, () ->
         {
             if (!player.getInventory().contains(material))
             {

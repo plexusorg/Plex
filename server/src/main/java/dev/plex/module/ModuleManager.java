@@ -1,5 +1,8 @@
 package dev.plex.module;
 
+import org.bukkit.Bukkit;
+
+
 import com.google.common.collect.Lists;
 import dev.plex.Plex;
 import dev.plex.api.module.ModulesApi;
@@ -333,7 +336,7 @@ public class ModuleManager implements ModulesApi
                                     deleteRecursively(target.dataFolder());
                                 }
                                 return deleted ? UninstallResult.REMOVED : UninstallResult.FAILED;
-                            }, plugin.getApi().scheduler().asyncExecutor())
+                            }, plugin.getIoExecutor())
                             .thenCompose(result -> reloadAfterLifecycleOperation().thenApply(ignored -> result));
                 }));
     }
@@ -396,7 +399,7 @@ public class ModuleManager implements ModulesApi
     private CompletableFuture<Void> onGlobal(Runnable action)
     {
         CompletableFuture<Void> completion = new CompletableFuture<>();
-        plugin.getApi().scheduler().executeGlobal(() ->
+        Bukkit.getGlobalRegionScheduler().execute(plugin, () ->
         {
             try
             {
@@ -414,7 +417,7 @@ public class ModuleManager implements ModulesApi
     private <T> CompletableFuture<T> onGlobalResult(Supplier<T> action)
     {
         CompletableFuture<T> completion = new CompletableFuture<>();
-        plugin.getApi().scheduler().executeGlobal(() ->
+        Bukkit.getGlobalRegionScheduler().execute(plugin, () ->
         {
             try
             {

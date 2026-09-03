@@ -1,5 +1,8 @@
 package dev.plex.punishment;
 
+import org.bukkit.Bukkit;
+
+
 import com.destroystokyo.paper.event.player.PlayerConnectionCloseEvent;
 import dev.plex.Plex;
 import dev.plex.punishment.admission.BanDecisionService;
@@ -130,7 +133,7 @@ final class FiniteBanEnforcement
 
         if (plan.rejectIncoming())
         {
-            plugin.getApi().scheduler().runEntity(player, () -> player.kick(Component.translatable("multiplayer.disconnect.server_full")));
+            player.getScheduler().run(plugin, task -> player.kick(Component.translatable("multiplayer.disconnect.server_full")), null);
             return;
         }
 
@@ -186,7 +189,7 @@ final class FiniteBanEnforcement
 
     void trackReloadedPlayer(Player player, String ip)
     {
-        plugin.getApi().scheduler().runEntity(player, () ->
+        player.getScheduler().run(plugin, task ->
         {
             OnlinePlayer online;
             synchronized (this)
@@ -194,7 +197,7 @@ final class FiniteBanEnforcement
                 online = onlinePlayers.get(player.getUniqueId());
             }
             if (player.isOnline() && online != null) refresh(online);
-        });
+        }, null);
     }
 
     synchronized void trackOnlineCapacity(Player player, String ip)
@@ -401,7 +404,7 @@ final class FiniteBanEnforcement
                 completion.complete(null);
                 return;
             }
-            ScheduledTask retry = plugin.getApi().scheduler().runGlobalLater(
+            ScheduledTask retry = Bukkit.getGlobalRegionScheduler().runDelayed(plugin,
                     ignored -> refreshUntilResolved(online, completion), 20L);
             if (retry == null) completion.completeExceptionally(failure);
         });
@@ -449,7 +452,7 @@ final class FiniteBanEnforcement
                 completion.complete(null);
                 return;
             }
-            ScheduledTask retry = plugin.getApi().scheduler().runGlobalLater(
+            ScheduledTask retry = Bukkit.getGlobalRegionScheduler().runDelayed(plugin,
                     ignored -> refreshPendingUntilResolved(player, completion), 20L);
             if (retry == null) completion.completeExceptionally(failure);
         });
@@ -461,7 +464,7 @@ final class FiniteBanEnforcement
                 BossBar.Color.RED, BossBar.Overlay.PROGRESS);
         OnlineRestriction replacement = new OnlineRestriction(punishment, bar);
         CompletableFuture<Void> completion = new CompletableFuture<>();
-        ScheduledTask task = plugin.getApi().scheduler().runEntity(player, ignored ->
+        ScheduledTask task = player.getScheduler().run(plugin, ignored ->
         {
             ActivationPlan plan = installRestriction(player, replacement, expectedVersion);
             if (plan == null)
@@ -516,7 +519,7 @@ final class FiniteBanEnforcement
         if (removed == null) return CompletableFuture.completedFuture(null);
         if (removed.expiryTask != null) removed.expiryTask.cancel();
         CompletableFuture<Void> completion = new CompletableFuture<>();
-        ScheduledTask task = plugin.getApi().scheduler().runEntity(player, ignored ->
+        ScheduledTask task = player.getScheduler().run(plugin, ignored ->
         {
             synchronized (this)
             {
@@ -537,7 +540,7 @@ final class FiniteBanEnforcement
 
     private void restorePreviousGameMode(Player player)
     {
-        plugin.getApi().scheduler().runEntity(player, () -> restorePreviousGameModeNow(player));
+        player.getScheduler().run(plugin, task -> restorePreviousGameModeNow(player), null);
     }
 
     private static void hidePreviousBossBars(Player player, @Nullable OnlineRestriction restriction)
@@ -574,7 +577,7 @@ final class FiniteBanEnforcement
         if (endDate == null) return;
         long millis = Math.max(1L, Duration.between(ZonedDateTime.now(endDate.getZone()), endDate).toMillis());
         long ticks = Math.max(1L, millis / 50L);
-        ScheduledTask task = plugin.getApi().scheduler().runGlobalLater(ignored -> refreshById(uuid, ip, restriction), ticks);
+        ScheduledTask task = Bukkit.getGlobalRegionScheduler().runDelayed(plugin, ignored -> refreshById(uuid, ip, restriction), ticks);
         synchronized (this)
         {
             if (restrictions.get(uuid) == restriction) restriction.expiryTask = task;
@@ -628,7 +631,7 @@ final class FiniteBanEnforcement
 
     private void evict(Player player, @Nullable Player fallback)
     {
-        plugin.getApi().scheduler().runEntity(player, () ->
+        player.getScheduler().run(plugin, task ->
         {
             if (canEvict(player.getUniqueId()))
             {
@@ -650,11 +653,11 @@ final class FiniteBanEnforcement
                 }
                 else
                 {
-                    plugin.getApi().scheduler().runEntity(fallback, () ->
-                            fallback.kick(Component.translatable("multiplayer.disconnect.server_full")));
+                    fallback.getScheduler().run(plugin, ignored ->
+                            fallback.kick(Component.translatable("multiplayer.disconnect.server_full")), null);
                 }
             }
-        });
+        }, null);
     }
 
     private synchronized boolean canEvict(UUID uuid)

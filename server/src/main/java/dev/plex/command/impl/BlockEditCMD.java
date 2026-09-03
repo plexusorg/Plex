@@ -1,5 +1,7 @@
 package dev.plex.command.impl;
 
+import org.bukkit.Bukkit;
+
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
 import dev.plex.command.ServerCommandContext;
@@ -8,12 +10,10 @@ import dev.plex.util.PlexUtils;
 
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
 
 public class BlockEditCMD extends ServerCommand
 {
@@ -67,42 +67,32 @@ public class BlockEditCMD extends ServerCommand
     private Component blockAll(ServerCommandContext context)
     {
         PlexUtils.broadcast(PlexUtils.messageComponent("blockingEdits", context.senderName(), PlexUtils.messageString("blockeditAllNonAdmins")));
-        var captures = plugin.getPlayerService().cachedPlayers().stream()
+        long count = plugin.getPlayerService().cachedPlayers().stream()
                 .map(player -> Bukkit.getPlayer(player.getUuid()))
                 .filter(Objects::nonNull)
-                .map(player -> blockIfAllowed(context, player))
-                .toList();
-        CompletableFuture.allOf(captures.toArray(CompletableFuture[]::new)).thenRun(() ->
-        {
-            long count = captures.stream().filter(CompletableFuture::join).count();
-            context.sender().sendMessage(PlexUtils.messageComponent("blockeditSize",
-                    PlexUtils.messageString("blockeditBlockedAction"), count));
-        });
+                .filter(player -> blockIfAllowed(context, player))
+                .count();
+        context.sender().sendMessage(PlexUtils.messageComponent("blockeditSize",
+                PlexUtils.messageString("blockeditBlockedAction"), count));
         return null;
     }
 
-    private CompletableFuture<Boolean> blockIfAllowed(ServerCommandContext context, Player player)
+    private boolean blockIfAllowed(ServerCommandContext context, Player player)
     {
-        CompletableFuture<Boolean> result = new CompletableFuture<>();
-        boolean scheduled = plugin.getApi().scheduler().executeEntity(player, () ->
-        {
-            boolean blocked = !context.silentCheckPermission(player, "plex.blockedit");
-            if (blocked) BlockListener.blockedPlayers.add(player.getName());
-            result.complete(blocked);
-        }, () -> result.complete(false), 0L);
-        if (!scheduled) result.complete(false);
-        return result;
+        boolean blocked = !context.silentCheckPermission(player, "plex.blockedit");
+        if (blocked) BlockListener.blockedPlayers.add(player.getName());
+        return blocked;
     }
 
     private Component togglePlayer(ServerCommandContext context, String playerName)
     {
         CommandSender sender = context.sender();
         final Player player = getNonNullPlayer(playerName);
-        plugin.getApi().scheduler().runEntity(player, () -> togglePlayerOwned(context, sender, player));
+        togglePlayer(context, sender, player);
         return null;
     }
 
-    private void togglePlayerOwned(ServerCommandContext context, CommandSender sender, Player player)
+    private void togglePlayer(ServerCommandContext context, CommandSender sender, Player player)
     {
         if (!BlockListener.blockedPlayers.contains(player.getName()))
         {

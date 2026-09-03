@@ -1,16 +1,22 @@
 package dev.plex.services.impl;
 
+import org.bukkit.Bukkit;
+
 import dev.plex.Plex;
 import dev.plex.util.PlexLog;
 import dev.plex.util.UpdateChecker;
-import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import org.bukkit.Bukkit;
 
 public class UpdateCheckerService
 {
     private final Plex plugin;
-    private volatile ScheduledTask task;
+    private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor(
+            Thread.ofPlatform().daemon().name("Plex-Update-Checker").factory());
+    private volatile ScheduledFuture<?> task;
+    private int generation;
 
     public UpdateCheckerService(Plex plugin)
     {
@@ -25,20 +31,21 @@ public class UpdateCheckerService
             return;
         }
         plugin.getUpdateChecker().clearCache();
-        task = Bukkit.getAsyncScheduler().runAtFixedRate(
-                plugin, this::run, 1, repeatInSeconds(), TimeUnit.SECONDS);
+        int activeGeneration = ++generation;
+        task = executor.scheduleWithFixedDelay(
+                () -> check(activeGeneration), 1, repeatInSeconds(), TimeUnit.SECONDS);
     }
 
-    public void run(ScheduledTask task)
+    private void check(int activeGeneration)
     {
-        if (this.task != task)
+        if (generation != activeGeneration)
         {
             return;
         }
         try
         {
             UpdateChecker.UpdateCheckResult result = plugin.getUpdateChecker().checkForUpdates(false);
-            if (this.task != task)
+            if (generation != activeGeneration)
             {
                 return;
             }
@@ -49,9 +56,9 @@ public class UpdateCheckerService
             {
                 synchronized (this)
                 {
-                    if (this.task == task)
+                    if (generation == activeGeneration && task != null)
                     {
-                        task.cancel();
+                        task.cancel(false);
                         this.task = null;
                     }
                 }
@@ -68,9 +75,16 @@ public class UpdateCheckerService
     {
         if (task != null)
         {
-            task.cancel();
+            task.cancel(false);
             task = null;
         }
+        generation++;
+    }
+
+    public synchronized void close()
+    {
+        stop();
+        executor.shutdownNow();
     }
 
     public boolean isRunning()

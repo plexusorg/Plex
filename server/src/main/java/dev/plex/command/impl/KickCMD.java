@@ -1,5 +1,7 @@
 package dev.plex.command.impl;
 
+import org.bukkit.Bukkit;
+
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
@@ -18,7 +20,6 @@ import java.time.ZonedDateTime;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
 import org.apache.commons.lang3.StringUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -49,7 +50,7 @@ public class KickCMD extends ServerCommand
     {
         String reason = suppliedReason == null ? PlexUtils.messageString("noReasonProvided") : suppliedReason;
         Player player = getNonNullPlayer(playerName);
-        plugin.getApi().scheduler().runEntity(player, () -> kick(context, player, reason));
+        player.getScheduler().run(plugin, task -> kick(context, player, reason), null);
         return null;
     }
 
@@ -76,7 +77,7 @@ public class KickCMD extends ServerCommand
                 return;
             }
             PlexUtils.broadcast(PlexUtils.messageComponent("kickedPlayer", context.senderName(), plexPlayer.getName()));
-            plugin.getApi().scheduler().runEntity(player, () -> BungeeUtil.kickPlayer(plugin, player, Punishment.generateKickMessage(punishment)));
+            player.getScheduler().run(plugin, task -> BungeeUtil.kickPlayer(plugin, player, Punishment.generateKickMessage(punishment)), null);
         });
     }
 

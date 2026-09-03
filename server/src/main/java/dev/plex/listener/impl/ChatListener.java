@@ -1,5 +1,7 @@
 package dev.plex.listener.impl;
 
+import org.bukkit.Bukkit;
+
 import dev.plex.Plex;
 import dev.plex.api.event.StaffChatMessageEvent;
 import dev.plex.hook.VaultHook;
@@ -69,14 +71,8 @@ public class ChatListener extends ServerListenerBase
                 MessageUtil.sendStaffChat(plugin, event.getPlayer(), message, PlexUtils.adminChat(event.getPlayer().getName(), prefix, SafeMiniMessage.mmSerialize(message)).toArray(UUID[]::new));
                 plugin.getServer().getConsoleSender().sendMessage(PlexUtils.messageComponent("adminChatFormat", event.getPlayer().getName(), prefix, SafeMiniMessage.mmSerialize(message.replaceText(URL_REPLACEMENT_CONFIG))));
             };
-            if (event.isAsynchronous())
-            {
-                plugin.getApi().scheduler().runGlobal(broadcast);
-            }
-            else
-            {
-                broadcast.run();
-            }
+            if (event.isAsynchronous()) Bukkit.getGlobalRegionScheduler().run(plugin, task -> broadcast.run());
+            else broadcast.run();
             return;
         }
         Component prefix = PlayerMeta.getPrefix(plexPlayer);

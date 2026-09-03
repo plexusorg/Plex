@@ -1,5 +1,7 @@
 package dev.plex.command.impl;
 
+import org.bukkit.Bukkit;
+
 import dev.plex.util.PlexUtils;
 import dev.plex.command.PlexCommand;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -14,7 +16,6 @@ import java.util.Arrays;
 
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -57,10 +58,21 @@ public class DebugCMD extends ServerCommand
         {
             throw new CommandFailException("&cRedis is not enabled.");
         }
-        plugin.getRedisConnection().execute(jedis -> jedis.set("test", "123"));
-        context.sender().sendMessage("Set test to 123. Now outputting key test...");
-        String value = plugin.getRedisConnection().query(jedis -> jedis.get("test"));
-        context.sender().sendMessage(value);
+        plugin.getRedisConnection().queryAsync(jedis ->
+        {
+            jedis.set("test", "123");
+            return jedis.get("test");
+        }).whenComplete((value, failure) ->
+        {
+            if (failure != null)
+            {
+                PlexLog.error("Redis debug command failed", failure);
+                context.sender().sendMessage(Component.text("Redis operation failed; check the server logs."));
+                return;
+            }
+            context.sender().sendMessage("Set test to 123. Now outputting key test...");
+            context.sender().sendMessage(value);
+        });
         return null;
     }
 
@@ -68,12 +80,28 @@ public class DebugCMD extends ServerCommand
     {
         Player player = getNonNullPlayer(playerName);
         String key = player.getUniqueId().toString();
-        if (!plugin.getRedisConnection().query(jedis -> jedis.exists(key)))
+        String name = player.getName();
+        plugin.getRedisConnection().queryAsync(jedis ->
         {
-            return PlexUtils.messageComponent("redisResetPlayerNotFound");
-        }
-        plugin.getRedisConnection().execute(jedis -> jedis.del(key));
-        return PlexUtils.messageComponent("redisResetSuccessful", player.getName());
+            if (!jedis.exists(key))
+            {
+                return false;
+            }
+            jedis.del(key);
+            return true;
+        }).whenComplete((removed, failure) ->
+        {
+            if (failure != null)
+            {
+                PlexLog.error("Redis reset failed for " + key, failure);
+                context.sender().sendMessage(Component.text("Redis operation failed; check the server logs."));
+                return;
+            }
+            context.sender().sendMessage(removed
+                    ? PlexUtils.messageComponent("redisResetSuccessful", name)
+                    : PlexUtils.messageComponent("redisResetPlayerNotFound"));
+        });
+        return null;
     }
 
     private Component gamerules(ServerCommandContext context)

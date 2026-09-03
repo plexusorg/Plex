@@ -1,5 +1,7 @@
 package dev.plex.command.impl;
 
+import org.bukkit.Bukkit;
+
 import dev.plex.util.PlexUtils;
 import com.google.common.collect.Lists;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -14,8 +16,8 @@ import java.util.regex.Pattern;
 
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
 import org.bukkit.World;
+import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -47,7 +49,7 @@ public class WorldCMD extends ServerCommand
                     UUID playerId = player.getUniqueId();
                     boolean canViewPlayerWorlds = player.hasPermission("plex.world.playerworlds");
                     CompletableFuture<com.mojang.brigadier.suggestion.Suggestions> suggestions = new CompletableFuture<>();
-                    plugin.getApi().scheduler().runGlobal(() ->
+                    Bukkit.getGlobalRegionScheduler().run(plugin, task ->
                     {
                         List<String> completions = Lists.newArrayList();
                         for (World world : Bukkit.getWorlds())
@@ -81,7 +83,7 @@ public class WorldCMD extends ServerCommand
         Player playerSender = context.player();
         assert playerSender != null;
         boolean canVisitPlayerWorlds = playerSender.hasPermission("plex.world.playerworlds");
-        plugin.getApi().scheduler().runGlobal(() ->
+        Bukkit.getGlobalRegionScheduler().run(plugin, task ->
         {
             World world = Bukkit.getWorld(worldName);
             if (world == null)
@@ -97,12 +99,12 @@ public class WorldCMD extends ServerCommand
                 sender.sendMessage(PlexUtils.messageComponent("noPermissionNode", "plex.world.playerworlds"));
                 return;
             }
-            org.bukkit.Location spawn = world.getSpawnLocation().clone();
-            plugin.getApi().scheduler().runEntity(playerSender, () ->
+            Location spawn = world.getSpawnLocation().clone();
+            playerSender.getScheduler().run(plugin, entityTask ->
             {
                 playerSender.teleportAsync(spawn);
                 playerSender.sendMessage(PlexUtils.messageComponent("playerWorldTeleport", world.getName()));
-            });
+            }, null);
         });
         return null;
     }

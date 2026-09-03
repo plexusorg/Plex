@@ -1,5 +1,7 @@
 package dev.plex.command.impl;
 
+import org.bukkit.Bukkit;
+
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
 import dev.plex.command.ServerCommandContext;
@@ -8,6 +10,7 @@ import dev.plex.punishment.Punishment;
 import dev.plex.api.punishment.PunishmentType;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
+import dev.plex.util.BanKickUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -68,10 +71,13 @@ public class SmiteCMD extends ServerCommand
 
         Punishment punishment = new Punishment(plexPlayer.getUuid(), context.getUUID(sender));
         punishment.setType(PunishmentType.SMITE);
-        punishment.setIp(player.getAddress().getAddress().getHostAddress().trim());
         String finalReason = options.reason() != null ? options.reason() : PlexUtils.messageString("noReasonProvided");
         punishment.setReason(finalReason);
-        plugin.getPunishmentManager().punish(plexPlayer, punishment).whenComplete((unused, failure) ->
+        BanKickUtil.currentOrLastIp(plugin, plexPlayer).thenCompose(ip ->
+        {
+            punishment.setIp(ip);
+            return plugin.getPunishmentManager().punish(plexPlayer, punishment);
+        }).whenComplete((unused, failure) ->
         {
             if (failure != null)
             {
@@ -87,8 +93,8 @@ public class SmiteCMD extends ServerCommand
             {
                 sender.sendMessage(PlexUtils.messageComponent("smittenQuietly", player.getName()));
             }
-            plugin.getApi().scheduler().runEntity(player,
-                    () -> applySmite(context, player, finalReason, options.clearInventory()));
+            player.getScheduler().run(plugin,
+                    task -> applySmite(context, player, finalReason, options.clearInventory()), null);
         });
         return null;
     }

@@ -1,5 +1,7 @@
 package dev.plex.util.redis;
 
+import org.bukkit.Bukkit;
+
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import dev.plex.Plex;
@@ -11,7 +13,6 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
@@ -122,7 +123,7 @@ public final class MessageUtil
         Plex current = plugin;
         if (current != null)
         {
-            current.getApi().scheduler().runGlobal(() -> dispatch(current, channel, message));
+            dispatch(current, channel, message);
         }
     }
 
@@ -135,16 +136,20 @@ public final class MessageUtil
             {
                 UUID[] ignore = GSON.fromJson(object.getString("ignore"), new TypeToken<UUID[]>() { }.getType());
                 String sender = object.getString("sender").isEmpty() ? "CONSOLE" : object.getString("sender");
-                PlexUtils.adminChat(sender,
-                        sender.equals("CONSOLE")
-                                ? "<dark_gray>[<dark_purple>Console<dark_gray>]"
-                                : PlexUtils.mmSerialize(VaultHook.getPrefix(UUID.fromString(sender))),
-                        object.getString("message"), ignore);
-                if (!serverAddress.equalsIgnoreCase(object.getString("server")))
+                String prefix = sender.equals("CONSOLE")
+                        ? "<dark_gray>[<dark_purple>Console<dark_gray>]"
+                        : PlexUtils.mmSerialize(VaultHook.getPrefix(UUID.fromString(sender)));
+                String chatMessage = object.getString("message");
+                boolean remote = !serverAddress.equalsIgnoreCase(object.getString("server"));
+                Bukkit.getGlobalRegionScheduler().run(current, task ->
                 {
-                    current.getServer().getConsoleSender().sendMessage(
-                            messageComponent("adminChatFormat", sender, object.getString("message")));
-                }
+                    PlexUtils.adminChat(sender, prefix, chatMessage, ignore);
+                    if (remote)
+                    {
+                        current.getServer().getConsoleSender().sendMessage(
+                                messageComponent("adminChatFormat", sender, chatMessage));
+                    }
+                });
             }
             else if (INVALIDATION_CHANNEL.equals(channel) && invalidationListener != null)
             {

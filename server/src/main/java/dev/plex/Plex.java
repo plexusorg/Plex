@@ -1,5 +1,9 @@
 package dev.plex;
 
+import io.papermc.paper.ServerBuildInfo;
+
+import org.bukkit.Bukkit;
+
 import dev.plex.api.PlexApi;
 import dev.plex.api.impl.DefaultPlexApi;
 import dev.plex.command.PlexCommand;
@@ -46,13 +50,14 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.ExecutorService;
 
 import lombok.Getter;
 import lombok.Setter;
+import net.kyori.adventure.key.Key;
 import net.milkbowl.vault.chat.Chat;
 import net.milkbowl.vault.permission.Permission;
 import org.bstats.bukkit.Metrics;
-import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -76,6 +81,8 @@ public class Plex extends JavaPlugin
     private StorageType storageType = StorageType.SQLITE;
     private Database database;
     private ThreadPoolExecutor databaseExecutor;
+    private final ExecutorService ioExecutor = java.util.concurrent.Executors.newThreadPerTaskExecutor(
+            Thread.ofVirtual().name("Plex-IO-", 0).factory());
     private RedisConnection redisConnection;
 
     private PlayerModuleDataRepository playerModuleDataRepository;
@@ -312,7 +319,7 @@ public class Plex extends JavaPlugin
 
         if (serviceManager != null)
         {
-            serviceManager.endServices();
+            serviceManager.shutdownServices();
         }
 
         try
@@ -348,6 +355,8 @@ public class Plex extends JavaPlugin
         {
             redisConnection.close();
         }
+
+        ioExecutor.shutdownNow();
 
         if (databaseExecutor != null)
         {
@@ -459,14 +468,14 @@ public class Plex extends JavaPlugin
                     PlexLog.warn("Unable to reload player {0}: {1}", playerId, failure.getMessage());
                     return;
                 }
-                api.scheduler().runEntity(player, () ->
+                player.getScheduler().run(this, task ->
                 {
                     if (player.isOnline() && playerService.attachReloadedSession(playerId, expected, plexPlayer))
                     {
                         punishmentManager.restoreTimedState(plexPlayer);
                         punishmentManager.trackReloadedPlayer(player, ip);
                     }
-                });
+                }, null);
             });
         });
     }
