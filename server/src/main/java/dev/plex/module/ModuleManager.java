@@ -294,6 +294,7 @@ public class ModuleManager implements ModulesApi
     {
         discoverModules();
         loadModules();
+        publishSnapshot();
         enableModules();
         if (plugin.getCommandHandler() != null && plugin.getCommandHandler().requiresLifecycleReload())
         {
