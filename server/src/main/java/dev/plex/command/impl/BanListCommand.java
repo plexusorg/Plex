@@ -4,7 +4,7 @@ import dev.plex.util.PlexUtils;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
 import dev.plex.command.ServerCommandContext;
-import dev.plex.command.source.RequiredCommandSource;
+import dev.plex.command.exception.ConsoleOnlyException;
 import dev.plex.punishment.Punishment;
 
 import io.papermc.paper.command.brigadier.CommandSourceStack;
@@ -23,7 +23,6 @@ public class BanListCommand extends ServerCommand
             .description("Manages the banlist")
             .usage("/<command> [purge]")
             .permission("plex.banlist")
-            .source(RequiredCommandSource.CONSOLE)
             .build());
     }
     @Override
@@ -57,6 +56,7 @@ public class BanListCommand extends ServerCommand
 
     private Component clear(ServerCommandContext context)
     {
+        if (!context.isConsole()) throw new ConsoleOnlyException();
         CommandSender sender = context.sender();
         plugin.getPunishmentManager().getActiveBans().whenComplete((punishments, throwable) ->
         {
