@@ -109,11 +109,10 @@ public class PunishmentManager
 
     public CompletableFuture<Optional<Punishment>> decideAdmission(UUID uuid, @Nullable String ip)
     {
-        if (hasBanBypass(uuid))
-        {
-            return CompletableFuture.completedFuture(Optional.empty());
-        }
-        return banDecisionService.decide(uuid, ip);
+        return CompletableFuture.supplyAsync(() -> hasBanBypass(uuid), plugin.getApi().scheduler().asyncExecutor())
+                .thenCompose(hasBypass -> hasBypass
+                        ? CompletableFuture.completedFuture(Optional.empty())
+                        : banDecisionService.decide(uuid, ip));
     }
 
     public synchronized void invalidateBanDecisions(UUID uuid, @Nullable String ip)

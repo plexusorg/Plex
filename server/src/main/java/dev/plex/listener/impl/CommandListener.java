@@ -28,14 +28,11 @@ public class CommandListener extends ServerListenerBase
             if (!plexPlayer.isCommandSpy() || plexPlayer.getUuid().equals(sender.getUniqueId())) return;
             Player recipient = Bukkit.getPlayer(plexPlayer.getUuid());
             if (recipient == null) return;
-            plugin.getApi().scheduler().runEntity(recipient, () ->
+            if (recipient.hasPermission("plex.commandspy"))
             {
-                if (recipient.hasPermission("plex.commandspy"))
-                {
-                    recipient.sendMessage(PlexUtils.messageComponent("commandSpyFormat",
-                            Component.text(senderName), Component.text(command)));
-                }
-            });
+                recipient.sendMessage(PlexUtils.messageComponent("commandSpyFormat",
+                        Component.text(senderName), Component.text(command)));
+            }
         });
     }
 }
