@@ -61,6 +61,13 @@ database name lookup using different case rules—report the conflict and ask wh
 Before changing a public API, search Plex, all sibling modules, and known external consumers. Plex 2.0 is unreleased;
 delete obsolete unreleased behavior instead of adding compatibility shims.
 
+When a public or protected API signature exposes a dependency type, verify the dependency is present on a real
+external consumer's compile classpath. An internal Plex build or Gradle composite build is insufficient because another
+project may supply the dependency independently and mask broken publication metadata. Use `api` rather than
+`implementation`, or `compileOnlyApi` rather than `compileOnly`, as appropriate for the exposed type. Generate and
+inspect the published POM/module metadata, run API Javadocs, and compile a clean external consumer before reporting the
+API change as verified.
+
 `apiCompatibility` remains `1` throughout unreleased Plex 2.0 development. Breaking an in-development module API and
 updating every sibling module does not justify incrementing it; change the compatibility number only for an actual
 released API generation.

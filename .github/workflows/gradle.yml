@@ -21,6 +21,8 @@ jobs:
           distribution: 'temurin'
       - name: Checkstyle
         run: ./gradlew checkstyleMain checkstyleTest --stacktrace
+      - name: Verify API publication
+        run: ./gradlew :api:generatePomFileForMavenPublication :api:javadoc --stacktrace
       - name: Build
         run: |
           git config --global user.email "no-reply@github.com"
