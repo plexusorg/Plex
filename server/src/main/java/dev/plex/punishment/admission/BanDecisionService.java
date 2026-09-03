@@ -13,11 +13,15 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicLong;
 
 public final class BanDecisionService
 {
     private final PunishmentRepository repository;
     private final Cache<Key, CompletableFuture<Optional<Punishment>>> cache;
+    private static final int REVISION_STRIPES = 256;
+    private final AtomicLong[] uuidRevisions = revisions();
+    private final AtomicLong[] ipRevisions = revisions();
 
     public BanDecisionService(PunishmentRepository repository, Duration ttl, int maximumSize)
     {
@@ -31,14 +35,21 @@ public final class BanDecisionService
     public CompletableFuture<Optional<Punishment>> decide(UUID uuid, String ip)
     {
         Key key = new Key(uuid, canonicalIp(ip));
+        Revision observedRevision = revision(uuid, key.ip());
         try
         {
             CompletableFuture<Optional<Punishment>> future = cache.get(key, () -> load(key));
             return future.thenCompose(result ->
             {
-                boolean expired = result.isPresent() && result.get().getEndDate() != null
-                        && !result.get().getEndDate().toInstant().isAfter(Instant.now());
-                if (!expired)
+                if (!revision(key.uuid(), key.ip()).equals(observedRevision))
+                {
+                    cache.asMap().remove(key, future);
+                    return decide(key.uuid(), key.ip());
+                }
+                boolean stale = result.isPresent() && (!result.get().isActive()
+                        || result.get().getEndDate() != null
+                        && !result.get().getEndDate().toInstant().isAfter(Instant.now()));
+                if (!stale)
                 {
                     return CompletableFuture.completedFuture(result);
                 }
@@ -69,8 +80,27 @@ public final class BanDecisionService
     public void invalidate(UUID uuid, String ip)
     {
         String canonicalIp = ip == null ? null : canonicalIp(ip);
+        uuidRevisions[stripe(uuid)].incrementAndGet();
+        if (canonicalIp != null) ipRevisions[stripe(canonicalIp)].incrementAndGet();
         cache.asMap().keySet().removeIf(key -> key.uuid().equals(uuid)
                 || canonicalIp != null && key.ip().equals(canonicalIp));
+    }
+
+    public Revision revision(UUID uuid, String ip)
+    {
+        return new Revision(uuidRevisions[stripe(uuid)].get(), ipRevisions[stripe(canonicalIp(ip))].get());
+    }
+
+    private static AtomicLong[] revisions()
+    {
+        AtomicLong[] revisions = new AtomicLong[REVISION_STRIPES];
+        java.util.Arrays.setAll(revisions, ignored -> new AtomicLong());
+        return revisions;
+    }
+
+    private static int stripe(Object value)
+    {
+        return (value.hashCode() & Integer.MAX_VALUE) % REVISION_STRIPES;
     }
 
     public static String canonicalIp(String ip)
@@ -85,4 +115,6 @@ public final class BanDecisionService
     }
 
     private record Key(UUID uuid, String ip) { }
+
+    public record Revision(long uuid, long ip) { }
 }

@@ -260,7 +260,7 @@ public class Plex extends JavaPlugin
 
         punishmentManager = new PunishmentManager(this);
         MessageUtil.onBanInvalidation(
-                invalidation -> punishmentManager.invalidateBanDecisions(invalidation.playerId(), invalidation.ip()));
+                invalidation -> punishmentManager.handleBanInvalidation(invalidation.playerId(), invalidation.ip()));
         punishmentManager.mergeIndefiniteBans();
         PlexLog.log("Punishment System initialized");
 
@@ -451,6 +451,7 @@ public class Plex extends JavaPlugin
             java.util.UUID playerId = player.getUniqueId();
             dev.plex.player.PlexPlayer expected = playerService.cachedPlayer(playerId);
             String ip = player.getAddress() == null ? "" : player.getAddress().getAddress().getHostAddress();
+            punishmentManager.trackOnlineCapacity(player, ip);
             playerService.reloadSession(playerId, player.getName(), ip).whenComplete((plexPlayer, failure) ->
             {
                 if (failure != null)
@@ -463,6 +464,7 @@ public class Plex extends JavaPlugin
                     if (player.isOnline() && playerService.attachReloadedSession(playerId, expected, plexPlayer))
                     {
                         punishmentManager.restoreTimedState(plexPlayer);
+                        punishmentManager.trackReloadedPlayer(player, ip);
                     }
                 });
             });

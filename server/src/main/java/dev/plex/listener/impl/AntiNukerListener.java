@@ -42,7 +42,7 @@ public class AntiNukerListener extends ServerListenerBase
         {
             event.setCancelled(true);
             CompletableFuture<Void> ban = decision.escalationTriggered() ? issueBan(player) : null;
-            if (decision.thresholdCrossed())
+            if (decision.thresholdCrossed() && !decision.escalationTriggered())
             {
                 player.kick(PlexUtils.messageComponent("nukerKickMessage"));
             }
@@ -53,7 +53,7 @@ public class AntiNukerListener extends ServerListenerBase
                     if (throwable != null)
                     {
                         TRACKER.reset(uuid);
-                        PlexLog.error("Unable to persist automatic nuker tempban for {0}: {1}", uuid, throwable.getMessage());
+                        PlexLog.error("Unable to complete automatic nuker tempban for {0}: {1}", uuid, throwable.getMessage());
                     }
                 });
             }

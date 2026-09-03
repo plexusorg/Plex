@@ -90,7 +90,7 @@ public class BanCMD extends ServerCommand
                 if (failure != null)
                 {
                     PlexLog.error("Unable to ban {0}: {1}", plexPlayer.getName(), failure.getMessage());
-                    sender.sendMessage(Component.text("Unable to persist the ban; no action was taken."));
+                    sender.sendMessage(Component.text("Unable to complete the ban; check the server logs."));
                     return;
                 }
                 PlexUtils.broadcast(PlexUtils.messageComponent("banningPlayer", context.senderName(), plexPlayer.getName()));

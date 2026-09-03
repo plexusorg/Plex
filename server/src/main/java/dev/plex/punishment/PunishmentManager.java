@@ -6,7 +6,6 @@ import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.admission.BanDecisionService;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
-import dev.plex.util.BanKickUtil;
 import dev.plex.util.TimeUtils;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import lombok.Getter;
@@ -29,6 +28,7 @@ public class PunishmentManager
 {
     private final Plex plugin;
     private final BanDecisionService banDecisionService;
+    private final FiniteBanEnforcement finiteBanEnforcement;
     private volatile List<IndefiniteBan> indefiniteBans = List.of();
     private final ConcurrentHashMap<StateKey, ScheduledTask> timedTasks = new ConcurrentHashMap<>();
 
@@ -38,6 +38,7 @@ public class PunishmentManager
         int cacheSize = Math.max(100, plugin.config.getInt("banning.admission-cache-size", 10_000));
         long ttlSeconds = Math.max(1, plugin.config.getLong("banning.admission-cache-seconds", 60));
         this.banDecisionService = new BanDecisionService(plugin.getPunishmentRepository(), Duration.ofSeconds(ttlSeconds), cacheSize);
+        this.finiteBanEnforcement = new FiniteBanEnforcement(plugin, this);
     }
 
     public void mergeIndefiniteBans()
@@ -115,9 +116,81 @@ public class PunishmentManager
         return banDecisionService.decide(uuid, ip);
     }
 
-    public void invalidateBanDecisions(UUID uuid, @Nullable String ip)
+    public synchronized void invalidateBanDecisions(UUID uuid, @Nullable String ip)
     {
         banDecisionService.invalidate(uuid, ip);
+    }
+
+    public void handleBanInvalidation(UUID uuid, @Nullable String ip)
+    {
+        invalidateBanDecisions(uuid, ip);
+        finiteBanEnforcement.refreshMatching(uuid, ip).exceptionally(failure ->
+        {
+            PlexLog.warn("Unable to refresh online ban state for {0}: {1}", uuid, failure.getMessage());
+            return null;
+        });
+    }
+
+    public synchronized long prepareFiniteBanAdmission(UUID uuid, String ip, @Nullable Punishment punishment,
+                                                       BanDecisionService.Revision decisionRevision)
+    {
+        if (!banDecisionService.revision(uuid, ip).equals(decisionRevision)) return -2L;
+        return finiteBanEnforcement.prepareAdmission(uuid, ip, punishment);
+    }
+
+    public BanDecisionService.Revision banDecisionRevision(UUID uuid, String ip)
+    {
+        return banDecisionService.revision(uuid, ip);
+    }
+
+    public void cancelPendingAdmission(UUID uuid, long token)
+    {
+        finiteBanEnforcement.cancelPendingAdmission(uuid, token);
+    }
+
+    public void cancelPendingAdmission(UUID uuid)
+    {
+        finiteBanEnforcement.cancelPendingAdmission(uuid);
+    }
+
+    public void checkAdmissionCapacity(io.papermc.paper.event.player.PlayerServerFullCheckEvent event)
+    {
+        finiteBanEnforcement.checkCapacity(event);
+    }
+
+    public void completeJoin(org.bukkit.entity.Player player)
+    {
+        finiteBanEnforcement.join(player);
+    }
+
+    public void trackReloadedPlayer(org.bukkit.entity.Player player, String ip)
+    {
+        finiteBanEnforcement.trackReloadedPlayer(player, ip);
+    }
+
+    public void trackOnlineCapacity(org.bukkit.entity.Player player, String ip)
+    {
+        finiteBanEnforcement.trackOnlineCapacity(player, ip);
+    }
+
+    public void closePendingAdmission(com.destroystokyo.paper.event.player.PlayerConnectionCloseEvent event)
+    {
+        finiteBanEnforcement.connectionClosed(event);
+    }
+
+    public void completeQuit(UUID uuid)
+    {
+        finiteBanEnforcement.quit(uuid);
+    }
+
+    public boolean isFiniteBanRestricted(UUID uuid)
+    {
+        return finiteBanEnforcement.isRestricted(uuid);
+    }
+
+    public net.kyori.adventure.text.Component finiteBanMessage(UUID uuid)
+    {
+        return finiteBanEnforcement.restrictionMessage(uuid);
     }
 
     public boolean isActiveBan(Punishment punishment)
@@ -159,25 +232,35 @@ public class PunishmentManager
 
     public CompletableFuture<Boolean> unban(UUID uuid)
     {
-        return plugin.getPunishmentRepository().removeBan(uuid).thenApply(removal ->
+        finiteBanEnforcement.beginBanRemoval(uuid);
+        return plugin.getPunishmentRepository().removeBan(uuid).thenCompose(removal ->
         {
-            if (!removal.changed()) return false;
-            PlexPlayer player = plugin.getPlayerService().cachedPlayer(uuid);
-            if (player != null)
+            if (!removal.changed())
             {
-                player.getPunishments().stream()
-                        .filter(p -> p.getType().isBan())
-                        .forEach(p -> p.setActive(false));
+                invalidateBanDecisions(uuid, null);
+                return finiteBanEnforcement.refreshBanOwner(uuid).thenApply(unused -> false);
             }
             invalidateBanDecisions(uuid, null);
-            if (removal.ips().isEmpty()) publishInvalidation(uuid, null);
+            List<CompletableFuture<Void>> refreshes = new java.util.ArrayList<>();
+            refreshes.add(finiteBanEnforcement.refreshMatching(uuid, null));
+            refreshes.add(finiteBanEnforcement.refreshBanOwner(uuid));
             for (String ip : removal.ips())
             {
                 invalidateBanDecisions(uuid, ip);
-                publishInvalidation(uuid, ip);
+                refreshes.add(finiteBanEnforcement.refreshMatching(uuid, ip));
             }
-            return true;
-        });
+            return CompletableFuture.allOf(refreshes.toArray(CompletableFuture[]::new)).thenApply(unused ->
+            {
+                PlexPlayer player = plugin.getPlayerService().cachedPlayer(uuid);
+                if (player != null)
+                {
+                    player.getPunishments().stream().filter(p -> p.getType().isBan()).forEach(p -> p.setActive(false));
+                }
+                if (removal.ips().isEmpty()) publishInvalidation(uuid, null);
+                else removal.ips().forEach(ip -> publishInvalidation(uuid, ip));
+                return true;
+            });
+        }).whenComplete((unused, failure) -> finiteBanEnforcement.finishBanRemoval(uuid));
     }
 
     public CompletableFuture<Void> punish(PlexPlayer player, Punishment punishment)
@@ -202,21 +285,18 @@ public class PunishmentManager
                 return CompletableFuture.failedFuture(new IllegalStateException("Player is already banned"));
             }
             return plugin.getPunishmentRepository().insertPunishment(punishment);
-        }).thenRun(() ->
+        }).thenCompose(unused ->
         {
             player.getPunishments().add(punishment);
             if (punishment.getType().isBan())
             {
                 invalidateBanDecisions(player.getUuid(), punishment.getIp());
-                publishInvalidation(player.getUuid(), punishment.getIp());
-                if (isPunishmentActive(punishment))
-                {
-                    BanKickUtil.kickBannedPlayers(plugin, player.getUuid(), punishment.getIp(),
-                            Punishment.generateBanMessage(punishment, plugin.config.getString("banning.ban_url")));
-                }
+                return finiteBanEnforcement.applyNewBan(player.getUuid(), punishment.getIp()).thenRun(() ->
+                        publishInvalidation(player.getUuid(), punishment.getIp()));
             }
             if (punishment.getType() == PunishmentType.MUTE || punishment.getType() == PunishmentType.FREEZE)
                 restoreTimedState(player, punishment.getType());
+            return CompletableFuture.completedFuture(null);
         });
     }
 

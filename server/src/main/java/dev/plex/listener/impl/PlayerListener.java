@@ -37,6 +37,7 @@ public class PlayerListener extends ServerListenerBase
         catch (CompletionException failure)
         {
             PlexLog.error("Unable to prepare player session for {0}: {1}", event.getUniqueId(), failure.getMessage());
+            plugin.getPunishmentManager().cancelPendingAdmission(event.getUniqueId());
             event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER,
                     Component.text("Unable to load your player data. Please try again shortly."));
         }

@@ -51,7 +51,7 @@ public interface PunishmentsApi
     CompletableFuture<Boolean> isBanned(UUID uuid);
 
     /**
-     * Checks whether a player would be denied admission for a UUID or current IP ban.
+     * Checks whether a player has an active UUID or current IP ban.
      *
      * @param uuid player UUID
      * @param ip current player IP, or {@code null} to check only the UUID

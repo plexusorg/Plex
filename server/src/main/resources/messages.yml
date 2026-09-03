@@ -15,6 +15,15 @@
 # 3 - Punisher
 banMessage: "<red>You have been banned! You may appeal at <gold>{0}.\n<red>Reason: <gold>{1}\n<red>End date: <gold>{2}\n<red>Banned by: <gold>{3}"
 # 0 - Reason
+# 1 - Expiry
+banStatus: "<red>Banned <dark_gray>• <gold>{0} <dark_gray>• <yellow>Expires {1}"
+# 0 - Appeal URL
+# 1 - Reason
+# 2 - Expiry
+# 3 - Punisher
+banCapacityMessage: "<red>You are banned and all spectator slots are occupied. You may appeal at <gold>{0}.\n<red>Reason: <gold>{1}\n<red>End date: <gold>{2}\n<red>Banned by: <gold>{3}"
+bannedPriorityKick: "<red>A regular player needed your spectator slot. Reconnect when space is available."
+# 0 - Reason
 # 1 - Punisher
 kickMessage: "<red>You have been kicked! \n<red>Reason: <gold>{0}\n<red>Kicked by: <gold>{1}"
 # 0 - The type of indefinite ban
@@ -61,17 +70,7 @@ unlockedPlayer: "<aqua>{0} - Unlocking {1}"
 noPermissionNode: "<red>You must have the permission: {0} <red>to use this command!"
 noPermissionInGame: "<red>You must be in console to use this command!"
 noPermissionConsole: "<red>You must be in-game to use this command!"
-# 0 - The gamemode
-gameModeSetTo: "<gray>Your gamemode has been set to {0}."
-# 0 - The player's name
-# 1 - The gamemode
-setOtherPlayerGameModeTo: "<gray>You set {0}'s gamemode to {1}."
-# 0 - The command sender
-# 1 - The gamemode
-playerSetOtherGameMode: "<gray>{0} set your gamemode to {1}."
-# 0 - The command sender
-# 1 - The gamemode
-setEveryoneGameMode: "<aqua>{0} - Changing everyone's gamemode to {1}"
+spectatorTeleportDenied: "<red>You do not have permission to teleport while spectating."
 consoleMustDefinePlayer: "<red>You must define a player since you are running this command from console."
 # 0 - The world name
 teleportedToWorld: "<aqua>You have been teleported to the {0}."

@@ -48,17 +48,15 @@ public class Punishment
         return PlexUtils.messageComponent("banMessage", banUrl, punishment.getReason(), endDate(punishment), punisherDisplayName(punishment));
     }
 
-    public static Component generateAdmissionBanMessage(Punishment punishment, String banUrl)
+    public static Component generateBanStatusMessage(Punishment punishment)
     {
-        String punisher = switch (punishment.getSource())
-        {
-            case PLAYER -> punishment.getResolvedPunisherName() == null || punishment.getResolvedPunisherName().isBlank()
-                    ? "unknown" : punishment.getResolvedPunisherName();
-            case CONSOLE -> "CONSOLE";
-            case WEB -> punishment.getPunisherReference() == null || punishment.getPunisherReference().isBlank()
-                    ? "WEB" : punishment.getPunisherReference();
-        };
-        return PlexUtils.messageComponent("banMessage", banUrl, punishment.getReason(), endDate(punishment), punisher);
+        return PlexUtils.messageComponent("banStatus", punishment.getReason(), endDate(punishment));
+    }
+
+    public static Component generateBanCapacityMessage(Punishment punishment, String banUrl)
+    {
+        return PlexUtils.messageComponent("banCapacityMessage", banUrl, punishment.getReason(), endDate(punishment),
+                punisherDisplayName(punishment));
     }
 
     public static Component generateKickMessage(Punishment punishment)
@@ -72,7 +70,8 @@ public class Punishment
         return switch (source)
         {
             case PLAYER -> punishment.getResolvedPunisherName() == null || punishment.getResolvedPunisherName().isBlank()
-                    ? punishment.getPunisher().toString() : punishment.getResolvedPunisherName();
+                    ? punishment.getPunisher() == null ? "unknown" : punishment.getPunisher().toString()
+                    : punishment.getResolvedPunisherName();
             case CONSOLE -> "CONSOLE";
             case WEB -> punishment.getPunisherReference() == null || punishment.getPunisherReference().isBlank() ? "WEB" : punishment.getPunisherReference();
         };

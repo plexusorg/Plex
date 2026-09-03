@@ -11,6 +11,7 @@ import dev.plex.listener.impl.ChatListener;
 import dev.plex.listener.impl.CommandListener;
 import dev.plex.listener.impl.FreezeListener;
 import dev.plex.listener.impl.GameRuleListener;
+import dev.plex.listener.impl.GameModeListener;
 import dev.plex.listener.impl.MobListener;
 import dev.plex.listener.impl.MuteListener;
 import dev.plex.listener.impl.PlayerListener;
@@ -42,16 +43,17 @@ public class ListenerHandler
     {
         register(() -> new AntiNukerListener(plugin));
         register(() -> new AntiSpamListener(plugin));
-        register(() -> new BanListener(plugin));
         register(() -> new BlockListener(plugin));
         register(() -> new BookListener(plugin));
         registerIfEnabled("chat.enabled", () -> new ChatListener(plugin));
         register(() -> new CommandListener(plugin));
         register(() -> new FreezeListener(plugin));
+        register(() -> new GameModeListener(plugin));
         register(() -> new GameRuleListener(plugin));
         register(() -> new MobListener(plugin));
         register(() -> new MuteListener(plugin));
         register(() -> new PlayerListener(plugin));
+        register(() -> new BanListener(plugin));
         register(() -> new ServerListener(plugin));
         register(() -> new TabListener(plugin));
         register(() -> new TogglesListener(plugin));

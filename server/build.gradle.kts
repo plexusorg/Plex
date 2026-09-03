@@ -1,4 +1,5 @@
 import net.minecrell.pluginyml.paper.PaperPluginDescription
+import net.minecrell.pluginyml.bukkit.BukkitPluginDescription.Permission
 import java.text.SimpleDateFormat
 import java.util.*
 

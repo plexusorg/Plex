@@ -102,7 +102,7 @@ public class TempbanCMD extends ServerCommand
                 if (failure != null)
                 {
                     PlexLog.error("Unable to tempban {0}: {1}", target.getName(), failure.getMessage());
-                    sender.sendMessage(Component.text("Unable to persist the ban; no action was taken."));
+                    sender.sendMessage(Component.text("Unable to complete the tempban; check the server logs."));
                     return;
                 }
                 PlexUtils.broadcast(PlexUtils.messageComponent("banningPlayer", context.senderName(), target.getName()));

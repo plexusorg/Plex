@@ -78,7 +78,7 @@ public enum PunishmentType
         return Optional.ofNullable(maximumDuration);
     }
 
-    /** Whether this punishment denies admission to the server. */
+    /** Whether this is a finite ban punishment. */
     public boolean isBan()
     {
         return this == BAN || this == TEMPBAN;

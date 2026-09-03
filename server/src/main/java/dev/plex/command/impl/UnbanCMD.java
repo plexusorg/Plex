@@ -57,7 +57,7 @@ public class UnbanCMD extends ServerCommand
                     if (failure != null)
                     {
                         PlexLog.error("Unable to unban {0}: {1}", target.getUuid(), failure.getMessage());
-                        sender.sendMessage(Component.text("Unable to persist the unban; no action was taken."));
+                        sender.sendMessage(Component.text("Unable to complete the unban; check the server logs."));
                     }
                     else if (!changed) sender.sendMessage(PlexUtils.messageComponent("playerNotBanned"));
                     else PlexUtils.broadcast(PlexUtils.messageComponent("unbanningPlayer", context.senderName(), target.getName()));
