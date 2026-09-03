@@ -16,6 +16,7 @@ import dev.plex.util.TimeUtils;
 import dev.plex.util.UpdateChecker;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 import io.papermc.paper.command.brigadier.CommandSourceStack;
@@ -123,7 +124,7 @@ public class PlexCMD extends ServerCommand
     {
         CommandSender sender = context.sender();
         context.checkPermission(sender, "plex.modules.update");
-        java.util.concurrent.CompletableFuture.runAsync(() ->
+        CompletableFuture.runAsync(() ->
         {
             int updated = 0;
             int skipped = 0;
@@ -155,7 +156,7 @@ public class PlexCMD extends ServerCommand
     private Component installModule(ServerCommandContext context, String moduleName)
     {
         context.checkPermission(context.sender(), "plex.modules.install");
-        java.util.concurrent.CompletableFuture.runAsync(
+        CompletableFuture.runAsync(
                 () -> plugin.getUpdateChecker().installModuleJar(context.sender(), moduleName), plugin.getIoExecutor());
         return PlexUtils.mmDeserialize("<green>Installing module <yellow>" + moduleName + "<green>...");
     }
@@ -189,7 +190,7 @@ public class PlexCMD extends ServerCommand
     {
         CommandSender sender = context.sender();
         context.checkPermission(sender, "plex.update");
-        java.util.concurrent.CompletableFuture.runAsync(() ->
+        CompletableFuture.runAsync(() ->
         {
             UpdateChecker.UpdateCheckResult result = plugin.getUpdateChecker().checkForUpdates(false);
             if (result.status() == UpdateChecker.UpdateCheckStatus.UPDATE_AVAILABLE)

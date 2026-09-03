@@ -106,21 +106,27 @@ public class DebugCMD extends ServerCommand
 
     private Component gamerules(ServerCommandContext context)
     {
-        for (World world : Bukkit.getWorlds())
+        Runnable apply = () ->
         {
-            GameRuleUtil.commitGlobalGameRules(plugin, world);
-            PlexLog.log("Set global gamerules for world: " + world.getName());
-        }
-        for (String world : plugin.worlds.getConfigurationSection("worlds").getKeys(false))
-        {
-            World bukkitWorld = Bukkit.getWorld(world);
-            if (bukkitWorld != null)
+            for (World world : Bukkit.getWorlds())
             {
-                GameRuleUtil.commitSpecificGameRules(plugin, bukkitWorld);
-                    PlexLog.log("Set specific gamerules for world: " + world);
+                GameRuleUtil.commitGlobalGameRules(plugin, world);
+                PlexLog.log("Set global gamerules for world: " + world.getName());
             }
-        }
-        return PlexUtils.messageComponent("reappliedGamerules");
+            for (String world : plugin.worlds.getConfigurationSection("worlds").getKeys(false))
+            {
+                World bukkitWorld = Bukkit.getWorld(world);
+                if (bukkitWorld != null)
+                {
+                    GameRuleUtil.commitSpecificGameRules(plugin, bukkitWorld);
+                    PlexLog.log("Set specific gamerules for world: " + world);
+                }
+            }
+            context.sender().sendMessage(PlexUtils.messageComponent("reappliedGamerules"));
+        };
+        if (context.player() == null) apply.run();
+        else Bukkit.getGlobalRegionScheduler().run(plugin, task -> apply.run());
+        return null;
     }
 
     private Component aliases(ServerCommandContext context, String commandName)

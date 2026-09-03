@@ -18,6 +18,7 @@ import dev.plex.module.ModuleManager;
 import dev.plex.network.ProxyVanishBridge;
 import dev.plex.note.NotesService;
 import dev.plex.player.PlayerService;
+import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.PunishmentManager;
 import dev.plex.services.ServiceManager;
 import dev.plex.storage.RedisConnection;
@@ -45,12 +46,15 @@ import dev.plex.world.WorldSpawnSignManager;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -81,7 +85,7 @@ public class Plex extends JavaPlugin
     private StorageType storageType = StorageType.SQLITE;
     private Database database;
     private ThreadPoolExecutor databaseExecutor;
-    private final ExecutorService ioExecutor = java.util.concurrent.Executors.newThreadPerTaskExecutor(
+    private final ExecutorService ioExecutor = Executors.newThreadPerTaskExecutor(
             Thread.ofVirtual().name("Plex-IO-", 0).factory());
     private RedisConnection redisConnection;
 
@@ -457,8 +461,8 @@ public class Plex extends JavaPlugin
     {
         Bukkit.getOnlinePlayers().forEach(player ->
         {
-            java.util.UUID playerId = player.getUniqueId();
-            dev.plex.player.PlexPlayer expected = playerService.cachedPlayer(playerId);
+            UUID playerId = player.getUniqueId();
+            PlexPlayer expected = playerService.cachedPlayer(playerId);
             String ip = player.getAddress() == null ? "" : player.getAddress().getAddress().getHostAddress();
             punishmentManager.trackOnlineCapacity(player, ip);
             playerService.reloadSession(playerId, player.getName(), ip).whenComplete((plexPlayer, failure) ->
@@ -500,7 +504,7 @@ public class Plex extends JavaPlugin
         return chat;
     }
 
-    private static java.util.concurrent.ThreadFactory databaseThreads()
+    private static ThreadFactory databaseThreads()
     {
         return Thread.ofPlatform().daemon().name("Plex-Database-", 0).factory();
     }

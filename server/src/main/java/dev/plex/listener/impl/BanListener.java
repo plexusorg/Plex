@@ -4,6 +4,7 @@ import dev.plex.Plex;
 import dev.plex.listener.ServerListenerBase;
 import dev.plex.punishment.Punishment;
 import dev.plex.punishment.PunishmentManager;
+import dev.plex.punishment.admission.BanDecisionService;
 import dev.plex.util.PlexLog;
 import com.destroystokyo.paper.event.player.PlayerConnectionCloseEvent;
 import io.papermc.paper.event.player.PlayerServerFullCheckEvent;
@@ -19,6 +20,8 @@ import io.papermc.paper.event.player.AsyncChatEvent;
 
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.UUID;
+import org.bukkit.entity.Player;
 
 public class BanListener extends ServerListenerBase
 {
@@ -52,7 +55,7 @@ public class BanListener extends ServerListenerBase
         }
 
         Punishment punishment;
-        dev.plex.punishment.admission.BanDecisionService.Revision decisionRevision;
+        BanDecisionService.Revision decisionRevision;
         try
         {
             long token;
@@ -128,7 +131,7 @@ public class BanListener extends ServerListenerBase
         blockInteraction(event.getPlayer().getUniqueId(), event.getPlayer(), event);
     }
 
-    private void blockInteraction(java.util.UUID uuid, org.bukkit.entity.Player player, Cancellable event)
+    private void blockInteraction(UUID uuid, Player player, Cancellable event)
     {
         if (!plugin.getPunishmentManager().isFiniteBanRestricted(uuid)) return;
         event.setCancelled(true);

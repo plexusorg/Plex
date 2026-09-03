@@ -10,6 +10,7 @@ import dev.plex.command.exception.PlayerNotFoundException;
 import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.menu.dialog.PunishmentDialog;
 import dev.plex.player.PlexPlayer;
+import dev.plex.util.PlexUtils;
 
 
 import io.papermc.paper.command.brigadier.CommandSourceStack;
@@ -53,7 +54,7 @@ public class PunishmentsCMD extends ServerCommand
             plugin.getPlayerService().findPlayer(playerName).whenComplete((player, failure) ->
             {
                 if (failure != null) playerSender.sendMessage(Component.text("Unable to load the player's punishments."));
-                else if (player == null) playerSender.sendMessage(dev.plex.util.PlexUtils.messageComponent("playerNotFound"));
+                else if (player == null) playerSender.sendMessage(PlexUtils.messageComponent("playerNotFound"));
                 else dialog.open(playerSender, player);
             });
         }

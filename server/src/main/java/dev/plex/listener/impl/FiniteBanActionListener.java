@@ -3,6 +3,7 @@ package dev.plex.listener.impl;
 import dev.plex.Plex;
 import dev.plex.listener.ServerListenerBase;
 import io.papermc.paper.event.player.PlayerInventorySlotChangeEvent;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.Cancellable;
@@ -156,7 +157,7 @@ public class FiniteBanActionListener extends ServerListenerBase
         return plugin.getPunishmentManager().isFiniteBanRestricted(player.getUniqueId());
     }
 
-    private static Player attackingPlayer(org.bukkit.entity.Entity damager)
+    private static Player attackingPlayer(Entity damager)
     {
         if (damager instanceof Player player) return player;
         if (damager instanceof Projectile projectile && projectile.getShooter() instanceof Player player) return player;

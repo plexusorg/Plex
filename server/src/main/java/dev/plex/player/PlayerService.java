@@ -1,5 +1,6 @@
 package dev.plex.player;
 
+import dev.plex.punishment.admission.BanDecisionService;
 import dev.plex.storage.repository.PlayerRepository;
 
 import java.util.Collection;
@@ -63,7 +64,7 @@ public class PlayerService
 
     public CompletableFuture<PlexPlayer> findPlayerByIp(String ip)
     {
-        String canonicalIp = dev.plex.punishment.admission.BanDecisionService.canonicalIp(ip);
+        String canonicalIp = BanDecisionService.canonicalIp(ip);
         PlexPlayer player = cachedPlayers().stream()
                 .filter(plexPlayer -> plexPlayer.getIps().contains(canonicalIp)).findFirst().orElse(null);
         if (player != null)
@@ -114,7 +115,7 @@ public class PlayerService
 
     public CompletableFuture<PlexPlayer> prepareSession(UUID uuid, String username, String ip)
     {
-        String normalizedIp = dev.plex.punishment.admission.BanDecisionService.canonicalIp(ip);
+        String normalizedIp = BanDecisionService.canonicalIp(ip);
         CompletableFuture<PlexPlayer> pending = new CompletableFuture<>();
         CompletableFuture<PlexPlayer> existing = preparedSessions.putIfAbsent(uuid, pending);
         if (existing != null) return existing;
@@ -145,7 +146,7 @@ public class PlayerService
 
     public CompletableFuture<PlexPlayer> reloadSession(UUID uuid, String username, String ip)
     {
-        String normalizedIp = dev.plex.punishment.admission.BanDecisionService.canonicalIp(ip);
+        String normalizedIp = BanDecisionService.canonicalIp(ip);
         return read(() -> loadSession(uuid, username, normalizedIp));
     }
 

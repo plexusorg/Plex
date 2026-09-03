@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.Component;
 import org.bukkit.GameMode;
@@ -404,8 +405,8 @@ final class FiniteBanEnforcement
                 completion.complete(null);
                 return;
             }
-            ScheduledTask retry = Bukkit.getGlobalRegionScheduler().runDelayed(plugin,
-                    ignored -> refreshUntilResolved(online, completion), 20L);
+            ScheduledTask retry = Bukkit.getAsyncScheduler().runDelayed(plugin,
+                    ignored -> refreshUntilResolved(online, completion), 1L, TimeUnit.SECONDS);
             if (retry == null) completion.completeExceptionally(failure);
         });
     }
@@ -452,8 +453,8 @@ final class FiniteBanEnforcement
                 completion.complete(null);
                 return;
             }
-            ScheduledTask retry = Bukkit.getGlobalRegionScheduler().runDelayed(plugin,
-                    ignored -> refreshPendingUntilResolved(player, completion), 20L);
+            ScheduledTask retry = Bukkit.getAsyncScheduler().runDelayed(plugin,
+                    ignored -> refreshPendingUntilResolved(player, completion), 1L, TimeUnit.SECONDS);
             if (retry == null) completion.completeExceptionally(failure);
         });
     }
@@ -576,8 +577,8 @@ final class FiniteBanEnforcement
         ZonedDateTime endDate = restriction.punishment.getEndDate();
         if (endDate == null) return;
         long millis = Math.max(1L, Duration.between(ZonedDateTime.now(endDate.getZone()), endDate).toMillis());
-        long ticks = Math.max(1L, millis / 50L);
-        ScheduledTask task = Bukkit.getGlobalRegionScheduler().runDelayed(plugin, ignored -> refreshById(uuid, ip, restriction), ticks);
+        ScheduledTask task = Bukkit.getAsyncScheduler().runDelayed(plugin,
+                ignored -> refreshById(uuid, ip, restriction), millis, TimeUnit.MILLISECONDS);
         synchronized (this)
         {
             if (restrictions.get(uuid) == restriction) restriction.expiryTask = task;

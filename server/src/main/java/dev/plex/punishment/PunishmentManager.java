@@ -9,8 +9,12 @@ import dev.plex.punishment.admission.BanDecisionService;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.TimeUtils;
+import dev.plex.util.redis.MessageUtil;
+import io.papermc.paper.event.player.PlayerServerFullCheckEvent;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import lombok.Getter;
+import net.kyori.adventure.text.Component;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
@@ -24,6 +28,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 public class PunishmentManager
 {
@@ -153,22 +158,22 @@ public class PunishmentManager
         finiteBanEnforcement.cancelPendingAdmission(uuid);
     }
 
-    public void checkAdmissionCapacity(io.papermc.paper.event.player.PlayerServerFullCheckEvent event)
+    public void checkAdmissionCapacity(PlayerServerFullCheckEvent event)
     {
         finiteBanEnforcement.checkCapacity(event);
     }
 
-    public void completeJoin(org.bukkit.entity.Player player)
+    public void completeJoin(Player player)
     {
         finiteBanEnforcement.join(player);
     }
 
-    public void trackReloadedPlayer(org.bukkit.entity.Player player, String ip)
+    public void trackReloadedPlayer(Player player, String ip)
     {
         finiteBanEnforcement.trackReloadedPlayer(player, ip);
     }
 
-    public void trackOnlineCapacity(org.bukkit.entity.Player player, String ip)
+    public void trackOnlineCapacity(Player player, String ip)
     {
         finiteBanEnforcement.trackOnlineCapacity(player, ip);
     }
@@ -188,12 +193,12 @@ public class PunishmentManager
         return finiteBanEnforcement.isRestricted(uuid);
     }
 
-    public net.kyori.adventure.text.Component finiteBanMessage(UUID uuid)
+    public Component finiteBanMessage(UUID uuid)
     {
         return finiteBanEnforcement.restrictionMessage(uuid);
     }
 
-    public void restoreFiniteBanInventory(org.bukkit.entity.Player player)
+    public void restoreFiniteBanInventory(Player player)
     {
         finiteBanEnforcement.restoreInventory(player);
     }
@@ -368,11 +373,11 @@ public class PunishmentManager
         if (old != null) old.cancel();
         if (deadline == null) return;
 
-        long ticks = Math.max(1L, ChronoUnit.MILLIS.between(now, deadline) / 50L);
-        ScheduledTask replacement = Bukkit.getGlobalRegionScheduler().runDelayed(plugin, task ->
+        long delayMillis = Math.max(1L, ChronoUnit.MILLIS.between(now, deadline));
+        ScheduledTask replacement = Bukkit.getAsyncScheduler().runDelayed(plugin, task ->
         {
             if (timedTasks.remove(key, task)) expireRows(player, type, ZonedDateTime.now(TimeUtils.zoneId()), true);
-        }, ticks);
+        }, delayMillis, TimeUnit.MILLISECONDS);
         timedTasks.put(key, replacement);
     }
 
@@ -413,7 +418,7 @@ public class PunishmentManager
 
     private void publishInvalidation(UUID uuid, @Nullable String ip)
     {
-        dev.plex.util.redis.MessageUtil.publishBanInvalidation(plugin, uuid, ip)
+        MessageUtil.publishBanInvalidation(plugin, uuid, ip)
                 .exceptionally(failure ->
                 {
                     PlexLog.warn("Unable to publish ban cache invalidation: {0}", failure.getMessage());

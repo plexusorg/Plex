@@ -20,6 +20,7 @@ import java.util.concurrent.CompletableFuture;
 
 import net.kyori.adventure.text.Component;
 import org.apache.logging.log4j.Logger;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
@@ -106,7 +107,7 @@ public abstract class PlexModule
      * @param player player to disconnect
      * @param reason disconnect reason
      */
-    public void kickPlayerOnShutdown(org.bukkit.entity.Player player, Component reason)
+    public void kickPlayerOnShutdown(Player player, Component reason)
     {
         requireLifecycle().kickPlayerOnShutdown(player, reason);
     }

@@ -5,6 +5,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
 import dev.plex.command.ServerCommandContext;
 import dev.plex.command.source.RequiredCommandSource;
+import dev.plex.punishment.Punishment;
 
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
@@ -12,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import dev.plex.util.PlexLog;
+import java.util.concurrent.CompletableFuture;
 
 public class BanListCommand extends ServerCommand
 {
@@ -63,9 +65,9 @@ public class BanListCommand extends ServerCommand
                 sender.sendMessage(Component.text("Unable to load active bans."));
                 return;
             }
-            var uuids = punishments.stream().map(dev.plex.punishment.Punishment::getPunished).distinct().toList();
-            java.util.concurrent.CompletableFuture.allOf(uuids.stream().map(plugin.getPunishmentManager()::unban)
-                            .toArray(java.util.concurrent.CompletableFuture[]::new))
+            var uuids = punishments.stream().map(Punishment::getPunished).distinct().toList();
+            CompletableFuture.allOf(uuids.stream().map(plugin.getPunishmentManager()::unban)
+                            .toArray(CompletableFuture[]::new))
                     .whenComplete((unused, failure) ->
                     {
                         if (failure != null) sender.sendMessage(Component.text("Unable to clear all active bans."));

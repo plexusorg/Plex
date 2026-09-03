@@ -9,6 +9,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
@@ -132,7 +133,7 @@ public final class WorldSpawnSignListener extends ServerListenerBase
         }
     }
 
-    private boolean movesProtectedBlock(List<Block> blocks, org.bukkit.block.BlockFace direction)
+    private boolean movesProtectedBlock(List<Block> blocks, BlockFace direction)
     {
         return blocks.stream().anyMatch(block -> signManager.isProtected(block) || signManager.isProtected(block.getRelative(direction)));
     }

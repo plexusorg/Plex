@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
@@ -76,7 +77,7 @@ public class EntityWipeCMD extends ServerCommand
                 useBlacklist ? entityBlacklist : entityWhitelist, useBlacklist);
         Player radiusCenter = Optional.ofNullable(playerSender).filter(player -> radius != 0).orElse(null);
         int range = Math.abs(radius);
-        org.bukkit.Location center = radiusCenter == null ? null : radiusCenter.getLocation().clone();
+        Location center = radiusCenter == null ? null : radiusCenter.getLocation().clone();
         double rangeSquared = (double)range * range;
         EntityRemovalUtil.removeLoaded(plugin, entity -> selected(entity, selectedTypes, useBlacklist)
                         && (center == null || entity.getWorld().equals(center.getWorld())

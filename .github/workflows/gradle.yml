@@ -19,6 +19,8 @@ jobs:
           java-version: ${{ matrix.java }}
           cache: 'gradle'
           distribution: 'temurin'
+      - name: Checkstyle
+        run: ./gradlew checkstyleMain checkstyleTest --stacktrace
       - name: Build
         run: |
           git config --global user.email "no-reply@github.com"

@@ -102,9 +102,16 @@ public class WorldCMD extends ServerCommand
             Location spawn = world.getSpawnLocation().clone();
             playerSender.getScheduler().run(plugin, entityTask ->
             {
-                playerSender.teleportAsync(spawn);
-                playerSender.sendMessage(PlexUtils.messageComponent("playerWorldTeleport", world.getName()));
-            }, null);
+                playerSender.teleportAsync(spawn).whenComplete((teleported, failure) ->
+                {
+                    if (failure != null || !teleported)
+                    {
+                        playerSender.sendMessage(Component.text("Unable to teleport to that world."));
+                        return;
+                    }
+                    playerSender.sendMessage(PlexUtils.messageComponent("playerWorldTeleport", world.getName()));
+                });
+            }, () -> sender.sendMessage(Component.text("Unable to teleport because the player disconnected.")));
         });
         return null;
     }

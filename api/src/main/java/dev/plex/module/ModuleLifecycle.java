@@ -9,6 +9,7 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.event.Listener;
+import org.jetbrains.annotations.Nullable;
 
 interface ModuleLifecycle
 {
@@ -16,8 +17,7 @@ interface ModuleLifecycle
 
     Plugin plugin();
 
-    <T extends ScheduledTask> @org.jetbrains.annotations.Nullable T ownTask(
-            @org.jetbrains.annotations.Nullable T task);
+    <T extends ScheduledTask> @Nullable T ownTask(@Nullable T task);
 
     void kickPlayerOnShutdown(Player player, Component reason);
 
