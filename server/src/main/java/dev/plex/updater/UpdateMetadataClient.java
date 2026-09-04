@@ -11,11 +11,14 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
+import java.util.Locale;
+import java.util.regex.Pattern;
 
 public final class UpdateMetadataClient
 {
     private static final List<String> DEFAULT_BASE_URLS = List.of("https://updater.plex.us.org", "https://plex-updater.com");
     private static final int MAX_METADATA_BYTES = 1024 * 1024;
+    private static final Pattern ERROR_CODE_PATTERN = Pattern.compile("[a-z0-9_]{1,64}");
 
     private final Gson gson = new Gson();
     private final UpdateChannel channel;
@@ -123,15 +126,16 @@ public final class UpdateMetadataClient
             connection.setRequestProperty("Accept", "application/json");
 
             int statusCode = connection.getResponseCode();
-            validateResponse(connection, statusCode, baseUrl, path);
+            validateProtocol(connection, baseUrl, path);
+            if (statusCode != HttpURLConnection.HTTP_OK)
+            {
+                throw responseError(connection, statusCode, baseUrl, path);
+            }
+            requireJson(connection, baseUrl, path);
 
             try (InputStream input = connection.getInputStream())
             {
-                byte[] body = input.readNBytes(MAX_METADATA_BYTES + 1);
-                if (body.length > MAX_METADATA_BYTES)
-                {
-                    throw new MetadataException("metadata response exceeded " + MAX_METADATA_BYTES + " bytes for " + path + " on " + baseUrl, false);
-                }
+                byte[] body = readBody(input, path, baseUrl);
                 ArtifactMetadata metadata = gson.fromJson(new String(body, StandardCharsets.UTF_8), ArtifactMetadata.class);
                 if (metadata == null)
                 {
@@ -158,21 +162,75 @@ public final class UpdateMetadataClient
         }
     }
 
-    private void validateResponse(HttpURLConnection connection, int statusCode, String baseUrl, String path)
+    private void validateProtocol(HttpURLConnection connection, String baseUrl, String path)
             throws MetadataException
     {
         if (!"https".equalsIgnoreCase(connection.getURL().getProtocol()))
         {
             throw new MetadataException("metadata request redirected to a non-HTTPS URL for " + path + " on " + baseUrl, false);
         }
+    }
+
+    private MetadataException responseError(HttpURLConnection connection, int statusCode, String baseUrl, String path)
+            throws IOException, MetadataException
+    {
+        String errorCode = readErrorCode(connection, path, baseUrl);
         if (statusCode == HttpURLConnection.HTTP_NOT_FOUND)
         {
-            throw new MetadataException("no compatible update metadata exists at " + path + " on " + baseUrl, true);
+            return new MetadataException("no compatible update metadata exists at " + path + " on " + baseUrl, true);
         }
-        if (statusCode != HttpURLConnection.HTTP_OK)
+        String suffix = errorCode == null ? "" : " (" + errorCode + ")";
+        return new MetadataException("metadata request returned HTTP " + statusCode + suffix + " for " + path
+                + " on " + baseUrl, false);
+    }
+
+    private String readErrorCode(HttpURLConnection connection, String path, String baseUrl)
+            throws IOException, MetadataException
+    {
+        InputStream errorStream = connection.getErrorStream();
+        if (errorStream == null || !isJson(connection.getContentType()))
         {
-            throw new MetadataException("metadata request returned HTTP " + statusCode + " for " + path + " on " + baseUrl, false);
+            return null;
         }
+        try (errorStream)
+        {
+            ErrorResponse response;
+            try
+            {
+                response = gson.fromJson(new String(readBody(errorStream, path, baseUrl), StandardCharsets.UTF_8),
+                        ErrorResponse.class);
+            }
+            catch (JsonParseException ignored)
+            {
+                return null;
+            }
+            return response == null || response.error == null || !ERROR_CODE_PATTERN.matcher(response.error).matches()
+                    ? null : response.error;
+        }
+    }
+
+    private void requireJson(HttpURLConnection connection, String baseUrl, String path) throws MetadataException
+    {
+        if (!isJson(connection.getContentType()))
+        {
+            throw new MetadataException("metadata response was not JSON for " + path + " on " + baseUrl, false);
+        }
+    }
+
+    private boolean isJson(String contentType)
+    {
+        return contentType != null && contentType.toLowerCase(Locale.ROOT).startsWith("application/json");
+    }
+
+    private byte[] readBody(InputStream input, String path, String baseUrl) throws IOException, MetadataException
+    {
+        byte[] body = input.readNBytes(MAX_METADATA_BYTES + 1);
+        if (body.length > MAX_METADATA_BYTES)
+        {
+            throw new MetadataException("metadata response exceeded " + MAX_METADATA_BYTES + " bytes for " + path
+                    + " on " + baseUrl, false);
+        }
+        return body;
     }
 
     private static String encodePathSegment(String value)
@@ -216,5 +274,10 @@ public final class UpdateMetadataClient
         {
             return notFound;
         }
+    }
+
+    private static final class ErrorResponse
+    {
+        private String error;
     }
 }
