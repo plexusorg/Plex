@@ -79,7 +79,7 @@ public class Punishment
 
     private static String endDate(Punishment punishment)
     {
-        return punishment.getEndDate() == null ? "Never" : TimeUtils.useTimezone(punishment.getEndDate());
+        return punishment.getEndDate() == null ? "never" : TimeUtils.formatRelativeTime(punishment.getEndDate());
     }
 
     public static Component generateIndefBanMessageWithReason(String type, String banUrl, String reason)
