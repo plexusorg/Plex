@@ -96,7 +96,11 @@ public class ModuleManager implements ModulesApi
             loadedModules.add(new LoadedModule(module, plugin.getApi(), moduleFile, file, dataFolder, loader));
             loader = null;
         }
-        catch (IOException | ReflectiveOperationException | ClassCastException | ModuleLoadException e)
+        catch (ReflectiveOperationException e)
+        {
+            PlexLog.error("Skipping module " + file.getName() + ": unable to load its main class", e);
+        }
+        catch (IOException | ClassCastException | ModuleLoadException e)
         {
             PlexLog.warn("Skipping module " + file.getName() + ": " + e.getMessage());
         }
@@ -358,8 +362,7 @@ public class ModuleManager implements ModulesApi
         {
             return CompletableFuture.failedFuture(new IllegalStateException("Module lifecycle is shutting down"));
         }
-        CompletableFuture<T> result = lifecycleTail.handle((ignored, failure) -> null)
-                .thenCompose(ignored ->
+        CompletableFuture<T> result = lifecycleTail.thenCompose(ignored ->
                 {
                     synchronized (this)
                     {
@@ -384,35 +387,18 @@ public class ModuleManager implements ModulesApi
                 return CompletableFuture.completedFuture(null);
             }
         }
-        return onGlobal(() ->
+        return onGlobalResult(() ->
         {
             synchronized (this)
             {
                 if (shuttingDown)
                 {
-                    return;
+                    return null;
                 }
             }
             reloadFromDisk();
+            return null;
         });
-    }
-
-    private CompletableFuture<Void> onGlobal(Runnable action)
-    {
-        CompletableFuture<Void> completion = new CompletableFuture<>();
-        Bukkit.getGlobalRegionScheduler().execute(plugin, () ->
-        {
-            try
-            {
-                action.run();
-                completion.complete(null);
-            }
-            catch (RuntimeException | LinkageError failure)
-            {
-                completion.completeExceptionally(failure);
-            }
-        });
-        return completion;
     }
 
     private <T> CompletableFuture<T> onGlobalResult(Supplier<T> action)

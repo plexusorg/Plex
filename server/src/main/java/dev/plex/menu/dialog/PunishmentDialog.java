@@ -6,6 +6,7 @@ import dev.plex.Plex;
 import dev.plex.player.PlayerService;
 import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.Punishment;
+import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.TimeUtils;
 import io.papermc.paper.dialog.Dialog;
@@ -18,6 +19,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
@@ -50,9 +52,10 @@ public class PunishmentDialog
 
     public void open(Player viewer, PlexPlayer punishedPlayer)
     {
-        Map<UUID, CompletableFuture<String>> names = punishedPlayer.getPunishments().stream()
+        List<Punishment> punishments = List.copyOf(punishedPlayer.getPunishments());
+        Map<UUID, CompletableFuture<String>> names = punishments.stream()
                 .map(Punishment::getPunisher)
-                .filter(java.util.Objects::nonNull)
+                .filter(Objects::nonNull)
                 .distinct()
                 .collect(Collectors.toMap(Function.identity(), playerService::findName));
         CompletableFuture.allOf(names.values().toArray(CompletableFuture[]::new)).whenComplete((unused, failure) ->
@@ -63,7 +66,7 @@ public class PunishmentDialog
                         viewer.sendMessage(Component.text("Unable to load punishment details."));
                         return;
                     }
-                    viewer.showDialog(playerPunishmentsDialog(punishedPlayer, names));
+                    viewer.showDialog(playerPunishmentsDialog(punishedPlayer, punishments, names));
                 }, null));
     }
 
@@ -83,10 +86,9 @@ public class PunishmentDialog
                 .type(DialogType.multiAction(actions, closeButton(), 2)));
     }
 
-    private Dialog playerPunishmentsDialog(PlexPlayer punishedPlayer, Map<UUID, CompletableFuture<String>> names)
+    private Dialog playerPunishmentsDialog(PlexPlayer punishedPlayer, List<Punishment> punishments, Map<UUID, CompletableFuture<String>> names)
     {
         List<DialogBody> body = new ArrayList<>();
-        List<Punishment> punishments = punishedPlayer.getPunishments();
 
         if (punishments.isEmpty())
         {
@@ -144,21 +146,27 @@ public class PunishmentDialog
         }
 
         playerService.findPlayer(selectedPlayer).whenComplete((punishedPlayer, failure) ->
-                viewer.getScheduler().run(plugin, task ->
+        {
+            try
+            {
+                if (failure != null)
                 {
-                    if (failure != null)
-                    {
-                        viewer.sendMessage(Component.text("Unable to load the player's punishments."));
-                    }
-                    else if (punishedPlayer == null)
-                    {
-                        viewer.sendMessage(PlexUtils.messageComponent("punishmentPlayerNotFound"));
-                    }
-                    else
-                    {
-                        open(viewer, punishedPlayer);
-                    }
-                }, null));
+                    viewer.sendMessage(Component.text("Unable to load the player's punishments."));
+                }
+                else if (punishedPlayer == null)
+                {
+                    viewer.sendMessage(PlexUtils.messageComponent("punishmentPlayerNotFound"));
+                }
+                else
+                {
+                    open(viewer, punishedPlayer);
+                }
+            }
+            catch (RuntimeException exception)
+            {
+                PlexLog.error("Unable to prepare punishment dialog for " + selectedPlayer, exception);
+            }
+        });
     }
 
     private Component punishmentSummary(Punishment punishment, Map<UUID, CompletableFuture<String>> names)

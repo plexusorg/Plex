@@ -303,7 +303,7 @@ public class PunishmentManager
             if (punishment.getType().isBan())
             {
                 invalidateBanDecisions(player.getUuid(), punishment.getIp());
-                return finiteBanEnforcement.applyNewBan(player.getUuid(), punishment.getIp()).thenRun(() ->
+                return finiteBanEnforcement.refreshMatching(player.getUuid(), punishment.getIp()).thenRun(() ->
                         publishInvalidation(player.getUuid(), punishment.getIp()));
             }
             if (punishment.getType() == PunishmentType.MUTE || punishment.getType() == PunishmentType.FREEZE)

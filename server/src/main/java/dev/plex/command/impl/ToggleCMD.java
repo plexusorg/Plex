@@ -53,7 +53,7 @@ public class ToggleCMD extends ServerCommand
     {
         CommandSender sender = context.sender();
         Player playerSender = context.player();
-        if (context.isConsole(sender) || playerSender == null)
+        if (playerSender == null)
         {
             sender.sendMessage(PlexUtils.messageComponent("toggleAvailable"));
             sender.sendMessage(toggleListItem(context, "toggleExplosions", "explosions"));

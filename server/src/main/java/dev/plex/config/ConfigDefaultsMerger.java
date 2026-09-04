@@ -35,7 +35,11 @@ public final class ConfigDefaultsMerger
             return new Result(load(file), List.of(), false);
         }
 
-        String defaultsText = new String(defaultsStream.readAllBytes(), StandardCharsets.UTF_8);
+        String defaultsText;
+        try (defaultsStream)
+        {
+            defaultsText = new String(defaultsStream.readAllBytes(), StandardCharsets.UTF_8);
+        }
         List<String> defaultLines = splitLines(defaultsText);
         List<String> currentLines = splitLines(Files.readString(file.toPath(), StandardCharsets.UTF_8));
         Map<String, Entry> defaults = parse(defaultLines);

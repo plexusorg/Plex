@@ -67,11 +67,7 @@ public class WorldCMD extends ServerCommand
                                 completions.add(worldName);
                             }
                         }
-                        suggestMatching(builder, completions).whenComplete((result, failure) ->
-                        {
-                            if (failure == null) suggestions.complete(result);
-                            else suggestions.completeExceptionally(failure);
-                        });
+                        suggestions.complete(suggestMatching(builder, completions).join());
                     });
                     return suggestions;
                 })
@@ -113,7 +109,7 @@ public class WorldCMD extends ServerCommand
                     }
                     playerSender.sendMessage(PlexUtils.messageComponent("playerWorldTeleport", placeholder("world", world.getName())));
                 });
-            }, () -> sender.sendMessage(Component.text("Unable to teleport because the player disconnected.")));
+            }, null);
         });
         return null;
     }

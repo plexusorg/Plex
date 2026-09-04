@@ -7,7 +7,6 @@ import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.admission.BanDecisionService;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
-import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -58,22 +57,15 @@ public final class BanKickUtil
         String lastIp = plexPlayer.getIps().isEmpty()
                 ? ""
                 : BanDecisionService.canonicalIp(plexPlayer.getIps().getLast());
-        CompletableFuture<String> result = new CompletableFuture<>();
         Player player = Bukkit.getPlayer(plexPlayer.getUuid());
         if (player == null)
         {
             return CompletableFuture.completedFuture(lastIp);
         }
-        ScheduledTask task = player.getScheduler().run(plugin, scheduledTask ->
+        if (player.getAddress() == null || player.getAddress().getAddress() == null)
         {
-            if (player.getAddress() == null || player.getAddress().getAddress() == null)
-            {
-                result.complete(lastIp);
-                return;
-            }
-            result.complete(BanDecisionService.canonicalIp(player.getAddress().getAddress().getHostAddress()));
-        }, () -> result.complete(lastIp));
-        if (task == null) result.complete(lastIp);
-        return result;
+            return CompletableFuture.completedFuture(lastIp);
+        }
+        return CompletableFuture.completedFuture(BanDecisionService.canonicalIp(player.getAddress().getAddress().getHostAddress()));
     }
 }

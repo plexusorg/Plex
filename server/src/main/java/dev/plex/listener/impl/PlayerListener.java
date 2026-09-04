@@ -28,9 +28,10 @@ public class PlayerListener extends ServerListenerBase
         super(plugin);
     }
 
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerPreLogin(AsyncPlayerPreLoginEvent event)
     {
+        if (event.getLoginResult() != AsyncPlayerPreLoginEvent.Result.ALLOWED) return;
         try
         {
             plugin.getPlayerService().prepareSession(event.getUniqueId(), event.getName(),

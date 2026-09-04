@@ -190,15 +190,12 @@ final class FiniteBanEnforcement
 
     void trackReloadedPlayer(Player player, String ip)
     {
-        player.getScheduler().run(plugin, task ->
+        OnlinePlayer online;
+        synchronized (this)
         {
-            OnlinePlayer online;
-            synchronized (this)
-            {
-                online = onlinePlayers.get(player.getUniqueId());
-            }
-            if (player.isOnline() && online != null) refresh(online);
-        }, null);
+            online = onlinePlayers.get(player.getUniqueId());
+        }
+        if (online != null) refresh(online);
     }
 
     synchronized void trackOnlineCapacity(Player player, String ip)
@@ -296,33 +293,6 @@ final class FiniteBanEnforcement
         return CompletableFuture.allOf(updates.toArray(CompletableFuture[]::new));
     }
 
-    CompletableFuture<Void> applyNewBan(UUID uuid, @Nullable String ip)
-    {
-        String canonicalIp = BanDecisionService.canonicalIp(ip);
-        List<OnlinePlayer> matches;
-        List<PendingPlayer> pending;
-        synchronized (this)
-        {
-            matches = onlinePlayers.entrySet().stream()
-                    .filter(entry -> entry.getKey().equals(uuid)
-                            || (!canonicalIp.isEmpty() && canonicalIp.equals(entry.getValue().ip())))
-                    .map(Map.Entry::getValue).toList();
-            pending = pendingAdmissions.entrySet().stream()
-                    .filter(entry -> entry.getKey().equals(uuid)
-                            || (!canonicalIp.isEmpty() && canonicalIp.equals(entry.getValue().ip())))
-                    .map(entry -> new PendingPlayer(entry.getKey(), entry.getValue().ip())).toList();
-            pending.forEach(player ->
-            {
-                unresolvedAdmissions.add(player.uuid());
-                releaseReservation(player.uuid());
-            });
-        }
-        List<CompletableFuture<Void>> updates = new ArrayList<>();
-        matches.forEach(online -> updates.add(refreshUntilResolved(online)));
-        pending.forEach(player -> updates.add(refreshPendingUntilResolved(player)));
-        return CompletableFuture.allOf(updates.toArray(CompletableFuture[]::new));
-    }
-
     synchronized void beginBanRemoval(UUID owner)
     {
         removingBanOwners.merge(owner, 1, Integer::sum);
@@ -405,9 +375,8 @@ final class FiniteBanEnforcement
                 completion.complete(null);
                 return;
             }
-            ScheduledTask retry = Bukkit.getAsyncScheduler().runDelayed(plugin,
+            Bukkit.getAsyncScheduler().runDelayed(plugin,
                     ignored -> refreshUntilResolved(online, completion), 1L, TimeUnit.SECONDS);
-            if (retry == null) completion.completeExceptionally(failure);
         });
     }
 
@@ -453,9 +422,8 @@ final class FiniteBanEnforcement
                 completion.complete(null);
                 return;
             }
-            ScheduledTask retry = Bukkit.getAsyncScheduler().runDelayed(plugin,
+            Bukkit.getAsyncScheduler().runDelayed(plugin,
                     ignored -> refreshPendingUntilResolved(player, completion), 1L, TimeUnit.SECONDS);
-            if (retry == null) completion.completeExceptionally(failure);
         });
     }
 

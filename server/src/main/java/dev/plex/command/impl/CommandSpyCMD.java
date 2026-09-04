@@ -36,15 +36,12 @@ public class CommandSpyCMD extends ServerCommand
     {
         CommandSender sender = context.sender();
         Player playerSender = context.player();
-        if (playerSender != null)
-        {
-            PlexPlayer plexPlayer = plugin.getPlayerService().cachedPlayer(playerSender.getUniqueId());
-            plexPlayer.setCommandSpy(!plexPlayer.isCommandSpy());
-            plugin.getPlayerService().update(plexPlayer);
-            sender.sendMessage(PlexUtils.messageComponent("toggleCommandSpy")
-                    .append(Component.space())
-                    .append(plexPlayer.isCommandSpy() ? PlexUtils.messageComponent("enabled") : PlexUtils.messageComponent("disabled")));
-        }
+        PlexPlayer plexPlayer = plugin.getPlayerService().cachedPlayer(playerSender.getUniqueId());
+        plexPlayer.setCommandSpy(!plexPlayer.isCommandSpy());
+        plugin.getPlayerService().update(plexPlayer);
+        sender.sendMessage(PlexUtils.messageComponent("toggleCommandSpy")
+                .append(Component.space())
+                .append(plexPlayer.isCommandSpy() ? PlexUtils.messageComponent("enabled") : PlexUtils.messageComponent("disabled")));
         return null;
     }
 

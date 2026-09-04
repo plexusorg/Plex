@@ -38,8 +38,12 @@ public final class BanDecisionService
         Revision observedRevision = revision(uuid, key.ip());
         try
         {
-            CompletableFuture<Optional<Punishment>> future = cache.get(key, () -> load(key));
-            return future.thenCompose(result ->
+            CompletableFuture<Optional<Punishment>> future = cache.get(key,
+                    () -> repository.getEffectiveBan(key.uuid(), key.ip(), Instant.now()));
+            return future.whenComplete((result, failure) ->
+            {
+                if (failure != null) cache.asMap().remove(key, future);
+            }).thenCompose(result ->
             {
                 if (!revision(key.uuid(), key.ip()).equals(observedRevision))
                 {
@@ -65,16 +69,6 @@ public final class BanDecisionService
         {
             return CompletableFuture.failedFuture(failure.getCause());
         }
-    }
-
-    private CompletableFuture<Optional<Punishment>> load(Key key)
-    {
-        CompletableFuture<Optional<Punishment>> future = repository.getEffectiveBan(key.uuid(), key.ip(), Instant.now());
-        future.whenComplete((result, failure) ->
-        {
-            if (failure != null) cache.asMap().remove(key, future);
-        });
-        return future;
     }
 
     public void invalidate(UUID uuid, String ip)

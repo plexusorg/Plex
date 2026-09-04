@@ -1,6 +1,7 @@
 package dev.plex.command;
 
 import com.google.common.collect.Lists;
+import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -105,10 +106,25 @@ public abstract class ServerCommand implements PlexCommand
         return Commands.argument(name, IntegerArgumentType.integer(0));
     }
 
-    protected int executeCommand(CommandContext<CommandSourceStack> context,
+    protected int executeCommand(CommandContext<CommandSourceStack> brigadierContext,
                                  Function<ServerCommandContext, Component> execution)
     {
-        return dispatchCommand(context, execution);
+        ServerCommandContext context = new ServerCommandContext(this, brigadierContext);
+        CommandSender sender = context.sender();
+        try
+        {
+            Component component = execution.apply(context);
+            if (component != null)
+            {
+                sender.sendMessage(component);
+            }
+        }
+        catch (PlayerNotFoundException | CommandFailException | ConsoleOnlyException |
+               ConsoleMustDefinePlayerException | PlayerNotBannedException | NumberFormatException ex)
+        {
+            sender.sendMessage(context.exceptionComponent(ex));
+        }
+        return Command.SINGLE_SUCCESS;
     }
 
     protected String string(CommandContext<CommandSourceStack> context, String name)
@@ -173,14 +189,7 @@ public abstract class ServerCommand implements PlexCommand
         List<String> availableFlags = Lists.newArrayList(flags);
         for (String token : remaining.split("\\s+"))
         {
-            if (token.isBlank())
-            {
-                continue;
-            }
-            if (flags.stream().anyMatch(flag -> flag.equalsIgnoreCase(token)))
-            {
-                availableFlags.removeIf(flag -> flag.equalsIgnoreCase(token));
-            }
+            availableFlags.removeIf(flag -> flag.equalsIgnoreCase(token));
         }
 
         String currentToken = remaining.substring(remaining.lastIndexOf(' ') + 1);
@@ -241,12 +250,6 @@ public abstract class ServerCommand implements PlexCommand
         return commandSource != RequiredCommandSource.IN_GAME;
     }
 
-    private int dispatchCommand(CommandContext<CommandSourceStack> brigadierContext,
-                                Function<ServerCommandContext, Component> execution)
-    {
-        return dispatchCommand(new ServerCommandContext(this, brigadierContext), execution);
-    }
-
     protected Player getNonNullPlayer(String name)
     {
         Player player;
@@ -298,26 +301,6 @@ public abstract class ServerCommand implements PlexCommand
     protected String normalizeGreedyString(String greedy)
     {
         return greedy.isBlank() ? "" : String.join(" ", greedy.trim().split("\\s+"));
-    }
-
-    private int dispatchCommand(ServerCommandContext context,
-                                Function<ServerCommandContext, Component> execution)
-    {
-        CommandSender sender = context.sender();
-        try
-        {
-            Component component = execution.apply(context);
-            if (component != null)
-            {
-                sender.sendMessage(component);
-            }
-        }
-        catch (PlayerNotFoundException | CommandFailException | ConsoleOnlyException |
-               ConsoleMustDefinePlayerException | PlayerNotBannedException | NumberFormatException ex)
-        {
-            sender.sendMessage(context.exceptionComponent(ex));
-        }
-        return com.mojang.brigadier.Command.SINGLE_SUCCESS;
     }
 
     private boolean hasCachedPlexPlayer(Player player)

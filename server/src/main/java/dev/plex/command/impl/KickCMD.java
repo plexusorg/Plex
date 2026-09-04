@@ -52,8 +52,7 @@ public class KickCMD extends ServerCommand
     {
         String reason = suppliedReason == null ? PlexUtils.messageString("noReasonProvided") : suppliedReason;
         Player player = getNonNullPlayer(playerName);
-        player.getScheduler().run(plugin, task -> kick(context, player, reason),
-                () -> context.sender().sendMessage(Component.text("The player disconnected before the kick could be prepared.")));
+        player.getScheduler().run(plugin, task -> kick(context, player, reason), null);
         return null;
     }
 
@@ -83,7 +82,7 @@ public class KickCMD extends ServerCommand
             {
                 BungeeUtil.kickPlayer(plugin, player, Punishment.generateKickMessage(punishment));
                 PlexUtils.broadcast(PlexUtils.messageComponent("kickedPlayer", placeholder("sender", context.senderName()), placeholder("player", plexPlayer.getName())));
-            }, () -> sender.sendMessage(Component.text("The kick was persisted, but the player disconnected before it could be applied.")));
+            }, null);
         });
     }
 

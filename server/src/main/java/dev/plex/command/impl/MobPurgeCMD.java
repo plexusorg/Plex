@@ -37,7 +37,8 @@ public class MobPurgeCMD extends ServerCommand
             .permission("plex.mobpurge")
             .build());
     }
-    private final List<EntityType> MOB_TYPES = new ArrayList<>();
+    private static final List<EntityType> MOB_TYPES = Arrays.stream(EntityType.values())
+            .filter(EntityType::isAlive).filter(EntityType::isSpawnable).toList();
 
     @Override
     protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
@@ -115,7 +116,6 @@ public class MobPurgeCMD extends ServerCommand
     private List<String> getAllMobs()
     {
         List<String> mobs = new ArrayList<>();
-        Arrays.stream(EntityType.values()).filter(EntityType::isAlive).filter(EntityType::isSpawnable).forEach(MOB_TYPES::add);
         for (EntityType entityType : MOB_TYPES)
         {
             mobs.add(entityType.name());

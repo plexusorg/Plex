@@ -81,7 +81,7 @@ public class ListCMD extends ServerCommand
                 return;
             }
             Component prefix = VaultHook.getPrefix(cachedPlayer);
-            result.complete(new ListedPlayer(prefix == null ? Component.empty() : prefix, player.getName(),
+            result.complete(new ListedPlayer(prefix, player.getName(),
                     player.displayName(), PlayerMeta.isVanished(player)));
         }, () -> result.complete(null), 0L);
         if (!scheduled) result.complete(null);
