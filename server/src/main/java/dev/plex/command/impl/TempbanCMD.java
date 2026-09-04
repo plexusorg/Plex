@@ -1,5 +1,7 @@
 package dev.plex.command.impl;
 
+import static dev.plex.api.message.MessagePlaceholder.placeholder;
+
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
@@ -105,7 +107,7 @@ public class TempbanCMD extends ServerCommand
                     sender.sendMessage(Component.text("Unable to complete the tempban; check the server logs."));
                     return;
                 }
-                PlexUtils.broadcast(PlexUtils.messageComponent("banningPlayer", context.senderName(), target.getName()));
+                PlexUtils.broadcast(PlexUtils.messageComponent("banningPlayer", placeholder("sender", context.senderName()), placeholder("player", target.getName())));
                 if (reason.rollback()) rollbackReporter.report(sender, target.getName());
             });
         });

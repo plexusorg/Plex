@@ -1,5 +1,7 @@
 package dev.plex.command.impl;
 
+import static dev.plex.api.message.MessagePlaceholder.placeholder;
+
 import dev.plex.util.PlexUtils;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -84,7 +86,7 @@ public class RemoveLoginMessageCMD extends ServerCommand
                     PlexLog.warn("Unable to remove login message for {0}: {1}", plexPlayer.getUuid(), updateFailure.getMessage());
                     context.sender().sendMessage(Component.text("Unable to save the login message."));
                 }
-                else context.sender().sendMessage(PlexUtils.messageComponent("removedOtherLoginMessage", plexPlayer.getName()));
+                else context.sender().sendMessage(PlexUtils.messageComponent("removedOtherLoginMessage", placeholder("player", plexPlayer.getName())));
             });
         });
         return null;

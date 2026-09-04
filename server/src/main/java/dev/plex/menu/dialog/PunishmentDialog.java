@@ -1,5 +1,7 @@
 package dev.plex.menu.dialog;
 
+import static dev.plex.api.message.MessagePlaceholder.placeholder;
+
 import dev.plex.Plex;
 import dev.plex.player.PlayerService;
 import dev.plex.player.PlexPlayer;
@@ -96,7 +98,7 @@ public class PunishmentDialog
         }
 
         return Dialog.create(builder -> builder.empty()
-                .base(DialogBase.builder(PlexUtils.messageComponent("punishedPlayerMenuTitle", punishedPlayer.getName()))
+                .base(DialogBase.builder(PlexUtils.messageComponent("punishedPlayerMenuTitle", placeholder("player", punishedPlayer.getName())))
                         .canCloseWithEscape(true)
                         .pause(false)
                         .afterAction(DialogBase.DialogAfterAction.WAIT_FOR_RESPONSE)

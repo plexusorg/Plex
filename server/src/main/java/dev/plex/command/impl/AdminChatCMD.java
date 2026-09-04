@@ -1,5 +1,7 @@
 package dev.plex.command.impl;
 
+import static dev.plex.api.message.MessagePlaceholder.placeholder;
+
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.api.event.StaffChatMessageEvent;
 import dev.plex.command.ServerCommand;
@@ -48,7 +50,7 @@ public class AdminChatCMD extends ServerCommand
         {
             PlexPlayer player = plugin.getPlayerService().cachedPlayer(playerSender.getUniqueId());
             player.setStaffChat(!player.isStaffChat());
-            return PlexUtils.messageComponent("adminChatToggled", PlexUtils.messageString(player.isStaffChat() ? "stateOn" : "stateOff"));
+            return PlexUtils.messageComponent("adminChatToggled", placeholder("state", PlexUtils.messageString(player.isStaffChat() ? "stateOn" : "stateOff")));
         }
         return context.usage();
     }
@@ -80,7 +82,7 @@ public class AdminChatCMD extends ServerCommand
         }
         Component eventMessage = staffChatEvent.getMessage();
         String serializedMessage = SafeMiniMessage.mmSerialize(eventMessage);
-        plugin.getServer().getConsoleSender().sendMessage(PlexUtils.messageComponent("adminChatFormat", context.senderName(), prefix, serializedMessage));
+        plugin.getServer().getConsoleSender().sendMessage(PlexUtils.messageComponent("adminChatFormat", placeholder("sender", context.senderName()), placeholder("prefix", prefix), placeholder("message", serializedMessage)));
         MessageUtil.sendStaffChat(plugin, sender, eventMessage, PlexUtils.adminChat(context.senderName(), prefix, serializedMessage).toArray(UUID[]::new));
         return null;
     }

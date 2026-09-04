@@ -8,6 +8,7 @@ import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import dev.plex.api.PlexApi;
+import dev.plex.api.message.MessagePlaceholder;
 import dev.plex.command.exception.CommandFailException;
 import dev.plex.command.exception.ConsoleMustDefinePlayerException;
 import dev.plex.command.exception.ConsoleOnlyException;
@@ -213,7 +214,7 @@ public abstract class SimplePlexCommand implements PlexCommand
         {
             return true;
         }
-        throw new CommandFailException(messageString("noPermissionNode", permission));
+        throw new CommandFailException(messageString("noPermissionNode", MessagePlaceholder.placeholder("permission", permission)));
     }
 
     /**
@@ -246,7 +247,7 @@ public abstract class SimplePlexCommand implements PlexCommand
      */
     protected Component permissionMessage(String permission)
     {
-        return messageComponent("noPermissionNode", permission);
+        return messageComponent("noPermissionNode", MessagePlaceholder.placeholder("permission", permission));
     }
 
     /**
@@ -275,48 +276,32 @@ public abstract class SimplePlexCommand implements PlexCommand
      * Resolves a configured message as a component.
      *
      * @param key message key
-     * @param objects replacement values
+     * @param placeholders named replacement values
      * @return resolved message component
      */
-    protected Component messageComponent(String key, Object... objects)
+    protected Component messageComponent(String key, MessagePlaceholder... placeholders)
     {
         if (module != null)
         {
-            return module.messageComponent(key, objects);
+            return module.messageComponent(key, placeholders);
         }
-        return api().messages().messageComponent(key, objects);
-    }
-
-    /**
-     * Resolves a configured message as a component using component replacements.
-     *
-     * @param key message key
-     * @param objects replacement components
-     * @return resolved message component
-     */
-    protected Component messageComponent(String key, Component... objects)
-    {
-        if (module != null)
-        {
-            return module.messageComponent(key, objects);
-        }
-        return api().messages().messageComponent(key, objects);
+        return api().messages().messageComponent(key, placeholders);
     }
 
     /**
      * Resolves a configured message as plain text.
      *
      * @param key message key
-     * @param objects replacement values
+     * @param placeholders named replacement values
      * @return resolved message text
      */
-    protected String messageString(String key, Object... objects)
+    protected String messageString(String key, MessagePlaceholder... placeholders)
     {
         if (module != null)
         {
-            return module.messageString(key, objects);
+            return module.messageString(key, placeholders);
         }
-        return api().messages().messageString(key, objects);
+        return api().messages().messageString(key, placeholders);
     }
 
     /**
@@ -472,7 +457,7 @@ public abstract class SimplePlexCommand implements PlexCommand
         String permission = getPermission();
         if (!permission.isEmpty() && !sender.hasPermission(permission))
         {
-            send(sender, messageComponent("noPermissionNode", permission));
+            send(sender, messageComponent("noPermissionNode", MessagePlaceholder.placeholder("permission", permission)));
             return false;
         }
         return true;

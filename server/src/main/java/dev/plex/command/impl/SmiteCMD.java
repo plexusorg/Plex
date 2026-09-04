@@ -1,5 +1,7 @@
 package dev.plex.command.impl;
 
+import static dev.plex.api.message.MessagePlaceholder.placeholder;
+
 import org.bukkit.Bukkit;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -87,11 +89,11 @@ public class SmiteCMD extends ServerCommand
             }
             if (!options.silent())
             {
-                PlexUtils.broadcast(PlexUtils.messageComponent("smiteBroadcast", player.getName(), finalReason, context.senderName()));
+                PlexUtils.broadcast(PlexUtils.messageComponent("smiteBroadcast", placeholder("player", player.getName()), placeholder("reason", finalReason), placeholder("sender", context.senderName())));
             }
             else
             {
-                sender.sendMessage(PlexUtils.messageComponent("smittenQuietly", player.getName()));
+                sender.sendMessage(PlexUtils.messageComponent("smittenQuietly", placeholder("player", player.getName())));
             }
             player.getScheduler().run(plugin,
                     task -> applySmite(context, player, finalReason, options.clearInventory()), null);
@@ -102,7 +104,7 @@ public class SmiteCMD extends ServerCommand
     private void applySmite(ServerCommandContext context, Player player, String reason, boolean clearInventory)
     {
         Title title = Title.title(PlexUtils.messageComponent("smiteTitleHeader"),
-                PlexUtils.messageComponent("smiteTitleMessage", reason, context.senderName()));
+                PlexUtils.messageComponent("smiteTitleMessage"));
         player.showTitle(title);
         player.setGameMode(GameMode.SURVIVAL);
         if (clearInventory) player.getInventory().clear();
@@ -117,7 +119,7 @@ public class SmiteCMD extends ServerCommand
             }
         }
         player.setHealth(0.0);
-        player.sendMessage(PlexUtils.messageComponent("smitten", reason));
+        player.sendMessage(PlexUtils.messageComponent("smitten", placeholder("reason", reason)));
     }
 
     private record SmiteOptions(String reason, boolean silent, boolean clearInventory)

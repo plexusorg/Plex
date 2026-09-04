@@ -15,35 +15,26 @@ public interface MessageApi
      */
     default Component messageComponent(String entry)
     {
-        return messageComponent(entry, new Object[0]);
+        return messageComponent(entry, new MessagePlaceholder[0]);
     }
 
     /**
      * Resolves a configured message entry into a component.
      *
      * @param entry message key
-     * @param objects replacement values
+     * @param placeholders named replacement values
      * @return resolved component
      */
-    Component messageComponent(String entry, Object... objects);
-
-    /**
-     * Resolves a configured message entry into a component using component replacements.
-     *
-     * @param entry message key
-     * @param objects component replacement values
-     * @return resolved component
-     */
-    Component messageComponent(String entry, Component... objects);
+    Component messageComponent(String entry, MessagePlaceholder... placeholders);
 
     /**
      * Resolves a configured message entry into a plain string.
      *
      * @param entry message key
-     * @param objects replacement values
+     * @param placeholders named replacement values
      * @return resolved message string
      */
-    String messageString(String entry, Object... objects);
+    String messageString(String entry, MessagePlaceholder... placeholders);
 
     /**
      * Converts MiniMessage text to a component.

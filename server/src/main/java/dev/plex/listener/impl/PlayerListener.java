@@ -1,5 +1,7 @@
 package dev.plex.listener.impl;
 
+import static dev.plex.api.message.MessagePlaceholder.placeholder;
+
 import dev.plex.Plex;
 
 import dev.plex.listener.ServerListenerBase;
@@ -78,7 +80,7 @@ public class PlayerListener extends ServerListenerBase
             {
                 if (plugin.getPlayerService().cachedPlayer(plexPlayer.getUuid()) == plexPlayer)
                 {
-                    PlexUtils.broadcastToAdmins(PlexUtils.messageComponent(notes.size() == 1 ? "playerNoteAlert" : "playerNoteAlertPlural", plexPlayer.getName(), notes.size()), "plex.notes.notify");
+                    PlexUtils.broadcastToAdmins(PlexUtils.messageComponent(notes.size() == 1 ? "playerNoteAlert" : "playerNoteAlertPlural", placeholder("player", plexPlayer.getName()), placeholder("count", notes.size())), "plex.notes.notify");
                 }
             }
         });

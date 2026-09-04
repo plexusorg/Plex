@@ -19,6 +19,7 @@ import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 
 import static dev.plex.util.PlexUtils.messageComponent;
+import static dev.plex.api.message.MessagePlaceholder.placeholder;
 
 public final class MessageUtil
 {
@@ -147,7 +148,7 @@ public final class MessageUtil
                     if (remote)
                     {
                         current.getServer().getConsoleSender().sendMessage(
-                                messageComponent("adminChatFormat", sender, chatMessage));
+                                messageComponent("adminChatFormat", placeholder("sender", sender), placeholder("prefix", prefix), placeholder("message", chatMessage)));
                     }
                 });
             }

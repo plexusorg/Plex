@@ -1,5 +1,7 @@
 package dev.plex.command.impl;
 
+import static dev.plex.api.message.MessagePlaceholder.placeholder;
+
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
@@ -101,8 +103,7 @@ public class SetLoginMessageCMD extends ServerCommand
                     PlexLog.warn("Unable to set login message for {0}: {1}", plexPlayer.getUuid(), updateFailure.getMessage());
                     context.sender().sendMessage(Component.text("Unable to save the login message."));
                 }
-                else context.sender().sendMessage(PlexUtils.messageComponent("setOtherPlayersLoginMessage", plexPlayer.getName(),
-                        MiniMessage.miniMessage().serialize(PlexUtils.stringToComponent(PlayerMeta.getLoginMessage(plugin.config, plexPlayer)))));
+                else context.sender().sendMessage(PlexUtils.messageComponent("setOtherPlayersLoginMessage", placeholder("player", plexPlayer.getName()), placeholder("message", MiniMessage.miniMessage().serialize(PlexUtils.stringToComponent(PlayerMeta.getLoginMessage(plugin.config, plexPlayer))))));
             });
         });
         return null;
@@ -123,8 +124,7 @@ public class SetLoginMessageCMD extends ServerCommand
                 PlexLog.warn("Unable to set login message for {0}: {1}", plexPlayer.getUuid(), failure.getMessage());
                 context.sender().sendMessage(Component.text("Unable to save the login message."));
             }
-            else context.sender().sendMessage(PlexUtils.messageComponent("setOwnLoginMessage",
-                    PlexUtils.stringToComponent(PlayerMeta.getLoginMessage(plugin.config, plexPlayer))));
+            else context.sender().sendMessage(PlexUtils.messageComponent("setOwnLoginMessage", placeholder("message", PlexUtils.stringToComponent(PlayerMeta.getLoginMessage(plugin.config, plexPlayer)))));
         });
         return null;
     }

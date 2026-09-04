@@ -1,5 +1,7 @@
 package dev.plex.punishment;
 
+import static dev.plex.api.message.MessagePlaceholder.placeholder;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import dev.plex.api.punishment.PunishmentSource;
@@ -45,23 +47,22 @@ public class Punishment
 
     public static Component generateBanMessage(Punishment punishment, String banUrl)
     {
-        return PlexUtils.messageComponent("banMessage", banUrl, punishment.getReason(), endDate(punishment), punisherDisplayName(punishment));
+        return PlexUtils.messageComponent("banMessage", placeholder("appeal_url", banUrl), placeholder("reason", punishment.getReason()), placeholder("expires_in", endDate(punishment)), placeholder("punisher", punisherDisplayName(punishment)));
     }
 
     public static Component generateBanStatusMessage(Punishment punishment)
     {
-        return PlexUtils.messageComponent("banStatus", punishment.getReason(), endDate(punishment));
+        return PlexUtils.messageComponent("banStatus", placeholder("reason", punishment.getReason()), placeholder("expires_in", endDate(punishment)));
     }
 
     public static Component generateBanCapacityMessage(Punishment punishment, String banUrl)
     {
-        return PlexUtils.messageComponent("banCapacityMessage", banUrl, punishment.getReason(), endDate(punishment),
-                punisherDisplayName(punishment));
+        return PlexUtils.messageComponent("banCapacityMessage", placeholder("appeal_url", banUrl), placeholder("reason", punishment.getReason()), placeholder("expires_in", endDate(punishment)), placeholder("punisher", punisherDisplayName(punishment)));
     }
 
     public static Component generateKickMessage(Punishment punishment)
     {
-        return PlexUtils.messageComponent("kickMessage", punishment.getReason(), punisherDisplayName(punishment));
+        return PlexUtils.messageComponent("kickMessage", placeholder("reason", punishment.getReason()), placeholder("punisher", punisherDisplayName(punishment)));
     }
 
     public static String punisherDisplayName(Punishment punishment)
@@ -84,12 +85,12 @@ public class Punishment
 
     public static Component generateIndefBanMessageWithReason(String type, String banUrl, String reason)
     {
-        return PlexUtils.messageComponent("indefBanMessageReason", type, banUrl, reason);
+        return PlexUtils.messageComponent("indefBanMessageReason", placeholder("type", type), placeholder("appeal_url", banUrl), placeholder("reason", reason));
     }
 
     public static Component generateIndefBanMessage(String type, String banUrl)
     {
-        return PlexUtils.messageComponent("indefBanMessage", type, banUrl);
+        return PlexUtils.messageComponent("indefBanMessage", placeholder("type", type), placeholder("appeal_url", banUrl));
     }
 
     public static Punishment fromJson(String json)

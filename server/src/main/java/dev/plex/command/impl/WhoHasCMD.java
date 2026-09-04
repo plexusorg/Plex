@@ -1,5 +1,7 @@
 package dev.plex.command.impl;
 
+import static dev.plex.api.message.MessagePlaceholder.placeholder;
+
 import org.bukkit.Bukkit;
 
 import dev.plex.util.PlexUtils;
@@ -53,12 +55,12 @@ public class WhoHasCMD extends ServerCommand
 
         if (material == null)
         {
-            return PlexUtils.messageComponent("materialNotFound", materialName);
+            return PlexUtils.messageComponent("materialNotFound", placeholder("material", materialName));
         }
 
         if (clearInventory && !sender.hasPermission("plex.whohas.clear"))
         {
-            return PlexUtils.messageComponent("noPermissionNode", "plex.whohas.clear");
+            return PlexUtils.messageComponent("noPermissionNode", placeholder("permission", "plex.whohas.clear"));
         }
 
         List<CompletableFuture<TextComponent>> captures = plugin.getPlayerService().cachedPlayers().stream()
@@ -101,10 +103,8 @@ public class WhoHasCMD extends ServerCommand
         return players.isEmpty() ?
                 PlexUtils.messageComponent("nobodyHasThatMaterial") :
                 (clearInventory ?
-                        PlexUtils.messageComponent("playersMaterialCleared", Component.text(material.name()),
-                                Component.join(JoinConfiguration.commas(true), players)) :
-                        PlexUtils.messageComponent("playersWithMaterial", Component.text(material.name()),
-                                Component.join(JoinConfiguration.commas(true), players)));
+                        PlexUtils.messageComponent("playersMaterialCleared", placeholder("material", Component.text(material.name())), placeholder("players", Component.join(JoinConfiguration.commas(true), players))) :
+                        PlexUtils.messageComponent("playersWithMaterial", placeholder("material", Component.text(material.name())), placeholder("players", Component.join(JoinConfiguration.commas(true), players))));
     }
 
 }

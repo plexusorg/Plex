@@ -1,5 +1,7 @@
 package dev.plex.menu.dialog;
 
+import static dev.plex.api.message.MessagePlaceholder.placeholder;
+
 import dev.plex.Plex;
 import dev.plex.util.PlexUtils;
 import io.papermc.paper.dialog.Dialog;
@@ -86,9 +88,9 @@ public class ToggleDialog
         plugin.toggles.save();
         if ("chat".equals(toggle))
         {
-            PlexUtils.broadcast(PlexUtils.messageComponent("chatToggled", player.getName(), PlexUtils.messageString(plugin.toggles.getBoolean("chat") ? "stateOn" : "stateOff")));
+            PlexUtils.broadcast(PlexUtils.messageComponent("chatToggled", placeholder("sender", player.getName()), placeholder("state", PlexUtils.messageString(plugin.toggles.getBoolean("chat") ? "stateOn" : "stateOff"))));
         }
-        player.sendMessage(PlexUtils.messageComponent("toggleToggled", PlexUtils.messageString(lowerNameKey)));
+        player.sendMessage(PlexUtils.messageComponent("toggleToggled", placeholder("toggle", PlexUtils.messageString(lowerNameKey))));
         open(player);
     }
 

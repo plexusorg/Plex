@@ -1,5 +1,7 @@
 package dev.plex.command.impl;
 
+import static dev.plex.api.message.MessagePlaceholder.placeholder;
+
 import dev.plex.util.PlexUtils;
 import com.google.common.net.InetAddresses;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -79,7 +81,7 @@ public class BanIpCMD extends ServerCommand
             return;
         }
 
-        context.sender().sendMessage(PlexUtils.messageComponent("banningIp", context.senderName(), ip));
+        context.sender().sendMessage(PlexUtils.messageComponent("banningIp", placeholder("sender", context.senderName()), placeholder("ip", ip)));
         Component kickMessage = Punishment.generateIndefBanMessageWithReason(
                 "IP", plugin.config.getString("banning.ban_url"), reason);
         BanKickUtil.kickPlayersWithIp(plugin, ip, kickMessage);

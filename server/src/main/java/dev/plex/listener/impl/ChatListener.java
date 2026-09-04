@@ -1,5 +1,7 @@
 package dev.plex.listener.impl;
 
+import static dev.plex.api.message.MessagePlaceholder.placeholder;
+
 import org.bukkit.Bukkit;
 
 import dev.plex.Plex;
@@ -69,7 +71,7 @@ public class ChatListener extends ServerListenerBase
             Runnable broadcast = () ->
             {
                 MessageUtil.sendStaffChat(plugin, event.getPlayer(), message, PlexUtils.adminChat(event.getPlayer().getName(), prefix, SafeMiniMessage.mmSerialize(message)).toArray(UUID[]::new));
-                plugin.getServer().getConsoleSender().sendMessage(PlexUtils.messageComponent("adminChatFormat", event.getPlayer().getName(), prefix, SafeMiniMessage.mmSerialize(message.replaceText(URL_REPLACEMENT_CONFIG))));
+                plugin.getServer().getConsoleSender().sendMessage(PlexUtils.messageComponent("adminChatFormat", placeholder("sender", event.getPlayer().getName()), placeholder("prefix", prefix), placeholder("message", SafeMiniMessage.mmSerialize(message.replaceText(URL_REPLACEMENT_CONFIG)))));
             };
             if (event.isAsynchronous()) Bukkit.getGlobalRegionScheduler().run(plugin, task -> broadcast.run());
             else broadcast.run();

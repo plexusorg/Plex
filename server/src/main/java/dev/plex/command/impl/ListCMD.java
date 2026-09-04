@@ -1,5 +1,7 @@
 package dev.plex.command.impl;
 
+import static dev.plex.api.message.MessagePlaceholder.placeholder;
+
 import org.bukkit.Bukkit;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -61,7 +63,7 @@ public class ListCMD extends ServerCommand
                     .filter(player -> mode == ListMode.VANISHED ? player.vanished() : !player.vanished())
                     .toList();
             sender.sendMessage(PlexUtils.messageComponent(players.size() == 1 ? "listHeader" : "listHeaderPlural",
-                    players.size(), maxPlayers));
+                    placeholder("online_count", players.size()), placeholder("total_count", maxPlayers)));
             if (!players.isEmpty()) sender.sendMessage(playerList(players, mode));
         });
         return null;

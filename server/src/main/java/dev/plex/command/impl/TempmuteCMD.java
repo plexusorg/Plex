@@ -1,5 +1,7 @@
 package dev.plex.command.impl;
 
+import static dev.plex.api.message.MessagePlaceholder.placeholder;
+
 import org.bukkit.Bukkit;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -103,7 +105,7 @@ public class TempmuteCMD extends ServerCommand
                 PlexLog.error("Unable to tempmute {0}: {1}", punishedPlayer.getUuid(), failure.getMessage());
                 sender.sendMessage(Component.text("Unable to persist the mute; no action was taken."));
             }
-            else PlexUtils.broadcast(PlexUtils.messageComponent("tempMutedPlayer", context.senderName(), player.getName(), TimeUtils.formatRelativeTime(endDate)));
+            else PlexUtils.broadcast(PlexUtils.messageComponent("tempMutedPlayer", placeholder("sender", context.senderName()), placeholder("player", player.getName()), placeholder("duration", TimeUtils.formatRelativeTime(endDate))));
         });
         return null;
     }

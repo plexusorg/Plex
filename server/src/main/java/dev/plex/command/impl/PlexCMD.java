@@ -1,5 +1,7 @@
 package dev.plex.command.impl;
 
+import static dev.plex.api.message.MessagePlaceholder.placeholder;
+
 import org.bukkit.Bukkit;
 
 
@@ -147,7 +149,7 @@ public class PlexCMD extends ServerCommand
                 {
                     PlexLog.error("Failed to reload updated modules", failure);
                 }
-                sender.sendMessage(PlexUtils.messageComponent("moduleUpdateSummary", updatedCount, skippedCount, failedCount));
+                sender.sendMessage(PlexUtils.messageComponent("moduleUpdateSummary", placeholder("updated_count", updatedCount), placeholder("skipped_count", skippedCount), placeholder("failed_count", failedCount)));
             });
         }, plugin.getIoExecutor());
         return null;

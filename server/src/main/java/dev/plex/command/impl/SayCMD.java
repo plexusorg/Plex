@@ -1,5 +1,7 @@
 package dev.plex.command.impl;
 
+import static dev.plex.api.message.MessagePlaceholder.placeholder;
+
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
 import dev.plex.command.ServerCommandContext;
@@ -36,7 +38,7 @@ public class SayCMD extends ServerCommand
     {
         CommandSender sender = context.sender();
         Player playerSender = context.player();
-        PlexUtils.broadcast(PlexUtils.messageComponent("sayMessage", context.senderName(), PlexUtils.mmStripColor(message)));
+        PlexUtils.broadcast(PlexUtils.messageComponent("sayMessage", placeholder("sender", context.senderName()), placeholder("message", PlexUtils.mmStripColor(message))));
         return null;
     }
 

@@ -9,89 +9,89 @@
 # If any of these variables are supposed to be used within a message, some documentation is provided to give more context to what the variables indicate.
 # If you are wishing to change these messages it's recommended you use the same amount of variables as stated in the documentation, however it's not required.
 
-# 0 - Appeal URL
-# 1 - Reason
-# 2 - Expiry
-# 3 - Punisher
-banMessage: "<red>You have been banned! You may appeal at <gold>{0}.\n<red>Reason: <gold>{1}\n<red>Expires in <gold>{2}\n<red>Banned by: <gold>{3}"
-# 0 - Reason
-# 1 - Expiry
-banStatus: "<red>Banned <dark_gray>• <gold>{0} <dark_gray>• <yellow>Expires in {1}"
-# 0 - Appeal URL
-# 1 - Reason
-# 2 - Expiry
-# 3 - Punisher
-banCapacityMessage: "<red>You are banned and all spectator slots are occupied. You may appeal at <gold>{0}.\n<red>Reason: <gold>{1}\n<red>Expires in <gold>{2}\n<red>Banned by: <gold>{3}"
+# {appeal_url} - Appeal URL
+# {reason} - Reason
+# {expires_in} - Expiry
+# {punisher} - Punisher
+banMessage: "<red>You have been banned! You may appeal at <gold>{appeal_url}.\n<red>Reason: <gold>{reason}\n<red>Expires in <gold>{expires_in}\n<red>Banned by: <gold>{punisher}"
+# {reason} - Reason
+# {expires_in} - Expiry
+banStatus: "<red>Banned <dark_gray>• <gold>{reason} <dark_gray>• <yellow>Expires in {expires_in}"
+# {appeal_url} - Appeal URL
+# {reason} - Reason
+# {expires_in} - Expiry
+# {punisher} - Punisher
+banCapacityMessage: "<red>You are banned and all spectator slots are occupied. You may appeal at <gold>{appeal_url}.\n<red>Reason: <gold>{reason}\n<red>Expires in <gold>{expires_in}\n<red>Banned by: <gold>{punisher}"
 bannedPriorityKick: "<red>A regular player needed your spectator slot. Reconnect when space is available."
-# 0 - Reason
-# 1 - Punisher
-kickMessage: "<red>You have been kicked! \n<red>Reason: <gold>{0}\n<red>Kicked by: <gold>{1}"
-# 0 - The type of indefinite ban
-# 1 - Appeal URL
-indefBanMessage: "<red>Your {0} is indefinitely banned! You may appeal at <gold>{1}."
-# 0 - The type of indefinite ban
-# 1 - Appeal URL
-# 2 - The reason
-indefBanMessageReason: "<red>Your {0} is indefinitely banned! You may appeal at <gold>{1}.\n<red>Reason: <gold>{2}"
+# {reason} - Reason
+# {punisher} - Punisher
+kickMessage: "<red>You have been kicked! \n<red>Reason: <gold>{reason}\n<red>Kicked by: <gold>{punisher}"
+# {type} - The type of indefinite ban
+# {appeal_url} - Appeal URL
+indefBanMessage: "<red>Your {type} is indefinitely banned! You may appeal at <gold>{appeal_url}."
+# {type} - The type of indefinite ban
+# {appeal_url} - Appeal URL
+# {reason} - The reason
+indefBanMessageReason: "<red>Your {type} is indefinitely banned! You may appeal at <gold>{appeal_url}.\n<red>Reason: <gold>{reason}"
 playerNotFound: "<red>Player not found!"
 specifyPlayer: "<red>You must specify a player!"
 worldNotFound: "<red>World not found!"
 correctUsagePrefix: "<yellow>Correct Usage: "
 # This will always be used for punishments where the sanctioning administrator has not provided a reason. Will ignore MiniMessage tags.
 noReasonProvided: "No reason provided."
-# 0 - The world you have been teleported to
-playerWorldTeleport: "<aqua>You have been teleported to {0}."
-# 0 - The person who is freezing
-# 1 - The person who has been frozen
-frozePlayer: "<red>{0} - Froze {1}"
-# 0 - The person who is unfreezing
-# 1 - The person who has been unfrozen
-unfrozePlayer: "<aqua>{0} - Unfroze {1}"
-# 0 - The command sender
-# 1 - The person who has been muted
-mutedPlayer: "<red>{0} - Muted {1}"
-# 0 - The command sender
-# 1 - The person who has been unmuted
-unmutedPlayer: "<aqua>{0} - Unmuted {1}"
+# {world} - The world you have been teleported to
+playerWorldTeleport: "<aqua>You have been teleported to {world}."
+# {sender} - The person who is freezing
+# {player} - The person who has been frozen
+frozePlayer: "<red>{sender} - Froze {player}"
+# {sender} - The person who is unfreezing
+# {player} - The person who has been unfrozen
+unfrozePlayer: "<aqua>{sender} - Unfroze {player}"
+# {sender} - The command sender
+# {player} - The person who has been muted
+mutedPlayer: "<red>{sender} - Muted {player}"
+# {sender} - The command sender
+# {player} - The person who has been unmuted
+unmutedPlayer: "<aqua>{sender} - Unmuted {player}"
 invalidTimeFormat: "<red>Invalid time format. Use s, m, h, d, w, mo, or y (e.g., 1h30m)."
 timeMustBeFuture: "<red>The specified time must be in the future."
-# 0 - The command sender
-# 1 - The person who has been muted
-# 2 - The time that the person is muted for
-tempMutedPlayer: "<red>{0} - Muted {1} for {2}"
+# {sender} - The command sender
+# {player} - The person who has been muted
+# {duration} - The time that the person is muted for
+tempMutedPlayer: "<red>{sender} - Muted {player} for {duration}"
 maxTimeExceeded: "<red>The specified time must be under a week."
-# 0 - The person who is locking up
-# 1 - The person who has been locked up
-lockedUpPlayer: "<aqua>{0} - Locking up {1}"
-# 0 - The person who is unlocking
-# 1 - The person who has been unlocked
-unlockedPlayer: "<aqua>{0} - Unlocking {1}"
-# 0 - The permission node required to use the command
-noPermissionNode: "<red>You must have the permission: {0} <red>to use this command!"
+# {sender} - The person who is locking up
+# {player} - The person who has been locked up
+lockedUpPlayer: "<aqua>{sender} - Locking up {player}"
+# {sender} - The person who is unlocking
+# {player} - The person who has been unlocked
+unlockedPlayer: "<aqua>{sender} - Unlocking {player}"
+# {permission} - The permission node required to use the command
+noPermissionNode: "<red>You must have the permission: {permission} <red>to use this command!"
 noPermissionInGame: "<red>You must be in console to use this command!"
 noPermissionConsole: "<red>You must be in-game to use this command!"
 spectatorTeleportDenied: "<red>You do not have permission to teleport while spectating."
 consoleMustDefinePlayer: "<red>You must define a player since you are running this command from console."
-# 0 - The world name
-teleportedToWorld: "<aqua>You have been teleported to the {0}."
+# {world} - The world name
+teleportedToWorld: "<aqua>You have been teleported to the {world}."
 higherRankThanYou: "<red>This player is an admin or a higher rank than you."
 consoleOnly: "<red>This command can only be executed by the console."
-# 0 - The command sender
-# 1 - The player
-banningPlayer: "<red>{0} - Banning {1}"
-# 0 - The command sender
-# 1 - The username
-banningName: "<red>{0} - Banning username {1}"
-# 0 - The command sender
-# 1 - The IP address
-banningIp: "<red>{0} - Banning IP {1}"
+# {sender} - The command sender
+# {player} - The player
+banningPlayer: "<red>{sender} - Banning {player}"
+# {sender} - The command sender
+# {username} - The username
+banningName: "<red>{sender} - Banning username {username}"
+# {sender} - The command sender
+# {ip} - The IP address
+banningIp: "<red>{sender} - Banning IP {ip}"
 invalidUsername: "<red>That is not a valid Minecraft username."
 invalidIpOrPlayer: "<red>Specify a valid IP address or a player with a known IP address."
 nameAlreadyBanned: "<red>That username is already banned."
 ipAlreadyBanned: "<red>That IP address is already banned."
-# 0 - The command sender
-# 1 - The player
-unbanningPlayer: "<aqua>{0} - Unbanning {1}"
+# {sender} - The command sender
+# {player} - The player
+unbanningPlayer: "<aqua>{sender} - Unbanning {player}"
 playerNotBanned: "<red>That player is not banned!"
 playerNotFrozen: "<red>That player is not frozen!"
 playerNotMuted: "<red>That player is not muted!"
@@ -101,42 +101,42 @@ playerMuted: "<red>That player is already muted!"
 muted: "<red>You are currently muted - STFU!"
 pvpDisabled: "<red>PVP has been disabled!"
 chatIsOff: "<red>Chat is currently toggled off!"
-# 0 - The command sender
-# 1 - The set value of the chat toggle
-chatToggled: "<red>{0} - Toggled chat {1}"
-# 0 - The command sender
-# 1 - The player
-kickedPlayer: "<red>{0} - Kicking {1}"
+# {sender} - The command sender
+# {state} - The set value of the chat toggle
+chatToggled: "<red>{sender} - Toggled chat {state}"
+# {sender} - The command sender
+# {player} - The player
+kickedPlayer: "<red>{sender} - Kicking {player}"
 teleportedToWorldSpawn: "<aqua>Teleporting to the local spawn"
 toggleCommandSpy: "<gray>CommandSpy has been"
 enabled: "<gray>enabled."
 disabled: "<gray>disabled."
-# 0 - The player
-# 1 - The command
-commandSpyFormat: "<gray>{0}: {1}"
-# 0 - The admin / staff member
-# 1 - The player's group's prefix if any
-# 2 - The message
-adminChatFormat: '<dark_gray>[<blue>AdminChat<dark_gray>] <dark_red>{0} {1} <gray>» <gold>{2}'
-# 0 - Whether it was toggled on or off
-adminChatToggled: '<gray>AdminChat was toggled {0}'
+# {sender} - The player
+# {command} - The command
+commandSpyFormat: "<gray>{sender}: {command}"
+# {sender} - The admin / staff member
+# {prefix} - The player's group's prefix if any
+# {message} - The message
+adminChatFormat: '<dark_gray>[<blue>AdminChat<dark_gray>] <dark_red>{sender} {prefix} <gray>» <gold>{message}'
+# {state} - Whether it was toggled on or off
+adminChatToggled: '<gray>AdminChat was toggled {state}'
 stateEnabled: "<green>enabled"
 stateDisabled: "<red>disabled"
 stateEnabledUnsafe: "<red>enabled"
 stateDisabledSafe: "<green>disabled"
 stateOn: "<green>on"
 stateOff: "<red>off"
-# 0 - Maximum length, configured in config.yml
-maximumPrefixLength: "<red>The maximum length for a tag may only be {0}."
+# {max_length} - Maximum length, configured in config.yml
+maximumPrefixLength: "<red>The maximum length for a tag may only be {max_length}."
 prefixCleared: "<aqua>Your prefix has been cleared."
-# 0 - The player name
-otherPrefixCleared: "<aqua>You have cleared {0}'s prefix."
-# 0 - The new prefix
-prefixSetTo: "<aqua>Your prefix has been set to {0}"
-# 0 - The action (blocked / unblocked)
-# 1 - The amount of players
-blockeditSize: "<gray>{0} all block modification abilities for {1} players."
-blockeditListEntry: "<gray>- {0}"
+# {player} - The player name
+otherPrefixCleared: "<aqua>You have cleared {player}'s prefix."
+# {prefix} - The new prefix
+prefixSetTo: "<aqua>Your prefix has been set to {prefix}"
+# {action} - The action (blocked / unblocked)
+# {count} - The amount of players
+blockeditSize: "<gray>{action} all block modification abilities for {count} players."
+blockeditListEntry: "<gray>- {player}"
 blockeditListNone: "<gray>- none"
 blockeditAllPlayers: "all players"
 blockeditAllNonAdmins: "all non-admins"
@@ -145,77 +145,76 @@ blockeditUnblockedAction: "Unblocked"
 blockeditBlockedState: "blocked"
 blockeditUnblockedState: "unblocked"
 # The action (blocked or restored)
-editsModified: "<gray>Your block modification abilities have been {0}."
+editsModified: "<gray>Your block modification abilities have been {state}."
 listOfPlayersBlocked: "<gray>The following have block modification abilities restricted:"
-# 0 - The player name
-editsBlocked: "<gray>Blocked block modification abilities for {0}"
-# 0 - The command sender
-# 1 - The player name
-blockingEdits: "<red>{0} - Blocking block modification abilities for {1}"
-# 0 - The command sender
-# 1 - The player
-unblockingEdits: "<aqua>{0} - Unblocking block modification abilities for {1}"
-# 0 - The player name
-editsUnblocked: "<gray>Unblocked block modification abilities for {0}"
-# 0 - The command sender
-# 1 - Number of entities removed
-removedEntities: "<red>{0} - Removed {1} entities"
-# 0 - The command sender
-# 1 - Number of entities removed
-# 2 - Entity type(s) removed
-removedEntitiesOfTypes: "<red>{0} - Removed {1} entities of type(s) {2}"
-# 0 - Entity type that is invalid
-invalidEntityType: "<gray>Notice: Entity type {0} is invalid!"
+# {player} - The player name
+editsBlocked: "<gray>Blocked block modification abilities for {player}"
+# {sender} - The command sender
+# {players} - The player name
+blockingEdits: "<red>{sender} - Blocking block modification abilities for {players}"
+# {sender} - The command sender
+# {players} - The player
+unblockingEdits: "<aqua>{sender} - Unblocking block modification abilities for {players}"
+# {player} - The player name
+editsUnblocked: "<gray>Unblocked block modification abilities for {player}"
+# {sender} - The command sender
+# {count} - Number of entities removed
+removedEntities: "<red>{sender} - Removed {count} entities"
+# {sender} - The command sender
+# {count} - Number of entities removed
+# {types} - Entity type(s) removed
+removedEntitiesOfTypes: "<red>{sender} - Removed {count} entities of type(s) {types}"
+# {entity_type} - Entity type that is invalid
+invalidEntityType: "<gray>Notice: Entity type {entity_type} is invalid!"
 noRemovedEntities: "<gray>No entities were removed."
-# 0 - Number of mobs removed
-# 1 - Type of mob removed
-amountOfMobsRemoved: "<gray>{0} {1} removed."
+# {count} - Number of mobs removed
+# {mobs} - Type of mob removed
+amountOfMobsRemoved: "<gray>{count} {mobs} removed."
 mobSingular: "mob"
 mobPlural: "mobs"
 notAValidMob: "<red>That is not a valid mob."
 notAValidMobButValidEntity: "<red>That is a valid entity, but is not a valid mob."
-# 0 - The command sender
-# 1 - Number of mobs removed
-removedMobs: "<red>{0} - Removed {1} mobs"
-# 0 - The boolean for whether the limit is enabled or disabled
-mobLimitToggle: "<gray>The mob limit has been {0}"
-# 0 - The amount that the mob limit has been set to
-mobLimitSet: "<gray>The mob limit has been set to: <em><white>{0}"
-# 0 - The boolean for whether the limit is enabled or disabled
-# 1 - The current amount of mobs in the world
-# 2 - The current set mob limit
-# 3 - Chunk x value
-# 4 - Chunk z value
-mobLimitStatus: "<gray>({0}<gray>) <em><white>{1} <reset><gray>/ <em><white>{2} <reset><gray>per chunk (<em><white>Chunk<gray>: <reset>{3}, {4}<gray>)"
-# 0 - The max set limit in config
+# {sender} - The command sender
+# {count} - Number of mobs removed
+removedMobs: "<red>{sender} - Removed {count} mobs"
+# {state} - The boolean for whether the limit is enabled or disabled
+mobLimitToggle: "<gray>The mob limit has been {state}"
+# {limit} - The amount that the mob limit has been set to
+mobLimitSet: "<gray>The mob limit has been set to: <em><white>{limit}"
+# {status} - The boolean for whether the limit is enabled or disabled
+# {count} - The current amount of mobs in the world
+# {limit} - The current set mob limit
+# {chunk_x} - Chunk x value
+# {chunk_z} - Chunk z value
+mobLimitStatus: "<gray>({status}<gray>) <em><white>{count} <reset><gray>/ <em><white>{limit} <reset><gray>per chunk (<em><white>Chunk<gray>: <reset>{chunk_x}, {chunk_z}<gray>)"
 mobLimitCeiling: "<gray>The limit you have entered is too high. Defaulting to the ceiling value from config"
 mobLimitEnabled: "<green>Enabled"
 mobLimitDisabled: "<red>Disabled"
-# 0 - The command sender
-# 1 - The message being said
-sayMessage: "<blue>[Server: {0}] {1}"
-# 0 - The command sender
-# 1 - The message being said
-consoleSayMessage: "<gray>[Console: {0}] <white>{1}"
-# 0 - The number attempted to be parsed
-unableToParseNumber: "<red>Unable to parse {0} as a number!"
+# {sender} - The command sender
+# {message} - The message being said
+sayMessage: "<blue>[Server: {sender}] {message}"
+# {sender} - The command sender
+# {message} - The message being said
+consoleSayMessage: "<gray>[Console: {sender}] <white>{message}"
+# {input} - The number attempted to be parsed
+unableToParseNumber: "<red>Unable to parse {input} as a number!"
 noNotes: "<red>This player has no notes!"
 noteAdded: "<green>Note added."
 noteNotFound: "<red>A note with this ID could not be found."
-# 0 - The ID of the note removed
-removedNote: "<green>Removed note with ID: {0}"
-# 0 - The number of notes cleared
-clearedNotes: "<green>Cleared {0} notes."
+# {id} - The ID of the note removed
+removedNote: "<green>Removed note with ID: {id}"
+# {count} - The number of notes cleared
+clearedNotes: "<green>Cleared {count} notes."
 invalidToggle: "<red>That is not a valid toggle."
 toggleAvailable: "<gray>Available toggles:"
-# 0 - The toggle name
-# 1 - The toggle status
-toggleListItem: "<gray>  - {0}<gray> ({1}<gray>)"
-# 0 - The toggle name
-# 1 - The toggle status
-toggleCommandResult: "<gray>Toggled {0}<gray> ({1}<gray>)"
-# 0 - The toggle name
-toggleToggled: "<gray>Toggled {0}."
+# {toggle} - The toggle name
+# {status} - The toggle status
+toggleListItem: "<gray>  - {toggle}<gray> ({status}<gray>)"
+# {toggle} - The toggle name
+# {status} - The toggle status
+toggleCommandResult: "<gray>Toggled {toggle}<gray> ({status}<gray>)"
+# {toggle} - The toggle name
+toggleToggled: "<gray>Toggled {toggle}."
 toggleMenuTitle: "<green><bold>Toggles"
 toggleExplosions: "Explosions"
 toggleExplosionsLower: "explosions"
@@ -230,146 +229,144 @@ togglePvpLower: "PVP"
 toggleChat: "Chat"
 toggleChatLower: "chat"
 specifyLoginMessage: "<red>Please specify a login message."
-# 0 - The login message
-setOwnLoginMessage: "<gray>Your login message is now:<newline><gray>> <reset>{0}"
-# 0 - The player
-# 1 - The login message
-setOtherPlayersLoginMessage: "<gray>{0}'s login message is now:<newline><gray>> <reset>{1}"
+# {message} - The login message
+setOwnLoginMessage: "<gray>Your login message is now:<newline><gray>> <reset>{message}"
+# {player} - The player
+# {message} - The login message
+setOtherPlayersLoginMessage: "<gray>{player}'s login message is now:<newline><gray>> <reset>{message}"
 removedOwnLoginMessage: "<gray>Your login message has been removed."
-# 0 - The player
-removedOtherLoginMessage: "<gray>You removed {0}'s login message."
+# {player} - The player
+removedOtherLoginMessage: "<gray>You removed {player}'s login message."
 nameRequired: "<red>Policy requires that you must state your player name in your login message. You can either do this by inserting your name or %player%."
 groupRequired: "<red>Policy requires that you must state your group in your login message. You can either do this by inserting your configured group title or %group%."
 groupNotConfigured: "<red>Your primary group does not have a title configured, so it cannot be used in a login message."
-# 0 - The material name
-# 1 - The players who have the material in their inventory
-playersWithMaterial: "<gray>Players with {0} in their inventory: {1}"
-# 0 - The material name
-# 1 - The players who have the material in their inventory
-playersMaterialCleared: "<gray>{0} has been removed from the following players: {1}"
+# {material} - The material name
+# {players} - The players who have the material in their inventory
+playersWithMaterial: "<gray>Players with {material} in their inventory: {players}"
+# {material} - The material name
+# {players} - The players who have the material in their inventory
+playersMaterialCleared: "<gray>{material} has been removed from the following players: {players}"
 nobodyHasThatMaterial: "<gray>No one online has that in their inventory."
-# 0 - The attempted material name
-materialNotFound: "<red>{0} is not a valid item/block name."
-# 0 - The string that wasn't a valid integer
-notANumber: "<red>{0} is not a valid number!"
-# 0 - Players currently online
-# 1 - Max players
-listHeader: "<gray>There is currently <yellow>{0}<gray> player online out of <yellow>{1}<gray> players."
-# 0 - Players currently online
-# 1 - Max players
-listHeaderPlural: "<gray>There are currently <yellow>{0}<gray> players online out of <yellow>{1}<gray> players."
-# 0 - Player who is having their notes fetched
-notesHeader: "Player notes for: <green>{0}"
-# 0 - Note ID
-# 1 - Author of the note
-# 2 - Timestamp
-notePrefix: "<gold><!italic>{0} - Written by: {1} on {2}"
-# 0 - The content of the note
-noteLine: "<newline><yellow># {0}"
-# 0 - The player
-# 1 - The number of notes logged for said player
-playerNoteAlert: "<gold>{0} has {1} note. <click:run_command:/notes {0} list><underlined>Click here to view their note."
-# 0 - The player
-# 1 - The number of notes logged for said player
-playerNoteAlertPlural: "<gold>{0} has {1} notes. <click:run_command:/notes {0} list><underlined>Click here to view their notes."
+# {material} - The attempted material name
+materialNotFound: "<red>{material} is not a valid item/block name."
+# {input} - The string that wasn't a valid integer
+notANumber: "<red>{input} is not a valid number!"
+# {online_count} - Players currently online
+# {total_count} - Max players
+listHeader: "<gray>There is currently <yellow>{online_count}<gray> player online out of <yellow>{total_count}<gray> players."
+# {online_count} - Players currently online
+# {total_count} - Max players
+listHeaderPlural: "<gray>There are currently <yellow>{online_count}<gray> players online out of <yellow>{total_count}<gray> players."
+# {player} - Player who is having their notes fetched
+notesHeader: "Player notes for: <green>{player}"
+# {id} - Note ID
+# {author} - Author of the note
+# {date} - Timestamp
+notePrefix: "<gold><!italic>{id} - Written by: {author} on {date}"
+# {content} - The content of the note
+noteLine: "<newline><yellow># {content}"
+# {player} - The player
+# {count} - The number of notes logged for said player
+playerNoteAlert: "<gold>{player} has {count} note. <click:run_command:/notes {player} list><underlined>Click here to view their note."
+# {player} - The player
+# {count} - The number of notes logged for said player
+playerNoteAlertPlural: "<gold>{player} has {count} notes. <click:run_command:/notes {player} list><underlined>Click here to view their notes."
 smiteTitleHeader: "<red>You've been smitten."
-# 0 - The reason for the smite. Will default to noReasonProvided if no reason is specified.
-# 1 - The admin / staff member
 smiteTitleMessage: "<yellow>Be sure to follow the rules!"
-# 0 - The player
-# 1 - The reason for the smite. Will default to noReasonProvided if no reason is specified.
-# 2 - The admin / staff member
-smiteBroadcast: "<red>{0} has been a naughty, naughty boy.<newline><red> - Reason: <yellow>{1}<newline><red> - Smitten by: <yellow>{2}"
-# 0 - The player
-smittenQuietly: "<gray>Smitten {0} quietly."
-# 0 - The reason for being smitten
-smitten: "<red>You've been smitten. Reason: <yellow>{0}"
+# {player} - The player
+# {reason} - The reason for the smite. Will default to noReasonProvided if no reason is specified.
+# {sender} - The admin / staff member
+smiteBroadcast: "<red>{player} has been a naughty, naughty boy.<newline><red> - Reason: <yellow>{reason}<newline><red> - Smitten by: <yellow>{sender}"
+# {player} - The player
+smittenQuietly: "<gray>Smitten {player} quietly."
+# {reason} - The reason for being smitten
+smitten: "<red>You've been smitten. Reason: <yellow>{reason}"
 nukerKickMessage: "Please turn off your nuker!"
 nukerTempbanReason: "You are temporarily banned for five minutes for using a Nuker."
 antiSpamMessage: "<gray>Please refrain from spamming messages."
-# 0 - The player
-banExpiredBroadcast: "Plex - Automatically unbanning {0}"
-# 0 - The player
-redisResetSuccessful: "<yellow>Successfuly reset {0}'s Redis punishments!"
+# {player} - The player
+banExpiredBroadcast: "Plex - Automatically unbanning {player}"
+# {player} - The player
+redisResetSuccessful: "<yellow>Successfuly reset {player}'s Redis punishments!"
 redisResetPlayerNotFound: "Couldn't find player in Redis punishments."
 reappliedGamerules: "<aqua>All game rules have been re-applied!"
 commandNotFound: "<red>That command could not be found!"
-# 0 - The command
-# 1 - A list of aliases found
-commandAliases: "<aqua>Aliases for {0} are: {1}"
-# 0 - Number of activities found to rollback
-prismRollbackMessage: "<gray>Rolled back {0} activities"
-# 0 - Error message returned from Prism
-prismRollbackError: "<red>Rollback failed: {0}"
+# {command} - The command
+# {aliases} - A list of aliases found
+commandAliases: "<aqua>Aliases for {command} are: {aliases}"
+# {count} - Number of activities found to rollback
+prismRollbackMessage: "<gray>Rolled back {count} activities"
+# {error} - Error message returned from Prism
+prismRollbackError: "<red>Rollback failed: {error}"
 prismNoResult: "<gray>No activities have been rolled back"
 punishmentMenuTitle: "<aqua><bold>Punishments"
-# 0 - The player
-punishedPlayerMenuTitle: "<red><bold>Punishments - {0}"
+# {player} - The player
+punishedPlayerMenuTitle: "<red><bold>Punishments - {player}"
 punishmentPlayerNotFound: '<red>This player does not exist. Try doing /punishments \<player> instead.'
-# 0 - The amount of active bans
-# 1 - The active ban list
-activeBansList: "<gold>Active Bans ({0}): <yellow>{1}"
-# 0 - The amount of players unbanned
-unbannedPlayers: "<gold>Unbanned {0} players."
-updateUpToDate: "<green>Plex is up to date on the {0} channel."
-# 0 - The version
-# 1 - The channel
-updateAvailable: "<red>Plex {0} is available on the {1} channel."
+# {count} - The amount of active bans
+# {players} - The active ban list
+activeBansList: "<gold>Active Bans ({count}): <yellow>{players}"
+# {count} - The amount of players unbanned
+unbannedPlayers: "<gold>Unbanned {count} players."
+updateUpToDate: "<green>Plex is up to date on the {channel} channel."
+# {version} - The version
+# {channel} - The channel
+updateAvailable: "<red>Plex {version} is available on the {channel} channel."
 updateRunCommand: "<red>Run: /plex update"
-# 0 - The file name
-updateDownloading: "<green>Downloading latest JAR file: {0}"
+# {file} - The file name
+updateDownloading: "<green>Downloading latest JAR file: {file}"
 updateDownloaded: "<green>New JAR file downloaded and verified successfully."
-# 0 - The directory path
-updateDirectoryFailed: "<red>Unable to create update directory: {0}"
-# 0 - The artifact name
-updateDownloadFailed: "<red>Something went wrong while downloading {0}. Please check the log for more information."
-# 0 - The channel
-updateMetadataNotFound: "<red>No compatible update is available on the {0} channel."
-# 0 - The Plex version
-# 1 - The channel
-# 2 - The supported Minecraft versions
-# 3 - The running Minecraft version
-updateRequiresMinecraftVersion: "<yellow>No Plex build exists for Minecraft {3}. Plex {0} on the {1} channel supports Minecraft: {2}."
-# 0 - The Plex version
-# 1 - The channel
-# 2 - The oldest supported Minecraft version
-# 3 - The running Minecraft version
-# 4 - The supported Minecraft versions
-updateRequiresNewerMinecraft: "<yellow>Your server is running Minecraft {3}, which is older than any version supported by Plex {0} on the {1} channel (oldest supported: {2}). Supported versions: {4}."
-# 0 - The Plex version
-# 1 - The channel
-# 2 - The newest supported Minecraft version
-# 3 - The running Minecraft version
-# 4 - The supported Minecraft versions
-updateUnsupportedNewerMinecraft: "<yellow>No Plex build exists yet for Minecraft {3}. Plex {0} on the {1} channel supports up to Minecraft {2}. Supported versions: {4}."
-# 0 - The error message
-updateMetadataError: "<red>There was an error checking update metadata: {0}"
-moduleUpdateDisabled: "<yellow>Skipping {0}; module updates are disabled."
-# 0 - The number of modules updated
-# 1 - The number of modules skipped
-# 2 - The number of modules that failed to update
-moduleUpdateSummary: "<green>Module updates finished: <yellow>{0} updated<gray>, <yellow>{1} skipped<gray>, <red>{2} failed<gray>. Modules were reloaded after all update attempts completed."
+# {directory} - The directory path
+updateDirectoryFailed: "<red>Unable to create update directory: {directory}"
+# {artifact} - The artifact name
+updateDownloadFailed: "<red>Something went wrong while downloading {artifact}. Please check the log for more information."
+# {channel} - The channel
+updateMetadataNotFound: "<red>No compatible update is available on the {channel} channel."
+# {version} - The Plex version
+# {channel} - The channel
+# {supported_versions} - The supported Minecraft versions
+# {running_version} - The running Minecraft version
+updateRequiresMinecraftVersion: "<yellow>No Plex build exists for Minecraft {running_version}. Plex {version} on the {channel} channel supports Minecraft: {supported_versions}."
+# {version} - The Plex version
+# {channel} - The channel
+# {oldest_supported_version} - The oldest supported Minecraft version
+# {running_version} - The running Minecraft version
+# {supported_versions} - The supported Minecraft versions
+updateRequiresNewerMinecraft: "<yellow>Your server is running Minecraft {running_version}, which is older than any version supported by Plex {version} on the {channel} channel (oldest supported: {oldest_supported_version}). Supported versions: {supported_versions}."
+# {version} - The Plex version
+# {channel} - The channel
+# {newest_supported_version} - The newest supported Minecraft version
+# {running_version} - The running Minecraft version
+# {supported_versions} - The supported Minecraft versions
+updateUnsupportedNewerMinecraft: "<yellow>No Plex build exists yet for Minecraft {running_version}. Plex {version} on the {channel} channel supports up to Minecraft {newest_supported_version}. Supported versions: {supported_versions}."
+# {error} - The error message
+updateMetadataError: "<red>There was an error checking update metadata: {error}"
+moduleUpdateDisabled: "<yellow>Skipping {module}; module updates are disabled."
+# {updated_count} - The number of modules updated
+# {skipped_count} - The number of modules skipped
+# {failed_count} - The number of modules that failed to update
+moduleUpdateSummary: "<green>Module updates finished: <yellow>{updated_count} updated<gray>, <yellow>{skipped_count} skipped<gray>, <red>{failed_count} failed<gray>. Modules were reloaded after all update attempts completed."
 moduleRestartRequired: "<yellow>Module changes applied. Restart the server if module commands do not appear or disappear."
 
 # WorldGuard protection command
-protectRegionCreated: "<green>Created WorldGuard region <yellow>{0}</yellow> with the <yellow>{1}</yellow> preset in <yellow>{2}</yellow>."
-protectPresetApplied: "<green>Applied the <yellow>{0}</yellow> preset to region <yellow>{1}</yellow>."
-protectRegionRemoved: "<green>Removed region <yellow>{0}</yellow> from <yellow>{1}</yellow>."
-protectReloaded: "<green>Reloaded protection.yml and synchronized <yellow>{0}</yellow> managed regions."
+protectRegionCreated: "<green>Created WorldGuard region <yellow>{region}</yellow> with the <yellow>{preset}</yellow> preset in <yellow>{world}</yellow>."
+protectPresetApplied: "<green>Applied the <yellow>{preset}</yellow> preset to region <yellow>{region}</yellow>."
+protectRegionRemoved: "<green>Removed region <yellow>{region}</yellow> from <yellow>{world}</yellow>."
+protectReloaded: "<green>Reloaded protection.yml and synchronized <yellow>{count}</yellow> managed regions."
 protectSelectionIncomplete: "<red>Make a complete WorldEdit selection first, or provide a radius."
-protectRegionExists: "<red>A region named {0} already exists or is already managed by Plex."
-protectRegionNotFound: "<red>No WorldGuard region named {0} exists in this world."
-protectPresetNotFound: "<red>No protection preset named {0} exists."
-protectInvalidRegionId: "<red>{0} is not a valid WorldGuard region name."
-protectManagerUnavailable: "<red>WorldGuard region support is unavailable for world {0}."
-protectInvalidPreset: "<red>The protection configuration is invalid: {0}"
+protectRegionExists: "<red>A region named {region} already exists or is already managed by Plex."
+protectRegionNotFound: "<red>No WorldGuard region named {region} exists in this world."
+protectPresetNotFound: "<red>No protection preset named {preset} exists."
+protectInvalidRegionId: "<red>{region} is not a valid WorldGuard region name."
+protectManagerUnavailable: "<red>WorldGuard region support is unavailable for world {world}."
+protectInvalidPreset: "<red>The protection configuration is invalid: {error}"
 protectInvalidRadius: "<red>The protection radius must be at least 1 block."
 protectPlayerOnly: "<red>This protection operation must be run by a player."
-protectUnsupportedRegion: "<red>Region {0} is not a cuboid. Plex only manages cuboid regions."
-protectManagedOtherWorld: "<red>A Plex-managed region with that name already exists in world {0}."
+protectUnsupportedRegion: "<red>Region {region} is not a cuboid. Plex only manages cuboid regions."
+protectManagedOtherWorld: "<red>A Plex-managed region with that name already exists in world {world}."
 protectNoRegions: "<gray>Plex is not managing any WorldGuard regions."
-protectRegionListHeader: "<gold>Managed protection regions ({0}):"
-protectRegionListEntry: "<gray>- <yellow>{0}</yellow> in {1} (preset: {2})"
+protectRegionListHeader: "<gold>Managed protection regions ({count}):"
+protectRegionListEntry: "<gray>- <yellow>{region}</yellow> in {world} (preset: {preset})"
 protectNoPresets: "<gray>No protection presets are configured."
-protectPresetListHeader: "<gold>Protection presets ({0}):"
-protectPresetListEntry: "<gray>- <yellow>{0}</yellow>: {1}"
+protectPresetListHeader: "<gold>Protection presets ({count}):"
+protectPresetListEntry: "<gray>- <yellow>{preset}</yellow>: {description}"

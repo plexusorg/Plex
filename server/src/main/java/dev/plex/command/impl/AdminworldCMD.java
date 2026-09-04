@@ -1,5 +1,7 @@
 package dev.plex.command.impl;
 
+import static dev.plex.api.message.MessagePlaceholder.placeholder;
+
 import dev.plex.util.PlexUtils;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
@@ -40,7 +42,7 @@ public class AdminworldCMD extends ServerCommand
         // TODO: Add adminworld settings
         Location loc = new Location(Bukkit.getWorld("adminworld"), 0, 50, 0);
         playerSender.teleportAsync(loc);
-        return PlexUtils.messageComponent("teleportedToWorld", "adminworld");
+        return PlexUtils.messageComponent("teleportedToWorld", placeholder("world", "adminworld"));
     }
 
 }

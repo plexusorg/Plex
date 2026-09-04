@@ -1,5 +1,7 @@
 package dev.plex.command.impl;
 
+import static dev.plex.api.message.MessagePlaceholder.placeholder;
+
 import dev.plex.util.PlexUtils;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
@@ -38,7 +40,7 @@ public class FlatlandsCMD extends ServerCommand
         assert playerSender != null;
         Location loc = new Location(Bukkit.getWorld("flatlands"), 0, 50, 0);
         playerSender.teleportAsync(loc);
-        return PlexUtils.messageComponent("teleportedToWorld", "flatlands");
+        return PlexUtils.messageComponent("teleportedToWorld", placeholder("world", "flatlands"));
     }
 
 }

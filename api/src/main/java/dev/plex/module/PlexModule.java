@@ -1,9 +1,9 @@
 package dev.plex.module;
 
-import net.kyori.adventure.text.minimessage.MiniMessage;
-
 import dev.plex.api.PlexApi;
 import dev.plex.api.config.ModuleConfiguration;
+import dev.plex.api.message.MessageFormatter;
+import dev.plex.api.message.MessagePlaceholder;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import dev.plex.command.PlexCommand;
 
@@ -263,12 +263,17 @@ public abstract class PlexModule
      * Resolves a module message into a component, falling back to Plex messages.
      *
      * @param entry message key
-     * @param objects replacement values
+     * @param placeholders named replacement values
      * @return resolved component
      */
-    public Component messageComponent(String entry, Object... objects)
+    public Component messageComponent(String entry, MessagePlaceholder... placeholders)
     {
-        return api().messages().miniMessage(messageString(entry, objects));
+        String message = messages == null ? null : messages.getString(entry);
+        if (message == null)
+        {
+            return api().messages().messageComponent(entry, placeholders);
+        }
+        return MessageFormatter.formatComponent(message, api().messages()::miniMessage, placeholders);
     }
 
     /**
@@ -279,46 +284,24 @@ public abstract class PlexModule
      */
     public Component messageComponent(String entry)
     {
-        return messageComponent(entry, new Object[0]);
-    }
-
-    /**
-     * Resolves a module message into a component using component replacements.
-     *
-     * @param entry message key
-     * @param objects component replacement values
-     * @return resolved component
-     */
-    public Component messageComponent(String entry, Component... objects)
-    {
-        Component component = api().messages().miniMessage(messageString(entry));
-        for (int i = 0; i < objects.length; i++)
-        {
-            int finalI = i;
-            component = component.replaceText(builder -> builder.matchLiteral("{" + finalI + "}").replacement(objects[finalI]).build());
-        }
-        return component;
+        return messageComponent(entry, new MessagePlaceholder[0]);
     }
 
     /**
      * Resolves a module message into a string, falling back to Plex messages.
      *
      * @param entry message key
-     * @param objects replacement values
+     * @param placeholders named replacement values
      * @return resolved message string
      */
-    public String messageString(String entry, Object... objects)
+    public String messageString(String entry, MessagePlaceholder... placeholders)
     {
         String message = messages == null ? null : messages.getString(entry);
         if (message == null)
         {
-            return api().messages().messageString(entry, objects);
+            return api().messages().messageString(entry, placeholders);
         }
-        for (int i = 0; i < objects.length; i++)
-        {
-            message = message.replace("{" + i + "}", String.valueOf(objects[i]));
-        }
-        return message;
+        return MessageFormatter.formatString(message, placeholders);
     }
 
     void setLifecycle(ModuleLifecycle lifecycle)

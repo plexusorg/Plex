@@ -1,5 +1,7 @@
 package dev.plex.command.impl;
 
+import static dev.plex.api.message.MessagePlaceholder.placeholder;
+
 import dev.plex.util.PlexUtils;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -116,7 +118,7 @@ public class NotesCMD extends ServerCommand
                 context.sender().sendMessage(Component.text("Unable to remove note."));
                 return;
             }
-            context.sender().sendMessage(deleted ? PlexUtils.messageComponent("removedNote", id) : PlexUtils.messageComponent("noteNotFound"));
+            context.sender().sendMessage(deleted ? PlexUtils.messageComponent("removedNote", placeholder("id", id)) : PlexUtils.messageComponent("noteNotFound"));
         });
         return null;
     }
@@ -131,7 +133,7 @@ public class NotesCMD extends ServerCommand
                 context.sender().sendMessage(Component.text("Unable to clear notes."));
                 return;
             }
-            context.sender().sendMessage(PlexUtils.messageComponent("clearedNotes", count));
+            context.sender().sendMessage(PlexUtils.messageComponent("clearedNotes", placeholder("count", count)));
         });
         return null;
     }
@@ -152,14 +154,13 @@ public class NotesCMD extends ServerCommand
                 context.sender().sendMessage(Component.text("Unable to load notes."));
                 return;
             }
-            Component noteList = PlexUtils.messageComponent("notesHeader", plexPlayer.getName());
+            Component noteList = PlexUtils.messageComponent("notesHeader", placeholder("player", plexPlayer.getName()));
             for (int index = 0; index < notes.size(); index++)
             {
                 PlayerNote note = notes.get(index);
-                Component noteLine = PlexUtils.messageComponent("notePrefix", note.id(), names[index].join(),
-                        TimeUtils.useTimezone(note.timestamp()));
+                Component noteLine = PlexUtils.messageComponent("notePrefix", placeholder("id", note.id()), placeholder("author", names[index].join()), placeholder("date", TimeUtils.useTimezone(note.timestamp())));
                 noteList = noteList.append(Component.newline()).append(noteLine)
-                        .append(PlexUtils.messageComponent("noteLine", note.content()));
+                        .append(PlexUtils.messageComponent("noteLine", placeholder("content", note.content())));
             }
             context.sender().sendMessage(noteList);
         });

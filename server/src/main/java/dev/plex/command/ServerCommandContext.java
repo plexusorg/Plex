@@ -1,5 +1,7 @@
 package dev.plex.command;
 
+import static dev.plex.api.message.MessagePlaceholder.placeholder;
+
 import com.mojang.brigadier.context.CommandContext;
 import dev.plex.api.command.CommandExecutionIdentity;
 import dev.plex.command.exception.CommandFailException;
@@ -93,7 +95,7 @@ public final class ServerCommandContext
     {
         if (!permission.isEmpty() && !player.hasPermission(permission))
         {
-            throw new CommandFailException(PlexUtils.messageString("noPermissionNode", permission));
+            throw new CommandFailException(PlexUtils.messageString("noPermissionNode", placeholder("permission", permission)));
         }
         return true;
     }

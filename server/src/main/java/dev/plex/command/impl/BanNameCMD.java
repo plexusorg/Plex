@@ -1,5 +1,7 @@
 package dev.plex.command.impl;
 
+import static dev.plex.api.message.MessagePlaceholder.placeholder;
+
 import org.bukkit.Bukkit;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -49,7 +51,7 @@ public class BanNameCMD extends ServerCommand
             return PlexUtils.messageComponent("nameAlreadyBanned");
         }
 
-        PlexUtils.broadcast(PlexUtils.messageComponent("banningName", context.senderName(), username));
+        PlexUtils.broadcast(PlexUtils.messageComponent("banningName", placeholder("sender", context.senderName()), placeholder("username", username)));
         Component kickMessage = Punishment.generateIndefBanMessageWithReason(
                 "username", plugin.config.getString("banning.ban_url"), reason);
         plugin.getPlayerService().cachedPlayers().stream()

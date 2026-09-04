@@ -1,5 +1,7 @@
 package dev.plex.command.impl;
 
+import static dev.plex.api.message.MessagePlaceholder.placeholder;
+
 import org.bukkit.Bukkit;
 
 
@@ -80,7 +82,7 @@ public class KickCMD extends ServerCommand
             player.getScheduler().run(plugin, task ->
             {
                 BungeeUtil.kickPlayer(plugin, player, Punishment.generateKickMessage(punishment));
-                PlexUtils.broadcast(PlexUtils.messageComponent("kickedPlayer", context.senderName(), plexPlayer.getName()));
+                PlexUtils.broadcast(PlexUtils.messageComponent("kickedPlayer", placeholder("sender", context.senderName()), placeholder("player", plexPlayer.getName())));
             }, () -> sender.sendMessage(Component.text("The kick was persisted, but the player disconnected before it could be applied.")));
         });
     }

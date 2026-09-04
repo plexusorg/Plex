@@ -1,5 +1,7 @@
 package dev.plex.util;
 
+import static dev.plex.api.message.MessagePlaceholder.placeholder;
+
 import net.kyori.adventure.text.minimessage.MiniMessage;
 
 import org.bukkit.Bukkit;
@@ -8,6 +10,8 @@ import com.google.common.base.CharMatcher;
 import com.google.common.collect.Lists;
 import io.papermc.paper.ServerBuildInfo;
 import dev.plex.Plex;
+import dev.plex.api.message.MessageFormatter;
+import dev.plex.api.message.MessagePlaceholder;
 import dev.plex.config.Config;
 import dev.plex.listener.impl.ChatListener;
 import dev.plex.util.minimessage.SafeMiniMessage;
@@ -130,34 +134,19 @@ public class PlexUtils
         return MiniMessage.builder().tags(TagResolver.builder().resolvers(resolvers).build()).build().deserialize(input);
     }
 
-    public static Component messageComponent(String entry, Object... objects)
+    public static Component messageComponent(String entry, MessagePlaceholder... placeholders)
     {
-        return MINI_MESSAGE.deserialize(messageString(entry, objects));
+        return MessageFormatter.formatComponent(messageString(entry), placeholders);
     }
 
-    public static Component messageComponent(String entry, Component... objects)
+    public static String messageString(String entry, MessagePlaceholder... placeholders)
     {
-        Component component = MINI_MESSAGE.deserialize(messageString(entry));
-        for (int i = 0; i < objects.length; i++)
-        {
-            int finalI = i;
-            component = component.replaceText(builder -> builder.matchLiteral("{" + finalI + "}").replacement(objects[finalI]).build());
-        }
-        return component;
-    }
-
-    public static String messageString(String entry, Object... objects)
-    {
-        String f = messages.getString(entry);
-        if (f == null)
+        String message = messages.getString(entry);
+        if (message == null)
         {
             throw new NullPointerException();
         }
-        for (int i = 0; i < objects.length; i++)
-        {
-            f = f.replace("{" + i + "}", String.valueOf(objects[i]));
-        }
-        return f;
+        return MessageFormatter.formatString(message, placeholders);
     }
 
 
@@ -205,7 +194,7 @@ public class PlexUtils
             }
             if (player.hasPermission("plex.adminchat"))
             {
-                player.sendMessage(PlexUtils.messageComponent("adminChatFormat", senderName, prefix, message).replaceText(ChatListener.URL_REPLACEMENT_CONFIG));
+                player.sendMessage(PlexUtils.messageComponent("adminChatFormat", placeholder("sender", senderName), placeholder("prefix", prefix), placeholder("message", message)).replaceText(ChatListener.URL_REPLACEMENT_CONFIG));
                 sent.add(player.getUniqueId());
             }
         }

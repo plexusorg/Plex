@@ -1,5 +1,7 @@
 package dev.plex.command.impl;
 
+import static dev.plex.api.message.MessagePlaceholder.placeholder;
+
 import org.bukkit.Bukkit;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -74,7 +76,7 @@ public class MuteCMD extends ServerCommand
                 PlexLog.error("Unable to mute {0}: {1}", punishedPlayer.getUuid(), failure.getMessage());
                 sender.sendMessage(Component.text("Unable to persist the mute; no action was taken."));
             }
-            else PlexUtils.broadcast(PlexUtils.messageComponent("mutedPlayer", context.senderName(), player.getName()));
+            else PlexUtils.broadcast(PlexUtils.messageComponent("mutedPlayer", placeholder("sender", context.senderName()), placeholder("player", player.getName())));
         });
         return null;
     }

@@ -1,5 +1,7 @@
 package dev.plex.command.impl;
 
+import static dev.plex.api.message.MessagePlaceholder.placeholder;
+
 import com.google.common.primitives.Ints;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
@@ -99,7 +101,7 @@ public class EntityWipeCMD extends ServerCommand
 
         if (useBlacklist)
         {
-            PlexUtils.broadcast(PlexUtils.messageComponent("removedEntities", context.senderName(), entityCount));
+            PlexUtils.broadcast(PlexUtils.messageComponent("removedEntities", placeholder("sender", context.senderName()), placeholder("count", entityCount)));
         }
         else
         {
@@ -110,7 +112,7 @@ public class EntityWipeCMD extends ServerCommand
             }
             String list = String.join(", ", entityCounts.keySet());
             list = list.replaceAll("(, )(?!.*\1)", (list.indexOf(", ") == list.lastIndexOf(", ") ? "" : ",") + " and ");
-            PlexUtils.broadcast(PlexUtils.messageComponent("removedEntitiesOfTypes", context.senderName(), entityCount, list));
+            PlexUtils.broadcast(PlexUtils.messageComponent("removedEntitiesOfTypes", placeholder("sender", context.senderName()), placeholder("count", entityCount), placeholder("types", list)));
         }
     }
 
@@ -130,7 +132,7 @@ public class EntityWipeCMD extends ServerCommand
             }
             catch (IllegalArgumentException ignored)
             {
-                sender.sendMessage(PlexUtils.messageComponent("invalidEntityType", name));
+                sender.sendMessage(PlexUtils.messageComponent("invalidEntityType", placeholder("entity_type", name)));
             }
         }
         return types;

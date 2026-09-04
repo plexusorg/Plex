@@ -1,5 +1,7 @@
 package dev.plex.command.impl;
 
+import static dev.plex.api.message.MessagePlaceholder.placeholder;
+
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
 import dev.plex.command.ServerCommandContext;
@@ -55,14 +57,14 @@ public class MobLimitCMD extends ServerCommand
                     .count();
         String status = PlexUtils.messageString(plugin.entities.getBoolean("entity_limit.mob_limit_enabled")
                     ? "mobLimitEnabled" : "mobLimitDisabled");
-        return PlexUtils.messageComponent("mobLimitStatus", status, currentMobCount, currentLimit, chunk.getX(), chunk.getZ());
+        return PlexUtils.messageComponent("mobLimitStatus", placeholder("status", status), placeholder("count", currentMobCount), placeholder("limit", currentLimit), placeholder("chunk_x", chunk.getX()), placeholder("chunk_z", chunk.getZ()));
     }
 
     private Component setEnabled(ServerCommandContext context, boolean enabled)
     {
         plugin.entities.set("entity_limit.mob_limit_enabled", enabled);
         plugin.entities.save();
-        return PlexUtils.messageComponent("mobLimitToggle", PlexUtils.messageString(enabled ? "stateEnabled" : "stateDisabled"));
+        return PlexUtils.messageComponent("mobLimitToggle", placeholder("state", PlexUtils.messageString(enabled ? "stateEnabled" : "stateDisabled")));
     }
 
     private Component setMaximum(ServerCommandContext context, int requestedLimit)
@@ -75,7 +77,7 @@ public class MobLimitCMD extends ServerCommand
         }
         plugin.entities.set("entity_limit.max_mobs_per_chunk", newLimit);
         plugin.entities.save();
-        return PlexUtils.messageComponent("mobLimitSet", newLimit);
+        return PlexUtils.messageComponent("mobLimitSet", placeholder("limit", newLimit));
     }
 
 }

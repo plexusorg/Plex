@@ -1,5 +1,7 @@
 package dev.plex.command.impl;
 
+import static dev.plex.api.message.MessagePlaceholder.placeholder;
+
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
 import dev.plex.command.ServerCommandContext;
@@ -43,7 +45,7 @@ public class ToggleCMD extends ServerCommand
 
     private Component toggleChat(ServerCommandContext context)
     {
-        PlexUtils.broadcast(PlexUtils.messageComponent("chatToggled", context.senderName(), PlexUtils.messageString(plugin.toggles.getBoolean("chat") ? "stateOff" : "stateOn")));
+        PlexUtils.broadcast(PlexUtils.messageComponent("chatToggled", placeholder("sender", context.senderName()), placeholder("state", PlexUtils.messageString(plugin.toggles.getBoolean("chat") ? "stateOff" : "stateOn"))));
         return toggle(context, "chat");
     }
 
@@ -68,14 +70,14 @@ public class ToggleCMD extends ServerCommand
 
     private Component toggleListItem(ServerCommandContext context, String nameKey, String toggle)
     {
-        return PlexUtils.messageComponent("toggleListItem", PlexUtils.messageString(nameKey), status(context, toggle));
+        return PlexUtils.messageComponent("toggleListItem", placeholder("toggle", PlexUtils.messageString(nameKey)), placeholder("status", status(context, toggle)));
     }
 
     private Component toggle(ServerCommandContext context, String toggle)
     {
         plugin.toggles.set(toggle, !plugin.getToggles().getBoolean(toggle));
         plugin.toggles.save();
-        return PlexUtils.messageComponent("toggleCommandResult", PlexUtils.messageString(toggleNameKey(toggle)), status(context, toggle));
+        return PlexUtils.messageComponent("toggleCommandResult", placeholder("toggle", PlexUtils.messageString(toggleNameKey(toggle))), placeholder("status", status(context, toggle)));
     }
 
     private String status(ServerCommandContext context, String toggle)
