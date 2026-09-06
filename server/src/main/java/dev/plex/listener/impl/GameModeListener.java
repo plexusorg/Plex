@@ -27,6 +27,11 @@ public class GameModeListener extends ServerListenerBase
             event.setCancelled(true);
             event.cancelMessage(plugin.getPunishmentManager().finiteBanMessage(player.getUniqueId()));
         }
+        else if (event.getCause() == PlayerGameModeChangeEvent.Cause.COMMAND)
+        {
+            event.setCancelled(true);
+            event.cancelMessage(PlexUtils.messageComponent("gameModeCommandBlocked"));
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)

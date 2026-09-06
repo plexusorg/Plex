@@ -71,6 +71,7 @@ noPermissionNode: "<red>You must have the permission: {permission} <red>to use t
 noPermissionInGame: "<red>You must be in console to use this command!"
 noPermissionConsole: "<red>You must be in-game to use this command!"
 spectatorTeleportDenied: "<red>You do not have permission to teleport while spectating."
+gameModeCommandBlocked: "<red>The vanilla gamemode command is disabled. Use the Essentials gamemode command or the gamemode switcher instead."
 consoleMustDefinePlayer: "<red>You must define a player since you are running this command from console."
 # {world} - The world name
 teleportedToWorld: "<aqua>You have been teleported to the {world}."
