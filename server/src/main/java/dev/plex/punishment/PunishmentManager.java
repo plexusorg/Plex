@@ -1,6 +1,6 @@
 package dev.plex.punishment;
 
-import static dev.plex.api.message.MessagePlaceholder.placeholder;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 
 import org.bukkit.Bukkit;
 
@@ -401,7 +401,7 @@ public class PunishmentManager
             if (announce && !isTimedActive(current, type))
             {
                 Bukkit.broadcast(PlexUtils.messageComponent(type == PunishmentType.MUTE ? "unmutedPlayer" : "unfrozePlayer",
-                        placeholder("sender", "Plex"), placeholder("player", Bukkit.getOfflinePlayer(player.getUuid()).getName())));
+                        Placeholder.parsed("sender", "Plex"), Placeholder.parsed("player", String.valueOf(Bukkit.getOfflinePlayer(player.getUuid()).getName()))));
             }
         });
     }

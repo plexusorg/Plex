@@ -1,6 +1,6 @@
 package dev.plex.command.impl;
 
-import static dev.plex.api.message.MessagePlaceholder.placeholder;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -95,7 +95,7 @@ public class BanCMD extends ServerCommand
                     sender.sendMessage(Component.text("Unable to complete the ban; check the server logs."));
                     return;
                 }
-                PlexUtils.broadcast(PlexUtils.messageComponent("banningPlayer", placeholder("sender", context.senderName()), placeholder("player", plexPlayer.getName())));
+                PlexUtils.broadcast(PlexUtils.messageComponent("banningPlayer", Placeholder.parsed("sender", context.senderName()), Placeholder.parsed("player", plexPlayer.getName())));
                 PlexLog.debug("(From /ban command) PunishedPlayer UUID: " + plexPlayer.getUuid());
                 if (reason.rollback()) rollbackReporter.report(sender, plexPlayer.getName());
             });

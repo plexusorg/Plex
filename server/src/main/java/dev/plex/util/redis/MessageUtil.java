@@ -19,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 
 import static dev.plex.util.PlexUtils.messageComponent;
-import static dev.plex.api.message.MessagePlaceholder.placeholder;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 
 public final class MessageUtil
 {
@@ -148,7 +148,7 @@ public final class MessageUtil
                     if (remote)
                     {
                         current.getServer().getConsoleSender().sendMessage(
-                                messageComponent("adminChatFormat", placeholder("sender", sender), placeholder("prefix", prefix), placeholder("message", chatMessage)));
+                                messageComponent("adminChatFormat", Placeholder.parsed("sender", sender), Placeholder.parsed("prefix", prefix), Placeholder.parsed("message", chatMessage)));
                     }
                 });
             }

@@ -1,6 +1,6 @@
 package dev.plex.menu.dialog;
 
-import static dev.plex.api.message.MessagePlaceholder.placeholder;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 
 import dev.plex.Plex;
 import dev.plex.util.PlexUtils;
@@ -74,6 +74,7 @@ public class ToggleDialog
     {
         return ActionButton.builder(Component.text("Close"))
                 .width(150)
+                .action(DialogAction.customClick((response, audience) -> audience.closeDialog(), CALLBACK_OPTIONS))
                 .build();
     }
 
@@ -88,9 +89,9 @@ public class ToggleDialog
         plugin.toggles.save();
         if ("chat".equals(toggle))
         {
-            PlexUtils.broadcast(PlexUtils.messageComponent("chatToggled", placeholder("sender", player.getName()), placeholder("state", PlexUtils.messageString(plugin.toggles.getBoolean("chat") ? "stateOn" : "stateOff"))));
+            PlexUtils.broadcast(PlexUtils.messageComponent("chatToggled", Placeholder.parsed("sender", player.getName()), Placeholder.parsed("state", PlexUtils.messageString(plugin.toggles.getBoolean("chat") ? "stateOn" : "stateOff"))));
         }
-        player.sendMessage(PlexUtils.messageComponent("toggleToggled", placeholder("toggle", PlexUtils.messageString(lowerNameKey))));
+        player.sendMessage(PlexUtils.messageComponent("toggleToggled", Placeholder.parsed("toggle", PlexUtils.messageString(lowerNameKey))));
         open(player);
     }
 

@@ -23,6 +23,11 @@ publishing {
     publications {
         create<MavenPublication>("maven") {
             from(components["java"])
+            versionMapping {
+                usage("java-api") {
+                    fromResolutionOf("compileClasspath")
+                }
+            }
         }
     }
 }

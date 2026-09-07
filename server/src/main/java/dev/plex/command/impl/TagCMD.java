@@ -1,6 +1,6 @@
 package dev.plex.command.impl;
 
-import static dev.plex.api.message.MessagePlaceholder.placeholder;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -65,12 +65,12 @@ public class TagCMD extends ServerCommand
 
             if (PlainTextComponentSerializer.plainText().serialize(convertedComponent).length() > plugin.config.getInt("chat.max-tag-length", 16))
             {
-                return PlexUtils.messageComponent("maximumPrefixLength", placeholder("max_length", plugin.config.getInt("chat.max-tag-length", 16)));
+                return PlexUtils.messageComponent("maximumPrefixLength", Placeholder.unparsed("max_length", String.valueOf(plugin.config.getInt("chat.max-tag-length", 16))));
             }
 
         player.setPrefix(MiniMessage.miniMessage().serialize(convertedComponent));
         plugin.getPlayerService().update(player);
-        return PlexUtils.messageComponent("prefixSetTo", placeholder("prefix", MiniMessage.miniMessage().serialize(convertedComponent)));
+        return PlexUtils.messageComponent("prefixSetTo", Placeholder.parsed("prefix", MiniMessage.miniMessage().serialize(convertedComponent)));
     }
 
     private Component clearOwn(ServerCommandContext context)
@@ -93,7 +93,7 @@ public class TagCMD extends ServerCommand
         PlexPlayer plexTarget = plugin.getPlayerService().cachedPlayer(target.getUniqueId());
         plexTarget.setPrefix(null);
         plugin.getPlayerService().update(plexTarget);
-        return PlexUtils.messageComponent("otherPrefixCleared", placeholder("player", target.getName()));
+        return PlexUtils.messageComponent("otherPrefixCleared", Placeholder.parsed("player", target.getName()));
     }
 
 }

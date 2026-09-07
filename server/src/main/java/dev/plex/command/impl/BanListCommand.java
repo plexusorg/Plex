@@ -1,6 +1,6 @@
 package dev.plex.command.impl;
 
-import static dev.plex.api.message.MessagePlaceholder.placeholder;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 
 import dev.plex.util.PlexUtils;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -51,7 +51,7 @@ public class BanListCommand extends ServerCommand
             String names = StringUtils.join(punishments.stream()
                     .map(punishment -> StringUtils.defaultIfBlank(punishment.getResolvedPunishedName(),
                             punishment.getPunished().toString())).toList(), ", ");
-            sender.sendMessage(PlexUtils.messageComponent("activeBansList", placeholder("count", punishments.size()), placeholder("players", names)));
+            sender.sendMessage(PlexUtils.messageComponent("activeBansList", Placeholder.unparsed("count", String.valueOf(punishments.size())), Placeholder.parsed("players", names)));
         });
         return null;
     }
@@ -73,7 +73,7 @@ public class BanListCommand extends ServerCommand
                     .whenComplete((unused, failure) ->
                     {
                         if (failure != null) sender.sendMessage(Component.text("Unable to clear all active bans."));
-                        else sender.sendMessage(PlexUtils.messageComponent("unbannedPlayers", placeholder("count", uuids.size())));
+                        else sender.sendMessage(PlexUtils.messageComponent("unbannedPlayers", Placeholder.unparsed("count", String.valueOf(uuids.size()))));
                     });
         });
         return null;

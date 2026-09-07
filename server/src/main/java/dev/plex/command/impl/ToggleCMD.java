@@ -1,6 +1,6 @@
 package dev.plex.command.impl;
 
-import static dev.plex.api.message.MessagePlaceholder.placeholder;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
@@ -45,7 +45,7 @@ public class ToggleCMD extends ServerCommand
 
     private Component toggleChat(ServerCommandContext context)
     {
-        PlexUtils.broadcast(PlexUtils.messageComponent("chatToggled", placeholder("sender", context.senderName()), placeholder("state", PlexUtils.messageString(plugin.toggles.getBoolean("chat") ? "stateOff" : "stateOn"))));
+        PlexUtils.broadcast(PlexUtils.messageComponent("chatToggled", Placeholder.parsed("sender", context.senderName()), Placeholder.parsed("state", PlexUtils.messageString(plugin.toggles.getBoolean("chat") ? "stateOff" : "stateOn"))));
         return toggle(context, "chat");
     }
 
@@ -70,14 +70,14 @@ public class ToggleCMD extends ServerCommand
 
     private Component toggleListItem(ServerCommandContext context, String nameKey, String toggle)
     {
-        return PlexUtils.messageComponent("toggleListItem", placeholder("toggle", PlexUtils.messageString(nameKey)), placeholder("status", status(context, toggle)));
+        return PlexUtils.messageComponent("toggleListItem", Placeholder.parsed("toggle", PlexUtils.messageString(nameKey)), Placeholder.parsed("status", status(context, toggle)));
     }
 
     private Component toggle(ServerCommandContext context, String toggle)
     {
         plugin.toggles.set(toggle, !plugin.getToggles().getBoolean(toggle));
         plugin.toggles.save();
-        return PlexUtils.messageComponent("toggleCommandResult", placeholder("toggle", PlexUtils.messageString(toggleNameKey(toggle))), placeholder("status", status(context, toggle)));
+        return PlexUtils.messageComponent("toggleCommandResult", Placeholder.parsed("toggle", PlexUtils.messageString(toggleNameKey(toggle))), Placeholder.parsed("status", status(context, toggle)));
     }
 
     private String status(ServerCommandContext context, String toggle)

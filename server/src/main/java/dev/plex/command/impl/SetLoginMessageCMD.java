@@ -1,6 +1,6 @@
 package dev.plex.command.impl;
 
-import static dev.plex.api.message.MessagePlaceholder.placeholder;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -16,7 +16,6 @@ import java.util.List;
 
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.apache.commons.lang3.StringUtils;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -92,7 +91,7 @@ public class SetLoginMessageCMD extends ServerCommand
             }
             catch (CommandFailException commandFailure)
             {
-                context.sender().sendMessage(Component.text(commandFailure.getMessage()));
+                context.sender().sendMessage(PlexUtils.mmDeserialize(commandFailure.getMessage()));
                 return;
             }
             plexPlayer.setLoginMessage(normalized);
@@ -103,7 +102,7 @@ public class SetLoginMessageCMD extends ServerCommand
                     PlexLog.warn("Unable to set login message for {0}: {1}", plexPlayer.getUuid(), updateFailure.getMessage());
                     context.sender().sendMessage(Component.text("Unable to save the login message."));
                 }
-                else context.sender().sendMessage(PlexUtils.messageComponent("setOtherPlayersLoginMessage", placeholder("player", plexPlayer.getName()), placeholder("message", MiniMessage.miniMessage().serialize(PlexUtils.stringToComponent(PlayerMeta.getLoginMessage(plugin.config, plexPlayer))))));
+                else context.sender().sendMessage(PlexUtils.messageComponent("setOtherPlayersLoginMessage", Placeholder.parsed("player", plexPlayer.getName()), Placeholder.component("message", PlayerMeta.getLoginMessage(plugin.config, plexPlayer))));
             });
         });
         return null;
@@ -124,21 +123,21 @@ public class SetLoginMessageCMD extends ServerCommand
                 PlexLog.warn("Unable to set login message for {0}: {1}", plexPlayer.getUuid(), failure.getMessage());
                 context.sender().sendMessage(Component.text("Unable to save the login message."));
             }
-            else context.sender().sendMessage(PlexUtils.messageComponent("setOwnLoginMessage", placeholder("message", PlexUtils.stringToComponent(PlayerMeta.getLoginMessage(plugin.config, plexPlayer)))));
+            else context.sender().sendMessage(PlexUtils.messageComponent("setOwnLoginMessage", Placeholder.component("message", PlayerMeta.getLoginMessage(plugin.config, plexPlayer))));
         });
         return null;
     }
 
     private String normalizeMessage(PlexPlayer plexPlayer, String message)
     {
-        String normalized = message.replace(plexPlayer.getName(), "%player%");
+        String normalized = message.replace(plexPlayer.getName(), "<player>");
         String title = PlayerMeta.getGroupTitle(plugin.config, plexPlayer);
-        return title.isEmpty() ? normalized : StringUtils.replaceIgnoreCase(normalized, title, "%group%");
+        return title.isEmpty() ? normalized : StringUtils.replaceIgnoreCase(normalized, title, "<group>");
     }
 
     private void validateMessage(ServerCommandContext context, PlexPlayer plexPlayer, String message)
     {
-        if (plugin.config.getBoolean("loginmessages.name") && !message.contains("%player%"))
+        if (plugin.config.getBoolean("loginmessages.name") && !message.contains("<player>"))
         {
             PlexLog.debug("Validating login message has a valid name in it");
             throw new CommandFailException(PlexUtils.messageString("nameRequired"));
@@ -151,7 +150,7 @@ public class SetLoginMessageCMD extends ServerCommand
         {
             throw new CommandFailException(PlexUtils.messageString("groupNotConfigured"));
         }
-        if (!message.contains("%group%"))
+        if (!message.contains("<group>"))
         {
             PlexLog.debug("Validating login message has a valid group in it");
             throw new CommandFailException(PlexUtils.messageString("groupRequired"));

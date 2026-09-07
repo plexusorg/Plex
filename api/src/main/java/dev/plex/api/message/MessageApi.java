@@ -1,6 +1,7 @@
 package dev.plex.api.message;
 
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 
 /**
  * Formats configured messages and broadcasts Adventure components.
@@ -8,41 +9,30 @@ import net.kyori.adventure.text.Component;
 public interface MessageApi
 {
     /**
-     * Gets a configured message as a component.
-     *
-     * @param entry message key
-     * @return message component
-     */
-    default Component messageComponent(String entry)
-    {
-        return messageComponent(entry, new MessagePlaceholder[0]);
-    }
-
-    /**
      * Resolves a configured message entry into a component.
      *
      * @param entry message key
      * @param placeholders named replacement values
      * @return resolved component
      */
-    Component messageComponent(String entry, MessagePlaceholder... placeholders);
+    Component messageComponent(String entry, TagResolver... placeholders);
 
     /**
-     * Resolves a configured message entry into a plain string.
+     * Gets the raw configured MiniMessage template without resolving tags.
      *
      * @param entry message key
-     * @param placeholders named replacement values
-     * @return resolved message string
+     * @return raw message template
      */
-    String messageString(String entry, MessagePlaceholder... placeholders);
+    String messageString(String entry);
 
     /**
      * Converts MiniMessage text to a component.
      *
      * @param input MiniMessage input
+     * @param placeholders dynamic MiniMessage tags
      * @return message component
      */
-    Component miniMessage(String input);
+    Component miniMessage(String input, TagResolver... placeholders);
 
     /**
      * Broadcasts a MiniMessage string to online players.

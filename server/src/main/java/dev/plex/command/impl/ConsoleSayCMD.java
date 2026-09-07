@@ -1,6 +1,6 @@
 package dev.plex.command.impl;
 
-import static dev.plex.api.message.MessagePlaceholder.placeholder;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
@@ -41,7 +41,7 @@ public class ConsoleSayCMD extends ServerCommand
     {
         CommandSender sender = context.sender();
         Player playerSender = context.player();
-        PlexUtils.broadcast(PlexUtils.messageComponent("consoleSayMessage", placeholder("sender", context.senderName()), placeholder("message", PlexUtils.mmStripColor(message))));
+        PlexUtils.broadcast(PlexUtils.messageComponent("consoleSayMessage", Placeholder.parsed("sender", context.senderName()), Placeholder.parsed("message", PlexUtils.mmStripColor(message))));
         return null;
     }
 

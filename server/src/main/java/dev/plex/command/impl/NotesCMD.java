@@ -1,6 +1,6 @@
 package dev.plex.command.impl;
 
-import static dev.plex.api.message.MessagePlaceholder.placeholder;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 
 import dev.plex.util.PlexUtils;
 
@@ -118,7 +118,7 @@ public class NotesCMD extends ServerCommand
                 context.sender().sendMessage(Component.text("Unable to remove note."));
                 return;
             }
-            context.sender().sendMessage(deleted ? PlexUtils.messageComponent("removedNote", placeholder("id", id)) : PlexUtils.messageComponent("noteNotFound"));
+            context.sender().sendMessage(deleted ? PlexUtils.messageComponent("removedNote", Placeholder.unparsed("id", String.valueOf(id))) : PlexUtils.messageComponent("noteNotFound"));
         });
         return null;
     }
@@ -133,7 +133,7 @@ public class NotesCMD extends ServerCommand
                 context.sender().sendMessage(Component.text("Unable to clear notes."));
                 return;
             }
-            context.sender().sendMessage(PlexUtils.messageComponent("clearedNotes", placeholder("count", count)));
+            context.sender().sendMessage(PlexUtils.messageComponent("clearedNotes", Placeholder.unparsed("count", String.valueOf(count))));
         });
         return null;
     }
@@ -154,13 +154,13 @@ public class NotesCMD extends ServerCommand
                 context.sender().sendMessage(Component.text("Unable to load notes."));
                 return;
             }
-            Component noteList = PlexUtils.messageComponent("notesHeader", placeholder("player", plexPlayer.getName()));
+            Component noteList = PlexUtils.messageComponent("notesHeader", Placeholder.parsed("player", plexPlayer.getName()));
             for (int index = 0; index < notes.size(); index++)
             {
                 PlayerNote note = notes.get(index);
-                Component noteLine = PlexUtils.messageComponent("notePrefix", placeholder("id", note.id()), placeholder("author", names[index].join()), placeholder("date", TimeUtils.useTimezone(note.timestamp())));
+                Component noteLine = PlexUtils.messageComponent("notePrefix", Placeholder.unparsed("id", String.valueOf(note.id())), Placeholder.parsed("author", String.valueOf(names[index].join())), Placeholder.parsed("date", TimeUtils.useTimezone(note.timestamp())));
                 noteList = noteList.append(Component.newline()).append(noteLine)
-                        .append(PlexUtils.messageComponent("noteLine", placeholder("content", note.content())));
+                        .append(PlexUtils.messageComponent("noteLine", Placeholder.parsed("content", note.content())));
             }
             context.sender().sendMessage(noteList);
         });

@@ -1,6 +1,6 @@
 package dev.plex.command.impl;
 
-import static dev.plex.api.message.MessagePlaceholder.placeholder;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 
 import org.bukkit.Bukkit;
 
@@ -89,11 +89,11 @@ public class SmiteCMD extends ServerCommand
             }
             if (!options.silent())
             {
-                PlexUtils.broadcast(PlexUtils.messageComponent("smiteBroadcast", placeholder("player", player.getName()), placeholder("reason", finalReason), placeholder("sender", context.senderName())));
+                PlexUtils.broadcast(PlexUtils.messageComponent("smiteBroadcast", Placeholder.parsed("player", player.getName()), Placeholder.parsed("reason", finalReason), Placeholder.parsed("sender", context.senderName())));
             }
             else
             {
-                sender.sendMessage(PlexUtils.messageComponent("smittenQuietly", placeholder("player", player.getName())));
+                sender.sendMessage(PlexUtils.messageComponent("smittenQuietly", Placeholder.parsed("player", player.getName())));
             }
             player.getScheduler().run(plugin,
                     task -> applySmite(context, player, finalReason, options.clearInventory()), null);
@@ -119,7 +119,7 @@ public class SmiteCMD extends ServerCommand
             }
         }
         player.setHealth(0.0);
-        player.sendMessage(PlexUtils.messageComponent("smitten", placeholder("reason", reason)));
+        player.sendMessage(PlexUtils.messageComponent("smitten", Placeholder.parsed("reason", reason)));
     }
 
     private record SmiteOptions(String reason, boolean silent, boolean clearInventory)

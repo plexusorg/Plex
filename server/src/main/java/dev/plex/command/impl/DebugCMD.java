@@ -1,6 +1,6 @@
 package dev.plex.command.impl;
 
-import static dev.plex.api.message.MessagePlaceholder.placeholder;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 
 import org.bukkit.Bukkit;
 
@@ -100,7 +100,7 @@ public class DebugCMD extends ServerCommand
                 return;
             }
             context.sender().sendMessage(removed
-                    ? PlexUtils.messageComponent("redisResetSuccessful", placeholder("player", name))
+                    ? PlexUtils.messageComponent("redisResetSuccessful", Placeholder.parsed("player", name))
                     : PlexUtils.messageComponent("redisResetPlayerNotFound"));
         });
         return null;
@@ -136,11 +136,11 @@ public class DebugCMD extends ServerCommand
         PlexCommand plexCommand = plugin.getCommandHandler().getCommand(commandName);
         if (plexCommand != null)
         {
-            return PlexUtils.messageComponent("commandAliases", placeholder("command", commandName), placeholder("aliases", Arrays.toString(plexCommand.getAliases().toArray(new String[0]))));
+            return PlexUtils.messageComponent("commandAliases", Placeholder.parsed("command", commandName), Placeholder.parsed("aliases", Arrays.toString(plexCommand.getAliases().toArray(new String[0]))));
         }
         Command command = plugin.getServer().getCommandMap().getCommand(commandName);
         return command == null ? PlexUtils.messageComponent("commandNotFound")
-                : PlexUtils.messageComponent("commandAliases", placeholder("command", commandName), placeholder("aliases", Arrays.toString(command.getAliases().toArray(new String[0]))));
+                : PlexUtils.messageComponent("commandAliases", Placeholder.parsed("command", commandName), Placeholder.parsed("aliases", Arrays.toString(command.getAliases().toArray(new String[0]))));
     }
 
     private Component pagination(ServerCommandContext context)

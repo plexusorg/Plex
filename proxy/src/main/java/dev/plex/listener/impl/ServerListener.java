@@ -14,6 +14,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
 public class ServerListener extends ProxyListener
 {
@@ -29,16 +31,17 @@ public class ServerListener extends ProxyListener
         List<String> motds = config.getMotd();
         String baseMotd = motds.get(ThreadLocalRandom.current().nextInt(motds.size()));
         baseMotd = baseMotd.replace("\\n", "\n");
-        baseMotd = baseMotd.replace("%servername%", config.getName());
-        baseMotd = baseMotd.replace("%mcversion%", plugin.getServer().getVersion().getVersion().split(" ")[0]);
-        baseMotd = baseMotd.replace("%randomgradient%", "<gradient:" + RandomUtil.getRandomColor().toString() + ":" + RandomUtil.getRandomColor().toString() + ">");
+        Component renderedMotd = MiniMessage.miniMessage().deserialize(baseMotd,
+                Placeholder.parsed("servername", config.getName()),
+                Placeholder.unparsed("mcversion", plugin.getServer().getVersion().getVersion().split(" ")[0]),
+                Placeholder.parsed("randomgradient", "<gradient:" + RandomUtil.getRandomColor() + ":" + RandomUtil.getRandomColor() + ">"));
 
         ServerPing.Builder builder = event.getPing().asBuilder();
 
         if (config.isColorizeMotd())
         {
             Component motd = Component.empty();
-            for (final String word : baseMotd.split(" "))
+            for (final String word : PlainTextComponentSerializer.plainText().serialize(renderedMotd).split(" "))
             {
                 motd = motd.append(Component.text(word).color(RandomUtil.getRandomColor())).append(Component.space());
             }
@@ -46,7 +49,7 @@ public class ServerListener extends ProxyListener
         }
         else
         {
-            builder.description(MiniMessage.miniMessage().deserialize(baseMotd));
+            builder.description(renderedMotd);
         }
 
         builder.samplePlayers(config.getSample().stream().map(s -> new ServerPing.SamplePlayer(convertColorCodes(s), UUID.randomUUID())).toArray(ServerPing.SamplePlayer[]::new));

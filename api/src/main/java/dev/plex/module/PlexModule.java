@@ -2,8 +2,7 @@ package dev.plex.module;
 
 import dev.plex.api.PlexApi;
 import dev.plex.api.config.ModuleConfiguration;
-import dev.plex.api.message.MessageFormatter;
-import dev.plex.api.message.MessagePlaceholder;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import dev.plex.command.PlexCommand;
 
@@ -266,42 +265,30 @@ public abstract class PlexModule
      * @param placeholders named replacement values
      * @return resolved component
      */
-    public Component messageComponent(String entry, MessagePlaceholder... placeholders)
+    public Component messageComponent(String entry, TagResolver... placeholders)
     {
         String message = messages == null ? null : messages.getString(entry);
         if (message == null)
         {
             return api().messages().messageComponent(entry, placeholders);
         }
-        return MessageFormatter.formatComponent(message, api().messages()::miniMessage, placeholders);
+        return api().messages().miniMessage(message, placeholders);
     }
 
     /**
-     * Gets a module message as a component.
+     * Gets a raw MiniMessage template, falling back to Plex messages.
      *
      * @param entry message key
-     * @return message component
+     * @return raw message template
      */
-    public Component messageComponent(String entry)
-    {
-        return messageComponent(entry, new MessagePlaceholder[0]);
-    }
-
-    /**
-     * Resolves a module message into a string, falling back to Plex messages.
-     *
-     * @param entry message key
-     * @param placeholders named replacement values
-     * @return resolved message string
-     */
-    public String messageString(String entry, MessagePlaceholder... placeholders)
+    public String messageString(String entry)
     {
         String message = messages == null ? null : messages.getString(entry);
         if (message == null)
         {
-            return api().messages().messageString(entry, placeholders);
+            return api().messages().messageString(entry);
         }
-        return MessageFormatter.formatString(message, placeholders);
+        return message;
     }
 
     void setLifecycle(ModuleLifecycle lifecycle)

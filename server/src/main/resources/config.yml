@@ -3,7 +3,7 @@
 
 server:
   name: "Plexus"
-  motd: "%servername% - Minecraft %mcversion%"
+  motd: "<servername> - Minecraft <mcversion>"
   colorize_motd: true
   sample:
     - "&cForums: https://forum.plex.us.org"
@@ -28,7 +28,7 @@ chat:
   # This does not include color tags such as <red> or <rainbow>
   max-tag-length: 64
   # The chat format can be customized here if the Plex chat system is enabled
-  format: "{prefix} <white>{name} <gray>» <reset>{message}"
+  format: "<prefix> <white><name> <gray>» <reset><message>"
 
 # Group names must match the primary group returned by your permissions plugin.
 # Colors appear in the tab list and in generated login messages.
@@ -54,8 +54,8 @@ loginmessages:
   # Should custom login messages be required to contain the player's configured group title?
   group: true
   # Format used for generated group login messages.
-  # Available placeholders: %player%, %group%, %group_key%, %title%, %article%, and %color%.
-  default-format: '<aqua>%player% is %article% %group%'
+  # Available placeholders: <player>, <group>, <group_key>, <title>, <article>, and <group_color>.
+  default-format: '<aqua><player> is <article> <group>'
 
 data:
   db:

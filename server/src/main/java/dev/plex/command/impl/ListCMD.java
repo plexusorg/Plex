@@ -1,6 +1,6 @@
 package dev.plex.command.impl;
 
-import static dev.plex.api.message.MessagePlaceholder.placeholder;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 
 import org.bukkit.Bukkit;
 
@@ -63,7 +63,7 @@ public class ListCMD extends ServerCommand
                     .filter(player -> mode == ListMode.VANISHED ? player.vanished() : !player.vanished())
                     .toList();
             sender.sendMessage(PlexUtils.messageComponent(players.size() == 1 ? "listHeader" : "listHeaderPlural",
-                    placeholder("online_count", players.size()), placeholder("total_count", maxPlayers)));
+                    Placeholder.unparsed("online_count", String.valueOf(players.size())), Placeholder.unparsed("total_count", String.valueOf(maxPlayers))));
             if (!players.isEmpty()) sender.sendMessage(playerList(players, mode));
         });
         return null;

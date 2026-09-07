@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.UUID;
 
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 
@@ -26,14 +28,15 @@ public class ServerListener extends ServerListenerBase
     {
         String baseMotd = plugin.config.getString("server.motd");
         baseMotd = baseMotd.replace("\\n", "\n");
-        baseMotd = baseMotd.replace("%servername%", plugin.config.getString("server.name"));
+        boolean colorize = plugin.config.getBoolean("server.colorize_motd");
+        Component renderedMotd = PlexUtils.mmDeserialize(colorize ? baseMotd : baseMotd.trim(),
+                Placeholder.parsed("servername", plugin.config.getString("server.name")),
+                Placeholder.unparsed("mcversion", Bukkit.getMinecraftVersion()));
 
-        baseMotd = baseMotd.replace("%mcversion%", Bukkit.getMinecraftVersion());
-
-        if (plugin.config.getBoolean("server.colorize_motd"))
+        if (colorize)
         {
             Component motd = Component.empty();
-            for (final String word : baseMotd.split(" "))
+            for (final String word : PlainTextComponentSerializer.plainText().serialize(renderedMotd).split(" "))
             {
                 motd = motd.append(Component.text(word).color(RandomUtil.getRandomColor())).append(Component.space());
             }
@@ -41,7 +44,7 @@ public class ServerListener extends ServerListenerBase
         }
         else
         {
-            event.motd(PlexUtils.mmDeserialize(baseMotd.trim()));
+            event.motd(renderedMotd);
         }
 
         if (plugin.config.contains("server.sample"))

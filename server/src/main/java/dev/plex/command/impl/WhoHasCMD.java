@@ -1,6 +1,6 @@
 package dev.plex.command.impl;
 
-import static dev.plex.api.message.MessagePlaceholder.placeholder;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 
 import org.bukkit.Bukkit;
 
@@ -55,12 +55,12 @@ public class WhoHasCMD extends ServerCommand
 
         if (material == null)
         {
-            return PlexUtils.messageComponent("materialNotFound", placeholder("material", materialName));
+            return PlexUtils.messageComponent("materialNotFound", Placeholder.parsed("material", materialName));
         }
 
         if (clearInventory && !sender.hasPermission("plex.whohas.clear"))
         {
-            return PlexUtils.messageComponent("noPermissionNode", placeholder("permission", "plex.whohas.clear"));
+            return PlexUtils.messageComponent("noPermissionNode", Placeholder.parsed("permission", "plex.whohas.clear"));
         }
 
         List<CompletableFuture<TextComponent>> captures = plugin.getPlayerService().cachedPlayers().stream()
@@ -103,8 +103,8 @@ public class WhoHasCMD extends ServerCommand
         return players.isEmpty() ?
                 PlexUtils.messageComponent("nobodyHasThatMaterial") :
                 (clearInventory ?
-                        PlexUtils.messageComponent("playersMaterialCleared", placeholder("material", Component.text(material.name())), placeholder("players", Component.join(JoinConfiguration.commas(true), players))) :
-                        PlexUtils.messageComponent("playersWithMaterial", placeholder("material", Component.text(material.name())), placeholder("players", Component.join(JoinConfiguration.commas(true), players))));
+                        PlexUtils.messageComponent("playersMaterialCleared", Placeholder.component("material", Component.text(material.name())), Placeholder.component("players", Component.join(JoinConfiguration.commas(true), players))) :
+                        PlexUtils.messageComponent("playersWithMaterial", Placeholder.component("material", Component.text(material.name())), Placeholder.component("players", Component.join(JoinConfiguration.commas(true), players))));
     }
 
 }

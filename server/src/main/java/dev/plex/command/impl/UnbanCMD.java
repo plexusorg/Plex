@@ -1,6 +1,6 @@
 package dev.plex.command.impl;
 
-import static dev.plex.api.message.MessagePlaceholder.placeholder;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -62,7 +62,7 @@ public class UnbanCMD extends ServerCommand
                         sender.sendMessage(Component.text("Unable to complete the unban; check the server logs."));
                     }
                     else if (!changed) sender.sendMessage(PlexUtils.messageComponent("playerNotBanned"));
-                    else PlexUtils.broadcast(PlexUtils.messageComponent("unbanningPlayer", placeholder("sender", context.senderName()), placeholder("player", target.getName())));
+                    else PlexUtils.broadcast(PlexUtils.messageComponent("unbanningPlayer", Placeholder.parsed("sender", context.senderName()), Placeholder.parsed("player", target.getName())));
                 });
         });
         return null;

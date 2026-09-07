@@ -1,6 +1,6 @@
 package dev.plex.command.impl;
 
-import static dev.plex.api.message.MessagePlaceholder.placeholder;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 
 import org.bukkit.Bukkit;
 
@@ -47,7 +47,7 @@ public class LockupCMD extends ServerCommand
             punishedPlayer.setLockedUp(!punishedPlayer.isLockedUp());
             if (punishedPlayer.isLockedUp()) player.openInventory(player.getInventory());
             PlexUtils.broadcast(PlexUtils.messageComponent(punishedPlayer.isLockedUp()
-                    ? "lockedUpPlayer" : "unlockedPlayer", placeholder("sender", context.senderName()), placeholder("player", player.getName())));
+                    ? "lockedUpPlayer" : "unlockedPlayer", Placeholder.parsed("sender", context.senderName()), Placeholder.parsed("player", player.getName())));
         }, null);
         return null;
     }

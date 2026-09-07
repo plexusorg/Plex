@@ -1,6 +1,6 @@
 package dev.plex.command.impl;
 
-import static dev.plex.api.message.MessagePlaceholder.placeholder;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
@@ -57,14 +57,14 @@ public class MobLimitCMD extends ServerCommand
                     .count();
         String status = PlexUtils.messageString(plugin.entities.getBoolean("entity_limit.mob_limit_enabled")
                     ? "mobLimitEnabled" : "mobLimitDisabled");
-        return PlexUtils.messageComponent("mobLimitStatus", placeholder("status", status), placeholder("count", currentMobCount), placeholder("limit", currentLimit), placeholder("chunk_x", chunk.getX()), placeholder("chunk_z", chunk.getZ()));
+        return PlexUtils.messageComponent("mobLimitStatus", Placeholder.parsed("status", status), Placeholder.unparsed("count", String.valueOf(currentMobCount)), Placeholder.unparsed("limit", String.valueOf(currentLimit)), Placeholder.unparsed("chunk_x", String.valueOf(chunk.getX())), Placeholder.unparsed("chunk_z", String.valueOf(chunk.getZ())));
     }
 
     private Component setEnabled(ServerCommandContext context, boolean enabled)
     {
         plugin.entities.set("entity_limit.mob_limit_enabled", enabled);
         plugin.entities.save();
-        return PlexUtils.messageComponent("mobLimitToggle", placeholder("state", PlexUtils.messageString(enabled ? "stateEnabled" : "stateDisabled")));
+        return PlexUtils.messageComponent("mobLimitToggle", Placeholder.parsed("state", PlexUtils.messageString(enabled ? "stateEnabled" : "stateDisabled")));
     }
 
     private Component setMaximum(ServerCommandContext context, int requestedLimit)
@@ -77,7 +77,7 @@ public class MobLimitCMD extends ServerCommand
         }
         plugin.entities.set("entity_limit.max_mobs_per_chunk", newLimit);
         plugin.entities.save();
-        return PlexUtils.messageComponent("mobLimitSet", placeholder("limit", newLimit));
+        return PlexUtils.messageComponent("mobLimitSet", Placeholder.unparsed("limit", String.valueOf(newLimit)));
     }
 
 }

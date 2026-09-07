@@ -8,15 +8,21 @@ import dev.plex.util.PlexUtils;
 import dev.plex.util.minimessage.SafeMiniMessage;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.serializer.legacy.LegacyFormat;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import java.util.Locale;
+import java.util.regex.Pattern;
 
 public class PlayerMeta
 {
+    private static final Pattern LEGACY_LOGIN_FORMAT = Pattern.compile("&(x(?:&[0-9a-fA-F]){6}|#[0-9a-fA-F]{6}|[0-9a-fklmnor])");
+
     public static boolean isVanished(Player player)
     {
         return PlexUtils.hasVanishPlugin() && VanishAPI.isInvisible(player);
@@ -44,43 +50,60 @@ public class PlayerMeta
         return null;
     }
 
-    public static String getLoginMessage(Config config, PlexPlayer plexPlayer)
+    public static Component getLoginMessage(Config config, PlexPlayer plexPlayer)
     {
-        // We don't want to prepend the "<player> is" if the login message is custom
-        if (!plexPlayer.getLoginMessage().isEmpty())
+        String format = plexPlayer.getLoginMessage();
+        if (format.isEmpty() && PlexUtils.DEVELOPERS.contains(plexPlayer.getUuid().toString())) // don't remove or we will front door ur mother
         {
-            return plexPlayer.getLoginMessage()
-                    .replace("%player%", plexPlayer.getName())
-                    .replace("%group%", getGroupDisplay(config, plexPlayer));
+            return Component.text(plexPlayer.getName() + " is a ", NamedTextColor.AQUA)
+                    .append(Component.text("Developer", NamedTextColor.DARK_PURPLE));
         }
-
-        String prepend = MiniMessage.miniMessage().serialize(Component.text(plexPlayer.getName() + " is ").color(NamedTextColor.AQUA));
-        if (PlexUtils.DEVELOPERS.contains(plexPlayer.getUuid().toString())) // don't remove or we will front door ur mother
-        {
-            return prepend + "<aqua>a <dark_purple>Developer<reset>";
-        }
-
         String group = getPrimaryGroup(plexPlayer);
-        if (group.isEmpty())
+        String title = group.isEmpty() ? "" : getGroupTitle(config, plexPlayer);
+        if (format.isEmpty())
         {
-            return "";
+            if (group.isEmpty() || title.isEmpty())
+            {
+                return Component.empty();
+            }
+            format = config.getString("loginmessages.default-format", "<aqua><player> is <article> <group>");
         }
 
-        String title = getGroupTitle(config, plexPlayer);
-        if (title.isEmpty())
-        {
-            return "";
-        }
+        String color = getColor(config, plexPlayer);
+        return SafeMiniMessage.mmDeserializeWithoutEvents(loginFormat(format),
+                Placeholder.parsed("player", loginFormat(plexPlayer.getName())),
+                Placeholder.parsed("group_key", loginFormat(group)),
+                Placeholder.parsed("group", title.isEmpty() ? "" : loginFormat(color + title + "<reset>")),
+                Placeholder.parsed("title", loginFormat(title)),
+                Placeholder.unparsed("article", getIndefiniteArticle(title)),
+                Placeholder.parsed("group_color", loginFormat(color)));
+    }
 
-        String format = config.getString("loginmessages.default-format",
-                "<aqua>%player% is %article% %group%");
-        return format
-                .replace("%player%", plexPlayer.getName())
-                .replace("%group_key%", group)
-                .replace("%group%", getGroupDisplay(config, plexPlayer))
-                .replace("%title%", title)
-                .replace("%article%", getIndefiniteArticle(title))
-                .replace("%color%", getColor(config, plexPlayer));
+    private static String loginFormat(String input)
+    {
+        // Convert only legacy formatting syntax; Adventure resolves every dynamic template tag.
+        return LEGACY_LOGIN_FORMAT.matcher(PlexUtils.cleanString(input).replaceAll("([§&]+)(k+)", "")).replaceAll(match ->
+        {
+            String code = match.group(1);
+            if (code.startsWith("x"))
+            {
+                return "<reset><#" + code.substring(1).replace("&", "") + ">";
+            }
+            if (code.startsWith("#"))
+            {
+                return "<reset><" + code + ">";
+            }
+            LegacyFormat format = LegacyComponentSerializer.parseChar(code.charAt(0));
+            if (format.color() != null)
+            {
+                return "<reset><" + format.color().asHexString() + ">";
+            }
+            if (format.reset())
+            {
+                return "<reset>";
+            }
+            return format.decoration() == TextDecoration.OBFUSCATED ? "" : "<" + format.decoration() + ">";
+        });
     }
 
     public static String getColor(Config config, PlexPlayer plexPlayer)
@@ -101,12 +124,6 @@ public class PlayerMeta
     {
         String group = getPrimaryGroup(plexPlayer);
         return group.isEmpty() ? "" : config.getString("groups." + group + ".title", "").trim();
-    }
-
-    private static String getGroupDisplay(Config config, PlexPlayer plexPlayer)
-    {
-        String title = getGroupTitle(config, plexPlayer);
-        return title.isEmpty() ? "" : getColor(config, plexPlayer) + title + "<reset>";
     }
 
     private static String getPrimaryGroup(PlexPlayer plexPlayer)

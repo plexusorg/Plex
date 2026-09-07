@@ -1,6 +1,6 @@
 package dev.plex.command.impl;
 
-import static dev.plex.api.message.MessagePlaceholder.placeholder;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 
 import org.bukkit.Bukkit;
 
@@ -94,7 +94,7 @@ public class WorldCMD extends ServerCommand
                     .anyMatch(module -> module.getPlexModuleFile().getName().equalsIgnoreCase("Module-TFMExtras"));
             if (playerWorld && playerWorldsEnabled && !canVisitPlayerWorlds)
             {
-                sender.sendMessage(PlexUtils.messageComponent("noPermissionNode", placeholder("permission", "plex.world.playerworlds")));
+                sender.sendMessage(PlexUtils.messageComponent("noPermissionNode", Placeholder.parsed("permission", "plex.world.playerworlds")));
                 return;
             }
             Location spawn = world.getSpawnLocation().clone();
@@ -107,7 +107,7 @@ public class WorldCMD extends ServerCommand
                         playerSender.sendMessage(Component.text("Unable to teleport to that world."));
                         return;
                     }
-                    playerSender.sendMessage(PlexUtils.messageComponent("playerWorldTeleport", placeholder("world", world.getName())));
+                    playerSender.sendMessage(PlexUtils.messageComponent("playerWorldTeleport", Placeholder.parsed("world", world.getName())));
                 });
             }, null);
         });

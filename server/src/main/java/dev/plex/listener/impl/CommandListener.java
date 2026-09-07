@@ -1,6 +1,6 @@
 package dev.plex.listener.impl;
 
-import static dev.plex.api.message.MessagePlaceholder.placeholder;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 
 import dev.plex.Plex;
 import dev.plex.listener.ServerListenerBase;
@@ -32,7 +32,7 @@ public class CommandListener extends ServerListenerBase
             if (recipient == null) return;
             if (recipient.hasPermission("plex.commandspy"))
             {
-                recipient.sendMessage(PlexUtils.messageComponent("commandSpyFormat", placeholder("sender", Component.text(senderName)), placeholder("command", Component.text(command))));
+                recipient.sendMessage(PlexUtils.messageComponent("commandSpyFormat", Placeholder.component("sender", Component.text(senderName)), Placeholder.component("command", Component.text(command))));
             }
         });
     }

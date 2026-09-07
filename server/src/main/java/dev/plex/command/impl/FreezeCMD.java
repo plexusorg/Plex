@@ -1,6 +1,6 @@
 package dev.plex.command.impl;
 
-import static dev.plex.api.message.MessagePlaceholder.placeholder;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 
 import org.bukkit.Bukkit;
 
@@ -70,7 +70,7 @@ public class FreezeCMD extends ServerCommand
                 PlexLog.error("Unable to freeze {0}: {1}", punishedPlayer.getUuid(), failure.getMessage());
                 sender.sendMessage(Component.text("Unable to persist the freeze; no action was taken."));
             }
-            else PlexUtils.broadcast(PlexUtils.messageComponent("frozePlayer", placeholder("sender", context.senderName()), placeholder("player", player.getName())));
+            else PlexUtils.broadcast(PlexUtils.messageComponent("frozePlayer", Placeholder.parsed("sender", context.senderName()), Placeholder.parsed("player", player.getName())));
         });
         return null;
     }

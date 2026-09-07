@@ -1,6 +1,7 @@
 package dev.plex.listener.impl;
 
 import dev.plex.Plex;
+import net.kyori.adventure.text.Component;
 
 import de.myzelyam.api.vanish.PlayerShowEvent;
 import de.myzelyam.api.vanish.PostPlayerHideEvent;
@@ -35,10 +36,10 @@ public class VanishListener extends ServerListenerBase
             return;
         }
 
-        String loginMessage = PlayerMeta.getLoginMessage(plugin.config, plexPlayer);
-        if (!loginMessage.isEmpty())
+        Component loginMessage = PlayerMeta.getLoginMessage(plugin.config, plexPlayer);
+        if (!loginMessage.equals(Component.empty()))
         {
-            PlexUtils.broadcast(PlexUtils.stringToComponent(loginMessage));
+            PlexUtils.broadcast(loginMessage);
         }
     }
 

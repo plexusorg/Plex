@@ -1,6 +1,6 @@
 package dev.plex.command.impl;
 
-import static dev.plex.api.message.MessagePlaceholder.placeholder;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -68,7 +68,7 @@ public class UnmuteCMD extends ServerCommand
                         PlexLog.error("Unable to unmute {0}: {1}", punishedPlayer.getUuid(), failure.getMessage());
                         sender.sendMessage(Component.text("Unable to persist the unmute; no action was taken."));
                     }
-                    else PlexUtils.broadcast(PlexUtils.messageComponent("unmutedPlayer", placeholder("sender", context.senderName()), placeholder("player", punishedPlayer.getName())));
+                    else PlexUtils.broadcast(PlexUtils.messageComponent("unmutedPlayer", Placeholder.parsed("sender", context.senderName()), Placeholder.parsed("player", punishedPlayer.getName())));
                 });
         });
         return null;

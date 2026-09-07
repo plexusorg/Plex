@@ -98,6 +98,7 @@ public class MaterialDialog
     {
         return ActionButton.builder(Component.text("Close"))
                 .width(150)
+                .action(DialogAction.customClick((response, audience) -> audience.closeDialog(), CALLBACK_OPTIONS))
                 .build();
     }
 }

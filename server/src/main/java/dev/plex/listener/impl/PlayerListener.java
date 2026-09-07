@@ -1,6 +1,7 @@
 package dev.plex.listener.impl;
 
-import static dev.plex.api.message.MessagePlaceholder.placeholder;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 
 import dev.plex.Plex;
 
@@ -64,10 +65,10 @@ public class PlayerListener extends ServerListenerBase
             player.openInventory(player.getInventory());
         }
 
-        String loginMessage = PlayerMeta.getLoginMessage(plugin.config, plexPlayer);
-        if (!loginMessage.isEmpty() && !PlayerMeta.isVanished(player))
+        Component loginMessage = PlayerMeta.getLoginMessage(plugin.config, plexPlayer);
+        if (!loginMessage.equals(Component.empty()) && !PlayerMeta.isVanished(player))
         {
-            PlexUtils.broadcast(PlexUtils.stringToComponent(loginMessage));
+            PlexUtils.broadcast(loginMessage);
         }
 
         plugin.getNotesService().list(plexPlayer.getUuid()).whenComplete((notes, ex) ->
@@ -81,7 +82,7 @@ public class PlayerListener extends ServerListenerBase
             {
                 if (plugin.getPlayerService().cachedPlayer(plexPlayer.getUuid()) == plexPlayer)
                 {
-                    PlexUtils.broadcastToAdmins(PlexUtils.messageComponent(notes.size() == 1 ? "playerNoteAlert" : "playerNoteAlertPlural", placeholder("player", plexPlayer.getName()), placeholder("count", notes.size())), "plex.notes.notify");
+                    PlexUtils.broadcastToAdmins(PlexUtils.messageComponent(notes.size() == 1 ? "playerNoteAlert" : "playerNoteAlertPlural", Placeholder.parsed("player", plexPlayer.getName()), Placeholder.unparsed("count", String.valueOf(notes.size())), Placeholder.styling("view_notes", ClickEvent.runCommand("/notes " + plexPlayer.getName() + " list"))), "plex.notes.notify");
                 }
             }
         });

@@ -8,7 +8,9 @@ import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import dev.plex.api.PlexApi;
-import dev.plex.api.message.MessagePlaceholder;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import dev.plex.command.exception.CommandFailException;
 import dev.plex.command.exception.ConsoleMustDefinePlayerException;
 import dev.plex.command.exception.ConsoleOnlyException;
@@ -214,7 +216,7 @@ public abstract class SimplePlexCommand implements PlexCommand
         {
             return true;
         }
-        throw new CommandFailException(messageString("noPermissionNode", MessagePlaceholder.placeholder("permission", permission)));
+        throw new CommandFailException(MiniMessage.miniMessage().serialize(messageComponent("noPermissionNode", Placeholder.unparsed("permission", permission))));
     }
 
     /**
@@ -247,7 +249,7 @@ public abstract class SimplePlexCommand implements PlexCommand
      */
     protected Component permissionMessage(String permission)
     {
-        return messageComponent("noPermissionNode", MessagePlaceholder.placeholder("permission", permission));
+        return messageComponent("noPermissionNode", Placeholder.unparsed("permission", permission));
     }
 
     /**
@@ -279,7 +281,7 @@ public abstract class SimplePlexCommand implements PlexCommand
      * @param placeholders named replacement values
      * @return resolved message component
      */
-    protected Component messageComponent(String key, MessagePlaceholder... placeholders)
+    protected Component messageComponent(String key, TagResolver... placeholders)
     {
         if (module != null)
         {
@@ -289,19 +291,18 @@ public abstract class SimplePlexCommand implements PlexCommand
     }
 
     /**
-     * Resolves a configured message as plain text.
+     * Gets a raw configured MiniMessage template.
      *
      * @param key message key
-     * @param placeholders named replacement values
-     * @return resolved message text
+     * @return raw message template
      */
-    protected String messageString(String key, MessagePlaceholder... placeholders)
+    protected String messageString(String key)
     {
         if (module != null)
         {
-            return module.messageString(key, placeholders);
+            return module.messageString(key);
         }
-        return api().messages().messageString(key, placeholders);
+        return api().messages().messageString(key);
     }
 
     /**
@@ -457,7 +458,7 @@ public abstract class SimplePlexCommand implements PlexCommand
         String permission = getPermission();
         if (!permission.isEmpty() && !sender.hasPermission(permission))
         {
-            send(sender, messageComponent("noPermissionNode", MessagePlaceholder.placeholder("permission", permission)));
+            send(sender, messageComponent("noPermissionNode", Placeholder.unparsed("permission", permission)));
             return false;
         }
         return true;

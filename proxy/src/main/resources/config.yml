@@ -5,12 +5,12 @@ server:
   name: "Plexus"
 
   # Placeholders
-  # %mcversion% - The Velocity Version (i.e. 4.1.1)
-  # %servername% - The name provided above
-  # %randomgradient% - Creates a random gradient every ping of two random colors for the whole string
+  # <mcversion> - The Velocity Version (i.e. 4.1.1)
+  # <servername> - The name provided above
+  # <randomgradient> - Creates a random gradient every ping of two random colors for the whole string
   # Supports MiniMessage strings, no legacy & and §
   motd:
-    - "%randomgradient%%servername% - %mcversion%"
+    - "<randomgradient><servername> - <mcversion>"
     - "Another motd"
   colorize_motd: false
 

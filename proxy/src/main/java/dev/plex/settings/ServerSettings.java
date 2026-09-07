@@ -7,7 +7,7 @@ import lombok.Getter;
 @Getter
 public class ServerSettings
 {
-    private static final List<String> DEFAULT_MOTD = List.of("%randomgradient%%servername% - %mcversion%", "Another motd");
+    private static final List<String> DEFAULT_MOTD = List.of("<randomgradient><servername> - <mcversion>", "Another motd");
     private static final List<String> DEFAULT_SAMPLE = List.of("example", "example");
 
     private final Server server;

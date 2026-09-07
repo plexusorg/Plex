@@ -1,6 +1,6 @@
 package dev.plex.command.impl;
 
-import static dev.plex.api.message.MessagePlaceholder.placeholder;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 
 import dev.plex.util.PlexUtils;
 import com.google.common.net.InetAddresses;
@@ -81,7 +81,7 @@ public class BanIpCMD extends ServerCommand
             return;
         }
 
-        context.sender().sendMessage(PlexUtils.messageComponent("banningIp", placeholder("sender", context.senderName()), placeholder("ip", ip)));
+        context.sender().sendMessage(PlexUtils.messageComponent("banningIp", Placeholder.parsed("sender", context.senderName()), Placeholder.parsed("ip", ip)));
         Component kickMessage = Punishment.generateIndefBanMessageWithReason(
                 "IP", plugin.config.getString("banning.ban_url"), reason);
         BanKickUtil.kickPlayersWithIp(plugin, ip, kickMessage);

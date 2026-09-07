@@ -1,6 +1,6 @@
 package dev.plex.command;
 
-import static dev.plex.api.message.MessagePlaceholder.placeholder;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 
 import com.mojang.brigadier.context.CommandContext;
 import dev.plex.api.command.CommandExecutionIdentity;
@@ -95,7 +95,7 @@ public final class ServerCommandContext
     {
         if (!permission.isEmpty() && !player.hasPermission(permission))
         {
-            throw new CommandFailException(PlexUtils.messageString("noPermissionNode", placeholder("permission", permission)));
+            throw new CommandFailException(PlexUtils.mmSerialize(PlexUtils.messageComponent("noPermissionNode", Placeholder.parsed("permission", permission))));
         }
         return true;
     }

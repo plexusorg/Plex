@@ -1,6 +1,6 @@
 package dev.plex.command.impl;
 
-import static dev.plex.api.message.MessagePlaceholder.placeholder;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
@@ -97,15 +97,15 @@ public class MobPurgeCMD extends ServerCommand
     {
         if (type != null)
         {
-            PlexUtils.broadcast(PlexUtils.messageComponent("removedEntitiesOfTypes", placeholder("sender", context.senderName()), placeholder("count", count), placeholder("types", mobName)));
+            PlexUtils.broadcast(PlexUtils.messageComponent("removedEntitiesOfTypes", Placeholder.parsed("sender", context.senderName()), Placeholder.unparsed("count", String.valueOf(count)), Placeholder.parsed("types", mobName)));
             PlexLog.debug("All " + count + " of " + mobName + " were removed");
         }
         else
         {
-            PlexUtils.broadcast(PlexUtils.messageComponent("removedMobs", placeholder("sender", context.senderName()), placeholder("count", count)));
+            PlexUtils.broadcast(PlexUtils.messageComponent("removedMobs", Placeholder.parsed("sender", context.senderName()), Placeholder.unparsed("count", String.valueOf(count))));
             PlexLog.debug("All " + count + " valid mobs were removed");
         }
-        sender.sendMessage(PlexUtils.messageComponent("amountOfMobsRemoved", placeholder("count", count), placeholder("mobs", type != null ? mobName + multipleS(count) : PlexUtils.messageString(count == 1 ? "mobSingular" : "mobPlural"))));
+        sender.sendMessage(PlexUtils.messageComponent("amountOfMobsRemoved", Placeholder.unparsed("count", String.valueOf(count)), Placeholder.parsed("mobs", type != null ? mobName + multipleS(count) : PlexUtils.messageString(count == 1 ? "mobSingular" : "mobPlural"))));
     }
 
     private String multipleS(int count)

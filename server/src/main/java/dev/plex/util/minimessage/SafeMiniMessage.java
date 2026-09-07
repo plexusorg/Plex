@@ -43,9 +43,9 @@ public class SafeMiniMessage
         return MINI_MESSAGE.deserialize(text);
     }
 
-    public static Component mmDeserializeWithoutEvents(String text)
+    public static Component mmDeserializeWithoutEvents(String text, TagResolver... placeholders)
     {
-        return MINI_MESSAGE.deserialize(text, WITHOUT_EVENTS);
+        return MINI_MESSAGE.deserialize(text, TagResolver.resolver(placeholders), WITHOUT_EVENTS);
     }
 
     public static String mmSerialize(Component component)

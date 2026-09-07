@@ -1,6 +1,6 @@
 package dev.plex.util;
 
-import static dev.plex.api.message.MessagePlaceholder.placeholder;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 
 import net.kyori.adventure.text.minimessage.MiniMessage;
 
@@ -10,15 +10,10 @@ import com.google.common.base.CharMatcher;
 import com.google.common.collect.Lists;
 import io.papermc.paper.ServerBuildInfo;
 import dev.plex.Plex;
-import dev.plex.api.message.MessageFormatter;
-import dev.plex.api.message.MessagePlaceholder;
 import dev.plex.config.Config;
 import dev.plex.listener.impl.ChatListener;
 import dev.plex.util.minimessage.SafeMiniMessage;
 
-import java.time.Month;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -40,12 +35,10 @@ import org.bukkit.entity.Player;
 public class PlexUtils
 {
     private static final MiniMessage MINI_MESSAGE = MiniMessage.miniMessage();
-    private static Config config;
     private static Config messages;
 
-    public static void configure(Config config, Config messages)
+    public static void configure(Config messages)
     {
-        PlexUtils.config = config;
         PlexUtils.messages = messages;
     }
 
@@ -108,20 +101,9 @@ public class PlexUtils
         return PlainTextComponentSerializer.plainText().serialize(mmDeserialize(input));
     }
 
-    public static Component mmDeserialize(String input)
+    public static Component mmDeserialize(String input, TagResolver... placeholders)
     {
-        boolean aprilFools = true; // true by default
-        if (config != null && config.contains("april_fools"))
-        {
-            aprilFools = config.getBoolean("april_fools");
-        }
-        ZonedDateTime date = ZonedDateTime.now(ZoneId.systemDefault());
-        if (aprilFools && date.getMonth() == Month.APRIL && date.getDayOfMonth() == 1)
-        {
-            Component component = MINI_MESSAGE.deserialize(input); // removes existing tags
-            return MINI_MESSAGE.deserialize("<rainbow>" + PlainTextComponentSerializer.plainText().serialize(component));
-        }
-        return MINI_MESSAGE.deserialize(input);
+        return MINI_MESSAGE.deserialize(input, placeholders);
     }
 
     public static String mmSerialize(Component input)
@@ -134,19 +116,19 @@ public class PlexUtils
         return MiniMessage.builder().tags(TagResolver.builder().resolvers(resolvers).build()).build().deserialize(input);
     }
 
-    public static Component messageComponent(String entry, MessagePlaceholder... placeholders)
+    public static Component messageComponent(String entry, TagResolver... placeholders)
     {
-        return MessageFormatter.formatComponent(messageString(entry), placeholders);
+        return MINI_MESSAGE.deserialize(messageString(entry), placeholders);
     }
 
-    public static String messageString(String entry, MessagePlaceholder... placeholders)
+    public static String messageString(String entry)
     {
         String message = messages.getString(entry);
         if (message == null)
         {
             throw new NullPointerException();
         }
-        return MessageFormatter.formatString(message, placeholders);
+        return message;
     }
 
 
@@ -194,7 +176,7 @@ public class PlexUtils
             }
             if (player.hasPermission("plex.adminchat"))
             {
-                player.sendMessage(PlexUtils.messageComponent("adminChatFormat", placeholder("sender", senderName), placeholder("prefix", prefix), placeholder("message", message)).replaceText(ChatListener.URL_REPLACEMENT_CONFIG));
+                player.sendMessage(PlexUtils.messageComponent("adminChatFormat", Placeholder.parsed("sender", senderName), Placeholder.parsed("prefix", prefix), Placeholder.parsed("message", message)).replaceText(ChatListener.URL_REPLACEMENT_CONFIG));
                 sent.add(player.getUniqueId());
             }
         }

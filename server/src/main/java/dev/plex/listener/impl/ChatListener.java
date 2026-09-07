@@ -1,6 +1,6 @@
 package dev.plex.listener.impl;
 
-import static dev.plex.api.message.MessagePlaceholder.placeholder;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 
 import org.bukkit.Bukkit;
 
@@ -20,7 +20,6 @@ import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
-import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextReplacementConfig;
 import net.kyori.adventure.text.event.ClickEvent;
@@ -51,7 +50,7 @@ public class ChatListener extends ServerListenerBase
     {
         PlexPlayer plexPlayer = plugin.getPlayerService().cachedPlayer(event.getPlayer().getUniqueId());
         PlexChatRenderer renderer = new PlexChatRenderer();
-        renderer.format = SafeMiniMessage.mmDeserialize(plugin.config.getString("chat.format"));
+        renderer.format = plugin.config.getString("chat.format");
         PRE_RENDERER.accept(event, plexPlayer);
         if (plexPlayer.isStaffChat())
         {
@@ -71,7 +70,7 @@ public class ChatListener extends ServerListenerBase
             Runnable broadcast = () ->
             {
                 MessageUtil.sendStaffChat(plugin, event.getPlayer(), message, PlexUtils.adminChat(event.getPlayer().getName(), prefix, SafeMiniMessage.mmSerialize(message)).toArray(UUID[]::new));
-                plugin.getServer().getConsoleSender().sendMessage(PlexUtils.messageComponent("adminChatFormat", placeholder("sender", event.getPlayer().getName()), placeholder("prefix", prefix), placeholder("message", SafeMiniMessage.mmSerialize(message.replaceText(URL_REPLACEMENT_CONFIG)))));
+                plugin.getServer().getConsoleSender().sendMessage(PlexUtils.messageComponent("adminChatFormat", Placeholder.parsed("sender", event.getPlayer().getName()), Placeholder.parsed("prefix", prefix), Placeholder.parsed("message", SafeMiniMessage.mmSerialize(message.replaceText(URL_REPLACEMENT_CONFIG)))));
             };
             if (event.isAsynchronous()) Bukkit.getGlobalRegionScheduler().run(plugin, task -> broadcast.run());
             else broadcast.run();
@@ -90,37 +89,29 @@ public class ChatListener extends ServerListenerBase
             renderer.prefix = null;
         }
 
-        event.renderer(renderer);
+        event.renderer(ChatRenderer.viewerUnaware(renderer));
     }
 
-    public static class PlexChatRenderer implements ChatRenderer
+    public static class PlexChatRenderer implements ChatRenderer.ViewerUnaware
     {
         public boolean hasPrefix;
         public Component prefix;
-        public Component format;
+        public String format;
         public Supplier<Component> before = null;
 
         @Override
-        public @NotNull Component render(@NotNull Player source, @NotNull Component sourceDisplayName, @NotNull Component message, @NotNull Audience viewer)
+        public @NotNull Component render(@NotNull Player source, @NotNull Component sourceDisplayName, @NotNull Component message)
         {
-            Component component = format;
+            Component renderedPrefix = hasPrefix && prefix != null ? prefix : Component.empty();
+            Component component = SafeMiniMessage.MINI_MESSAGE.deserialize(format,
+                    Placeholder.component("prefix", renderedPrefix),
+                    Placeholder.component("name", sourceDisplayName),
+                    Placeholder.component("message", message));
 
             if (before != null)
             {
                 component = component.append(before.get());
             }
-
-            // Always consume the placeholder so players without a prefix do not
-            // get the literal "{prefix}" in front of their name.
-            Component renderedPrefix = hasPrefix && prefix != null ? prefix : Component.empty();
-            component = component.replaceText(TextReplacementConfig.builder().matchLiteral("{prefix}").replacement(renderedPrefix).build());
-
-            // Substitute the display name from the config
-            component = component.replaceText(TextReplacementConfig.builder().matchLiteral("{name}")
-                    .replacement(sourceDisplayName).build());
-
-            // Substitute the message from the config
-            component = component.replaceText(TextReplacementConfig.builder().matchLiteral("{message}").replacement(message).build());
 
             // Fix links not being clickable
             component = component.replaceText(URL_REPLACEMENT_CONFIG);

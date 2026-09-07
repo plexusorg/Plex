@@ -168,7 +168,7 @@ public class Plex extends JavaPlugin
         updateConfiguredChannel();
         PlexLog.setDebugEnabled(config.getBoolean("debug"));
         messages.load();
-        PlexUtils.configure(config, messages);
+        PlexUtils.configure(messages);
         TimeUtils.TIMEZONE = config.getString("server.timezone", "Etc/UTC");
         toggles.load();
 

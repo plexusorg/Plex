@@ -1,6 +1,6 @@
 package dev.plex.command.impl;
 
-import static dev.plex.api.message.MessagePlaceholder.placeholder;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 
 import org.bukkit.Bukkit;
 
@@ -85,7 +85,7 @@ public class PlexCMD extends ServerCommand
         plugin.worlds.load();
         sender.sendMessage("Reloaded worlds file");
         plugin.messages.load();
-        PlexUtils.configure(plugin.config, plugin.messages);
+        PlexUtils.configure(plugin.messages);
         sender.sendMessage("Reloaded messages file");
         plugin.toggles.load();
         sender.sendMessage("Reloaded toggles file");
@@ -149,7 +149,7 @@ public class PlexCMD extends ServerCommand
                 {
                     PlexLog.error("Failed to reload updated modules", failure);
                 }
-                sender.sendMessage(PlexUtils.messageComponent("moduleUpdateSummary", placeholder("updated_count", updatedCount), placeholder("skipped_count", skippedCount), placeholder("failed_count", failedCount)));
+                sender.sendMessage(PlexUtils.messageComponent("moduleUpdateSummary", Placeholder.unparsed("updated_count", String.valueOf(updatedCount)), Placeholder.unparsed("skipped_count", String.valueOf(skippedCount)), Placeholder.unparsed("failed_count", String.valueOf(failedCount))));
             });
         }, plugin.getIoExecutor());
         return null;

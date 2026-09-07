@@ -1,6 +1,6 @@
 package dev.plex.command.impl;
 
-import static dev.plex.api.message.MessagePlaceholder.placeholder;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 
 import dev.plex.Plex;
 import dev.plex.util.PlexLog;
@@ -23,10 +23,10 @@ final class BanRollbackReporter
             if (failure != null)
             {
                 PlexLog.error("Unable to rollback {0}: {1}", playerName, failure.getMessage());
-                sender.sendMessage(PlexUtils.messageComponent("prismRollbackError", placeholder("error", failure.getMessage())));
+                sender.sendMessage(PlexUtils.messageComponent("prismRollbackError", Placeholder.parsed("error", String.valueOf(failure.getMessage()))));
             }
             else if (count == 0) sender.sendMessage(PlexUtils.messageComponent("prismNoResult"));
-            else sender.sendMessage(PlexUtils.messageComponent("prismRollbackMessage", placeholder("count", count)));
+            else sender.sendMessage(PlexUtils.messageComponent("prismRollbackMessage", Placeholder.unparsed("count", String.valueOf(count))));
         });
     }
 }

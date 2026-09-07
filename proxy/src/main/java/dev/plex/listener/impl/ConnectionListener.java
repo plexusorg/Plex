@@ -18,6 +18,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 
 public class ConnectionListener extends ProxyListener
 {
@@ -102,8 +104,8 @@ public class ConnectionListener extends ProxyListener
             if (!hidden)
             {
                 broadcast("server_leave",
-                        "player", event.getPlayer().getUsername(),
-                        "server", event.getPlayer().getCurrentServer().get().getServerInfo().getName());
+                        Placeholder.parsed("player", event.getPlayer().getUsername()),
+                        Placeholder.parsed("server", event.getPlayer().getCurrentServer().get().getServerInfo().getName()));
             }
         }
     }
@@ -133,8 +135,8 @@ public class ConnectionListener extends ProxyListener
         if (!silent)
         {
             broadcast("server_leave",
-                    "player", player.getUsername(),
-                    "server", backend.getServerInfo().getName());
+                    Placeholder.parsed("player", player.getUsername()),
+                    Placeholder.parsed("server", backend.getServerInfo().getName()));
         }
     }
 
@@ -144,8 +146,8 @@ public class ConnectionListener extends ProxyListener
         if (!silent)
         {
             broadcast("server_join",
-                    "player", player.getUsername(),
-                    "server", backend.getServerInfo().getName());
+                    Placeholder.parsed("player", player.getUsername()),
+                    Placeholder.parsed("server", backend.getServerInfo().getName()));
         }
     }
 
@@ -154,30 +156,26 @@ public class ConnectionListener extends ProxyListener
         if (pending.previousServer() == null)
         {
             broadcast("server_join",
-                    "player", player.getUsername(),
-                    "server", pending.currentServer());
+                    Placeholder.parsed("player", player.getUsername()),
+                    Placeholder.parsed("server", pending.currentServer()));
         }
         else
         {
             broadcast("server_switch",
-                    "player", player.getUsername(),
-                    "from", pending.previousServer(),
-                    "to", pending.currentServer());
+                    Placeholder.parsed("player", player.getUsername()),
+                    Placeholder.parsed("from", pending.previousServer()),
+                    Placeholder.parsed("to", pending.currentServer()));
         }
     }
 
-    private void broadcast(String key, String... replacements)
+    private void broadcast(String key, TagResolver... placeholders)
     {
         String message = plugin.getMessages().getString(key, "");
         if (message.isBlank())
         {
             return;
         }
-        for (int i = 0; i < replacements.length; i += 2)
-        {
-            message = message.replace("{" + replacements[i] + "}", replacements[i + 1]);
-        }
-        plugin.server.sendMessage(MiniMessage.miniMessage().deserialize(message));
+        plugin.server.sendMessage(MiniMessage.miniMessage().deserialize(message, placeholders));
     }
 
     private record PendingConnection(String previousServer, String currentServer)

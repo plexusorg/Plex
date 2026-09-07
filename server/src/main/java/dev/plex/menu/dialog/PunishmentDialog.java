@@ -1,6 +1,6 @@
 package dev.plex.menu.dialog;
 
-import static dev.plex.api.message.MessagePlaceholder.placeholder;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 
 import dev.plex.Plex;
 import dev.plex.player.PlayerService;
@@ -100,7 +100,7 @@ public class PunishmentDialog
         }
 
         return Dialog.create(builder -> builder.empty()
-                .base(DialogBase.builder(PlexUtils.messageComponent("punishedPlayerMenuTitle", placeholder("player", punishedPlayer.getName())))
+                .base(DialogBase.builder(PlexUtils.messageComponent("punishedPlayerMenuTitle", Placeholder.parsed("player", punishedPlayer.getName())))
                         .canCloseWithEscape(true)
                         .pause(false)
                         .afterAction(DialogBase.DialogAfterAction.WAIT_FOR_RESPONSE)
@@ -135,6 +135,7 @@ public class PunishmentDialog
     {
         return ActionButton.builder(Component.text("Close"))
                 .width(150)
+                .action(DialogAction.customClick((response, audience) -> audience.closeDialog(), CALLBACK_OPTIONS))
                 .build();
     }
 
