@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.apache.commons.lang3.StringUtils;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -79,25 +80,25 @@ public class PlexCMD extends ServerCommand
         context.checkPermission(sender, "plex.reload");
         plugin.config.load();
         PlexLog.setDebugEnabled(plugin.config.getBoolean("debug"));
-        sender.sendMessage("Reloaded config file");
+        sender.sendMessage(Component.text("Reloaded config file", NamedTextColor.GRAY));
         plugin.entities.load();
-        sender.sendMessage("Reloaded entities file");
+        sender.sendMessage(Component.text("Reloaded entities file", NamedTextColor.GRAY));
         plugin.worlds.load();
-        sender.sendMessage("Reloaded worlds file");
+        sender.sendMessage(Component.text("Reloaded worlds file", NamedTextColor.GRAY));
         plugin.messages.load();
         PlexUtils.configure(plugin.messages);
-        sender.sendMessage("Reloaded messages file");
+        sender.sendMessage(Component.text("Reloaded messages file", NamedTextColor.GRAY));
         plugin.toggles.load();
-        sender.sendMessage("Reloaded toggles file");
+        sender.sendMessage(Component.text("Reloaded toggles file", NamedTextColor.GRAY));
         plugin.indefBans.load(false);
         plugin.getPunishmentManager().mergeIndefiniteBans();
-        sender.sendMessage("Reloaded indefinite bans");
+        sender.sendMessage(Component.text("Reloaded indefinite bans", NamedTextColor.GRAY));
         plugin.getServiceManager().endServices();
         plugin.getServiceManager().startServices();
-        sender.sendMessage("Restarted services.");
+        sender.sendMessage(Component.text("Restarted services.", NamedTextColor.GRAY));
         TimeUtils.TIMEZONE = plugin.config.getString("server.timezone", "Etc/UTC");
-        sender.sendMessage("Set timezone to: " + TimeUtils.TIMEZONE);
-        sender.sendMessage("Plex successfully reloaded.");
+        sender.sendMessage(Component.text("Set timezone to: " + TimeUtils.TIMEZONE, NamedTextColor.GRAY));
+        sender.sendMessage(Component.text("Plex successfully reloaded.", NamedTextColor.GRAY));
         return null;
     }
 
