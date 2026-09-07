@@ -6,6 +6,8 @@ import com.google.common.primitives.Ints;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
 import dev.plex.command.ServerCommandContext;
+import dev.plex.api.message.ActionBroadcast;
+import dev.plex.util.CapturedActionBroadcast;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.EntityRemovalUtil;
 
@@ -81,10 +83,11 @@ public class EntityWipeCMD extends ServerCommand
         int range = Math.abs(radius);
         Location center = radiusCenter == null ? null : radiusCenter.getLocation().clone();
         double rangeSquared = (double)range * range;
+        ActionBroadcast broadcast = CapturedActionBroadcast.capture(sender);
         EntityRemovalUtil.removeLoaded(plugin, entity -> selected(entity, selectedTypes, useBlacklist)
                         && (center == null || entity.getWorld().equals(center.getWorld())
                         && entity.getLocation().distanceSquared(center) <= rangeSquared))
-                .thenAccept(counts -> reportRemoval(context, sender, useBlacklist, counts));
+                .thenAccept(counts -> reportRemoval(context, sender, broadcast, useBlacklist, counts));
         return null;
     }
 
@@ -94,14 +97,14 @@ public class EntityWipeCMD extends ServerCommand
                 && selectedTypes.contains(entity.getType().name()) != useBlacklist;
     }
 
-    private void reportRemoval(ServerCommandContext context, CommandSender sender, boolean useBlacklist,
+    private void reportRemoval(ServerCommandContext context, CommandSender sender, ActionBroadcast broadcast, boolean useBlacklist,
                                java.util.Map<String, Integer> entityCounts)
     {
         int entityCount = entityCounts.values().stream().mapToInt(a -> a).sum();
 
         if (useBlacklist)
         {
-            PlexUtils.broadcast(PlexUtils.messageComponent("removedEntities", Placeholder.parsed("sender", context.senderName()), Placeholder.unparsed("count", String.valueOf(entityCount))));
+            broadcast.send(PlexUtils.messageComponent("removedEntities", Placeholder.parsed("sender", context.senderName()), Placeholder.unparsed("count", String.valueOf(entityCount))));
         }
         else
         {
@@ -112,7 +115,7 @@ public class EntityWipeCMD extends ServerCommand
             }
             String list = String.join(", ", entityCounts.keySet());
             list = list.replaceAll("(, )(?!.*\1)", (list.indexOf(", ") == list.lastIndexOf(", ") ? "" : ",") + " and ");
-            PlexUtils.broadcast(PlexUtils.messageComponent("removedEntitiesOfTypes", Placeholder.parsed("sender", context.senderName()), Placeholder.unparsed("count", String.valueOf(entityCount)), Placeholder.parsed("types", list)));
+            broadcast.send(PlexUtils.messageComponent("removedEntitiesOfTypes", Placeholder.parsed("sender", context.senderName()), Placeholder.unparsed("count", String.valueOf(entityCount)), Placeholder.parsed("types", list)));
         }
     }
 

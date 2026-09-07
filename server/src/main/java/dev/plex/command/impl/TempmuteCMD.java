@@ -10,6 +10,8 @@ import dev.plex.command.ServerCommandContext;
 import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.Punishment;
 import dev.plex.api.punishment.PunishmentType;
+import dev.plex.api.message.ActionBroadcast;
+import dev.plex.util.CapturedActionBroadcast;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.BanKickUtil;
 import dev.plex.util.TimeUtils;
@@ -52,6 +54,7 @@ public class TempmuteCMD extends ServerCommand
     private Component tempmute(ServerCommandContext context, String playerName, String time, String suppliedReason)
     {
         CommandSender sender = context.sender();
+        ActionBroadcast broadcast = CapturedActionBroadcast.capture(sender);
         Player player = getNonNullPlayer(playerName);
         PlexPlayer punishedPlayer = getCachedPlexPlayer(player.getUniqueId());
 
@@ -105,7 +108,7 @@ public class TempmuteCMD extends ServerCommand
                 PlexLog.error("Unable to tempmute {0}: {1}", punishedPlayer.getUuid(), failure.getMessage());
                 sender.sendMessage(Component.text("Unable to persist the mute; no action was taken."));
             }
-            else PlexUtils.broadcast(PlexUtils.messageComponent("tempMutedPlayer", Placeholder.parsed("sender", context.senderName()), Placeholder.parsed("player", player.getName()), Placeholder.parsed("duration", TimeUtils.formatRelativeTime(endDate))));
+            else broadcast.send(PlexUtils.messageComponent("tempMutedPlayer", Placeholder.parsed("sender", context.senderName()), Placeholder.parsed("player", player.getName()), Placeholder.parsed("duration", TimeUtils.formatRelativeTime(endDate))));
         });
         return null;
     }

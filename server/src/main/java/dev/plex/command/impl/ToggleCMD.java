@@ -6,6 +6,8 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
 import dev.plex.command.ServerCommandContext;
 import dev.plex.menu.dialog.ToggleDialog;
+import dev.plex.api.message.ActionBroadcast;
+import dev.plex.util.CapturedActionBroadcast;
 import dev.plex.util.PlexUtils;
 
 
@@ -45,7 +47,8 @@ public class ToggleCMD extends ServerCommand
 
     private Component toggleChat(ServerCommandContext context)
     {
-        PlexUtils.broadcast(PlexUtils.messageComponent("chatToggled", Placeholder.parsed("sender", context.senderName()), Placeholder.parsed("state", PlexUtils.messageString(plugin.toggles.getBoolean("chat") ? "stateOff" : "stateOn"))));
+        ActionBroadcast broadcast = CapturedActionBroadcast.capture(context.sender());
+        broadcast.send(PlexUtils.messageComponent("chatToggled", Placeholder.parsed("sender", context.senderName()), Placeholder.parsed("state", PlexUtils.messageString(plugin.toggles.getBoolean("chat") ? "stateOff" : "stateOn"))));
         return toggle(context, "chat");
     }
 

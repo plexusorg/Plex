@@ -8,6 +8,8 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
 import dev.plex.command.ServerCommandContext;
 import dev.plex.player.PlexPlayer;
+import dev.plex.api.message.ActionBroadcast;
+import dev.plex.util.CapturedActionBroadcast;
 import dev.plex.util.PlexUtils;
 
 
@@ -38,6 +40,7 @@ public class LockupCMD extends ServerCommand
     private Component executeTyped(ServerCommandContext context, String playerName)
     {
         CommandSender sender = context.sender();
+        ActionBroadcast broadcast = CapturedActionBroadcast.capture(sender);
         Player playerSender = context.player();
         Player player = getNonNullPlayer(playerName);
         PlexPlayer punishedPlayer = getCachedPlexPlayer(player.getUniqueId());
@@ -46,7 +49,7 @@ public class LockupCMD extends ServerCommand
         {
             punishedPlayer.setLockedUp(!punishedPlayer.isLockedUp());
             if (punishedPlayer.isLockedUp()) player.openInventory(player.getInventory());
-            PlexUtils.broadcast(PlexUtils.messageComponent(punishedPlayer.isLockedUp()
+            broadcast.send(PlexUtils.messageComponent(punishedPlayer.isLockedUp()
                     ? "lockedUpPlayer" : "unlockedPlayer", Placeholder.parsed("sender", context.senderName()), Placeholder.parsed("player", player.getName())));
         }, null);
         return null;

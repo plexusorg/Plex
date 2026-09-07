@@ -11,6 +11,8 @@ import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.Punishment;
 import dev.plex.api.punishment.PunishmentType;
 import dev.plex.util.BanKickUtil;
+import dev.plex.api.message.ActionBroadcast;
+import dev.plex.util.CapturedActionBroadcast;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.PlexLog;
 import dev.plex.util.TimeUtils;
@@ -56,6 +58,7 @@ public class TempbanCMD extends ServerCommand
     private Component tempban(ServerCommandContext context, String playerName, String time, BanReason reason)
     {
         CommandSender sender = context.sender();
+        ActionBroadcast broadcast = CapturedActionBroadcast.capture(sender);
         final java.time.ZonedDateTime endDate;
         try
         {
@@ -107,7 +110,7 @@ public class TempbanCMD extends ServerCommand
                     sender.sendMessage(Component.text("Unable to complete the tempban; check the server logs."));
                     return;
                 }
-                PlexUtils.broadcast(PlexUtils.messageComponent("banningPlayer", Placeholder.parsed("sender", context.senderName()), Placeholder.parsed("player", target.getName())));
+                broadcast.send(PlexUtils.messageComponent("banningPlayer", Placeholder.parsed("sender", context.senderName()), Placeholder.parsed("player", target.getName())));
                 if (reason.rollback()) rollbackReporter.report(sender, target.getName());
             });
         });

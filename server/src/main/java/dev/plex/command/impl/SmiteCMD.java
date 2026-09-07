@@ -11,6 +11,8 @@ import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.Punishment;
 import dev.plex.api.punishment.PunishmentType;
 import dev.plex.util.PlexLog;
+import dev.plex.api.message.ActionBroadcast;
+import dev.plex.util.CapturedActionBroadcast;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.BanKickUtil;
 
@@ -68,6 +70,7 @@ public class SmiteCMD extends ServerCommand
     private Component smite(ServerCommandContext context, String playerName, SmiteOptions options)
     {
         CommandSender sender = context.sender();
+        ActionBroadcast broadcast = CapturedActionBroadcast.capture(sender);
         final Player player = getNonNullPlayer(playerName);
         final PlexPlayer plexPlayer = plugin.getPlayerService().cachedPlayer(player.getUniqueId());
 
@@ -89,7 +92,7 @@ public class SmiteCMD extends ServerCommand
             }
             if (!options.silent())
             {
-                PlexUtils.broadcast(PlexUtils.messageComponent("smiteBroadcast", Placeholder.parsed("player", player.getName()), Placeholder.parsed("reason", finalReason), Placeholder.parsed("sender", context.senderName())));
+                broadcast.send(PlexUtils.messageComponent("smiteBroadcast", Placeholder.parsed("player", player.getName()), Placeholder.parsed("reason", finalReason), Placeholder.parsed("sender", context.senderName())));
             }
             else
             {

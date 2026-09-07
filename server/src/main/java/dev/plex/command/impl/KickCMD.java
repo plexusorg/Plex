@@ -13,6 +13,8 @@ import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.Punishment;
 import dev.plex.api.punishment.PunishmentType;
 import dev.plex.util.BungeeUtil;
+import dev.plex.api.message.ActionBroadcast;
+import dev.plex.util.CapturedActionBroadcast;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.TimeUtils;
 import dev.plex.util.PlexLog;
@@ -52,11 +54,12 @@ public class KickCMD extends ServerCommand
     {
         String reason = suppliedReason == null ? PlexUtils.messageString("noReasonProvided") : suppliedReason;
         Player player = getNonNullPlayer(playerName);
-        player.getScheduler().run(plugin, task -> kick(context, player, reason), null);
+        ActionBroadcast broadcast = CapturedActionBroadcast.capture(context.sender());
+        player.getScheduler().run(plugin, task -> kick(context, broadcast, player, reason), null);
         return null;
     }
 
-    private void kick(ServerCommandContext context, Player player, String reason)
+    private void kick(ServerCommandContext context, ActionBroadcast broadcast, Player player, String reason)
     {
         CommandSender sender = context.sender();
         PlexPlayer plexPlayer = plugin.getPlayerService().cachedPlayer(player.getUniqueId());
@@ -81,7 +84,7 @@ public class KickCMD extends ServerCommand
             player.getScheduler().run(plugin, task ->
             {
                 BungeeUtil.kickPlayer(plugin, player, Punishment.generateKickMessage(punishment));
-                PlexUtils.broadcast(PlexUtils.messageComponent("kickedPlayer", Placeholder.parsed("sender", context.senderName()), Placeholder.parsed("player", plexPlayer.getName())));
+                broadcast.send(PlexUtils.messageComponent("kickedPlayer", Placeholder.parsed("sender", context.senderName()), Placeholder.parsed("player", plexPlayer.getName())));
             }, null);
         });
     }

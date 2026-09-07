@@ -8,6 +8,8 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
 import dev.plex.command.ServerCommandContext;
 import dev.plex.listener.impl.BlockListener;
+import dev.plex.api.message.ActionBroadcast;
+import dev.plex.util.CapturedActionBroadcast;
 import dev.plex.util.PlexUtils;
 
 import io.papermc.paper.command.brigadier.CommandSourceStack;
@@ -60,7 +62,8 @@ public class BlockEditCMD extends ServerCommand
 
     private Component purge(ServerCommandContext context)
     {
-        PlexUtils.broadcast(PlexUtils.messageComponent("unblockingEdits", Placeholder.parsed("sender", context.senderName()), Placeholder.parsed("players", PlexUtils.messageString("blockeditAllPlayers"))));
+        ActionBroadcast broadcast = CapturedActionBroadcast.capture(context.sender());
+        broadcast.send(PlexUtils.messageComponent("unblockingEdits", Placeholder.parsed("sender", context.senderName()), Placeholder.parsed("players", PlexUtils.messageString("blockeditAllPlayers"))));
         int count = BlockListener.blockedPlayers.size();
         BlockListener.blockedPlayers.clear();
         return PlexUtils.messageComponent("blockeditSize", Placeholder.parsed("action", PlexUtils.messageString("blockeditUnblockedAction")), Placeholder.unparsed("count", String.valueOf(count)));
@@ -68,7 +71,8 @@ public class BlockEditCMD extends ServerCommand
 
     private Component blockAll(ServerCommandContext context)
     {
-        PlexUtils.broadcast(PlexUtils.messageComponent("blockingEdits", Placeholder.parsed("sender", context.senderName()), Placeholder.parsed("players", PlexUtils.messageString("blockeditAllNonAdmins"))));
+        ActionBroadcast broadcast = CapturedActionBroadcast.capture(context.sender());
+        broadcast.send(PlexUtils.messageComponent("blockingEdits", Placeholder.parsed("sender", context.senderName()), Placeholder.parsed("players", PlexUtils.messageString("blockeditAllNonAdmins"))));
         long count = plugin.getPlayerService().cachedPlayers().stream()
                 .map(player -> Bukkit.getPlayer(player.getUuid()))
                 .filter(Objects::nonNull)
@@ -95,6 +99,7 @@ public class BlockEditCMD extends ServerCommand
 
     private void togglePlayer(ServerCommandContext context, CommandSender sender, Player player)
     {
+        ActionBroadcast broadcast = CapturedActionBroadcast.capture(sender);
         if (!BlockListener.blockedPlayers.contains(player.getName()))
         {
             if (context.silentCheckPermission(player, "plex.blockedit"))
@@ -102,14 +107,14 @@ public class BlockEditCMD extends ServerCommand
                 sender.sendMessage(PlexUtils.messageComponent("higherRankThanYou"));
                 return;
             }
-            PlexUtils.broadcast(PlexUtils.messageComponent("blockingEdits", Placeholder.parsed("sender", context.senderName()), Placeholder.parsed("players", player.getName())));
+            broadcast.send(PlexUtils.messageComponent("blockingEdits", Placeholder.parsed("sender", context.senderName()), Placeholder.parsed("players", player.getName())));
             BlockListener.blockedPlayers.add(player.getName());
             player.sendMessage(PlexUtils.messageComponent("editsModified", Placeholder.parsed("state", PlexUtils.messageString("blockeditBlockedState"))));
             sender.sendMessage(PlexUtils.messageComponent("editsBlocked", Placeholder.parsed("player", player.getName())));
         }
         else
         {
-            PlexUtils.broadcast(PlexUtils.messageComponent("unblockingEdits", Placeholder.parsed("sender", context.senderName()), Placeholder.parsed("players", player.getName())));
+            broadcast.send(PlexUtils.messageComponent("unblockingEdits", Placeholder.parsed("sender", context.senderName()), Placeholder.parsed("players", player.getName())));
             BlockListener.blockedPlayers.remove(player.getName());
             player.sendMessage(PlexUtils.messageComponent("editsModified", Placeholder.parsed("state", PlexUtils.messageString("blockeditUnblockedState"))));
             sender.sendMessage(PlexUtils.messageComponent("editsUnblocked", Placeholder.parsed("player", player.getName())));

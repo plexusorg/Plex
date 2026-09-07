@@ -10,6 +10,8 @@ import dev.plex.command.ServerCommandContext;
 import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.Punishment;
 import dev.plex.api.punishment.PunishmentType;
+import dev.plex.api.message.ActionBroadcast;
+import dev.plex.util.CapturedActionBroadcast;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.BanKickUtil;
 import dev.plex.util.TimeUtils;
@@ -45,6 +47,7 @@ public class FreezeCMD extends ServerCommand
     private Component executeTyped(ServerCommandContext context, String playerName)
     {
         CommandSender sender = context.sender();
+        ActionBroadcast broadcast = CapturedActionBroadcast.capture(sender);
         Player player = getNonNullPlayer(playerName);
         PlexPlayer punishedPlayer = plugin.getPlayerService().cachedPlayer(player.getUniqueId());
 
@@ -70,7 +73,7 @@ public class FreezeCMD extends ServerCommand
                 PlexLog.error("Unable to freeze {0}: {1}", punishedPlayer.getUuid(), failure.getMessage());
                 sender.sendMessage(Component.text("Unable to persist the freeze; no action was taken."));
             }
-            else PlexUtils.broadcast(PlexUtils.messageComponent("frozePlayer", Placeholder.parsed("sender", context.senderName()), Placeholder.parsed("player", player.getName())));
+            else broadcast.send(PlexUtils.messageComponent("frozePlayer", Placeholder.parsed("sender", context.senderName()), Placeholder.parsed("player", player.getName())));
         });
         return null;
     }

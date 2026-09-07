@@ -333,6 +333,10 @@ audit should be separate, attributable changes.
 Keep changes narrow. Do not edit generated output, build directories, bundled assets, or dependencies. Do not commit,
 push, deploy, or modify live services unless explicitly requested.
 
+The README is a high-level project overview, not feature documentation. Do not add feature-specific behavior,
+individual command details, or API usage examples to it. Do not update the README as part of feature work unless the
+user explicitly requests a README change; preserve its existing scope and structure.
+
 Before behavior-affecting organizational, async, persistence, or ownership work, record relevant inputs, identity,
 policy decisions, output, logging, ordering, side effects, and thread ownership. A small fix needs only its affected path.
 Do not add tests unless the user explicitly requests them; run existing relevant tests where present.

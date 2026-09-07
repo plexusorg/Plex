@@ -2,6 +2,7 @@ package dev.plex.api.message;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
+import org.bukkit.command.CommandSender;
 
 /**
  * Formats configured messages and broadcasts Adventure components.
@@ -47,5 +48,19 @@ public interface MessageApi
      * @param component component to broadcast
      */
     void broadcast(Component component);
+
+    /**
+     * Captures recipient policy for an administrative action on the sender's command thread,
+     * before starting asynchronous work or scheduling work on another entity or region.
+     * A vanished player's announcements go only to that player, console, and online players
+     * the active SuperVanish/PremiumVanish integration allows to see them at capture time.
+     * Later joins, disconnects, or visibility changes do not expand or refresh that audience.
+     * Non-player senders and nonvanished players retain ordinary public broadcast behavior.
+     * Without a supported vanish plugin, announcements are public.
+     *
+     * @param sender player or non-player performing the action
+     * @return reusable announcement delivery for this action, not for subsequent invocations
+     */
+    ActionBroadcast captureActionBroadcast(CommandSender sender);
 
 }

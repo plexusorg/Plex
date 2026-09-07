@@ -6,6 +6,8 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.plex.command.ServerCommand;
 import dev.plex.command.ServerCommandContext;
 import dev.plex.util.PlexLog;
+import dev.plex.api.message.ActionBroadcast;
+import dev.plex.util.CapturedActionBroadcast;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.EntityRemovalUtil;
 
@@ -86,23 +88,24 @@ public class MobPurgeCMD extends ServerCommand
         }
         EntityType selectedType = type;
         String selectedName = mobName;
+        ActionBroadcast broadcast = CapturedActionBroadcast.capture(sender);
         EntityRemovalUtil.removeLoaded(plugin, entity -> entity instanceof LivingEntity
                 && !(entity instanceof Player) && (selectedType == null || entity.getType() == selectedType))
-                .thenAccept(counts -> report(context, sender, selectedType, selectedName,
+                .thenAccept(counts -> report(context, sender, broadcast, selectedType, selectedName,
                         counts.values().stream().mapToInt(Integer::intValue).sum()));
         return null;
     }
 
-    private void report(ServerCommandContext context, CommandSender sender, EntityType type, String mobName, int count)
+    private void report(ServerCommandContext context, CommandSender sender, ActionBroadcast broadcast, EntityType type, String mobName, int count)
     {
         if (type != null)
         {
-            PlexUtils.broadcast(PlexUtils.messageComponent("removedEntitiesOfTypes", Placeholder.parsed("sender", context.senderName()), Placeholder.unparsed("count", String.valueOf(count)), Placeholder.parsed("types", mobName)));
+            broadcast.send(PlexUtils.messageComponent("removedEntitiesOfTypes", Placeholder.parsed("sender", context.senderName()), Placeholder.unparsed("count", String.valueOf(count)), Placeholder.parsed("types", mobName)));
             PlexLog.debug("All " + count + " of " + mobName + " were removed");
         }
         else
         {
-            PlexUtils.broadcast(PlexUtils.messageComponent("removedMobs", Placeholder.parsed("sender", context.senderName()), Placeholder.unparsed("count", String.valueOf(count))));
+            broadcast.send(PlexUtils.messageComponent("removedMobs", Placeholder.parsed("sender", context.senderName()), Placeholder.unparsed("count", String.valueOf(count))));
             PlexLog.debug("All " + count + " valid mobs were removed");
         }
         sender.sendMessage(PlexUtils.messageComponent("amountOfMobsRemoved", Placeholder.unparsed("count", String.valueOf(count)), Placeholder.parsed("mobs", type != null ? mobName + multipleS(count) : PlexUtils.messageString(count == 1 ? "mobSingular" : "mobPlural"))));

@@ -9,6 +9,8 @@ import dev.plex.command.ServerCommand;
 import dev.plex.command.ServerCommandContext;
 import dev.plex.punishment.Punishment;
 import dev.plex.util.BungeeUtil;
+import dev.plex.api.message.ActionBroadcast;
+import dev.plex.util.CapturedActionBroadcast;
 import dev.plex.util.PlexUtils;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
@@ -40,6 +42,7 @@ public class BanNameCMD extends ServerCommand
 
     private Component executeTyped(ServerCommandContext context, String usernameName, String suppliedReason)
     {
+        ActionBroadcast broadcast = CapturedActionBroadcast.capture(context.sender());
         String username = usernameName;
         if (!username.matches("[A-Za-z0-9_]{1,16}"))
         {
@@ -51,7 +54,7 @@ public class BanNameCMD extends ServerCommand
             return PlexUtils.messageComponent("nameAlreadyBanned");
         }
 
-        PlexUtils.broadcast(PlexUtils.messageComponent("banningName", Placeholder.parsed("sender", context.senderName()), Placeholder.parsed("username", username)));
+        broadcast.send(PlexUtils.messageComponent("banningName", Placeholder.parsed("sender", context.senderName()), Placeholder.parsed("username", username)));
         Component kickMessage = Punishment.generateIndefBanMessageWithReason(
                 "username", plugin.config.getString("banning.ban_url"), reason);
         plugin.getPlayerService().cachedPlayers().stream()

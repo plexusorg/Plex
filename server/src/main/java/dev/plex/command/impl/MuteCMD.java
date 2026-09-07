@@ -10,6 +10,8 @@ import dev.plex.command.ServerCommandContext;
 import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.Punishment;
 import dev.plex.api.punishment.PunishmentType;
+import dev.plex.api.message.ActionBroadcast;
+import dev.plex.util.CapturedActionBroadcast;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.BanKickUtil;
 import dev.plex.util.TimeUtils;
@@ -45,6 +47,7 @@ public class MuteCMD extends ServerCommand
     private Component executeTyped(ServerCommandContext context, String playerName)
     {
         CommandSender sender = context.sender();
+        ActionBroadcast broadcast = CapturedActionBroadcast.capture(sender);
         Player player = getNonNullPlayer(playerName);
         PlexPlayer punishedPlayer = getCachedPlexPlayer(player.getUniqueId());
 
@@ -76,7 +79,7 @@ public class MuteCMD extends ServerCommand
                 PlexLog.error("Unable to mute {0}: {1}", punishedPlayer.getUuid(), failure.getMessage());
                 sender.sendMessage(Component.text("Unable to persist the mute; no action was taken."));
             }
-            else PlexUtils.broadcast(PlexUtils.messageComponent("mutedPlayer", Placeholder.parsed("sender", context.senderName()), Placeholder.parsed("player", player.getName())));
+            else broadcast.send(PlexUtils.messageComponent("mutedPlayer", Placeholder.parsed("sender", context.senderName()), Placeholder.parsed("player", player.getName())));
         });
         return null;
     }

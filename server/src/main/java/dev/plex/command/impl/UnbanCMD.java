@@ -8,6 +8,8 @@ import dev.plex.command.ServerCommand;
 import dev.plex.command.ServerCommandContext;
 import dev.plex.command.exception.PlayerNotFoundException;
 import dev.plex.player.PlexPlayer;
+import dev.plex.api.message.ActionBroadcast;
+import dev.plex.util.CapturedActionBroadcast;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.PlexLog;
 
@@ -40,6 +42,7 @@ public class UnbanCMD extends ServerCommand
     private Component executeTyped(ServerCommandContext context, String playerName)
     {
         CommandSender sender = context.sender();
+        ActionBroadcast broadcast = CapturedActionBroadcast.capture(sender);
         plugin.getPlayerService().findPlayer(playerName).whenComplete((target, lookupFailure) ->
         {
             if (lookupFailure != null)
@@ -62,7 +65,7 @@ public class UnbanCMD extends ServerCommand
                         sender.sendMessage(Component.text("Unable to complete the unban; check the server logs."));
                     }
                     else if (!changed) sender.sendMessage(PlexUtils.messageComponent("playerNotBanned"));
-                    else PlexUtils.broadcast(PlexUtils.messageComponent("unbanningPlayer", Placeholder.parsed("sender", context.senderName()), Placeholder.parsed("player", target.getName())));
+                    else broadcast.send(PlexUtils.messageComponent("unbanningPlayer", Placeholder.parsed("sender", context.senderName()), Placeholder.parsed("player", target.getName())));
                 });
         });
         return null;

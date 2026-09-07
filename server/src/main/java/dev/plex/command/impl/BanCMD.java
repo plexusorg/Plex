@@ -12,6 +12,8 @@ import dev.plex.punishment.Punishment;
 import dev.plex.api.punishment.PunishmentType;
 import dev.plex.util.BanKickUtil;
 import dev.plex.util.PlexLog;
+import dev.plex.api.message.ActionBroadcast;
+import dev.plex.util.CapturedActionBroadcast;
 import dev.plex.util.PlexUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -53,6 +55,7 @@ public class BanCMD extends ServerCommand
     private Component ban(ServerCommandContext context, String playerName, BanReason reason)
     {
         CommandSender sender = context.sender();
+        ActionBroadcast broadcast = CapturedActionBroadcast.capture(sender);
         plugin.getPlayerService().findPlayer(playerName).whenComplete((plexPlayer, lookupFailure) ->
         {
             if (lookupFailure != null)
@@ -95,7 +98,7 @@ public class BanCMD extends ServerCommand
                     sender.sendMessage(Component.text("Unable to complete the ban; check the server logs."));
                     return;
                 }
-                PlexUtils.broadcast(PlexUtils.messageComponent("banningPlayer", Placeholder.parsed("sender", context.senderName()), Placeholder.parsed("player", plexPlayer.getName())));
+                broadcast.send(PlexUtils.messageComponent("banningPlayer", Placeholder.parsed("sender", context.senderName()), Placeholder.parsed("player", plexPlayer.getName())));
                 PlexLog.debug("(From /ban command) PunishedPlayer UUID: " + plexPlayer.getUuid());
                 if (reason.rollback()) rollbackReporter.report(sender, plexPlayer.getName());
             });

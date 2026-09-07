@@ -3,6 +3,7 @@ package dev.plex.menu.dialog;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 
 import dev.plex.Plex;
+import dev.plex.util.CapturedActionBroadcast;
 import dev.plex.util.PlexUtils;
 import io.papermc.paper.dialog.Dialog;
 import io.papermc.paper.registry.data.dialog.ActionButton;
@@ -89,7 +90,7 @@ public class ToggleDialog
         plugin.toggles.save();
         if ("chat".equals(toggle))
         {
-            PlexUtils.broadcast(PlexUtils.messageComponent("chatToggled", Placeholder.parsed("sender", player.getName()), Placeholder.parsed("state", PlexUtils.messageString(plugin.toggles.getBoolean("chat") ? "stateOn" : "stateOff"))));
+            CapturedActionBroadcast.capture(player).send(PlexUtils.messageComponent("chatToggled", Placeholder.parsed("sender", player.getName()), Placeholder.parsed("state", PlexUtils.messageString(plugin.toggles.getBoolean("chat") ? "stateOn" : "stateOff"))));
         }
         player.sendMessage(PlexUtils.messageComponent("toggleToggled", Placeholder.parsed("toggle", PlexUtils.messageString(lowerNameKey))));
         open(player);
