@@ -297,10 +297,10 @@ commandNotFound: "<red>That command could not be found!"
 # <aliases> - A list of aliases found
 commandAliases: "<aqua>Aliases for <command> are: <aliases>"
 # <count> - Number of activities found to rollback
-prismRollbackMessage: "<gray>Rolled back <count> activities"
-# <error> - Error message returned from Prism
-prismRollbackError: "<red>Rollback failed: <error>"
-prismNoResult: "<gray>No activities have been rolled back"
+rollbackMessage: "<gray>Rolled back <count> activities"
+# <error> - Rollback error message
+rollbackError: "<red>Rollback failed: <error>"
+rollbackNoResult: "<gray>No activities have been rolled back"
 punishmentMenuTitle: "<aqua><bold>Punishments"
 # <player> - The player
 punishedPlayerMenuTitle: "<red><bold>Punishments - <player>"

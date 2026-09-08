@@ -13,7 +13,7 @@ import dev.plex.config.LegacyConfigMigration;
 import dev.plex.handlers.CommandHandler;
 import dev.plex.handlers.ListenerHandler;
 import dev.plex.hook.CoreProtectHook;
-import dev.plex.hook.PrismHook;
+import dev.plex.hook.OasisHook;
 import dev.plex.hook.WorldGuardHook;
 import dev.plex.module.ModuleManager;
 import dev.plex.network.ProxyVanishBridge;
@@ -109,7 +109,7 @@ public class Plex extends JavaPlugin
     private Chat chat;
 
     private CoreProtectHook coreProtectHook;
-    private PrismHook prismHook;
+    private OasisHook oasisHook;
     private WorldGuardHook worldGuardHook;
 
     public static Plex get()
@@ -200,14 +200,14 @@ public class Plex extends JavaPlugin
         {
             PlexLog.debug("Not hooking into CoreProtect");
         }
-        if (plugin.getServer().getPluginManager().isPluginEnabled("prism"))
+        if (plugin.getServer().getPluginManager().isPluginEnabled("Oasis"))
         {
-            prismHook = new PrismHook(this);
-            PlexLog.log("Prism API available: {0}", prismHook.hasPrism());
+            oasisHook = new OasisHook(this);
+            PlexLog.log("Hooked into Oasis!");
         }
         else
         {
-            PlexLog.debug("Not hooking into Prism");
+            PlexLog.debug("Not hooking into Oasis");
         }
 
         PlexLog.log("SuperVanish / PremiumVanish available: {0}", PlexUtils.hasVanishPlugin());

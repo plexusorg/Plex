@@ -1,8 +1,5 @@
 package dev.plex.hook;
 
-import org.bukkit.Bukkit;
-
-
 import dev.plex.Plex;
 import dev.plex.api.rollback.RollbackApi;
 import java.util.Collections;
@@ -22,7 +19,7 @@ public class RollbackManager implements RollbackApi
     @Override
     public boolean isAvailable()
     {
-        return (plugin.getPrismHook() != null && plugin.getPrismHook().hasPrism())
+        return (plugin.getOasisHook() != null)
                 || (plugin.getCoreProtectHook() != null && plugin.getCoreProtectHook().hasCoreProtect());
     }
 
@@ -32,24 +29,9 @@ public class RollbackManager implements RollbackApi
         Objects.requireNonNull(sender, "sender");
         Objects.requireNonNull(playerName, "playerName");
         if (seconds <= 0) return CompletableFuture.failedFuture(new IllegalArgumentException("seconds must be positive"));
-        if (plugin.getPrismHook() != null && plugin.getPrismHook().hasPrism())
+        if (plugin.getOasisHook() != null)
         {
-            CompletableFuture<Integer> result = new CompletableFuture<>();
-            Bukkit.getGlobalRegionScheduler().run(plugin, task ->
-            {
-                try
-                {
-                    plugin.getPrismHook().rollback(sender, playerName, seconds).whenComplete((count, failure) ->
-                    {
-                        if (failure == null) result.complete(count); else result.completeExceptionally(failure);
-                    });
-                }
-                catch (RuntimeException failure)
-                {
-                    result.completeExceptionally(failure);
-                }
-            });
-            return result;
+            return plugin.getOasisHook().rollback(sender, playerName, seconds);
         }
 
         if (plugin.getCoreProtectHook() != null && plugin.getCoreProtectHook().hasCoreProtect())

@@ -23,10 +23,10 @@ final class BanRollbackReporter
             if (failure != null)
             {
                 PlexLog.error("Unable to rollback {0}: {1}", playerName, failure.getMessage());
-                sender.sendMessage(PlexUtils.messageComponent("prismRollbackError", Placeholder.parsed("error", String.valueOf(failure.getMessage()))));
+                sender.sendMessage(PlexUtils.messageComponent("rollbackError", Placeholder.parsed("error", String.valueOf(failure.getMessage()))));
             }
-            else if (count == 0) sender.sendMessage(PlexUtils.messageComponent("prismNoResult"));
-            else sender.sendMessage(PlexUtils.messageComponent("prismRollbackMessage", Placeholder.unparsed("count", String.valueOf(count))));
+            else if (count == 0) sender.sendMessage(PlexUtils.messageComponent("rollbackNoResult"));
+            else sender.sendMessage(PlexUtils.messageComponent("rollbackMessage", Placeholder.unparsed("count", String.valueOf(count))));
         });
     }
 }

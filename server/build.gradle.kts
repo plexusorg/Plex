@@ -18,7 +18,7 @@ repositories {
     maven(url = uri("https://maven.playpro.com"))
     maven(url = uri("https://maven.enginehub.org/repo/"))
     maven(url = uri("https://nexus.telesphoreo.me/repository/plex-modules/"))
-    maven(url = uri("https://nexus.prism-mc.org/repository/maven-public/"))
+    maven(url = uri("https://nexus.telesphoreo.me/repository/oasis-snapshots/"))
 }
 
 dependencies {
@@ -37,7 +37,7 @@ dependencies {
         exclude("org.bukkit", "bukkit")
     }
     compileOnly("net.coreprotect:coreprotect:24.0")
-    compileOnly("org.prism_mc.prism:prism-paper-api:4.4")
+    compileOnly("com.oasis:oasis-api:1.0-SNAPSHOT")
     compileOnly("com.github.LeonMangler:SuperVanish:6.2.19")
     compileOnly("com.sk89q.worldguard:worldguard-bukkit:7.1.0-SNAPSHOT")
     implementation("org.bstats:bstats-base:3.2.1")
@@ -74,7 +74,7 @@ paper {
             required = false
             load = PaperPluginDescription.RelativeLoadOrder.BEFORE
         }
-        register("prism") {
+        register("Oasis") {
             required = false
             joinClasspath = true
             load = PaperPluginDescription.RelativeLoadOrder.BEFORE
