@@ -37,7 +37,7 @@ dependencies {
         exclude("org.bukkit", "bukkit")
     }
     compileOnly("net.coreprotect:coreprotect:24.0")
-    compileOnly("com.oasis:oasis-api:1.0-SNAPSHOT")
+    compileOnly("com.oasis:oasis-api:2.0-SNAPSHOT")
     compileOnly("com.github.LeonMangler:SuperVanish:6.2.19")
     compileOnly("com.sk89q.worldguard:worldguard-bukkit:7.1.0-SNAPSHOT")
     implementation("org.bstats:bstats-base:3.2.1")
