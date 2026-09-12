@@ -101,6 +101,16 @@ paper {
             required = false
             load = PaperPluginDescription.RelativeLoadOrder.BEFORE
         }
+        register("FastAsyncWorldEdit") {
+            required = false
+            joinClasspath = true
+            load = PaperPluginDescription.RelativeLoadOrder.BEFORE
+        }
+        register("WorldEdit") {
+            required = false
+            joinClasspath = true
+            load = PaperPluginDescription.RelativeLoadOrder.BEFORE
+        }
         register("WorldGuard") {
             required = false
             joinClasspath = true
