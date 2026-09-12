@@ -9,6 +9,8 @@ import dev.plex.api.module.ModulesApi;
 import dev.plex.module.exception.ModuleLoadException;
 import dev.plex.storage.module.ModuleNames;
 import dev.plex.util.PlexLog;
+import dev.plex.util.PlexUtils;
+import io.papermc.paper.event.server.ServerResourcesReloadedEvent;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,11 +27,15 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.HandlerList;
+import org.bukkit.event.Listener;
 
 public class ModuleManager implements ModulesApi
 {
@@ -285,6 +291,11 @@ public class ModuleManager implements ModulesApi
 
     public CompletableFuture<Void> reloadModules()
     {
+        if (PlexUtils.isFolia())
+        {
+            return CompletableFuture.failedFuture(new UnsupportedOperationException(
+                    "Folia does not support datapack reloads. Restart the server to reload modules."));
+        }
         return queueLifecycle(() -> unloadModulesOnGlobal()
                 .thenCompose(ignored -> reloadAfterLifecycleOperation()));
     }
@@ -302,7 +313,37 @@ public class ModuleManager implements ModulesApi
         enableModules();
         if (plugin.getCommandHandler() != null && plugin.getCommandHandler().requiresLifecycleReload())
         {
-            PlexLog.warn("Module command changes were staged after Paper's Brigadier command lifecycle. Restart the server for the live command dispatcher to match the loaded modules.");
+            reloadCommands();
+        }
+    }
+
+    private void reloadCommands()
+    {
+        AtomicBoolean completed = new AtomicBoolean();
+        Listener observer = new Listener()
+        {
+        };
+        plugin.getServer().getPluginManager().registerEvent(ServerResourcesReloadedEvent.class, observer,
+                EventPriority.MONITOR, (listener, event) ->
+                {
+                    if (((ServerResourcesReloadedEvent) event).getCause() == ServerResourcesReloadedEvent.Cause.PLUGIN)
+                    {
+                        completed.set(true);
+                    }
+                }, plugin);
+        try
+        {
+            PlexLog.log("Reloading datapacks to apply module command changes.");
+            // On Paper's global owner this waits for resource loading, but does not propagate its future's failure.
+            Bukkit.reloadData();
+            if (!completed.get() || plugin.getCommandHandler().requiresLifecycleReload())
+            {
+                throw new IllegalStateException("Paper did not finish reloading module commands. Check the server log.");
+            }
+        }
+        finally
+        {
+            HandlerList.unregisterAll(observer);
         }
     }
 
@@ -326,6 +367,11 @@ public class ModuleManager implements ModulesApi
      */
     public CompletableFuture<UninstallResult> uninstallModule(String name, boolean removeData)
     {
+        if (PlexUtils.isFolia())
+        {
+            return CompletableFuture.failedFuture(new UnsupportedOperationException(
+                    "Folia does not support datapack reloads. Stop the server to uninstall modules."));
+        }
         return queueLifecycle(() -> onGlobalResult(() -> prepareUninstall(name))
                 .thenCompose(target ->
                 {

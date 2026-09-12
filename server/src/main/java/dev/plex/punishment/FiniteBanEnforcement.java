@@ -449,7 +449,7 @@ final class FiniteBanEnforcement
                 BossBar.Color.RED, BossBar.Overlay.PROGRESS);
         OnlineRestriction replacement = new OnlineRestriction(punishment, bar);
         CompletableFuture<Void> completion = new CompletableFuture<>();
-        ScheduledTask task = player.getScheduler().run(plugin, ignored ->
+        Runnable activation = () ->
         {
             ActivationPlan plan = installRestriction(player, replacement, expectedVersion);
             if (plan == null)
@@ -470,8 +470,17 @@ final class FiniteBanEnforcement
             if (plan.shouldEvict()) evict(player, null, false);
             if (!plan.wasRestricted()) enforceBuffer();
             completion.complete(null);
-        }, () -> completion.complete(null));
-        if (task == null) completion.complete(null);
+        };
+        if (Bukkit.isOwnedByCurrentRegion(player))
+        {
+            activation.run();
+        }
+        else
+        {
+            ScheduledTask task = player.getScheduler().run(plugin, ignored -> activation.run(),
+                    () -> completion.complete(null));
+            if (task == null) completion.complete(null);
+        }
         return completion;
     }
 

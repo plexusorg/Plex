@@ -349,7 +349,7 @@ moduleUpdateDisabled: "<yellow>Skipping <module>; module updates are disabled."
 # <skipped_count> - The number of modules skipped
 # <failed_count> - The number of modules that failed to update
 moduleUpdateSummary: "<green>Module updates finished: <yellow><updated_count> updated<gray>, <yellow><skipped_count> skipped<gray>, <red><failed_count> failed<gray>. Modules were reloaded after all update attempts completed."
-moduleRestartRequired: "<yellow>Module changes applied. Restart the server if module commands do not appear or disappear."
+moduleCommandsReloaded: "<green>Module changes applied. The command list is up to date."
 
 # WorldGuard protection command
 protectRegionCreated: "<green>Created WorldGuard region <yellow><region></yellow> with the <yellow><preset></yellow> preset in <yellow><world></yellow>."

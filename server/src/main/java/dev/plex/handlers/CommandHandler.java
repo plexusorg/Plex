@@ -1,7 +1,9 @@
 package dev.plex.handlers;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
+import com.mojang.brigadier.tree.RootCommandNode;
 import dev.plex.Plex;
 import dev.plex.command.PlexCommand;
 import dev.plex.command.impl.*;
@@ -10,13 +12,19 @@ import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import org.bukkit.Bukkit;
 import org.jetbrains.annotations.Nullable;
 
 public class CommandHandler
 {
     private final List<PlexCommand> commands = new ArrayList<>();
+    private final Map<PlexCommand, Map<String, CommandNode<CommandSourceStack>>> registeredNodes = new IdentityHashMap<>();
+    private RootCommandNode<CommandSourceStack> dispatcherRoot;
     private boolean lifecycleRegistered;
     private boolean lifecycleReloadRequired;
 
@@ -43,6 +51,18 @@ public class CommandHandler
         if (removed && lifecycleRegistered)
         {
             lifecycleReloadRequired = true;
+            Map<String, CommandNode<CommandSourceStack>> nodes = registeredNodes.remove(command);
+            if (nodes != null)
+            {
+                for (var entry : nodes.entrySet())
+                {
+                    if (dispatcherRoot.getChild(entry.getKey()) == entry.getValue())
+                    {
+                        // Paper forwards command-map removal to its live Brigadier dispatcher.
+                        Bukkit.getCommandMap().getKnownCommands().remove(entry.getKey());
+                    }
+                }
+            }
         }
     }
 
@@ -79,11 +99,19 @@ public class CommandHandler
 
     private void register(Commands registrar)
     {
+        dispatcherRoot = registrar.getDispatcher().getRoot();
+        registeredNodes.clear();
         int labels = 0;
         for (PlexCommand command : commands)
         {
+            Map<String, CommandNode<CommandSourceStack>> nodes = new HashMap<>();
+            registeredNodes.put(command, nodes);
             LiteralCommandNode<CommandSourceStack> commandNode = command.buildCommand();
             var registeredLabels = registrar.register(commandNode, command.getDescription(), List.of());
+            for (String label : registeredLabels)
+            {
+                nodes.put(label, dispatcherRoot.getChild(label));
+            }
             labels += registeredLabels.size();
 
             for (String alias : command.getAliases())
@@ -91,6 +119,10 @@ public class CommandHandler
                 // Paper does not let aliases replace an existing command. Register each
                 // Plex alias as a primary command node so Plex deliberately takes priority.
                 var registeredAliasLabels = registrar.register(copyWithLabel(commandNode, alias), command.getDescription(), List.of());
+                for (String label : registeredAliasLabels)
+                {
+                    nodes.put(label, dispatcherRoot.getChild(label));
+                }
                 labels += registeredAliasLabels.size();
                 if (!registeredAliasLabels.contains(alias) && !registeredAliasLabels.contains("plex:" + alias))
                 {

@@ -227,7 +227,7 @@ public class UpdateChecker
                     PlexLog.error("Failed to reload modules after installing " + name, failure);
                     return;
                 }
-                sender.sendMessage(PlexUtils.messageComponent("moduleRestartRequired"));
+                sender.sendMessage(PlexUtils.messageComponent("moduleCommandsReloaded"));
             });
         });
     }

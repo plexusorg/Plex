@@ -64,6 +64,15 @@ public class PlayerListener extends ServerListenerBase
         {
             player.openInventory(player.getInventory());
         }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onPlayerJoinMessages(PlayerJoinEvent event)
+    {
+        Player player = event.getPlayer();
+        if (plugin.getPunishmentManager().isFiniteBanRestricted(player.getUniqueId())) return;
+        PlexPlayer plexPlayer = plugin.getPlayerService().cachedPlayer(player.getUniqueId());
+        if (plexPlayer == null) return;
 
         Component loginMessage = PlayerMeta.getLoginMessage(plugin.config, plexPlayer);
         if (!loginMessage.equals(Component.empty()) && !PlayerMeta.isVanished(player))

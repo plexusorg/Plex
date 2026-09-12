@@ -105,11 +105,19 @@ public class BanListener extends ServerListenerBase
     public void onJoin(PlayerJoinEvent event)
     {
         plugin.getPunishmentManager().completeJoin(event.getPlayer());
+        if (plugin.getPunishmentManager().isFiniteBanRestricted(event.getPlayer().getUniqueId()))
+        {
+            event.joinMessage(null);
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onQuit(PlayerQuitEvent event)
     {
+        if (plugin.getPunishmentManager().isFiniteBanRestricted(event.getPlayer().getUniqueId()))
+        {
+            event.quitMessage(null);
+        }
         plugin.getPunishmentManager().completeQuit(event.getPlayer().getUniqueId());
     }
 

@@ -19,7 +19,7 @@ public class CommandListener extends ServerListenerBase
         super(plugin);
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event)
     {
         Player sender = event.getPlayer();

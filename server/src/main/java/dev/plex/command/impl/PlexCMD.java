@@ -149,6 +149,8 @@ public class PlexCMD extends ServerCommand
                 if (failure != null)
                 {
                     PlexLog.error("Failed to reload updated modules", failure);
+                    sender.sendMessage(PlexUtils.mmDeserialize("<red>Failed to reload updated modules. Check the server log."));
+                    return;
                 }
                 sender.sendMessage(PlexUtils.messageComponent("moduleUpdateSummary", Placeholder.unparsed("updated_count", String.valueOf(updatedCount)), Placeholder.unparsed("skipped_count", String.valueOf(skippedCount)), Placeholder.unparsed("failed_count", String.valueOf(failedCount))));
             });
@@ -182,7 +184,7 @@ public class PlexCMD extends ServerCommand
                 case REMOVED ->
                 {
                     context.sender().sendMessage(PlexUtils.mmDeserialize("<green>Uninstalled module <yellow>" + moduleName + "<green>" + (removeData ? " and its data folder" : "") + "."));
-                    context.sender().sendMessage(PlexUtils.messageComponent("moduleRestartRequired"));
+                    context.sender().sendMessage(PlexUtils.messageComponent("moduleCommandsReloaded"));
                 }
             }
         });

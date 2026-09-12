@@ -10,8 +10,8 @@ import net.kyori.adventure.text.Component;
  * Registers and unregisters Plex commands.
  *
  * <p>Register commands during module load. Paper can then add them to the
- * command list for the current server run. Later changes usually require a
- * server restart.</p>
+ * command list for the current server run. Module reloads on Paper reload
+ * datapacks to apply new command registrations. Folia requires a restart.</p>
  *
  * <p>Modules must use the methods on {@link dev.plex.module.PlexModule} so that
  * Plex can unregister their commands during module unload.</p>
@@ -28,8 +28,8 @@ public interface CommandApi
     /**
      * Unregisters a command from Plex.
      *
-     * <p>The command can remain active until Paper rebuilds its command list.
-     * This usually happens after a server restart.</p>
+     * <p>Plex removes this command's registered labels from Paper's live
+     * dispatcher. Labels replaced by another command remain unchanged.</p>
      *
      * @param command command to unregister
      */
