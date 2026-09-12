@@ -3,6 +3,7 @@ package dev.plex.listener.impl;
 import dev.plex.Plex;
 import dev.plex.listener.ServerListenerBase;
 import dev.plex.util.CommandUtils;
+import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import io.papermc.paper.event.player.PrePlayerAttackEntityEvent;
@@ -219,7 +220,10 @@ public class TogglesListener extends ServerListenerBase
     @EventHandler
     public void onBlockRedstone(BlockRedstoneEvent event)
     {
-        if (!plugin.toggles.getBoolean("redstone"))
+        boolean enabled = plugin.toggles.getBoolean("redstone");
+        PlexLog.debug("Redstone event: {0} at {1} {2} -> {3}, toggle enabled: {4}", event.getBlock().getType(),
+                event.getBlock().getLocation().toVector(), event.getOldCurrent(), event.getNewCurrent(), enabled);
+        if (!enabled)
         {
             event.setNewCurrent(0);
         }

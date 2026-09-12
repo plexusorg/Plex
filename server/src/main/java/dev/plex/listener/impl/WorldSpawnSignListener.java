@@ -3,6 +3,7 @@ package dev.plex.listener.impl;
 import dev.plex.Plex;
 import dev.plex.listener.EventRule;
 import dev.plex.listener.ServerListenerBase;
+import dev.plex.util.PlexLog;
 import dev.plex.world.WorldSpawnSignManager;
 import java.util.List;
 import java.util.function.Function;
@@ -156,6 +157,7 @@ public final class WorldSpawnSignListener extends ServerListenerBase
             {
                 return false;
             }
+            PlexLog.debug("Spawn sign protection cancelled {0}", event.getEventName());
             signManager.restore(world.apply(event));
             return true;
         });

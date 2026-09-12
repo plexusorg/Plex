@@ -2,6 +2,7 @@ package dev.plex.listener.impl;
 
 import dev.plex.Plex;
 import dev.plex.listener.ServerListenerBase;
+import dev.plex.util.PlexLog;
 import io.papermc.paper.event.player.PlayerInventorySlotChangeEvent;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -149,7 +150,11 @@ public class FiniteBanActionListener extends ServerListenerBase
 
     private void cancel(Player player, Cancellable event)
     {
-        if (restricted(player)) event.setCancelled(true);
+        if (restricted(player))
+        {
+            PlexLog.debug("Finite ban restriction cancelled {0} for {1}", event.getClass().getSimpleName(), player.getName());
+            event.setCancelled(true);
+        }
     }
 
     private boolean restricted(Player player)

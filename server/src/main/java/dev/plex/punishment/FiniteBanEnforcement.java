@@ -5,6 +5,7 @@ import org.bukkit.Bukkit;
 
 import com.destroystokyo.paper.event.player.PlayerConnectionCloseEvent;
 import dev.plex.Plex;
+import dev.plex.hook.VaultHook;
 import dev.plex.punishment.admission.BanDecisionService;
 import dev.plex.util.BungeeUtil;
 import dev.plex.util.PlexUtils;
@@ -21,9 +22,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.Component;
+import net.milkbowl.vault.permission.Permission;
 import org.bukkit.GameMode;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
@@ -33,6 +36,8 @@ import org.jetbrains.annotations.Nullable;
 
 final class FiniteBanEnforcement
 {
+    private static final String LIMIT_BYPASS_PERMISSION = "plex.playerlimitbypass";
+
     private final Plex plugin;
     private final PunishmentManager punishmentManager;
     private final NamespacedKey previousGameModeKey;
@@ -105,7 +110,7 @@ final class FiniteBanEnforcement
         if (banned)
         {
             boolean allowed = event.isAllowed() && occupancy < Math.max(0, maximum - 1);
-            Reservation reservation = new Reservation(allowed, null);
+            Reservation reservation = new Reservation(allowed, null, false);
             reservations.put(uuid, reservation);
             applyReservation(event, reservation, admission);
             return;
@@ -113,18 +118,27 @@ final class FiniteBanEnforcement
 
         if (event.isAllowed() && occupancy < maximum)
         {
-            reservations.put(uuid, new Reservation(true, null));
+            reservations.put(uuid, new Reservation(true, null, false));
             return;
         }
 
         UUID victim = oldestAvailableRestriction();
-        if (victim == null)
+        if (victim != null)
         {
-            reservations.put(uuid, new Reservation(false, null));
+            evicting.add(victim);
+            reservations.put(uuid, new Reservation(true, victim, false));
+            event.allow(true);
             return;
         }
-        evicting.add(victim);
-        reservations.put(uuid, new Reservation(true, victim));
+
+        UUID limitVictim = hasLimitBypass(uuid) ? randomLimitVictim() : null;
+        if (limitVictim == null)
+        {
+            reservations.put(uuid, new Reservation(false, null, false));
+            return;
+        }
+        evicting.add(limitVictim);
+        reservations.put(uuid, new Reservation(true, limitVictim, true));
         event.allow(true);
     }
 
@@ -148,7 +162,7 @@ final class FiniteBanEnforcement
         }
         if (plan.victim() != null)
         {
-            evict(plan.victim().player(), player);
+            evict(plan.victim().player(), player, plan.limitBypassVictim());
         }
     }
 
@@ -171,7 +185,8 @@ final class FiniteBanEnforcement
             if (rejected != null && rejected.connectionToken() > 0L)
                 joinedCloseDebts.merge(uuid, 1, Integer::sum);
         }
-        return new JoinPlan(admission, victim, rejectIncoming, admissionVersion);
+        return new JoinPlan(admission, victim, rejectIncoming, admissionVersion,
+                reservation != null && reservation.limitBypassVictim());
     }
 
     @Nullable
@@ -179,10 +194,11 @@ final class FiniteBanEnforcement
     {
         UUID victimId = reservation.victim();
         if (victimId == null) return null;
-        if (!canEvict(victimId) || !onlinePlayers.containsKey(victimId))
+        boolean limitBypass = reservation.limitBypassVictim();
+        if (!onlinePlayers.containsKey(victimId) || !limitBypass && !canEvict(victimId))
         {
             evicting.remove(victimId);
-            victimId = oldestAvailableRestriction();
+            victimId = limitBypass ? randomLimitVictim() : oldestAvailableRestriction();
             if (victimId != null) evicting.add(victimId);
         }
         return victimId == null ? null : onlinePlayers.get(victimId);
@@ -355,7 +371,7 @@ final class FiniteBanEnforcement
                     if (evicting.contains(uuid)) retry = onlinePlayers.get(uuid);
                 }
             }
-            if (retry != null) evict(retry.player(), null);
+            if (retry != null) evict(retry.player(), null, false);
         });
     }
 
@@ -451,7 +467,7 @@ final class FiniteBanEnforcement
             player.showBossBar(bar);
             player.setGameMode(GameMode.SPECTATOR);
             player.sendMessage(Punishment.generateBanMessage(punishment, plugin.config.getString("banning.ban_url")));
-            if (plan.shouldEvict()) evict(player, null);
+            if (plan.shouldEvict()) evict(player, null, false);
             if (!plan.wasRestricted()) enforceBuffer();
             completion.complete(null);
         }, () -> completion.complete(null));
@@ -585,7 +601,7 @@ final class FiniteBanEnforcement
                 if (victim != null) victims.add(victim.player());
             }
         }
-        victims.forEach(player -> evict(player, null));
+        victims.forEach(player -> evict(player, null, false));
     }
 
     @Nullable
@@ -598,13 +614,33 @@ final class FiniteBanEnforcement
                 .findFirst().orElse(null);
     }
 
-    private void evict(Player player, @Nullable Player fallback)
+    @Nullable
+    private UUID randomLimitVictim()
+    {
+        List<UUID> candidates = onlinePlayers.keySet().stream()
+                .filter(uuid -> !evicting.contains(uuid))
+                .filter(uuid -> !protectedFromEviction.contains(uuid))
+                .filter(uuid -> !isRestricted(uuid))
+                .filter(uuid -> !hasLimitBypass(uuid))
+                .toList();
+        return candidates.isEmpty() ? null : candidates.get(ThreadLocalRandom.current().nextInt(candidates.size()));
+    }
+
+    private static boolean hasLimitBypass(UUID uuid)
+    {
+        Permission permission = VaultHook.getPermission();
+        return permission != null
+                && permission.playerHas((String) null, Bukkit.getOfflinePlayer(uuid), LIMIT_BYPASS_PERMISSION);
+    }
+
+    private void evict(Player player, @Nullable Player fallback, boolean limitBypass)
     {
         player.getScheduler().run(plugin, task ->
         {
-            if (canEvict(player.getUniqueId()))
+            if (limitBypass ? isOnline(player.getUniqueId()) : canEvict(player.getUniqueId()))
             {
-                BungeeUtil.kickPlayer(plugin, player, PlexUtils.messageComponent("bannedPriorityKick"));
+                BungeeUtil.kickPlayer(plugin, player, PlexUtils.messageComponent(
+                        limitBypass ? "playerLimitBypassKick" : "bannedPriorityKick"));
             }
             else if (fallback != null)
             {
@@ -612,13 +648,13 @@ final class FiniteBanEnforcement
                 synchronized (this)
                 {
                     evicting.remove(player.getUniqueId());
-                    UUID replacementId = oldestAvailableRestriction();
+                    UUID replacementId = limitBypass ? randomLimitVictim() : oldestAvailableRestriction();
                     if (replacementId != null) evicting.add(replacementId);
                     replacement = replacementId == null ? null : onlinePlayers.get(replacementId);
                 }
                 if (replacement != null)
                 {
-                    evict(replacement.player(), fallback);
+                    evict(replacement.player(), fallback, limitBypass);
                 }
                 else
                 {
@@ -627,6 +663,11 @@ final class FiniteBanEnforcement
                 }
             }
         }, null);
+    }
+
+    private synchronized boolean isOnline(UUID uuid)
+    {
+        return onlinePlayers.containsKey(uuid);
     }
 
     private synchronized boolean canEvict(UUID uuid)
@@ -691,10 +732,10 @@ final class FiniteBanEnforcement
 
     private record PendingAdmission(String ip, @Nullable Punishment punishment, long token) { }
     private record PendingPlayer(UUID uuid, String ip) { }
-    private record Reservation(boolean allowed, @Nullable UUID victim) { }
+    private record Reservation(boolean allowed, @Nullable UUID victim, boolean limitBypassVictim) { }
     private record OnlinePlayer(Player player, String ip, long connectionToken) { }
     private record JoinPlan(@Nullable PendingAdmission admission, @Nullable OnlinePlayer victim,
-                            boolean rejectIncoming, long admissionVersion) { }
+                            boolean rejectIncoming, long admissionVersion, boolean limitBypassVictim) { }
     private record ActivationPlan(@Nullable OnlineRestriction previous, boolean wasRestricted, boolean shouldEvict) { }
 
     private static final class OnlineRestriction
