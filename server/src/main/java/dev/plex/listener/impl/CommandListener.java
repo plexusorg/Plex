@@ -4,6 +4,7 @@ import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 
 import dev.plex.Plex;
 import dev.plex.listener.ServerListenerBase;
+import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -19,10 +20,12 @@ public class CommandListener extends ServerListenerBase
         super(plugin);
     }
 
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event)
     {
         Player sender = event.getPlayer();
+        PlexLog.debug("Command monitor for {0}: cancelled={1}", sender.getUniqueId(), event.isCancelled());
+        if (event.isCancelled()) return;
         String senderName = sender.getName();
         String command = event.getMessage();
         plugin.getPlayerService().cachedPlayers().forEach(plexPlayer ->

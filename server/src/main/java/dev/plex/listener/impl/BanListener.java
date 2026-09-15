@@ -136,14 +136,18 @@ public class BanListener extends ServerListenerBase
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onCommand(PlayerCommandPreprocessEvent event)
     {
-        blockInteraction(event.getPlayer().getUniqueId(), event.getPlayer(), event);
+        UUID uuid = event.getPlayer().getUniqueId();
+        boolean restricted = blockInteraction(uuid, event.getPlayer(), event);
+        PlexLog.debug("Command ban check for {0}: restricted={1}, cancelled={2}",
+                uuid, restricted, event.isCancelled());
     }
 
-    private void blockInteraction(UUID uuid, Player player, Cancellable event)
+    private boolean blockInteraction(UUID uuid, Player player, Cancellable event)
     {
-        if (!plugin.getPunishmentManager().isFiniteBanRestricted(uuid)) return;
+        if (!plugin.getPunishmentManager().isFiniteBanRestricted(uuid)) return false;
         event.setCancelled(true);
         player.sendMessage(plugin.getPunishmentManager().finiteBanMessage(uuid));
+        return true;
     }
 
     private void disallowIndefinite(AsyncPlayerPreLoginEvent event, PunishmentManager.IndefiniteBan ban, String type)
