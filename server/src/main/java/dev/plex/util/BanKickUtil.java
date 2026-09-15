@@ -1,6 +1,10 @@
 package dev.plex.util;
 
 import org.bukkit.Bukkit;
+import com.google.common.net.InetAddresses;
+import dev.plex.punishment.IndefiniteIpRange;
+import java.util.function.Predicate;
+import java.util.UUID;
 
 import dev.plex.Plex;
 import dev.plex.player.PlexPlayer;
@@ -17,19 +21,21 @@ public final class BanKickUtil
     {
     }
 
-    public static void kickBannedPlayers(Plex plugin, java.util.UUID uuid, String ip, Component message)
+    public static void kickBannedPlayers(Plex plugin, UUID uuid, String ip, Component message)
     {
-        kickMatchingPlayers(plugin, uuid, ip, message);
+        String canonicalIp = BanDecisionService.canonicalIp(ip);
+        kickMatchingPlayers(plugin, uuid, candidate -> !canonicalIp.isEmpty() && canonicalIp.equals(candidate), message);
     }
 
     public static void kickPlayersWithIp(Plex plugin, String ip, Component message)
     {
-        kickMatchingPlayers(plugin, null, ip, message);
+        IndefiniteIpRange range = IndefiniteIpRange.parse(ip);
+        kickMatchingPlayers(plugin, null, candidate -> range.contains(
+                InetAddresses.forString(candidate).getAddress()), message);
     }
 
-    private static void kickMatchingPlayers(Plex plugin, java.util.UUID uuid, String ip, Component message)
+    private static void kickMatchingPlayers(Plex plugin, UUID uuid, Predicate<String> matches, Component message)
     {
-        String canonicalIp = BanDecisionService.canonicalIp(ip);
         Bukkit.getGlobalRegionScheduler().run(plugin, task ->
         {
             for (Player player : List.copyOf(Bukkit.getOnlinePlayers()))
@@ -41,12 +47,12 @@ public final class BanKickUtil
                         BungeeUtil.kickPlayer(plugin, player, message);
                         return;
                     }
-                    if (canonicalIp.isEmpty() || player.getAddress() == null || player.getAddress().getAddress() == null)
+                    if (player.getAddress() == null || player.getAddress().getAddress() == null)
                     {
                         return;
                     }
                     String playerIp = BanDecisionService.canonicalIp(player.getAddress().getAddress().getHostAddress());
-                    if (canonicalIp.equals(playerIp)) BungeeUtil.kickPlayer(plugin, player, message);
+                    if (matches.test(playerIp)) BungeeUtil.kickPlayer(plugin, player, message);
                 }, null);
             }
         });

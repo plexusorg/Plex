@@ -3,18 +3,18 @@ package dev.plex.command.impl;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 
 import dev.plex.util.PlexUtils;
-import com.google.common.net.InetAddresses;
+import dev.plex.punishment.IndefiniteIpRange;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.StringReader;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import dev.plex.command.ServerCommand;
 import dev.plex.command.ServerCommandContext;
-import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.Punishment;
-import dev.plex.punishment.admission.BanDecisionService;
 import dev.plex.util.BanKickUtil;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
+import io.papermc.paper.command.brigadier.Commands;
+import io.papermc.paper.command.brigadier.argument.CustomArgumentType;
 import net.kyori.adventure.text.Component;
-import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.NotNull;
 
 public class BanIpCMD extends ServerCommand
 {
@@ -31,7 +31,7 @@ public class BanIpCMD extends ServerCommand
     protected void buildCommand(LiteralArgumentBuilder<CommandSourceStack> command)
     {
         command.executes(context -> executeCommand(context, ServerCommandContext::usage));
-        command.then(word("target")
+        command.then(Commands.argument("target", new BanTargetArgument())
                 .suggests(suggestPlayers())
                 .executes(context -> executeCommand(context, commandContext -> executeTyped(commandContext, string(context, "target"), null)))
                 .then(greedyString("reason")
@@ -39,16 +39,39 @@ public class BanIpCMD extends ServerCommand
                                 string(context, "target"), normalizeGreedyString(string(context, "reason")))))));
     }
 
+    private static final class BanTargetArgument implements CustomArgumentType<String, String>
+    {
+        @Override
+        public String parse(StringReader reader)
+        {
+            int start = reader.getCursor();
+            while (reader.canRead() && !Character.isWhitespace(reader.peek())) reader.skip();
+            return reader.getString().substring(start, reader.getCursor());
+        }
+
+        @Override
+        public StringArgumentType getNativeType()
+        {
+            // Accept IP punctuation in the client; split the target and reason on the server.
+            return StringArgumentType.greedyString();
+        }
+    }
+
     private Component executeTyped(ServerCommandContext context, String targetName, String suppliedReason)
     {
-        String candidate = targetName;
-        if (candidate.length() > 1 && candidate.startsWith("[") && candidate.endsWith("]"))
+        if (targetName.contains(".") || targetName.contains(":") || targetName.contains("/") || targetName.contains("*"))
         {
-            candidate = candidate.substring(1, candidate.length() - 1);
-        }
-        if (InetAddresses.isInetAddress(candidate))
-        {
-            banIp(context, BanDecisionService.canonicalIp(candidate), suppliedReason);
+            IndefiniteIpRange range;
+            try
+            {
+                range = IndefiniteIpRange.parse(targetName);
+            }
+            catch (IllegalArgumentException exception)
+            {
+                context.sender().sendMessage(PlexUtils.messageComponent("invalidIpOrPlayer"));
+                return null;
+            }
+            banIp(context, range, suppliedReason);
             return null;
         }
         plugin.getPlayerService().findPlayer(targetName).whenComplete((player, failure) ->
@@ -66,14 +89,15 @@ public class BanIpCMD extends ServerCommand
             BanKickUtil.currentOrLastIp(plugin, player).thenAccept(ip ->
             {
                 if (ip.isEmpty()) context.sender().sendMessage(PlexUtils.messageComponent("invalidIpOrPlayer"));
-                else banIp(context, ip, suppliedReason);
+                else banIp(context, IndefiniteIpRange.parse(ip), suppliedReason);
             });
         });
         return null;
     }
 
-    private void banIp(ServerCommandContext context, String ip, String suppliedReason)
+    private void banIp(ServerCommandContext context, IndefiniteIpRange range, String suppliedReason)
     {
+        String ip = range.toString();
         String reason = suppliedReason == null ? PlexUtils.messageString("noReasonProvided") : suppliedReason;
         if (!plugin.getPunishmentManager().banIp(ip, reason))
         {

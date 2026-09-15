@@ -1,5 +1,8 @@
 package dev.plex.punishment;
 
+import com.google.common.net.InetAddresses;
+import lombok.AccessLevel;
+
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 
 import org.bukkit.Bukkit;
@@ -23,6 +26,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -75,8 +79,10 @@ public class PunishmentManager
     public IndefiniteBan getIndefiniteBanByIP(String ip)
     {
         String canonicalIp = BanDecisionService.canonicalIp(ip);
-        return indefiniteBans.stream().filter(ban -> ban.getIps().stream()
-                .map(BanDecisionService::canonicalIp).anyMatch(canonicalIp::equals)).findFirst().orElse(null);
+        if (!InetAddresses.isInetAddress(canonicalIp)) return null;
+        byte[] address = InetAddresses.forString(canonicalIp).getAddress();
+        return indefiniteBans.stream().filter(ban -> ban.ipRanges.stream()
+                .anyMatch(range -> range.contains(address))).findFirst().orElse(null);
     }
 
     @Nullable
@@ -102,8 +108,9 @@ public class PunishmentManager
 
     public synchronized boolean banIp(String ip, String reason)
     {
-        String canonicalIp = BanDecisionService.canonicalIp(ip);
-        if (getIndefiniteBanByIP(canonicalIp) != null)
+        IndefiniteIpRange range = IndefiniteIpRange.parse(ip);
+        String canonicalIp = range.toString();
+        if (indefiniteBans.stream().anyMatch(ban -> ban.ipRanges.stream().anyMatch(existing -> existing.contains(range))))
         {
             return false;
         }
@@ -456,13 +463,30 @@ public class PunishmentManager
         private final List<String> usernames;
         private final List<UUID> uuids;
         private final List<String> ips;
+        @Getter(AccessLevel.NONE)
+        private final List<IndefiniteIpRange> ipRanges;
         private final String reason;
 
         public IndefiniteBan(List<String> usernames, List<UUID> uuids, List<String> ips, String reason)
         {
             this.usernames = List.copyOf(usernames);
             this.uuids = List.copyOf(uuids);
-            this.ips = List.copyOf(ips);
+            List<String> validIps = new ArrayList<>();
+            List<IndefiniteIpRange> ranges = new ArrayList<>();
+            for (String ip : ips)
+            {
+                try
+                {
+                    ranges.add(IndefiniteIpRange.parse(ip));
+                    validIps.add(ip);
+                }
+                catch (IllegalArgumentException exception)
+                {
+                    PlexLog.warn("Skipped invalid indefinite ban IP entry [{0}] in indefbans.yml: {1}", ip, exception.getMessage());
+                }
+            }
+            this.ips = List.copyOf(validIps);
+            this.ipRanges = List.copyOf(ranges);
             this.reason = reason == null ? "" : reason;
         }
     }
