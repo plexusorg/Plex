@@ -50,7 +50,8 @@ public class SafeMiniMessage
 
     public static String mmSerialize(Component component)
     {
-        return MINI_MESSAGE.serialize(component);
+        // The input-only tag resolver does not provide style serializers.
+        return MiniMessage.miniMessage().serialize(component);
     }
 
     public static String mmSerializeWithoutEvents(Component component)

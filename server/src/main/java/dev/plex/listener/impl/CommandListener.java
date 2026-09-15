@@ -27,7 +27,7 @@ public class CommandListener extends ServerListenerBase
         PlexLog.debug("Command monitor for {0}: cancelled={1}", sender.getUniqueId(), event.isCancelled());
         if (event.isCancelled()) return;
         String senderName = sender.getName();
-        String command = event.getMessage();
+        Component command = Component.text(event.getMessage()).replaceText(ChatListener.URL_REPLACEMENT_CONFIG);
         plugin.getPlayerService().cachedPlayers().forEach(plexPlayer ->
         {
             if (!plexPlayer.isCommandSpy() || plexPlayer.getUuid().equals(sender.getUniqueId())) return;
@@ -35,7 +35,7 @@ public class CommandListener extends ServerListenerBase
             if (recipient == null) return;
             if (recipient.hasPermission("plex.commandspy"))
             {
-                recipient.sendMessage(PlexUtils.messageComponent("commandSpyFormat", Placeholder.component("sender", Component.text(senderName)), Placeholder.component("command", Component.text(command))));
+                recipient.sendMessage(PlexUtils.messageComponent("commandSpyFormat", Placeholder.component("sender", Component.text(senderName)), Placeholder.component("command", command)));
             }
         });
     }
