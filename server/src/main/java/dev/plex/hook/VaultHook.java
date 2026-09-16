@@ -85,7 +85,7 @@ public class VaultHook
         {
             return Component.empty();
         }
-        PlexLog.debug("prefix: {0}", SafeMiniMessage.mmSerializeWithoutEvents(PlexUtils.stringToComponent(vaultPrefix)).replace("<", "\\<"));
+        PlexLog.debug("prefix: {0}", SafeMiniMessage.mmSerialize(PlexUtils.stringToComponent(vaultPrefix)).replace("<", "\\<"));
         return PlexUtils.stringToComponent(vaultPrefix);
     }
 

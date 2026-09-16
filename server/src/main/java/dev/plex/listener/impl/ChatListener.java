@@ -11,7 +11,6 @@ import dev.plex.listener.ServerListenerBase;
 import dev.plex.meta.PlayerMeta;
 import dev.plex.player.PlexPlayer;
 import dev.plex.util.PlexUtils;
-import dev.plex.util.minimessage.SafeMiniMessage;
 import dev.plex.util.redis.MessageUtil;
 import io.papermc.paper.chat.ChatRenderer;
 import io.papermc.paper.event.player.AsyncChatEvent;
@@ -37,7 +36,7 @@ public class ChatListener extends ServerListenerBase
 
     public static final TextReplacementConfig URL_REPLACEMENT_CONFIG = TextReplacementConfig
             .builder()
-            .match("(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]")
+            .match("https?://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]")
             .replacement((matchResult, builder) -> Component.empty()
                     .content(matchResult.group())
                     .clickEvent(ClickEvent.openUrl(
@@ -54,7 +53,7 @@ public class ChatListener extends ServerListenerBase
         PRE_RENDERER.accept(event, plexPlayer);
         if (plexPlayer.isStaffChat())
         {
-            String prefix = PlexUtils.mmSerialize(VaultHook.getPrefix(event.getPlayer())); // Don't use PlexPlayer#getPrefix because that returns their custom set prefix and not their group's
+            Component prefix = VaultHook.getPrefix(event.getPlayer()); // Staff chat uses the group prefix, not a player's custom prefix.
             StaffChatMessageEvent staffChatEvent = new StaffChatMessageEvent(
                     event.getPlayer(),
                     event.message(),
@@ -69,8 +68,8 @@ public class ChatListener extends ServerListenerBase
             Component message = staffChatEvent.getMessage();
             Runnable broadcast = () ->
             {
-                MessageUtil.sendStaffChat(plugin, event.getPlayer(), message, PlexUtils.adminChat(event.getPlayer().getName(), prefix, SafeMiniMessage.mmSerialize(message)).toArray(UUID[]::new));
-                plugin.getServer().getConsoleSender().sendMessage(PlexUtils.messageComponent("adminChatFormat", Placeholder.parsed("sender", event.getPlayer().getName()), Placeholder.parsed("prefix", prefix), Placeholder.parsed("message", SafeMiniMessage.mmSerialize(message.replaceText(URL_REPLACEMENT_CONFIG)))));
+                MessageUtil.sendStaffChat(plugin, event.getPlayer(), message, PlexUtils.adminChat(event.getPlayer().getName(), prefix, message).toArray(UUID[]::new));
+                plugin.getServer().getConsoleSender().sendMessage(PlexUtils.messageComponent("adminChatFormat", Placeholder.unparsed("sender", event.getPlayer().getName()), Placeholder.component("prefix", prefix), Placeholder.component("message", message.replaceText(URL_REPLACEMENT_CONFIG))));
             };
             if (event.isAsynchronous()) Bukkit.getGlobalRegionScheduler().run(plugin, task -> broadcast.run());
             else broadcast.run();
@@ -103,9 +102,12 @@ public class ChatListener extends ServerListenerBase
         public @NotNull Component render(@NotNull Player source, @NotNull Component sourceDisplayName, @NotNull Component message)
         {
             Component renderedPrefix = hasPrefix && prefix != null ? prefix : Component.empty();
-            Component component = SafeMiniMessage.MINI_MESSAGE.deserialize(format,
+            Component component = PlexUtils.mmDeserialize(format,
                     Placeholder.component("prefix", renderedPrefix),
-                    Placeholder.component("name", sourceDisplayName),
+                    Placeholder.unparsed("name", source.getName()),
+                    Placeholder.component("displayname", sourceDisplayName),
+                    // UUID.toString() is safe for native preprocessing, including <head:<uuid>>.
+                    Placeholder.parsed("uuid", source.getUniqueId().toString()),
                     Placeholder.component("message", message));
 
             if (before != null)

@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.key.Key;
-import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -91,9 +90,9 @@ public class PlexUtils
         input = cleanString(input);
 
         return LEGACY_FORMATTING_PATTERN.matcher(input).find() ?
-                LegacyComponentSerializer.legacyAmpersand().deserialize(input.replaceAll("([§&]+)(k+)", "") // Ugly hack, but it tries to prevent &k and any attempts to bypass it.
+                LegacyComponentSerializer.legacyAmpersand().deserialize(input.replaceAll("(?i)([§&]+)(k+)", "")
                 ).decoration(TextDecoration.OBFUSCATED, TextDecoration.State.FALSE) :
-                SafeMiniMessage.mmDeserializeWithoutEvents(input);
+                SafeMiniMessage.mmDeserialize(input);
     }
 
     public static String mmStripColor(String input)
@@ -134,15 +133,7 @@ public class PlexUtils
 
     public static String getTextFromComponent(Component component)
     {
-        try
-        {
-            return ((TextComponent) component).content();
-        }
-        catch (Exception e)
-        {
-            PlexLog.warn("Unable to get text of component", e.getLocalizedMessage());
-            return "";
-        }
+        return PlainTextComponentSerializer.plainText().serialize(component);
     }
 
     public static List<String> getPlayerNameList()
@@ -165,7 +156,7 @@ public class PlexUtils
         Bukkit.broadcast(component, permission);
     }
 
-    public static List<UUID> adminChat(String senderName, String prefix, String message, UUID... ignore)
+    public static List<UUID> adminChat(String senderName, Component prefix, Component message, UUID... ignore)
     {
         List<UUID> sent = Lists.newArrayList();
         for (Player player : Bukkit.getOnlinePlayers())
@@ -176,7 +167,7 @@ public class PlexUtils
             }
             if (player.hasPermission("plex.adminchat"))
             {
-                player.sendMessage(PlexUtils.messageComponent("adminChatFormat", Placeholder.parsed("sender", senderName), Placeholder.parsed("prefix", prefix), Placeholder.parsed("message", message)).replaceText(ChatListener.URL_REPLACEMENT_CONFIG));
+                player.sendMessage(PlexUtils.messageComponent("adminChatFormat", Placeholder.unparsed("sender", senderName), Placeholder.component("prefix", prefix), Placeholder.component("message", message)).replaceText(ChatListener.URL_REPLACEMENT_CONFIG));
                 sent.add(player.getUniqueId());
             }
         }

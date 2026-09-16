@@ -28,7 +28,9 @@ chat:
   # This does not include color tags such as <red> or <rainbow>
   max-tag-length: 64
   # The chat format can be customized here if the Plex chat system is enabled
-  format: "<prefix> <white><name> <gray>» <reset><message>"
+  # Use <name> for the account name, <displayname> for the display name, and <uuid> for the UUID.
+  # Use <head:<uuid>> to show the sender's head.
+  format: "<prefix> <white><displayname> <gray>» <reset><message>"
 
 # Group names must match the primary group returned by your permissions plugin.
 # Colors appear in the tab list and in generated login messages.

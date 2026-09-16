@@ -137,10 +137,10 @@ public final class MessageUtil
             {
                 UUID[] ignore = GSON.fromJson(object.getString("ignore"), new TypeToken<UUID[]>() { }.getType());
                 String sender = object.getString("sender").isEmpty() ? "CONSOLE" : object.getString("sender");
-                String prefix = sender.equals("CONSOLE")
-                        ? "<dark_gray>[<dark_purple>Console<dark_gray>]"
-                        : PlexUtils.mmSerialize(VaultHook.getPrefix(UUID.fromString(sender)));
-                String chatMessage = object.getString("message");
+                Component prefix = sender.equals("CONSOLE")
+                        ? PlexUtils.mmDeserialize("<dark_gray>[<dark_purple>Console<dark_gray>]")
+                        : VaultHook.getPrefix(UUID.fromString(sender));
+                Component chatMessage = SafeMiniMessage.mmDeserialize(object.getString("message"));
                 boolean remote = !serverAddress.equalsIgnoreCase(object.getString("server"));
                 Bukkit.getGlobalRegionScheduler().run(current, task ->
                 {
@@ -148,7 +148,7 @@ public final class MessageUtil
                     if (remote)
                     {
                         current.getServer().getConsoleSender().sendMessage(
-                                messageComponent("adminChatFormat", Placeholder.parsed("sender", sender), Placeholder.parsed("prefix", prefix), Placeholder.parsed("message", chatMessage)));
+                                messageComponent("adminChatFormat", Placeholder.unparsed("sender", sender), Placeholder.component("prefix", prefix), Placeholder.component("message", chatMessage)));
                     }
                 });
             }

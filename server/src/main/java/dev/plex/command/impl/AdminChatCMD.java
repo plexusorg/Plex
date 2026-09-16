@@ -10,7 +10,6 @@ import dev.plex.hook.VaultHook;
 import dev.plex.player.PlexPlayer;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
-import dev.plex.util.minimessage.SafeMiniMessage;
 import dev.plex.util.redis.MessageUtil;
 
 import java.util.UUID;
@@ -59,20 +58,20 @@ public class AdminChatCMD extends ServerCommand
     {
         CommandSender sender = context.sender();
         Player playerSender = context.player();
-        String prefix;
+        Component prefix;
         if (playerSender != null)
         {
             PlexPlayer player = plugin.getPlayerService().cachedPlayer(playerSender.getUniqueId());
-            prefix = PlexUtils.mmSerialize(VaultHook.getPrefix(player));
+            prefix = VaultHook.getPrefix(player);
         }
         else
         {
-            prefix = "<dark_gray>[<dark_purple>Console<dark_gray>]";
+            prefix = PlexUtils.mmDeserialize("<dark_gray>[<dark_purple>Console<dark_gray>]");
         }
-        PlexLog.debug("admin chat prefix: {0}", prefix);
+        PlexLog.debug("admin chat prefix: {0}", PlexUtils.mmSerialize(prefix));
         StaffChatMessageEvent staffChatEvent = new StaffChatMessageEvent(
                 sender,
-                SafeMiniMessage.mmDeserialize(message),
+                PlexUtils.stringToComponent(message),
                 StaffChatMessageEvent.Source.COMMAND,
                 !Bukkit.isPrimaryThread());
         plugin.getServer().getPluginManager().callEvent(staffChatEvent);
@@ -81,9 +80,8 @@ public class AdminChatCMD extends ServerCommand
             return null;
         }
         Component eventMessage = staffChatEvent.getMessage();
-        String serializedMessage = SafeMiniMessage.mmSerialize(eventMessage);
-        plugin.getServer().getConsoleSender().sendMessage(PlexUtils.messageComponent("adminChatFormat", Placeholder.parsed("sender", context.senderName()), Placeholder.parsed("prefix", prefix), Placeholder.parsed("message", serializedMessage)));
-        MessageUtil.sendStaffChat(plugin, sender, eventMessage, PlexUtils.adminChat(context.senderName(), prefix, serializedMessage).toArray(UUID[]::new));
+        plugin.getServer().getConsoleSender().sendMessage(PlexUtils.messageComponent("adminChatFormat", Placeholder.unparsed("sender", context.senderName()), Placeholder.component("prefix", prefix), Placeholder.component("message", eventMessage)));
+        MessageUtil.sendStaffChat(plugin, sender, eventMessage, PlexUtils.adminChat(context.senderName(), prefix, eventMessage).toArray(UUID[]::new));
         return null;
     }
 

@@ -154,13 +154,13 @@ public class NotesCMD extends ServerCommand
                 context.sender().sendMessage(Component.text("Unable to load notes."));
                 return;
             }
-            Component noteList = PlexUtils.messageComponent("notesHeader", Placeholder.parsed("player", plexPlayer.getName()));
+            Component noteList = PlexUtils.messageComponent("notesHeader", Placeholder.unparsed("player", plexPlayer.getName()));
             for (int index = 0; index < notes.size(); index++)
             {
                 PlayerNote note = notes.get(index);
-                Component noteLine = PlexUtils.messageComponent("notePrefix", Placeholder.unparsed("id", String.valueOf(note.id())), Placeholder.parsed("author", String.valueOf(names[index].join())), Placeholder.parsed("date", TimeUtils.useTimezone(note.timestamp())));
+                Component noteLine = PlexUtils.messageComponent("notePrefix", Placeholder.unparsed("id", String.valueOf(note.id())), Placeholder.unparsed("author", String.valueOf(names[index].join())), Placeholder.unparsed("date", TimeUtils.useTimezone(note.timestamp())));
                 noteList = noteList.append(Component.newline()).append(noteLine)
-                        .append(PlexUtils.messageComponent("noteLine", Placeholder.parsed("content", note.content())));
+                        .append(PlexUtils.messageComponent("noteLine", Placeholder.component("content", PlexUtils.stringToComponent(note.content()))));
             }
             context.sender().sendMessage(noteList);
         });

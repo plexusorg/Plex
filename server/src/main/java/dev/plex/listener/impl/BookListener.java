@@ -27,7 +27,7 @@ public class BookListener extends ServerListenerBase
 
         for (Component page : event.getNewBookMeta().pages())
         {
-            pages.add(SafeMiniMessage.mmDeserializeWithoutEvents(PlexUtils.getTextFromComponent(page)));
+            pages.add(SafeMiniMessage.mmDeserialize(PlexUtils.getTextFromComponent(page)));
         }
 
 

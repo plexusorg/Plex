@@ -37,7 +37,7 @@ public class PlayerMeta
     {
         if (plexPlayer.getPrefix() != null && !plexPlayer.getPrefix().isEmpty())
         {
-            return SafeMiniMessage.mmDeserializeWithoutEvents(plexPlayer.getPrefix());
+            return SafeMiniMessage.mmDeserialize(plexPlayer.getPrefix());
         }
         if (PlexUtils.DEVELOPERS.contains(plexPlayer.getUuid().toString())) // don't remove or we will front door ur mother
         {
@@ -70,7 +70,7 @@ public class PlayerMeta
         }
 
         String color = getColor(config, plexPlayer);
-        return SafeMiniMessage.mmDeserializeWithoutEvents(loginFormat(format),
+        return SafeMiniMessage.mmDeserialize(loginFormat(format),
                 Placeholder.parsed("player", loginFormat(plexPlayer.getName())),
                 Placeholder.parsed("group_key", loginFormat(group)),
                 Placeholder.parsed("group", title.isEmpty() ? "" : loginFormat(color + title + "<reset>")),

@@ -36,6 +36,16 @@ public interface MessageApi
     Component miniMessage(String input, TagResolver... placeholders);
 
     /**
+     * Parses player-written visual formatting without interactive or data tags.
+     * Legacy formatting is accepted instead of MiniMessage when legacy codes are present.
+     * Blocked MiniMessage tags remain literal text.
+     *
+     * @param input player-written text
+     * @return the formatted component
+     */
+    Component playerText(String input);
+
+    /**
      * Broadcasts a MiniMessage string to online players.
      *
      * @param miniMessage MiniMessage input to broadcast

@@ -38,7 +38,7 @@ public class SayCMD extends ServerCommand
     {
         CommandSender sender = context.sender();
         Player playerSender = context.player();
-        PlexUtils.broadcast(PlexUtils.messageComponent("sayMessage", Placeholder.parsed("sender", context.senderName()), Placeholder.parsed("message", PlexUtils.mmStripColor(message))));
+        PlexUtils.broadcast(PlexUtils.messageComponent("sayMessage", Placeholder.unparsed("sender", context.senderName()), Placeholder.unparsed("message", PlexUtils.mmStripColor(message))));
         return null;
     }
 

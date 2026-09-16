@@ -92,11 +92,11 @@ public class SmiteCMD extends ServerCommand
             }
             if (!options.silent())
             {
-                broadcast.send(PlexUtils.messageComponent("smiteBroadcast", Placeholder.parsed("player", player.getName()), Placeholder.parsed("reason", finalReason), Placeholder.parsed("sender", context.senderName())));
+                broadcast.send(PlexUtils.messageComponent("smiteBroadcast", Placeholder.unparsed("player", player.getName()), Placeholder.component("reason", PlexUtils.stringToComponent(finalReason)), Placeholder.unparsed("sender", context.senderName())));
             }
             else
             {
-                sender.sendMessage(PlexUtils.messageComponent("smittenQuietly", Placeholder.parsed("player", player.getName())));
+                sender.sendMessage(PlexUtils.messageComponent("smittenQuietly", Placeholder.unparsed("player", player.getName())));
             }
             player.getScheduler().run(plugin,
                     task -> applySmite(context, player, finalReason, options.clearInventory()), null);
@@ -122,7 +122,7 @@ public class SmiteCMD extends ServerCommand
             }
         }
         player.setHealth(0.0);
-        player.sendMessage(PlexUtils.messageComponent("smitten", Placeholder.parsed("reason", reason)));
+        player.sendMessage(PlexUtils.messageComponent("smitten", Placeholder.component("reason", PlexUtils.stringToComponent(reason))));
     }
 
     private record SmiteOptions(String reason, boolean silent, boolean clearInventory)
