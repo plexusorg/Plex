@@ -1,47 +1,49 @@
 package dev.plex.hook;
 
 import com.oasis.api.Actor;
-import com.oasis.api.Filter;
 import com.oasis.api.Oasis;
 import com.oasis.api.OasisApi;
+import com.oasis.api.Outcome;
 import com.oasis.api.RollbackRequest;
+import com.oasis.api.Selection;
 import dev.plex.Plex;
+import java.time.Instant;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 public class OasisHook
 {
     private final OasisApi api;
-    private final Executor executor;
+    private final Plex plugin;
 
     public OasisHook(Plex plugin)
     {
         api = Oasis.api();
-        executor = plugin.getIoExecutor();
+        this.plugin = plugin;
     }
 
     public CompletableFuture<Integer> rollback(CommandSender sender, String playerName, int seconds)
     {
         UUID staff = sender instanceof Player player ? player.getUniqueId() : Actor.CONSOLE.id();
-        long now = System.currentTimeMillis();
-        Filter filter = Filter.ALL.withTime(now - seconds * 1000L, now);
-        return CompletableFuture.supplyAsync(() -> api.resolvePlayer(playerName), executor).thenCompose(player ->
+        Instant now = Instant.ofEpochMilli(System.currentTimeMillis());
+        Selection selection = Selection.edits().between(now.minusSeconds(seconds), now);
+        return api.players().resolve(playerName).thenCompose(player ->
         {
             if (player.isEmpty())
             {
                 return CompletableFuture.completedFuture(0);
             }
-            RollbackRequest request = new RollbackRequest(player.get(), staff, filter, null);
-            return api.rollbacks().rollback(request).completion().thenApply(progress ->
+            RollbackRequest request = RollbackRequest.rollback(plugin, selection.players(player.get())).requestedBy(staff);
+            return api.rollbacks().start(request).result().thenApply(result ->
             {
-                if (progress.aborted())
+                if (result.outcome() != Outcome.FINISHED)
                 {
-                    throw new IllegalStateException("Oasis rollback aborted after " + progress.appliedRows() + " changes");
+                    throw new IllegalStateException("Oasis rollback " + result.outcome() + " after " + result.applied()
+                            + " changes" + result.failureMessage().map(message -> ": " + message).orElse(""));
                 }
-                return Math.toIntExact(progress.appliedRows());
+                return Math.toIntExact(result.applied());
             });
         });
     }
