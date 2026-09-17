@@ -3,6 +3,7 @@ package dev.plex.util.minimessage;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.Tag;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.minimessage.tag.standard.StandardTags;
 
@@ -17,6 +18,8 @@ public class SafeMiniMessage
             StandardTags.decorations(TextDecoration.ITALIC),
             StandardTags.decorations(TextDecoration.UNDERLINED),
             StandardTags.decorations(TextDecoration.STRIKETHROUGH),
+            // Legacy prefixes serialize an explicit false state; do not allow the enabling tag.
+            TagResolver.resolver("!obfuscated", Tag.styling(TextDecoration.OBFUSCATED.withState(false))),
             StandardTags.reset(),
             StandardTags.gradient(),
             StandardTags.rainbow(),
