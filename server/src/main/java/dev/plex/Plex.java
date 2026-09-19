@@ -260,7 +260,8 @@ public class Plex extends JavaPlugin
         PlayerRepository playerRepository = new SQLPlayerData(database.getJdbi(), punishmentRepository, storageType);
         playerModuleDataRepository = new SQLPlayerModuleData(database.getJdbi(), storageType);
         noteRepository = new SQLNotes(database.getJdbi(), databaseExecutor);
-        playerService = new PlayerService(playerRepository, databaseExecutor);
+        playerService = new PlayerService(playerRepository, databaseExecutor,
+                () -> config.getInt("chat.max-tag-length", 16));
         proxyVanishBridge = new ProxyVanishBridge(this);
 
         worldSpawnSignManager = new WorldSpawnSignManager(this);

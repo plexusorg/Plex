@@ -3,6 +3,7 @@ package dev.plex.api.player;
 import java.util.List;
 import java.util.UUID;
 import dev.plex.api.punishment.PunishmentView;
+import net.kyori.adventure.text.Component;
 
 /**
  * Read-only view of a Plex player.
@@ -22,6 +23,14 @@ public interface PlexPlayerView
      * @return current or last known player name
      */
     String name();
+
+    /**
+     * Returns the saved custom tag using Plex's visual formatting rules.
+     * Does not include a rank prefix or additive tab prefixes.
+     *
+     * @return custom tag, or an empty component when none is set
+     */
+    Component tag();
 
     /**
      * Returns known IP addresses.

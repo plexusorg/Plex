@@ -20,6 +20,7 @@ import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.module.PlexModule;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
@@ -41,6 +42,9 @@ import org.jetbrains.annotations.Nullable;
 /** Convenience base for module commands with typed Brigadier command trees. */
 public abstract class SimplePlexCommand implements PlexCommand
 {
+    /** Target token that selects every online player. */
+    protected static final String ALL_TARGETS = "-a";
+
     private final CommandSpec commandSpec;
     private PlexApi api;
     private PlexModule module;
@@ -354,6 +358,65 @@ public abstract class SimplePlexCommand implements PlexCommand
             throw new PlayerNotFoundException();
         }
         return player;
+    }
+
+    /**
+     * Creates an optional target argument. A sender with the permission sees every online name and {@code -a};
+     * another sender sees only their own name.
+     *
+     * @param name argument name
+     * @param othersPermission permission node for a target other than the sender
+     * @return target argument builder
+     */
+    protected RequiredArgumentBuilder<CommandSourceStack, String> targetArgument(String name, String othersPermission)
+    {
+        return word(name).suggests((context, builder) ->
+        {
+            CommandSender sender = context.getSource().getSender();
+            if (!silentCheckPermission(sender, othersPermission))
+            {
+                return suggestMatching(builder, List.of(sender.getName()));
+            }
+            List<String> targets = new ArrayList<>(onlinePlayerNames());
+            targets.add(ALL_TARGETS);
+            return suggestMatching(builder, targets);
+        });
+    }
+
+    /**
+     * Resolves an optional target argument to online players.
+     *
+     * @param sender command sender
+     * @param name player name, UUID string, {@code -a} for every online player, or {@code null} for the sender
+     * @param othersPermission permission node for a target other than the sender
+     * @return target players
+     * @throws ConsoleMustDefinePlayerException when the console gives no target
+     * @throws PlayerNotFoundException when no matching online player exists
+     * @throws CommandFailException when the sender lacks the permission
+     */
+    protected List<Player> resolveTargets(CommandSender sender, @Nullable String name, String othersPermission)
+    {
+        if (name == null)
+        {
+            if (sender instanceof Player player)
+            {
+                return List.of(player);
+            }
+            throw new ConsoleMustDefinePlayerException();
+        }
+
+        if (name.equals(ALL_TARGETS))
+        {
+            checkPermission(sender, othersPermission);
+            return List.copyOf(Bukkit.getOnlinePlayers());
+        }
+
+        Player target = getNonNullPlayer(name);
+        if (!target.equals(sender))
+        {
+            checkPermission(sender, othersPermission);
+        }
+        return List.of(target);
     }
 
     /**

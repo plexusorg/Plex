@@ -144,7 +144,6 @@ public enum StorageType
                     ON CONFLICT(uuid) DO UPDATE SET
                         last_known_name = excluded.last_known_name,
                         login_msg = excluded.login_msg,
-                        prefix = excluded.prefix,
                         staffChat = excluded.staffChat,
                         commandspy = excluded.commandspy
                     """;
@@ -154,7 +153,6 @@ public enum StorageType
                     ON DUPLICATE KEY UPDATE
                         `last_known_name` = VALUES(`last_known_name`),
                         `login_msg` = VALUES(`login_msg`),
-                        `prefix` = VALUES(`prefix`),
                         `staffChat` = VALUES(`staffChat`),
                         `commandspy` = VALUES(`commandspy`)
                     """;

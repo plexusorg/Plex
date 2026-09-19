@@ -101,6 +101,20 @@ public class SQLPlayerData implements PlayerRepository
         update(player);
     }
 
+    public void setTag(UUID uuid, String tag)
+    {
+        jdbi.useTransaction(handle ->
+        {
+            int updated = handle.createUpdate("UPDATE players SET prefix = :tag WHERE uuid = :uuid")
+                    .bind("tag", tag).bind("uuid", uuid.toString()).execute();
+            if (updated == 0 && !handle.createQuery("SELECT 1 FROM players WHERE uuid = :uuid")
+                    .bind("uuid", uuid.toString()).mapTo(Integer.class).findFirst().isPresent())
+            {
+                throw new IllegalArgumentException("Unknown player UUID: " + uuid);
+            }
+        });
+    }
+
     private PlexPlayer mapPlayer(Handle handle, java.sql.ResultSet result) throws java.sql.SQLException
     {
         String uuid = result.getString("uuid");

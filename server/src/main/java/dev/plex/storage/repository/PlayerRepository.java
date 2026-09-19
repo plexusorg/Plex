@@ -21,4 +21,6 @@ public interface PlayerRepository
     void update(PlexPlayer player);
 
     void insert(PlexPlayer player);
+
+    void setTag(UUID uuid, String tag);
 }

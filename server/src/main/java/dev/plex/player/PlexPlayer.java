@@ -29,7 +29,7 @@ public class PlexPlayer
     private String name;
 
     private String loginMessage;
-    private String prefix;
+    private volatile String prefix;
 
     private boolean staffChat;
     private boolean commandSpy;
