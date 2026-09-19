@@ -82,7 +82,7 @@ public class TempbanCMD extends ServerCommand
             return;
         }
         BanKickUtil.currentOrLastIp(plugin, target).thenCompose(ip ->
-                plugin.getPunishmentManager().isBanned(target.getUuid(), ip).thenApply(banned -> new BanState(ip, banned)))
+                plugin.getPunishmentManager().isBanned(target.getUuid()).thenApply(banned -> new BanState(ip, banned)))
                 .whenComplete((banState, checkFailure) ->
         {
             if (checkFailure != null)

@@ -294,8 +294,10 @@ public class PunishmentManager
         if (punishment.getIp() != null) punishment.setIp(BanDecisionService.canonicalIp(punishment.getIp()));
         punishment.setActive(punishment.getType().startsActive());
 
+        // Only the target's own ban blocks a new one. An IP ban on another account
+        // sharing the address must not stop this player from receiving their own record.
         CompletableFuture<Boolean> alreadyActive = punishment.getType().isBan()
-                ? isBanned(player.getUuid(), punishment.getIp())
+                ? isBanned(player.getUuid())
                 : CompletableFuture.completedFuture(false);
         return alreadyActive.thenCompose(active ->
         {

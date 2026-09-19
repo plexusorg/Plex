@@ -71,7 +71,7 @@ public class BanCMD extends ServerCommand
             }
 
             BanKickUtil.currentOrLastIp(plugin, plexPlayer).thenCompose(ip ->
-                    plugin.getPunishmentManager().isBanned(plexPlayer.getUuid(), ip).thenApply(banned -> new BanState(ip, banned)))
+                    plugin.getPunishmentManager().isBanned(plexPlayer.getUuid()).thenApply(banned -> new BanState(ip, banned)))
                     .whenComplete((banState, throwable) ->
             {
             if (throwable != null)

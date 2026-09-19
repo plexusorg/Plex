@@ -116,7 +116,7 @@ public class SQLPlayerData implements PlayerRepository
 
     private List<String> loadIps(Handle h, String uuid)
     {
-        return h.createQuery("SELECT ip FROM player_ips WHERE player_uuid = :u")
+        return h.createQuery("SELECT ip FROM player_ips WHERE player_uuid = :u ORDER BY id")
                 .bind("u", uuid).mapTo(String.class).list();
     }
 
