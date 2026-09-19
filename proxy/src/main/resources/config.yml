@@ -17,9 +17,8 @@ server:
   # Enables debug messages
   debug: false
 
-  # Due to game code only supporting legacy color codes for
-  # player samples and not components, you may only use legacy section-sign
-  # color codes or & here for colors.
+  # Use legacy color codes with & or § for these sample names.
+  # Minecraft does not support MiniMessage here.
   sample:
     - "example"
     - "example"

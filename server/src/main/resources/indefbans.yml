@@ -1,6 +1,6 @@
 # Plex Indefinite Bans File
 # Players with their UUID / IP / Usernames in here will be indefinitely banned until removed
-# Root keys are organizational labels only, they do not affect ban matching.
+# Use labels to organize the entries. Plex does not use these labels to decide who is banned.
 # Choose any non-empty, unique label without dots (.), including numbers or names.
 # Quote labels containing YAML punctuation, such as "case: repeated evasion".
 # Each block can contain multiple related usernames, UUIDs, and IPs.

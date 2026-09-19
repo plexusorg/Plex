@@ -21,7 +21,7 @@ public class BanIpCMD extends ServerCommand
     public BanIpCMD()
     {
         super(command("banip")
-                .description("Indefinitely bans an IP address")
+                .description("Ban an IP address indefinitely")
                 .usage("/<command> <ip | player> [reason]")
                 .permission("plex.banip")
                 .build());

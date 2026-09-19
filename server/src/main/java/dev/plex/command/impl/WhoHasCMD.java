@@ -28,7 +28,7 @@ public class WhoHasCMD extends ServerCommand
     public WhoHasCMD()
     {
         super(command("whohas")
-            .description("Returns a list of players with a specific item in their inventory.")
+            .description("Find players who have a specific item in their inventory")
             .usage("/<command> <material>")
             .aliases("wh")
             .permission("plex.whohas")

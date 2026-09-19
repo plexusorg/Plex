@@ -100,7 +100,7 @@ public class NotesCMD extends ServerCommand
             if (failure != null)
             {
                 PlexLog.warn("Unable to add note for {0}: {1}", player.getUuid(), failure.getMessage());
-                context.sender().sendMessage(Component.text("Unable to add note."));
+                context.sender().sendMessage(Component.text("Could not add the note."));
                 return;
             }
             context.sender().sendMessage(PlexUtils.messageComponent("noteAdded"));
@@ -115,7 +115,7 @@ public class NotesCMD extends ServerCommand
             if (failure != null)
             {
                 PlexLog.warn("Unable to remove note {0} for {1}: {2}", id, player.getUuid(), failure.getMessage());
-                context.sender().sendMessage(Component.text("Unable to remove note."));
+                context.sender().sendMessage(Component.text("Could not remove the note."));
                 return;
             }
             context.sender().sendMessage(deleted ? PlexUtils.messageComponent("removedNote", Placeholder.unparsed("id", String.valueOf(id))) : PlexUtils.messageComponent("noteNotFound"));

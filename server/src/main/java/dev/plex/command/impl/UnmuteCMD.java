@@ -69,7 +69,7 @@ public class UnmuteCMD extends ServerCommand
                     if (failure != null)
                     {
                         PlexLog.error("Unable to unmute {0}: {1}", punishedPlayer.getUuid(), failure.getMessage());
-                        sender.sendMessage(Component.text("Unable to persist the unmute; no action was taken."));
+                        sender.sendMessage(Component.text("Could not complete the unmute. Check the server log."));
                     }
                     else broadcast.send(PlexUtils.messageComponent("unmutedPlayer", Placeholder.parsed("sender", context.senderName()), Placeholder.parsed("player", punishedPlayer.getName())));
                 });

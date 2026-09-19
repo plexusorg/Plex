@@ -3,6 +3,7 @@ package dev.plex.listener.impl;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Sound;
 
 import dev.plex.Plex;
 import dev.plex.api.event.StaffChatMessageEvent;
@@ -18,10 +19,13 @@ import io.papermc.paper.event.player.AsyncChatEvent;
 import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
+import java.util.regex.Pattern;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextReplacementConfig;
 import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -88,7 +92,30 @@ public class ChatListener extends ServerListenerBase
             renderer.prefix = null;
         }
 
-        event.renderer(ChatRenderer.viewerUnaware(renderer));
+        boolean nicknameHover = plugin.config.getBoolean("chat.nickname-hover", true);
+        boolean mentions = plugin.config.getBoolean("chat.mentions", true);
+        event.renderer((source, displayName, message, viewer) ->
+        {
+            if (nicknameHover && !PlexUtils.getTextFromComponent(displayName).equals(source.getName()))
+            {
+                displayName = displayName.hoverEvent(HoverEvent.showText(Component.text(source.getName())));
+            }
+            if (mentions && viewer instanceof Player recipient && !recipient.getUniqueId().equals(source.getUniqueId()))
+            {
+                Pattern username = Pattern.compile("(?<![a-zA-Z0-9_])" + Pattern.quote(recipient.getName()) + "(?![a-zA-Z0-9_])", Pattern.CASE_INSENSITIVE);
+                if (username.matcher(PlexUtils.getTextFromComponent(message)).find())
+                {
+                    message = message.replaceText(TextReplacementConfig.builder()
+                            .match(username)
+                            .replaceInsideHoverEvents(false)
+                            .replacement((match, text) -> text.color(NamedTextColor.YELLOW))
+                            .build());
+                    // Paper renders once per recipient. Only the sound needs entity-owned state.
+                    recipient.getScheduler().run(plugin, task -> recipient.playSound(recipient.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 1.0f), null);
+                }
+            }
+            return renderer.render(source, displayName, message);
+        });
     }
 
     public static class PlexChatRenderer implements ChatRenderer.ViewerUnaware

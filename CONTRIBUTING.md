@@ -1,12 +1,11 @@
-For those who are wanting to contribute, we fully encourage doing so. There are a few rules we require following when
-contributing.
+Contributions are welcome. Please follow these rules when you contribute.
 
 ## Steps
 
 1. Make an issue and get feedback. It's important to know if your idea will be accepted before writing any code.
 
 - If it is a feature request, describe the feature and be extremely specific.
-- If it is a bug report, ensure you include how to reproduce the bug and the expected outcome
+- If it is a bug report, explain how to reproduce the bug and what you expected to happen.
 - If it is an enhancement, describe your proposed changes. Ensure you are extremely specific.
 
 2. Fork this project
@@ -14,18 +13,15 @@ contributing.
    good: `feature/add-xyz`. This is bad: `fix-this-lol`.
 4. Write the code that addresses your change.
 
-- Keep in mind that it **must** be formatted correctly. If you are using IntelliJ, there is a `codeStyle.xml` file that
-  tells IntelliJ how to format your code. Check this link for information on how to use the
-  file: https://www.jetbrains.com/help/idea/configuring-code-style.html#import-export-schemes
-- If you are not using IntelliJ, that is fine. We use the Plexus Code Style (which is almost the same as Allman) so
-  please format your code accordingly.
+- In IntelliJ, import the project's code style. See the [import instructions](https://www.jetbrains.com/help/idea/configuring-code-style.html#import-export-schemes) for help.
+- In other editors, follow the Plexus Code Style, which is close to Allman.
 
 6. Push your changes to your new branch and make a PR based off of that branch.
 
 ## Requirements for a PR
 
 - The issue must be marked as approved
-- It must only address each specific issue. Don't make one PR for multiple issues.
+- Address one issue per pull request.
 - Your PR must compile and work. If it does not compile or work, your PR will most likely be rejected.
 
 ## Code requirements

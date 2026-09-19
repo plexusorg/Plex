@@ -23,7 +23,7 @@ public class MobLimitCMD extends ServerCommand
     public MobLimitCMD()
     {
         super(command("moblimit")
-            .description("Manages the mob limit per chunk.")
+            .description("View or change the mob limit per chunk")
             .usage("/<command> [on | off | setmax <limit>]")
             .aliases("entitylimit")
             .permission("plex.moblimit")

@@ -1,8 +1,8 @@
 # Plex WorldGuard protection presets and managed regions.
 #
-# /protect create <region> <preset>        uses your current WorldEdit selection
-# /protect create <region> <preset> <r>    creates a full-height square around you
-# /protect apply <region> <preset>         changes a region to another preset
+# To use your WorldEdit selection, run /protect create <region> <preset>.
+# To create a full-height square around you, run /protect create <region> <preset> <r>.
+# To change a region's preset, run /protect apply <region> <preset>.
 #
 # Any WorldGuard flag may be used in a preset. Values use WorldGuard's YAML
 # format. To restrict a flag to a region group, use:
@@ -122,6 +122,6 @@ presets:
       fire-spread: deny
       lava-fire: deny
 
-# Regions created or adopted with /protect are persisted here. Plex restores
-# these cuboids and their exact managed flags through the WorldGuard API.
+# Plex saves regions created or added with /protect here.
+# Plex uses these settings to restore the regions and their managed flags.
 regions: {}

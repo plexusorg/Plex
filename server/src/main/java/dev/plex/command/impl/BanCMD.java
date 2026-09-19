@@ -32,7 +32,7 @@ public class BanCMD extends ServerCommand
     public BanCMD()
     {
         super(command("ban")
-            .description("Bans a player, offline or online")
+            .description("Ban an online or offline player")
             .usage("/<command> <player> [message] [-rb]")
             .aliases("offlineban,gtfo")
             .permission("plex.ban")
@@ -77,7 +77,7 @@ public class BanCMD extends ServerCommand
             if (throwable != null)
             {
                 PlexLog.error("Unable to check ban state for {0}: {1}", plexPlayer.getName(), throwable.getMessage());
-                sender.sendMessage(Component.text("Unable to check the player's ban state."));
+                sender.sendMessage(Component.text("Could not check whether the player is banned."));
                 return;
             }
             if (banState.banned())

@@ -161,7 +161,7 @@ public abstract class SimplePlexCommand implements PlexCommand
     }
 
     /**
-     * Sends an ampersand-colorized legacy message to an audience.
+     * Sends a message with legacy ampersand color codes to an audience.
      *
      * @param audience message recipient
      * @param message legacy message text
@@ -367,7 +367,7 @@ public abstract class SimplePlexCommand implements PlexCommand
     }
 
     /**
-     * Converts ampersand-colorized legacy text to a gray-default component.
+     * Converts text with legacy ampersand color codes to a component. Uses gray when no color is set.
      *
      * @param value legacy text
      * @return message component
@@ -378,7 +378,7 @@ public abstract class SimplePlexCommand implements PlexCommand
     }
 
     /**
-     * Converts ampersand-colorized legacy text to a component without adding a default color.
+     * Converts text with legacy ampersand color codes to a component without adding a default color.
      *
      * @param value legacy text
      * @return message component

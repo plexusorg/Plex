@@ -33,7 +33,7 @@ public class KickCMD extends ServerCommand
     public KickCMD()
     {
         super(command("kick")
-            .description("Kicks a player")
+            .description("Kick a player")
             .usage("/<command> <player>")
             .aliases("ekick")
             .permission("plex.kick")
@@ -78,7 +78,7 @@ public class KickCMD extends ServerCommand
             if (failure != null)
             {
                 PlexLog.error("Unable to persist kick for {0}: {1}", plexPlayer.getUuid(), failure.getMessage());
-                sender.sendMessage(Component.text("Unable to persist the kick; no action was taken."));
+                sender.sendMessage(Component.text("Could not complete the kick. Check the server log."));
                 return;
             }
             player.getScheduler().run(plugin, task ->

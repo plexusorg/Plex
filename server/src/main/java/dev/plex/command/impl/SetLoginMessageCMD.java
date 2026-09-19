@@ -26,7 +26,7 @@ public class SetLoginMessageCMD extends ServerCommand
     public SetLoginMessageCMD()
     {
         super(command("setloginmessage")
-            .description("Sets your (or someone else's) login message")
+            .description("Set your own or another player's login message")
             .usage("/<command> [-o <player>] <message>")
             .aliases("slm,setloginmsg")
             .permission("plex.setloginmessage")

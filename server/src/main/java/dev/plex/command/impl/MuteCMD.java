@@ -77,7 +77,7 @@ public class MuteCMD extends ServerCommand
             if (failure != null)
             {
                 PlexLog.error("Unable to mute {0}: {1}", punishedPlayer.getUuid(), failure.getMessage());
-                sender.sendMessage(Component.text("Unable to persist the mute; no action was taken."));
+                sender.sendMessage(Component.text("Could not complete the mute. Check the server log."));
             }
             else broadcast.send(PlexUtils.messageComponent("mutedPlayer", Placeholder.parsed("sender", context.senderName()), Placeholder.parsed("player", player.getName())));
         });

@@ -22,7 +22,7 @@ public class ToggleCMD extends ServerCommand
     public ToggleCMD()
     {
         super(command("toggle")
-            .description("Allows toggling various server aspects through a GUI")
+            .description("Turn server features on or off")
             .aliases("toggles")
             .permission("plex.toggle")
             .build());

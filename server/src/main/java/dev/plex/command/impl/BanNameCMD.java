@@ -22,7 +22,7 @@ public class BanNameCMD extends ServerCommand
     public BanNameCMD()
     {
         super(command("banname")
-                .description("Indefinitely bans a username")
+                .description("Ban a username indefinitely")
                 .usage("/<command> <username> [reason]")
                 .permission("plex.banname")
                 .build());

@@ -28,13 +28,18 @@ chat:
   # This does not include color tags such as <red> or <rainbow>
   max-tag-length: 64
   # The chat format can be customized here if the Plex chat system is enabled
-  # Use <name> for the account name, <displayname> for the display name, and <uuid> for the UUID.
+  # Use <name> for the username, <displayname> for the display name, and <uuid> for the UUID.
   # Use <head:<uuid>> to show the sender's head.
   format: "<prefix> <white><displayname> <gray>» <reset><message>"
+  # If someone types your username in public chat, you will see it in yellow and hear a sound.
+  # Usernames are not case-sensitive, and mentioning yourself will not play a sound.
+  mentions: true
+  # If a user hovers over a nickname in chat, it will show their real username.
+  nickname-hover: true
 
 # Group names must match the primary group returned by your permissions plugin.
 # Colors appear in the tab list and in generated login messages.
-# Groups without a configured title do not receive a generated login message.
+# If a group has no title, Plex will not generate a login message for its members.
 groups:
   admin:
     color: '<aqua>'

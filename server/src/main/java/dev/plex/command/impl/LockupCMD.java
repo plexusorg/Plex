@@ -24,7 +24,7 @@ public class LockupCMD extends ServerCommand
     public LockupCMD()
     {
         super(command("lockup")
-            .description("Lockup a player on the server")
+            .description("Lock up a player")
             .usage("/<command> <player>")
             .permission("plex.lockup")
             .build());

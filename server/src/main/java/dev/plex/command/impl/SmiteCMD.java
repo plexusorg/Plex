@@ -87,7 +87,7 @@ public class SmiteCMD extends ServerCommand
             if (failure != null)
             {
                 PlexLog.error("Unable to persist smite for {0}: {1}", player.getName(), failure.getMessage());
-                sender.sendMessage(Component.text("Unable to persist the smite; no action was taken."));
+                sender.sendMessage(Component.text("Could not complete the smite. Check the server log."));
                 return;
             }
             if (!options.silent())

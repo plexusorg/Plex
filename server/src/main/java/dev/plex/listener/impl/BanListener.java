@@ -70,7 +70,7 @@ public class BanListener extends ServerListenerBase
             if (token < 0L)
             {
                 event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER,
-                        Component.text("Another connection for this player is already logging in."));
+                        Component.text("Someone is already logging in with your account."));
                 return;
             }
             admissionTokens.put(event, token);

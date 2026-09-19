@@ -18,7 +18,7 @@ public class RawSayCMD extends ServerCommand
     public RawSayCMD()
     {
         super(command("rawsay")
-            .description("Displays a raw message to everyone")
+            .description("Send a raw message to everyone")
             .usage("/<command> <message>")
             .permission("plex.rawsay")
             .build());

@@ -26,7 +26,7 @@ public class UnbanCMD extends ServerCommand
     public UnbanCMD()
     {
         super(command("unban")
-            .description("Unbans a player, offline or online")
+            .description("Unban an online or offline player")
             .usage("/<command> <player>")
             .permission("plex.ban")
             .build());

@@ -22,7 +22,7 @@ public class BanListCommand extends ServerCommand
     public BanListCommand()
     {
         super(command("banlist")
-            .description("Manages the banlist")
+            .description("View or clear the ban list")
             .usage("/<command> [purge]")
             .permission("plex.banlist")
             .build());

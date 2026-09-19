@@ -21,7 +21,7 @@ public class ConsoleSayCMD extends ServerCommand
     public ConsoleSayCMD()
     {
         super(command("consolesay")
-            .description("Displays a message to everyone")
+            .description("Send a message to everyone")
             .usage("/<command> <message>")
             .aliases("csay")
             .permission("plex.consolesay")

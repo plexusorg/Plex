@@ -68,7 +68,7 @@ public class UnfreezeCMD extends ServerCommand
                     if (failure != null)
                     {
                         PlexLog.error("Unable to unfreeze {0}: {1}", punishedPlayer.getUuid(), failure.getMessage());
-                        sender.sendMessage(Component.text("Unable to persist the unfreeze; no action was taken."));
+                        sender.sendMessage(Component.text("Could not complete the unfreeze. Check the server log."));
                     }
                     else broadcast.send(PlexUtils.messageComponent("unfrozePlayer", Placeholder.parsed("sender", context.senderName()), Placeholder.parsed("player", punishedPlayer.getName())));
                 });

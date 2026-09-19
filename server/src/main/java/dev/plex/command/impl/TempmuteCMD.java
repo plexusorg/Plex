@@ -106,7 +106,7 @@ public class TempmuteCMD extends ServerCommand
             if (failure != null)
             {
                 PlexLog.error("Unable to tempmute {0}: {1}", punishedPlayer.getUuid(), failure.getMessage());
-                sender.sendMessage(Component.text("Unable to persist the mute; no action was taken."));
+                sender.sendMessage(Component.text("Could not complete the mute. Check the server log."));
             }
             else broadcast.send(PlexUtils.messageComponent("tempMutedPlayer", Placeholder.parsed("sender", context.senderName()), Placeholder.parsed("player", player.getName()), Placeholder.parsed("duration", TimeUtils.formatRelativeTime(endDate))));
         });

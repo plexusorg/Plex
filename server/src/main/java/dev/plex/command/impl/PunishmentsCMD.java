@@ -25,7 +25,7 @@ public class PunishmentsCMD extends ServerCommand
     public PunishmentsCMD()
     {
         super(command("punishments")
-            .description("Opens the Punishments GUI")
+            .description("View a player's punishments")
             .usage("/<command> [player]")
             .aliases("punishlist,punishes")
             .permission("plex.punishments")

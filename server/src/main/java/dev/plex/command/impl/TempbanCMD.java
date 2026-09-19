@@ -88,7 +88,7 @@ public class TempbanCMD extends ServerCommand
             if (checkFailure != null)
             {
                 PlexLog.error("Unable to check ban state for {0}: {1}", target.getName(), checkFailure.getMessage());
-                sender.sendMessage(Component.text("Unable to check the player's ban state."));
+                sender.sendMessage(Component.text("Could not check whether the player is banned."));
                 return;
             }
             if (banState.banned())

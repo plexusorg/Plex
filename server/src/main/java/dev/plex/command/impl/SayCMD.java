@@ -20,7 +20,7 @@ public class SayCMD extends ServerCommand
     public SayCMD()
     {
         super(command("say")
-            .description("Displays a message to everyone")
+            .description("Send a message to everyone")
             .usage("/<command> <message>")
             .permission("plex.say")
             .build());
