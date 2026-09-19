@@ -39,7 +39,7 @@ public final class DefaultPlexApi implements PlexApi
         this.commands = new DefaultCommandApi(plugin);
         this.moduleConfigs = new DefaultModuleConfigApi();
         this.logging = PlexLog.api();
-        this.messages = new DefaultMessageApi();
+        this.messages = new DefaultMessageApi(plugin);
         this.notes = notes;
         this.players = new DefaultPlayersApi(plugin);
         this.punishments = new DefaultPunishmentsApi(plugin);

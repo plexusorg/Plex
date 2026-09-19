@@ -52,8 +52,6 @@ public class ChatListener extends ServerListenerBase
     public void onChat(AsyncChatEvent event)
     {
         PlexPlayer plexPlayer = plugin.getPlayerService().cachedPlayer(event.getPlayer().getUniqueId());
-        PlexChatRenderer renderer = new PlexChatRenderer();
-        renderer.format = plugin.config.getString("chat.format");
         PRE_RENDERER.accept(event, plexPlayer);
         if (plexPlayer.isStaffChat())
         {
@@ -79,18 +77,7 @@ public class ChatListener extends ServerListenerBase
             else broadcast.run();
             return;
         }
-        Component prefix = PlayerMeta.getPrefix(plexPlayer);
-
-        if (prefix != null && !prefix.equals(Component.empty()) && !prefix.equals(Component.space()))
-        {
-            renderer.hasPrefix = true;
-            renderer.prefix = prefix;
-        }
-        else
-        {
-            renderer.hasPrefix = false;
-            renderer.prefix = null;
-        }
+        PlexChatRenderer renderer = PlexChatRenderer.forPlayer(plugin, plexPlayer);
 
         boolean nicknameHover = plugin.config.getBoolean("chat.nickname-hover", true);
         boolean mentions = plugin.config.getBoolean("chat.mentions", true);
@@ -124,6 +111,26 @@ public class ChatListener extends ServerListenerBase
         public Component prefix;
         public String format;
         public Supplier<Component> before = null;
+
+        public static PlexChatRenderer forPlayer(Plex plugin, PlexPlayer plexPlayer)
+        {
+            PlexChatRenderer renderer = new PlexChatRenderer();
+            renderer.format = plugin.config.getString("chat.format");
+            Component prefix = PlayerMeta.getPrefix(plexPlayer);
+
+            if (prefix != null && !prefix.equals(Component.empty()) && !prefix.equals(Component.space()))
+            {
+                renderer.hasPrefix = true;
+                renderer.prefix = prefix;
+            }
+            else
+            {
+                renderer.hasPrefix = false;
+                renderer.prefix = null;
+            }
+
+            return renderer;
+        }
 
         @Override
         public @NotNull Component render(@NotNull Player source, @NotNull Component sourceDisplayName, @NotNull Component message)

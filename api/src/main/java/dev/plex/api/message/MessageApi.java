@@ -3,6 +3,7 @@ package dev.plex.api.message;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 /**
  * Formats configured messages and broadcasts Adventure components.
@@ -44,6 +45,18 @@ public interface MessageApi
      * @return the formatted component
      */
     Component playerText(String input);
+
+    /**
+     * Renders a message as the public chat line of a player. The line uses the configured
+     * {@code chat.format}, the prefix of the player, and the display name of the player.
+     * This method does not send the line.
+     * Call it on a thread that can read the player, such as the command thread of that player.
+     *
+     * @param player player who is the source of the line
+     * @param message message body, already formatted
+     * @return the chat line
+     */
+    Component chatLine(Player player, Component message);
 
     /**
      * Broadcasts a MiniMessage string to online players.
