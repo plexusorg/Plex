@@ -1,10 +1,12 @@
 package dev.plex.api.impl;
 
 import dev.plex.Plex;
+import dev.plex.api.event.StaffChatMessageEvent;
 import dev.plex.api.message.ActionBroadcast;
 import dev.plex.api.message.MessageApi;
 import dev.plex.listener.impl.ChatListener;
 import dev.plex.util.CapturedActionBroadcast;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
@@ -25,4 +27,15 @@ final class DefaultMessageApi implements MessageApi
     @Override public void broadcast(String miniMessage) { PlexUtils.broadcast(miniMessage); }
     @Override public void broadcast(Component component) { PlexUtils.broadcast(component); }
     @Override public ActionBroadcast captureActionBroadcast(CommandSender sender) { return CapturedActionBroadcast.capture(sender); }
+    @Override public void sendAdminChat(String senderName, Component prefix, Component message) {
+        StaffChatMessageEvent staffChatEvent = new StaffChatMessageEvent(
+                message,
+                StaffChatMessageEvent.Source.API,
+                !Bukkit.isPrimaryThread());
+        plugin.getServer().getPluginManager().callEvent(staffChatEvent);
+
+        if (staffChatEvent.isCancelled()) return;
+
+        PlexUtils.adminChat(senderName, prefix, message);
+    }
 }

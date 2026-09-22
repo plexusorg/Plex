@@ -5,6 +5,9 @@ import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.List;
+import java.util.UUID;
+
 /**
  * Formats configured messages and broadcasts Adventure components.
  */
@@ -86,4 +89,12 @@ public interface MessageApi
      */
     ActionBroadcast captureActionBroadcast(CommandSender sender);
 
+    /**
+     * Send a component message with chosen component prefix to admins
+     *
+     * @param senderName the name of the user who sent the message
+     * @param prefix component to render as prefix, commonly used to show roles
+     * @param message component to broadcast
+     */
+    void sendAdminChat(String senderName, Component prefix, Component message);
 }

@@ -6,6 +6,8 @@ import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Objects;
 
 /**
@@ -43,7 +45,14 @@ public final class StaffChatMessageEvent extends Event implements Cancellable
             boolean async)
     {
         super(async);
-        this.sender = Objects.requireNonNull(sender, "sender");
+        this.sender = Objects.requireNonNull(sender);
+        this.message = Objects.requireNonNull(message, "message");
+        this.source = Objects.requireNonNull(source, "source");
+    }
+
+    public StaffChatMessageEvent(Component message, Source source, boolean async) {
+        super(async);
+        this.sender = null;
         this.message = Objects.requireNonNull(message, "message");
         this.source = Objects.requireNonNull(source, "source");
     }
@@ -53,7 +62,7 @@ public final class StaffChatMessageEvent extends Event implements Cancellable
      *
      * @return message sender
      */
-    public @NotNull CommandSender getSender()
+    public @Nullable CommandSender getSender()
     {
         return sender;
     }
@@ -125,6 +134,9 @@ public final class StaffChatMessageEvent extends Event implements Cancellable
         TOGGLED_CHAT,
 
         /** A sender used {@code /adminchat <message>} or one of its aliases. */
-        COMMAND
+        COMMAND,
+
+        /** A message was sent via API */
+        API
     }
 }
