@@ -64,6 +64,7 @@ import net.milkbowl.vault.chat.Chat;
 import net.milkbowl.vault.permission.Permission;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.plugin.RegisteredServiceProvider;
+import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 
 @Getter
@@ -133,6 +134,10 @@ public class Plex extends JavaPlugin
         notesService = new NotesService(this);
         moduleManager = new ModuleManager(this);
         api = new DefaultPlexApi(this, MODULE_API_COMPATIBILITY_VERSION, notesService);
+
+        // Make API available via Services Manager
+        getServer().getServicesManager().register(PlexApi.class, api, this, ServicePriority.Highest);
+
         installModuleApiRuntimes();
 
         modulesFolder = new File(this.getDataFolder() + File.separator + "modules");
