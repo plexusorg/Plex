@@ -33,7 +33,7 @@ public interface PlayersApi
      *
      * <p>Works for known online and offline players. Applies Plex's visual formatting
      * rules and configured {@code chat.max-tag-length}. This does not set a rank
-     * prefix or an additive tab prefix. The caller must enforce its own permissions.</p>
+     * prefix or an additive {@link dev.plex.api.event.PlayerPrefixEvent} prefix. The caller must enforce its own permissions.</p>
      *
      * <p>Supports text, sprites, and player heads. Removes click and hover actions,
      * insertion text, obfuscated formatting, and right-to-left text.
@@ -55,7 +55,7 @@ public interface PlayersApi
      * Removes a known player's saved custom tag from chat and the tab list.
      *
      * <p>Uses the same persistence and completion contract as {@link #setTag}.
-     * Rank fallback and additive tab prefixes remain unchanged.</p>
+     * Rank fallback and additive {@link dev.plex.api.event.PlayerPrefixEvent} prefixes remain unchanged.</p>
      *
      * @param uuid player UUID
      * @return completion of the saved tag removal

@@ -2,7 +2,7 @@ package dev.plex.listener.impl;
 
 import dev.plex.Plex;
 
-import dev.plex.api.event.PlayerTabRenderEvent;
+import dev.plex.api.event.PlayerPrefixEvent;
 import dev.plex.listener.ServerListenerBase;
 import dev.plex.meta.PlayerMeta;
 import dev.plex.player.PlexPlayer;
@@ -42,7 +42,7 @@ public class TabListener extends ServerListenerBase
         String customTag = plexPlayer.getPrefix();
         Component tag = customTag == null || customTag.isEmpty()
                 ? Component.empty() : SafeMiniMessage.mmDeserialize(customTag);
-        PlayerTabRenderEvent renderEvent = new PlayerTabRenderEvent(player, name, tag);
+        PlayerPrefixEvent renderEvent = new PlayerPrefixEvent(player, PlayerPrefixEvent.Target.TAB, name, tag, false);
         plugin.getServer().getPluginManager().callEvent(renderEvent);
         Component entry = Component.empty();
         for (Component prefix : renderEvent.getPrefixes())

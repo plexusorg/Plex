@@ -52,7 +52,9 @@ public interface MessageApi
     /**
      * Renders a message as the public chat line of a player. The line uses the configured
      * {@code chat.format}, the prefix of the player, and the display name of the player.
-     * This method does not send the line.
+     * The prefix includes the {@link dev.plex.api.event.PlayerPrefixEvent} prefixes for
+     * {@link dev.plex.api.event.PlayerPrefixEvent.Target#CHAT}. Plex calls that event
+     * synchronously from this method. This method does not send the line.
      * Call it on a thread that can read the player, such as the command thread of that player.
      *
      * @param player player who is the source of the line

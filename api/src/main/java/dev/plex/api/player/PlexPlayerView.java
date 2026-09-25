@@ -26,7 +26,7 @@ public interface PlexPlayerView
 
     /**
      * Returns the saved custom tag using Plex's visual formatting rules.
-     * Does not include a rank prefix or additive tab prefixes.
+     * Does not include a rank prefix or additive {@link dev.plex.api.event.PlayerPrefixEvent} prefixes.
      *
      * @return custom tag, or an empty component when none is set
      */

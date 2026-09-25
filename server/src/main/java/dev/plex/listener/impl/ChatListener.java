@@ -6,6 +6,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 
 import dev.plex.Plex;
+import dev.plex.api.event.PlayerPrefixEvent;
 import dev.plex.api.event.StaffChatMessageEvent;
 import dev.plex.hook.VaultHook;
 import dev.plex.listener.ServerListenerBase;
@@ -16,12 +17,15 @@ import dev.plex.util.redis.MessageUtil;
 import io.papermc.paper.chat.ChatRenderer;
 import io.papermc.paper.event.player.AsyncChatEvent;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.JoinConfiguration;
 import net.kyori.adventure.text.TextReplacementConfig;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
@@ -77,7 +81,7 @@ public class ChatListener extends ServerListenerBase
             else broadcast.run();
             return;
         }
-        PlexChatRenderer renderer = PlexChatRenderer.forPlayer(plugin, plexPlayer);
+        PlexChatRenderer renderer = PlexChatRenderer.forPlayer(plugin, event.getPlayer(), plexPlayer, event.isAsynchronous());
 
         boolean nicknameHover = plugin.config.getBoolean("chat.nickname-hover", true);
         boolean mentions = plugin.config.getBoolean("chat.mentions", true);
@@ -112,16 +116,26 @@ public class ChatListener extends ServerListenerBase
         public String format;
         public Supplier<Component> before = null;
 
-        public static PlexChatRenderer forPlayer(Plex plugin, PlexPlayer plexPlayer)
+        public static PlexChatRenderer forPlayer(Plex plugin, Player player, PlexPlayer plexPlayer, boolean async)
         {
             PlexChatRenderer renderer = new PlexChatRenderer();
             renderer.format = plugin.config.getString("chat.format");
-            Component prefix = PlayerMeta.getPrefix(plexPlayer);
+            Component tag = PlayerMeta.getPrefix(plexPlayer);
+            boolean hasTag = tag != null && !tag.equals(Component.empty()) && !tag.equals(Component.space());
 
-            if (prefix != null && !prefix.equals(Component.empty()) && !prefix.equals(Component.space()))
+            PlayerPrefixEvent prefixEvent = new PlayerPrefixEvent(player, PlayerPrefixEvent.Target.CHAT, player.displayName(), hasTag ? tag : Component.empty(), async);
+            plugin.getServer().getPluginManager().callEvent(prefixEvent);
+            List<Component> parts = new ArrayList<>(prefixEvent.getPrefixes());
+            if (hasTag)
+            {
+                parts.add(tag);
+            }
+
+            if (!parts.isEmpty())
             {
                 renderer.hasPrefix = true;
-                renderer.prefix = prefix;
+                // Without contributed prefixes, keep the tag component unchanged.
+                renderer.prefix = parts.size() == 1 && hasTag ? tag : Component.join(JoinConfiguration.separator(Component.space()), parts);
             }
             else
             {

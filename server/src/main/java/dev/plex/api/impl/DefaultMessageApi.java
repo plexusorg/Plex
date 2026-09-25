@@ -23,7 +23,7 @@ final class DefaultMessageApi implements MessageApi
     @Override public String messageString(String entry) { return PlexUtils.messageString(entry); }
     @Override public Component miniMessage(String input, TagResolver... placeholders) { return PlexUtils.mmDeserialize(input, placeholders); }
     @Override public Component playerText(String input) { return PlexUtils.stringToComponent(input); }
-    @Override public Component chatLine(Player player, Component message) { return ChatListener.PlexChatRenderer.forPlayer(plugin, plugin.getPlayerService().cachedPlayer(player.getUniqueId())).render(player, player.displayName(), message); }
+    @Override public Component chatLine(Player player, Component message) { return ChatListener.PlexChatRenderer.forPlayer(plugin, player, plugin.getPlayerService().cachedPlayer(player.getUniqueId()), false).render(player, player.displayName(), message); }
     @Override public void broadcast(String miniMessage) { PlexUtils.broadcast(miniMessage); }
     @Override public void broadcast(Component component) { PlexUtils.broadcast(component); }
     @Override public ActionBroadcast captureActionBroadcast(CommandSender sender) { return CapturedActionBroadcast.capture(sender); }
