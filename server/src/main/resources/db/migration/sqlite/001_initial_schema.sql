@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS punishments (
     source VARCHAR(30) NOT NULL CHECK (source IN ('PLAYER', 'CONSOLE', 'WEB')),
     punisher_reference VARCHAR(200),
     ip VARCHAR(2000),
+    ip_match_key VARCHAR(64) NOT NULL,
     type VARCHAR(30) NOT NULL CHECK (type IN ('MUTE', 'FREEZE', 'BAN', 'TEMPBAN', 'KICK', 'SMITE')),
     reason VARCHAR(2000) NOT NULL,
     active BOOLEAN NOT NULL,
@@ -53,6 +54,47 @@ CREATE TABLE IF NOT EXISTS player_module_data (
 CREATE INDEX IF NOT EXISTS idx_players_last_known_name ON players(last_known_name);
 CREATE INDEX IF NOT EXISTS idx_punishments_punished ON punishments(punished_uuid);
 CREATE INDEX IF NOT EXISTS idx_punishments_ip ON punishments(ip);
+CREATE INDEX IF NOT EXISTS idx_punishments_ip_match_key ON punishments(ip_match_key, active, endDate);
 CREATE INDEX IF NOT EXISTS idx_notes_uuid ON notes(uuid);
 CREATE UNIQUE INDEX IF NOT EXISTS uq_player_ips_player_ip ON player_ips(player_uuid, ip);
 CREATE INDEX IF NOT EXISTS idx_player_ips_ip ON player_ips(ip);
+
+CREATE TABLE IF NOT EXISTS ip_bans (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    target VARCHAR(64) NOT NULL,
+    reason VARCHAR(2000) NOT NULL,
+    punisher_uuid VARCHAR(46),
+    source VARCHAR(30) NOT NULL CHECK (source IN ('PLAYER', 'CONSOLE', 'WEB')),
+    punisher_reference VARCHAR(200),
+    issueDate BIGINT NOT NULL,
+    endDate BIGINT NOT NULL,
+    active BOOLEAN NOT NULL,
+    CHECK (endDate = issueDate + 86400000)
+);
+
+CREATE INDEX IF NOT EXISTS idx_ip_bans_active ON ip_bans(active, endDate);
+CREATE INDEX IF NOT EXISTS idx_ip_bans_target ON ip_bans(target, active, endDate);
+
+CREATE TABLE IF NOT EXISTS name_bans (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    target VARCHAR(18) NOT NULL,
+    reason VARCHAR(2000) NOT NULL,
+    punisher_uuid VARCHAR(46),
+    source VARCHAR(30) NOT NULL CHECK (source IN ('PLAYER', 'CONSOLE', 'WEB')),
+    punisher_reference VARCHAR(200),
+    issueDate BIGINT NOT NULL,
+    endDate BIGINT NOT NULL,
+    active BOOLEAN NOT NULL,
+    CHECK (endDate = issueDate + 86400000),
+    CHECK (target = LOWER(target))
+);
+
+CREATE INDEX IF NOT EXISTS idx_name_bans_active ON name_bans(active, endDate);
+CREATE INDEX IF NOT EXISTS idx_name_bans_target ON name_bans(target, active, endDate);
+
+CREATE TABLE IF NOT EXISTS target_ban_locks (
+    kind VARCHAR(4) PRIMARY KEY CHECK (kind IN ('IP', 'NAME')),
+    revision BIGINT NOT NULL
+);
+
+INSERT INTO target_ban_locks (kind, revision) VALUES ('IP', 0), ('NAME', 0);

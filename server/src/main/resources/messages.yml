@@ -36,6 +36,7 @@ indefBanMessage: "<red>Your <type> is indefinitely banned! You may appeal at <go
 # <reason> - The reason
 indefBanMessageReason: "<red>Your <type> is indefinitely banned! You may appeal at <gold><appeal_url>.\n<red>Reason: <gold><reason>"
 playerNotFound: "<red>Player not found!"
+playerAmbiguous: "<red>More than one player matches: <players>. Enter a full name."
 specifyPlayer: "<red>You must specify a player!"
 worldNotFound: "<red>World not found!"
 correctUsagePrefix: "<yellow>Correct Usage: "
@@ -92,6 +93,14 @@ invalidUsername: "<red>That is not a valid Minecraft username."
 invalidIpOrPlayer: "<red>Specify a valid IP address or a player with a known IP address."
 nameAlreadyBanned: "<red>That username is already banned."
 ipAlreadyBanned: "<red>That IP address is already banned."
+nameNotBanned: "<red>That username has no active 24-hour ban."
+ipNotBanned: "<red>That exact IP address or range has no active 24-hour ban."
+# <sender> - The command sender
+# <username> - The username
+unbanningName: "<aqua><sender> - Unbanning username <username>"
+# <sender> - The command sender
+# <ip> - The IP address or range
+unbanningIp: "<aqua><sender> - Unbanning IP <ip>"
 # <sender> - The command sender
 # <player> - The player
 unbanningPlayer: "<aqua><sender> - Unbanning <player>"

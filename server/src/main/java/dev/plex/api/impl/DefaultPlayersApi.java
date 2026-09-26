@@ -22,6 +22,13 @@ final class DefaultPlayersApi implements PlayersApi
 
     @Override public CompletableFuture<Optional<PlexPlayerView>> player(UUID uuid) { return plugin.getPlayerService().findPlayer(Objects.requireNonNull(uuid, "uuid")).thenApply(player -> Optional.ofNullable(player).map(value -> new DefaultPlexPlayerView(plugin, value))); }
     @Override public CompletableFuture<Optional<PlexPlayerView>> byName(String name) { return plugin.getPlayerService().findPlayer(Objects.requireNonNull(name, "name")).thenApply(player -> Optional.ofNullable(player).map(value -> new DefaultPlexPlayerView(plugin, value))); }
+    @Override
+    public CompletableFuture<Optional<PlexPlayerView>> resolveCommandPlayer(String name)
+    {
+        return plugin.getPlayerService().resolveCommandPlayer(Objects.requireNonNull(name, "name"))
+                .thenApply(player -> Optional.ofNullable(player).map(value -> new DefaultPlexPlayerView(plugin, value)));
+    }
+
     @Override public CompletableFuture<Void> setTag(UUID uuid, Component tag) { return plugin.getPlayerService().setTag(uuid, tag); }
     @Override public CompletableFuture<Void> clearTag(UUID uuid) { return plugin.getPlayerService().clearTag(uuid); }
     @Override public List<String> onlineNames() { return plugin.getPlayerService().cachedPlayers().stream().map(PlexPlayer::getName).sorted(String.CASE_INSENSITIVE_ORDER).toList(); }

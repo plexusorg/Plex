@@ -60,13 +60,17 @@ public class Config extends YamlConfiguration
     }
 
     @Override
-    public void loadFromString(String contents) throws InvalidConfigurationException
+    public synchronized void loadFromString(String contents) throws InvalidConfigurationException
     {
         if (name.equals("indefbans.yml"))
         {
             validateIndefiniteBanLabels(contents);
         }
         super.loadFromString(contents);
+        if (name.equals("worlds.yml"))
+        {
+            plugin.getWorldModificationPolicy().reload(this);
+        }
     }
 
     private static void validateIndefiniteBanLabels(String contents) throws InvalidConfigurationException

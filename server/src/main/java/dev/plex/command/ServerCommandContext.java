@@ -5,6 +5,7 @@ import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import com.mojang.brigadier.context.CommandContext;
 import dev.plex.api.command.CommandExecutionIdentity;
 import dev.plex.command.exception.CommandFailException;
+import dev.plex.command.exception.AmbiguousPlayerException;
 import dev.plex.command.exception.ConsoleMustDefinePlayerException;
 import dev.plex.command.exception.ConsoleOnlyException;
 import dev.plex.command.exception.PlayerNotBannedException;
@@ -141,6 +142,10 @@ public final class ServerCommandContext
 
     Component exceptionComponent(RuntimeException ex)
     {
+        if (ex instanceof AmbiguousPlayerException ambiguous)
+        {
+            return PlexUtils.messageComponent("playerAmbiguous", Placeholder.unparsed("players", String.join(", ", ambiguous.getMatchingNames())));
+        }
         if (ex instanceof PlayerNotFoundException && "PlayerNotFoundException".equals(ex.getMessage()))
         {
             return PlexUtils.messageComponent("playerNotFound");

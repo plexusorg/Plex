@@ -6,20 +6,20 @@ import dev.plex.punishment.admission.BanDecisionService;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-public final class IndefiniteIpRange
+public final class BanIpRange
 {
     private final byte[] network;
     private final byte[] mask;
     private final String notation;
 
-    private IndefiniteIpRange(byte[] network, byte[] mask, String notation)
+    private BanIpRange(byte[] network, byte[] mask, String notation)
     {
         this.network = network;
         this.mask = mask;
         this.notation = notation;
     }
 
-    public static IndefiniteIpRange parse(String input)
+    public static BanIpRange parse(String input)
     {
         String value = input.trim();
         if (value.contains("*")) return parseWildcard(value);
@@ -31,6 +31,7 @@ public final class IndefiniteIpRange
         {
             throw new IllegalArgumentException("Invalid IP prefix: " + input);
         }
+        if (address.length == 16) prefix = Math.min(prefix, 64);
         byte[] mask = new byte[address.length];
         for (int bit = 0; bit < prefix; bit++)
         {
@@ -40,7 +41,7 @@ public final class IndefiniteIpRange
         try
         {
             String notation = InetAddresses.toAddrString(InetAddress.getByAddress(address)) + "/" + prefix;
-            return new IndefiniteIpRange(address, mask, notation);
+            return new BanIpRange(address, mask, notation);
         }
         catch (UnknownHostException exception)
         {
@@ -48,7 +49,7 @@ public final class IndefiniteIpRange
         }
     }
 
-    private static IndefiniteIpRange parseWildcard(String value)
+    private static BanIpRange parseWildcard(String value)
     {
         String[] octets = value.split("\\.", -1);
         if (octets.length != 4) throw new IllegalArgumentException("Use four IPv4 octets: " + value);
@@ -60,7 +61,31 @@ public final class IndefiniteIpRange
         }
         byte[] address = InetAddresses.forString(String.join(".", octets)).getAddress();
         if (address.length != 4) throw new IllegalArgumentException("Use IPv4 octets: " + value);
-        return new IndefiniteIpRange(address, mask, value);
+        int prefix = 0;
+        boolean wildcard = false;
+        boolean contiguous = true;
+        for (byte octet : mask)
+        {
+            if (octet == 0) wildcard = true;
+            else
+            {
+                prefix += 8;
+                if (wildcard) contiguous = false;
+            }
+        }
+        if (contiguous) return parse(String.join(".", octets) + "/" + prefix);
+        for (int i = 0; i < octets.length; i++)
+        {
+            if (mask[i] == 0) octets[i] = "*";
+        }
+        return new BanIpRange(address, mask, String.join(".", octets));
+    }
+
+    public static String banMatchKey(String ip)
+    {
+        if (ip == null || ip.isBlank()) return "";
+        String canonical = BanDecisionService.canonicalIp(ip);
+        return canonical.contains(":") ? parse(canonical).toString() : canonical;
     }
 
     public boolean contains(byte[] address)
@@ -73,7 +98,7 @@ public final class IndefiniteIpRange
         return true;
     }
 
-    public boolean contains(IndefiniteIpRange other)
+    public boolean contains(BanIpRange other)
     {
         if (!contains(other.network)) return false;
         for (int i = 0; i < mask.length; i++)

@@ -12,6 +12,7 @@ import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import dev.plex.Plex;
+import dev.plex.command.exception.AmbiguousPlayerException;
 import dev.plex.command.exception.CommandFailException;
 import dev.plex.command.exception.ConsoleMustDefinePlayerException;
 import dev.plex.command.exception.ConsoleOnlyException;
@@ -20,16 +21,19 @@ import dev.plex.command.exception.PlayerNotFoundException;
 import dev.plex.player.PlexPlayer;
 import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.util.PlexUtils;
+import dev.plex.util.PlexLog;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.UUID;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
@@ -46,6 +50,20 @@ public abstract class ServerCommand implements PlexCommand
     protected final Plex plugin;
     private final CommandSpec commandSpec;
     private final RequiredCommandSource commandSource;
+
+    protected Component playerLookupFailure(String playerName, Throwable failure)
+    {
+        while (failure instanceof CompletionException && failure.getCause() != null)
+        {
+            failure = failure.getCause();
+        }
+        if (failure instanceof AmbiguousPlayerException ambiguous)
+        {
+            return PlexUtils.messageComponent("playerAmbiguous", Placeholder.unparsed("players", String.join(", ", ambiguous.getMatchingNames())));
+        }
+        PlexLog.error("Unable to load player " + playerName, failure);
+        return Component.text("Unable to load the player.");
+    }
 
     public static void setRuntime(Runtime runtime)
     {
@@ -119,7 +137,7 @@ public abstract class ServerCommand implements PlexCommand
                 sender.sendMessage(component);
             }
         }
-        catch (PlayerNotFoundException | CommandFailException | ConsoleOnlyException |
+        catch (AmbiguousPlayerException | PlayerNotFoundException | CommandFailException | ConsoleOnlyException |
                ConsoleMustDefinePlayerException | PlayerNotBannedException | NumberFormatException ex)
         {
             sender.sendMessage(context.exceptionComponent(ex));
@@ -252,20 +270,7 @@ public abstract class ServerCommand implements PlexCommand
 
     protected Player getNonNullPlayer(String name)
     {
-        Player player;
-        try
-        {
-            player = Bukkit.getPlayer(UUID.fromString(name));
-        }
-        catch (IllegalArgumentException ignored)
-        {
-            player = Bukkit.getPlayer(name);
-        }
-        if (player == null)
-        {
-            throw new PlayerNotFoundException();
-        }
-        return player;
+        return PlexCommand.resolveOnlinePlayer(name);
     }
 
     protected PlexPlayer getOnlinePlexPlayer(String name)

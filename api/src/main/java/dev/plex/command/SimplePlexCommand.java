@@ -11,6 +11,7 @@ import dev.plex.api.PlexApi;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
+import dev.plex.command.exception.AmbiguousPlayerException;
 import dev.plex.command.exception.CommandFailException;
 import dev.plex.command.exception.ConsoleMustDefinePlayerException;
 import dev.plex.command.exception.ConsoleOnlyException;
@@ -26,6 +27,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.function.BiFunction;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
@@ -339,25 +341,7 @@ public abstract class SimplePlexCommand implements PlexCommand
      */
     protected Player getNonNullPlayer(String name)
     {
-        try
-        {
-            UUID uuid = UUID.fromString(name);
-            Player player = Bukkit.getPlayer(uuid);
-            if (player != null)
-            {
-                return player;
-            }
-        }
-        catch (IllegalArgumentException ignored)
-        {
-        }
-
-        Player player = Bukkit.getPlayer(name);
-        if (player == null)
-        {
-            throw new PlayerNotFoundException();
-        }
-        return player;
+        return PlexCommand.resolveOnlinePlayer(name);
     }
 
     /**
@@ -411,12 +395,16 @@ public abstract class SimplePlexCommand implements PlexCommand
             return List.copyOf(Bukkit.getOnlinePlayers());
         }
 
-        Player target = getNonNullPlayer(name);
-        if (!target.equals(sender))
+        if (!silentCheckPermission(sender, othersPermission))
         {
+            if (sender instanceof Player player
+                    && (name.equalsIgnoreCase(player.getName()) || name.equalsIgnoreCase(player.getUniqueId().toString())))
+            {
+                return List.of(player);
+            }
             checkPermission(sender, othersPermission);
         }
-        return List.of(target);
+        return List.of(getNonNullPlayer(name));
     }
 
     /**
@@ -479,7 +467,7 @@ public abstract class SimplePlexCommand implements PlexCommand
                 send(sender, component);
             }
         }
-        catch (PlayerNotFoundException | CommandFailException | ConsoleOnlyException |
+        catch (AmbiguousPlayerException | PlayerNotFoundException | CommandFailException | ConsoleOnlyException |
                ConsoleMustDefinePlayerException | PlayerNotBannedException | NumberFormatException ex)
         {
             send(sender, exceptionComponent(ex));
@@ -527,8 +515,27 @@ public abstract class SimplePlexCommand implements PlexCommand
         return true;
     }
 
+    protected boolean sendPlayerLookupFailure(CommandSender sender, Throwable failure)
+    {
+        while (failure instanceof CompletionException && failure.getCause() != null)
+        {
+            failure = failure.getCause();
+        }
+        if (failure instanceof AmbiguousPlayerException ambiguous)
+        {
+            send(sender, exceptionComponent(ambiguous));
+            return true;
+        }
+        return false;
+    }
+
     private Component exceptionComponent(RuntimeException ex)
     {
+        if (ex instanceof AmbiguousPlayerException ambiguous)
+        {
+            return messageComponent("playerAmbiguous",
+                    Placeholder.unparsed("players", String.join(", ", ambiguous.getMatchingNames())));
+        }
         if (ex instanceof PlayerNotFoundException && "PlayerNotFoundException".equals(ex.getMessage()))
         {
             return messageComponent("playerNotFound");

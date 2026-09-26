@@ -1,28 +1,23 @@
 package dev.plex.command.impl;
 
-import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
-
-import org.bukkit.Bukkit;
-
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import dev.plex.api.message.ActionBroadcast;
 import dev.plex.command.ServerCommand;
 import dev.plex.command.ServerCommandContext;
-import dev.plex.punishment.Punishment;
-import dev.plex.util.BungeeUtil;
-import dev.plex.api.message.ActionBroadcast;
 import dev.plex.util.CapturedActionBroadcast;
+import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
+import java.util.Locale;
 import net.kyori.adventure.text.Component;
-import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.NotNull;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 
 public class BanNameCMD extends ServerCommand
 {
     public BanNameCMD()
     {
         super(command("banname")
-                .description("Ban a username indefinitely")
+                .description("Ban a username for 24 hours")
                 .usage("/<command> <username> [reason]")
                 .permission("plex.banname")
                 .build());
@@ -43,26 +38,28 @@ public class BanNameCMD extends ServerCommand
     private Component executeTyped(ServerCommandContext context, String usernameName, String suppliedReason)
     {
         ActionBroadcast broadcast = CapturedActionBroadcast.capture(context.sender());
-        String username = usernameName;
-        if (!username.matches("[A-Za-z0-9_]{1,16}"))
+        if (!usernameName.matches("[A-Za-z0-9_]{1,16}"))
         {
             return PlexUtils.messageComponent("invalidUsername");
         }
+        String username = usernameName.toLowerCase(Locale.ROOT);
         String reason = suppliedReason == null ? PlexUtils.messageString("noReasonProvided") : suppliedReason;
-        if (!plugin.getPunishmentManager().banUsername(username, reason))
+        plugin.getPunishmentManager().banUsername(username, reason, context.getUUID(context.sender()), context.senderName()).whenComplete((changed, failure) ->
         {
-            return PlexUtils.messageComponent("nameAlreadyBanned");
-        }
-
-        broadcast.send(PlexUtils.messageComponent("banningName", Placeholder.parsed("sender", context.senderName()), Placeholder.parsed("username", username)));
-        Component kickMessage = Punishment.generateIndefBanMessageWithReason(
-                "username", plugin.config.getString("banning.ban_url"), reason);
-        plugin.getPlayerService().cachedPlayers().stream()
-                .filter(player -> player.getName().equalsIgnoreCase(username))
-                .map(player -> Bukkit.getPlayer(player.getUuid()))
-                .filter(java.util.Objects::nonNull)
-                .forEach(player -> player.getScheduler().run(plugin,
-                        task -> BungeeUtil.kickPlayer(plugin, player, kickMessage), null));
+            if (failure != null)
+            {
+                PlexLog.error("Unable to ban username " + username, failure);
+                context.sender().sendMessage(Component.text("Unable to complete the ban; check the server logs."));
+            }
+            else if (!changed)
+            {
+                context.sender().sendMessage(PlexUtils.messageComponent("nameAlreadyBanned"));
+            }
+            else
+            {
+                broadcast.send(PlexUtils.messageComponent("banningName", Placeholder.parsed("sender", context.senderName()), Placeholder.parsed("username", username)));
+            }
+        });
         return null;
     }
 }

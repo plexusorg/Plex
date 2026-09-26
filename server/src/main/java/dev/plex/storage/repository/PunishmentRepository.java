@@ -1,6 +1,7 @@
 package dev.plex.storage.repository;
 
 import dev.plex.punishment.Punishment;
+import dev.plex.punishment.TargetBan;
 import dev.plex.api.punishment.PunishmentType;
 
 import java.util.List;
@@ -26,6 +27,12 @@ public interface PunishmentRepository
     CompletableFuture<Void> expirePunishments(PunishmentType type, UUID punished, Instant now);
 
     CompletableFuture<BanRemoval> removeBan(UUID uuid);
+
+    CompletableFuture<List<TargetBan>> loadActiveTargetBans(Instant now);
+
+    CompletableFuture<Boolean> insertTargetBan(TargetBan ban);
+
+    CompletableFuture<Boolean> deactivateTargetBan(TargetBan.Kind kind, String target, Instant now);
 
     record BanRemoval(boolean changed, List<String> ips) { }
 }

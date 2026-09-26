@@ -6,6 +6,12 @@ import dev.plex.command.source.RequiredCommandSource;
 import dev.plex.module.PlexModule;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.UUID;
+import dev.plex.command.exception.AmbiguousPlayerException;
+import dev.plex.command.exception.PlayerNotFoundException;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
 /**
  * Public Brigadier command contract for Plex and Plex modules.
@@ -18,6 +24,49 @@ public interface PlexCommand
      * @return command definition
      */
     CommandSpec commandSpec();
+
+    // Call only on the command thread, not from an asynchronous lookup callback.
+    static Player resolveOnlinePlayer(String name)
+    {
+        UUID uuid = null;
+        try
+        {
+            uuid = UUID.fromString(name);
+        }
+        catch (IllegalArgumentException ignored)
+        {
+            // A non-UUID argument is a name.
+        }
+        Player exact = uuid == null ? Bukkit.getPlayerExact(name) : Bukkit.getPlayer(uuid);
+        if (exact != null)
+        {
+            return exact;
+        }
+        if (uuid != null)
+        {
+            throw new PlayerNotFoundException();
+        }
+        Player match = null;
+        List<String> names = new ArrayList<>();
+        for (Player player : Bukkit.getOnlinePlayers())
+        {
+            if (player.getName().regionMatches(true, 0, name, 0, name.length()))
+            {
+                match = player;
+                names.add(player.getName());
+            }
+        }
+        if (names.size() > 1)
+        {
+            names.sort(String.CASE_INSENSITIVE_ORDER);
+            throw new AmbiguousPlayerException(names);
+        }
+        if (match == null)
+        {
+            throw new PlayerNotFoundException();
+        }
+        return match;
+    }
 
     /**
      * Builds the Brigadier command tree for this command.

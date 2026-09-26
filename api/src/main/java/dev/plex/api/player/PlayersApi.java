@@ -1,5 +1,6 @@
 package dev.plex.api.player;
 
+import dev.plex.command.exception.AmbiguousPlayerException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -21,12 +22,23 @@ public interface PlayersApi
     CompletableFuture<Optional<PlexPlayerView>> player(UUID uuid);
 
     /**
-     * Looks up a player by name.
+     * Looks up a player by exact, case-insensitive name.
      *
      * @param name player name
      * @return future containing the player view, if known
      */
     CompletableFuture<Optional<PlexPlayerView>> byName(String name);
+
+    /**
+     * Resolves an exact name first, then a unique online name prefix, ignoring case.
+     * Callers that accept UUID input must resolve it with {@link #player(UUID)} first.
+     * The future fails with {@link AmbiguousPlayerException} when multiple online names match.
+     * Callbacks can run on a database thread.
+     *
+     * @param name command player name
+     * @return future containing the player view, if known
+     */
+    CompletableFuture<Optional<PlexPlayerView>> resolveCommandPlayer(String name);
 
     /**
      * Saves a player's custom tag for chat and the tab list.

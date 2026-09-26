@@ -68,12 +68,11 @@ public class TempbanCMD extends ServerCommand
         {
             return PlexUtils.messageComponent("invalidTimeFormat");
         }
-        plugin.getPlayerService().findPlayer(playerName).whenComplete((target, lookupFailure) ->
+        plugin.getPlayerService().resolveCommandPlayer(playerName).whenComplete((target, lookupFailure) ->
         {
         if (lookupFailure != null)
         {
-            PlexLog.error("Unable to load player {0}: {1}", playerName, lookupFailure.getMessage());
-            sender.sendMessage(Component.text("Unable to load the player."));
+            sender.sendMessage(playerLookupFailure(playerName, lookupFailure));
             return;
         }
         if (target == null)

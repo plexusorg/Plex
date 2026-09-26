@@ -54,12 +54,11 @@ public class NotesCMD extends ServerCommand
 
     private Component findPlayer(ServerCommandContext context, String playerName, Consumer<PlexPlayer> action)
     {
-        plugin.getPlayerService().findPlayer(playerName).whenComplete((player, failure) ->
+        plugin.getPlayerService().resolveCommandPlayer(playerName).whenComplete((player, failure) ->
         {
             if (failure != null)
             {
-                PlexLog.warn("Unable to load player {0}: {1}", playerName, failure.getMessage());
-                context.sender().sendMessage(Component.text("Unable to load the player."));
+                context.sender().sendMessage(playerLookupFailure(playerName, failure));
             }
             else if (player == null) context.sender().sendMessage(PlexUtils.messageComponent("playerNotFound"));
             else action.accept(player);

@@ -61,8 +61,18 @@ public class BanListener extends ServerListenerBase
             long token;
             do
             {
+                token = -2L;
                 decisionRevision = plugin.getPunishmentManager().banDecisionRevision(event.getUniqueId(), ip);
-                punishment = plugin.getPunishmentManager().decideAdmission(event.getUniqueId(), ip).join().orElse(null);
+                PunishmentManager.Admission decision = plugin.getPunishmentManager()
+                        .decideAdmission(event.getUniqueId(), event.getName(), ip).join();
+                punishment = decision.punishment().orElse(null);
+                if (decision.denyLogin())
+                {
+                    if (!decisionRevision.equals(plugin.getPunishmentManager().banDecisionRevision(event.getUniqueId(), ip))) continue;
+                    event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED,
+                            Punishment.generateBanMessage(punishment, plugin.config.getString("banning.ban_url")));
+                    return;
+                }
                 token = plugin.getPunishmentManager().prepareFiniteBanAdmission(event.getUniqueId(), ip, punishment,
                         decisionRevision);
             }

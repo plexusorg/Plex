@@ -39,7 +39,12 @@ dependencies {
     compileOnly("net.coreprotect:coreprotect:24.0")
     compileOnly("com.oasis:oasis-api:2.0-SNAPSHOT")
     compileOnly("com.github.LeonMangler:SuperVanish:6.2.19")
-    compileOnly("com.sk89q.worldguard:worldguard-bukkit:7.1.0-SNAPSHOT")
+    compileOnly("com.sk89q.worldguard:worldguard-bukkit:7.1.0-SNAPSHOT") {
+        exclude(group = "com.sk89q.worldedit")
+    }
+    compileOnly(platform("com.intellectualsites.bom:bom-newest:1.56"))
+    compileOnly("com.fastasyncworldedit:FastAsyncWorldEdit-Core")
+    compileOnly("com.fastasyncworldedit:FastAsyncWorldEdit-Bukkit")
     implementation("org.bstats:bstats-base:3.2.1")
     implementation("org.bstats:bstats-bukkit:3.2.1")
     annotationProcessor("org.projectlombok:lombok:1.18.46")

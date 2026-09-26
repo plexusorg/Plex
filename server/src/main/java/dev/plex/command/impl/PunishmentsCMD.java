@@ -51,9 +51,9 @@ public class PunishmentsCMD extends ServerCommand
         }
         else
         {
-            plugin.getPlayerService().findPlayer(playerName).whenComplete((player, failure) ->
+            plugin.getPlayerService().resolveCommandPlayer(playerName).whenComplete((player, failure) ->
             {
-                if (failure != null) playerSender.sendMessage(Component.text("Unable to load the player's punishments."));
+                if (failure != null) playerSender.sendMessage(playerLookupFailure(playerName, failure));
                 else if (player == null) playerSender.sendMessage(PlexUtils.messageComponent("playerNotFound"));
                 else dialog.open(playerSender, player);
             });

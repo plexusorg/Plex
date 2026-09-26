@@ -9,6 +9,8 @@ import org.bukkit.Bukkit;
 
 import dev.plex.Plex;
 import dev.plex.api.punishment.PunishmentType;
+import dev.plex.api.punishment.PunishmentSource;
+import com.destroystokyo.paper.event.player.PlayerConnectionCloseEvent;
 import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.admission.BanDecisionService;
 import dev.plex.util.PlexLog;
@@ -29,6 +31,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -43,6 +46,8 @@ public class PunishmentManager
     private final FiniteBanEnforcement finiteBanEnforcement;
     private volatile List<IndefiniteBan> indefiniteBans = List.of();
     private final ConcurrentHashMap<StateKey, ScheduledTask> timedTasks = new ConcurrentHashMap<>();
+    private ScheduledTask targetRefreshTask;
+    private static final UUID TARGET_INVALIDATION = new UUID(0L, 0L);
 
     public PunishmentManager(Plex plugin)
     {
@@ -52,6 +57,104 @@ public class PunishmentManager
         this.banDecisionService = new BanDecisionService(plugin.getPunishmentRepository(), Duration.ofSeconds(ttlSeconds), cacheSize);
         this.finiteBanEnforcement = new FiniteBanEnforcement(plugin, this);
     }
+
+    public void start()
+    {
+        banDecisionService.reloadTargetBans().join();
+        long seconds = Math.max(1, plugin.config.getLong("banning.admission-cache-seconds", 60));
+        targetRefreshTask = Bukkit.getAsyncScheduler().runAtFixedRate(plugin,
+                task -> reloadTargetBans(), seconds, seconds, TimeUnit.SECONDS);
+    }
+
+    public void close()
+    {
+        if (targetRefreshTask != null) targetRefreshTask.cancel();
+        timedTasks.values().forEach(ScheduledTask::cancel);
+    }
+
+    private void reloadTargetBans()
+    {
+        banDecisionService.reloadTargetBans().thenCompose(unused -> finiteBanEnforcement.enforceTargetBans())
+                .exceptionally(failure ->
+                {
+                    PlexLog.error("Unable to reload active IP and name bans", failure);
+                    return null;
+                });
+    }
+
+    public CompletableFuture<Boolean> banIp(BanIpRange range, String reason, UUID punisher, String punisherName)
+    {
+        return banTarget(TargetBan.Kind.IP, range.toString(), range, reason, punisher, punisherName);
+    }
+
+    public CompletableFuture<Boolean> banUsername(String username, String reason, UUID punisher, String punisherName)
+    {
+        return banTarget(TargetBan.Kind.NAME, username.toLowerCase(Locale.ROOT), null, reason, punisher, punisherName);
+    }
+
+    private CompletableFuture<Boolean> banTarget(TargetBan.Kind kind, String target, BanIpRange range,
+                                                  String reason, UUID punisher, String punisherName)
+    {
+        Instant now = Instant.now();
+        TargetBan ban = new TargetBan(kind, target, reason, punisher,
+                punisher == null ? PunishmentSource.CONSOLE : PunishmentSource.PLAYER, null,
+                now, now.plus(PunishmentType.STANDARD_BAN_DURATION), range,
+                punisherName);
+        return banDecisionService.mutateTargetBans(() -> plugin.getPunishmentRepository().insertTargetBan(ban).thenApply(changed ->
+        {
+            if (!changed) return false;
+            banDecisionService.addTargetBan(ban);
+            publishInvalidation(TARGET_INVALIDATION, null);
+            return true;
+        })).thenCompose(changed ->
+        {
+            if (!changed) return CompletableFuture.completedFuture(false);
+            return finiteBanEnforcement.enforceTargetBans().thenApply(unused -> true);
+        });
+    }
+
+    public CompletableFuture<Boolean> unbanIp(BanIpRange range)
+    {
+        return unbanTarget(TargetBan.Kind.IP, range.toString());
+    }
+
+    public CompletableFuture<Boolean> unbanUsername(String username)
+    {
+        return unbanTarget(TargetBan.Kind.NAME, username.toLowerCase(Locale.ROOT));
+    }
+
+    private CompletableFuture<Boolean> unbanTarget(TargetBan.Kind kind, String target)
+    {
+        return banDecisionService.mutateTargetBans(() -> plugin.getPunishmentRepository()
+                .deactivateTargetBan(kind, target, Instant.now()).thenApply(changed ->
+        {
+            if (!changed) return false;
+            banDecisionService.removeTargetBan(kind, target);
+            publishInvalidation(TARGET_INVALIDATION, null);
+            return true;
+        }));
+    }
+
+    public CompletableFuture<Optional<Punishment>> decideTargetAdmission(UUID uuid, String username, String ip)
+    {
+        Optional<Punishment> target = banDecisionService.targetBan(uuid, username, ip);
+        if (target.isEmpty()) return CompletableFuture.completedFuture(target);
+        return CompletableFuture.supplyAsync(() -> hasBanBypass(uuid) ? Optional.empty() : target,
+                plugin.getIoExecutor());
+    }
+
+    public CompletableFuture<Admission> decideAdmission(UUID uuid, String username, String ip)
+    {
+        return CompletableFuture.supplyAsync(() -> hasBanBypass(uuid), plugin.getIoExecutor()).thenCompose(bypass ->
+        {
+            if (bypass) return CompletableFuture.completedFuture(new Admission(Optional.empty(), false));
+            Optional<Punishment> target = banDecisionService.targetBan(uuid, username, ip);
+            if (target.isPresent()) return CompletableFuture.completedFuture(new Admission(target, true));
+            return banDecisionService.decide(uuid, ip).thenApply(ban -> new Admission(ban, false));
+        });
+    }
+
+    public record Admission(Optional<Punishment> punishment, boolean denyLogin) { }
 
     public void mergeIndefiniteBans()
     {
@@ -80,7 +183,7 @@ public class PunishmentManager
     {
         String canonicalIp = BanDecisionService.canonicalIp(ip);
         if (!InetAddresses.isInetAddress(canonicalIp)) return null;
-        byte[] address = InetAddresses.forString(canonicalIp).getAddress();
+        BanIpRange address = BanIpRange.parse(BanIpRange.banMatchKey(canonicalIp));
         return indefiniteBans.stream().filter(ban -> ban.ipRanges.stream()
                 .anyMatch(range -> range.contains(address))).findFirst().orElse(null);
     }
@@ -92,37 +195,12 @@ public class PunishmentManager
                 .anyMatch(name -> name.equalsIgnoreCase(username))).findFirst().orElse(null);
     }
 
-    public synchronized boolean banUsername(String username, String reason)
-    {
-        if (getIndefiniteBanByUsername(username) != null)
-        {
-            return false;
-        }
-        String key = nextIndefiniteBanKey("name", username);
-        plugin.indefBans.set(key + ".reason", reason);
-        plugin.indefBans.set(key + ".users", List.of(username));
-        plugin.indefBans.save();
-        mergeIndefiniteBans();
-        return true;
-    }
-
-    public synchronized boolean banIp(String ip, String reason)
-    {
-        IndefiniteIpRange range = IndefiniteIpRange.parse(ip);
-        String canonicalIp = range.toString();
-        if (indefiniteBans.stream().anyMatch(ban -> ban.ipRanges.stream().anyMatch(existing -> existing.contains(range))))
-        {
-            return false;
-        }
-        String key = nextIndefiniteBanKey("ip", canonicalIp);
-        plugin.indefBans.set(key + ".reason", reason);
-        plugin.indefBans.set(key + ".ips", List.of(canonicalIp));
-        plugin.indefBans.save();
-        mergeIndefiniteBans();
-        return true;
-    }
-
     public CompletableFuture<Optional<Punishment>> decideAdmission(UUID uuid, @Nullable String ip)
+    {
+        return decideAdmission(uuid, null, ip).thenApply(Admission::punishment);
+    }
+
+    CompletableFuture<Optional<Punishment>> decideFiniteAdmission(UUID uuid, @Nullable String ip)
     {
         return CompletableFuture.supplyAsync(() -> hasBanBypass(uuid), plugin.getIoExecutor())
                 .thenCompose(hasBypass -> hasBypass
@@ -137,6 +215,11 @@ public class PunishmentManager
 
     public void handleBanInvalidation(UUID uuid, @Nullable String ip)
     {
+        if (TARGET_INVALIDATION.equals(uuid))
+        {
+            reloadTargetBans();
+            return;
+        }
         invalidateBanDecisions(uuid, ip);
         finiteBanEnforcement.refreshMatching(uuid, ip).exceptionally(failure ->
         {
@@ -175,6 +258,11 @@ public class PunishmentManager
     public void completeJoin(Player player)
     {
         finiteBanEnforcement.join(player);
+        finiteBanEnforcement.enforceTargetBan(player).exceptionally(failure ->
+        {
+            PlexLog.error("Unable to enforce IP or name ban after joining", failure);
+            return null;
+        });
     }
 
     public void trackReloadedPlayer(Player player, String ip)
@@ -187,7 +275,7 @@ public class PunishmentManager
         finiteBanEnforcement.trackOnlineCapacity(player, ip);
     }
 
-    public void closePendingAdmission(com.destroystokyo.paper.event.player.PlayerConnectionCloseEvent event)
+    public void closePendingAdmission(PlayerConnectionCloseEvent event)
     {
         finiteBanEnforcement.connectionClosed(event);
     }
@@ -260,7 +348,7 @@ public class PunishmentManager
                 return finiteBanEnforcement.refreshBanOwner(uuid).thenApply(unused -> false);
             }
             invalidateBanDecisions(uuid, null);
-            List<CompletableFuture<Void>> refreshes = new java.util.ArrayList<>();
+            List<CompletableFuture<Void>> refreshes = new ArrayList<>();
             refreshes.add(finiteBanEnforcement.refreshMatching(uuid, null));
             refreshes.add(finiteBanEnforcement.refreshBanOwner(uuid));
             for (String ip : removal.ips())
@@ -443,22 +531,6 @@ public class PunishmentManager
                 Bukkit.getOfflinePlayer(uuid), "plex.ban.bypass");
     }
 
-    private String nextIndefiniteBanKey(String type, String value)
-    {
-        String slug = value.toLowerCase(java.util.Locale.ROOT).replaceAll("[^a-z0-9]+", "-")
-                .replaceAll("(^-+|-+$)", "");
-        if (slug.isEmpty()) slug = "entry";
-        if (slug.length() > 40) slug = slug.substring(0, 40);
-        String base = "command-" + type + "-" + slug;
-        String key = base;
-        int suffix = 2;
-        while (plugin.indefBans.contains(key))
-        {
-            key = base + "-" + suffix++;
-        }
-        return key;
-    }
-
     @Getter
     public static final class IndefiniteBan
     {
@@ -466,7 +538,7 @@ public class PunishmentManager
         private final List<UUID> uuids;
         private final List<String> ips;
         @Getter(AccessLevel.NONE)
-        private final List<IndefiniteIpRange> ipRanges;
+        private final List<BanIpRange> ipRanges;
         private final String reason;
 
         public IndefiniteBan(List<String> usernames, List<UUID> uuids, List<String> ips, String reason)
@@ -474,12 +546,12 @@ public class PunishmentManager
             this.usernames = List.copyOf(usernames);
             this.uuids = List.copyOf(uuids);
             List<String> validIps = new ArrayList<>();
-            List<IndefiniteIpRange> ranges = new ArrayList<>();
+            List<BanIpRange> ranges = new ArrayList<>();
             for (String ip : ips)
             {
                 try
                 {
-                    ranges.add(IndefiniteIpRange.parse(ip));
+                    ranges.add(BanIpRange.parse(ip));
                     validIps.add(ip);
                 }
                 catch (IllegalArgumentException exception)

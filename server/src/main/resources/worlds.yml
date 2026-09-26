@@ -3,8 +3,6 @@
 
 # These gamerules apply to every world on the server.
 global_gamerules:
-  - "advance_weather;true"
-  - "advance_time;true"
   - "spawn_mobs;false"
   - "spawn_monsters;false"
   - "spawn_patrols;false"
@@ -20,6 +18,7 @@ global_gamerules:
   - "show_advancement_messages;false"
   - "show_death_messages;false"
   - "send_command_feedback;false"
+  - "command_blocks_work;false"
 
 worlds:
   flatlands:

@@ -5,6 +5,7 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 
 import dev.plex.Plex;
+import dev.plex.hook.WorldEditHook;
 import dev.plex.listener.EventRule;
 import dev.plex.listener.ServerListenerBase;
 import io.papermc.paper.event.block.PlayerShearBlockEvent;
@@ -22,6 +23,8 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.function.Function;
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Tag;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.PluginIdentifiableCommand;
@@ -37,6 +40,7 @@ import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockFertilizeEvent;
 import org.bukkit.event.block.BlockIgniteEvent;
@@ -81,12 +85,12 @@ import org.bukkit.event.vehicle.VehicleDestroyEvent;
 import org.bukkit.event.vehicle.VehicleDamageEvent;
 import org.bukkit.event.world.StructureGrowEvent;
 import org.bukkit.inventory.InventoryView;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.projectiles.ProjectileSource;
 
 public class WorldListener extends ServerListenerBase
 {
-    private static final Set<String> EDIT_COMMANDS = Set.of("bigtree", "ebigtree", "largetree", "elargetree", "break", "ebreak", "antioch", "nuke", "editsign", "tree", "etree");
+    private static final Set<String> EDIT_COMMANDS = Set.of("bigtree", "ebigtree", "largetree", "elargetree", "antioch", "nuke", "tree", "etree");
+    private static final Set<String> ENTITY_COMMANDS = Set.of("remove", "rem", "rement", "/remove", "/rem", "/rement", "butcher", "/butcher");
 
     public WorldListener(Plex plugin)
     {
@@ -100,7 +104,6 @@ public class WorldListener extends ServerListenerBase
         EventRule<?>[] rules = {
             rule(BlockPlaceEvent.class, BlockPlaceEvent::getPlayer, event -> event.getBlockPlaced().getWorld()),
             rule(BlockBreakEvent.class, BlockBreakEvent::getPlayer, event -> event.getBlock().getWorld()),
-            rule(PlayerInteractEvent.class, PlayerInteractEvent::getPlayer, event -> event.getClickedBlock() == null ? event.getPlayer().getWorld() : event.getClickedBlock().getWorld()),
             rule(PlayerInteractEntityEvent.class, PlayerInteractEntityEvent::getPlayer, event -> event.getRightClicked().getWorld()),
             rule(PlayerInteractAtEntityEvent.class, PlayerInteractAtEntityEvent::getPlayer, event -> event.getRightClicked().getWorld()),
             rule(PlayerArmorStandManipulateEvent.class, PlayerArmorStandManipulateEvent::getPlayer, event -> event.getRightClicked().getWorld()),
@@ -170,26 +173,76 @@ public class WorldListener extends ServerListenerBase
         }
     }
 
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onPlayerInteract(PlayerInteractEvent event)
+    {
+        Player player = event.getPlayer();
+        World world = event.getClickedBlock() == null ? player.getWorld() : event.getClickedBlock().getWorld();
+        if (canModifyWorld(player, world))
+        {
+            return;
+        }
+        event.setUseItemInHand(Event.Result.DENY);
+        if (canEnterWorld(player, world, false) && isVisitorBlockUse(event))
+        {
+            event.setUseInteractedBlock(Event.Result.ALLOW);
+            return;
+        }
+        event.setUseInteractedBlock(Event.Result.DENY);
+        denyModification(player, world);
+    }
+
+    private boolean isVisitorBlockUse(PlayerInteractEvent event)
+    {
+        if (event.getClickedBlock() == null)
+        {
+            return false;
+        }
+        Material material = event.getClickedBlock().getType();
+        if (event.getAction() == Action.PHYSICAL)
+        {
+            return Tag.PRESSURE_PLATES.isTagged(material);
+        }
+        return event.getAction() == Action.RIGHT_CLICK_BLOCK
+                && (Tag.DOORS.isTagged(material) || Tag.TRAPDOORS.isTagged(material)
+                || Tag.FENCE_GATES.isTagged(material) || Tag.BUTTONS.isTagged(material) || material == Material.LEVER);
+    }
+
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerCommand(PlayerCommandPreprocessEvent event)
     {
         Player player = event.getPlayer();
-        if (canModifyWorld(player, player.getWorld()))
+        String[] arguments = event.getMessage().substring(1).split("\\s+", 3);
+        String label = arguments[0].toLowerCase(Locale.ROOT);
+        String baseLabel = label.substring(label.indexOf(':') + 1);
+        String worldName = player.getWorld().getName();
+        if (!EDIT_COMMANDS.contains(baseLabel))
         {
-            return;
+            Command command = Bukkit.getCommandMap().getCommand(label);
+            if (!(command instanceof PluginIdentifiableCommand identifiable)
+                    || !identifiable.getPlugin().getName().equalsIgnoreCase("FastAsyncWorldEdit"))
+            {
+                return;
+            }
+            if (baseLabel.equals("/world") && arguments.length > 1)
+            {
+                worldName = arguments[1];
+            }
+            else if (baseLabel.equals("/removelighting") || baseLabel.equals("/removelight"))
+            {
+                worldName = WorldEditHook.selectionWorldName(player.getName());
+                if (worldName == null)
+                {
+                    return;
+                }
+            }
+            else if (!ENTITY_COMMANDS.contains(baseLabel))
+            {
+                return;
+            }
         }
-
-        String label = event.getMessage().replaceFirst("^/", "").replaceFirst("\\s.*", "").toLowerCase(Locale.ROOT);
-        String baseLabel = label.contains(":") ? label.substring(label.indexOf(':') + 1) : label;
-        Command command = Bukkit.getCommandMap().getCommand(label);
-        if (command == null)
+        if (plugin.getWorldModificationPolicy().denyModification(player, worldName))
         {
-            command = Bukkit.getCommandMap().getCommand(baseLabel);
-        }
-
-        if (EDIT_COMMANDS.contains(baseLabel) || isWorldEditCommand(command))
-        {
-            sendModificationMessage(player, player.getWorld());
             event.setCancelled(true);
         }
     }
@@ -248,37 +301,12 @@ public class WorldListener extends ServerListenerBase
 
     private boolean denyModification(Player player, World world)
     {
-        if (canModifyWorld(player, world))
-        {
-            return false;
-        }
-        sendModificationMessage(player, world);
-        return true;
+        return plugin.getWorldModificationPolicy().denyModification(player, world.getName());
     }
 
     private boolean canModifyWorld(Player player, World world)
     {
-        String key = worldKey(world);
-        if (key == null)
-        {
-            return true;
-        }
-        String permission = plugin.worlds.getString("worlds." + key + ".modification.permission");
-        return permission == null || player.hasPermission(permission);
-    }
-
-    private void sendModificationMessage(Player player, World world)
-    {
-        String key = worldKey(world);
-        if (key == null)
-        {
-            return;
-        }
-        String message = plugin.worlds.getString("worlds." + key + ".modification.message");
-        if (message != null && !message.isBlank())
-        {
-            player.sendMessage(MiniMessage.miniMessage().deserialize(message));
-        }
+        return plugin.getWorldModificationPolicy().canModify(player, world.getName());
     }
 
     private boolean canEnterWorld(Player player, World world, boolean showMessage)
@@ -339,16 +367,6 @@ public class WorldListener extends ServerListenerBase
                 .map(World::getSpawnLocation)
                 .findFirst()
                 .orElse(null);
-    }
-
-    private boolean isWorldEditCommand(Command command)
-    {
-        if (!(command instanceof PluginIdentifiableCommand identifiable))
-        {
-            return false;
-        }
-        Plugin owner = identifiable.getPlugin();
-        return owner.getName().equalsIgnoreCase("WorldEdit") || owner.getName().equalsIgnoreCase("FastAsyncWorldEdit");
     }
 
     private boolean canPassengersEnter(Entity entity, World world)

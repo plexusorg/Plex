@@ -45,12 +45,11 @@ public class UnmuteCMD extends ServerCommand
     {
         CommandSender sender = context.sender();
         ActionBroadcast broadcast = CapturedActionBroadcast.capture(sender);
-        plugin.getPlayerService().findPlayer(playerName).whenComplete((punishedPlayer, lookupFailure) ->
+        plugin.getPlayerService().resolveCommandPlayer(playerName).whenComplete((punishedPlayer, lookupFailure) ->
         {
         if (lookupFailure != null)
         {
-            PlexLog.error("Unable to load player {0}: {1}", playerName, lookupFailure.getMessage());
-            sender.sendMessage(Component.text("Unable to load the player."));
+            sender.sendMessage(playerLookupFailure(playerName, lookupFailure));
             return;
         }
         if (punishedPlayer == null)

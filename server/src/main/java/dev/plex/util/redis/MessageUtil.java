@@ -5,6 +5,7 @@ import org.bukkit.Bukkit;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import dev.plex.Plex;
+import dev.plex.punishment.BanIpRange;
 import dev.plex.hook.VaultHook;
 import dev.plex.util.PlexLog;
 import dev.plex.util.PlexUtils;
@@ -90,7 +91,7 @@ public final class MessageUtil
         }
         JSONObject object = new JSONObject();
         object.put("playerId", playerId.toString());
-        object.put("ip", ip == null ? JSONObject.NULL : ip);
+        object.put("ip", ip == null ? JSONObject.NULL : BanIpRange.banMatchKey(ip));
         return publish(plugin, INVALIDATION_CHANNEL, object.toString(), "ban-cache invalidation");
     }
 

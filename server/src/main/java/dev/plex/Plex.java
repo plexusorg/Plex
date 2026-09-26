@@ -15,6 +15,7 @@ import dev.plex.handlers.ListenerHandler;
 import dev.plex.hook.CoreProtectHook;
 import dev.plex.hook.OasisHook;
 import dev.plex.hook.WorldGuardHook;
+import dev.plex.hook.WorldEditHook;
 import dev.plex.module.ModuleManager;
 import dev.plex.network.ProxyVanishBridge;
 import dev.plex.note.NotesService;
@@ -43,6 +44,7 @@ import dev.plex.util.UpdateChecker;
 import dev.plex.util.redis.MessageUtil;
 import dev.plex.world.CustomWorld;
 import dev.plex.world.WorldSpawnSignManager;
+import dev.plex.world.WorldModificationPolicy;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -112,6 +114,7 @@ public class Plex extends JavaPlugin
     private CoreProtectHook coreProtectHook;
     private OasisHook oasisHook;
     private WorldGuardHook worldGuardHook;
+    private final WorldModificationPolicy worldModificationPolicy = new WorldModificationPolicy();
 
     public static Plex get()
     {
@@ -235,6 +238,14 @@ public class Plex extends JavaPlugin
         {
             PlexLog.debug("Not hooking into WorldGuard");
         }
+        if (getServer().getPluginManager().isPluginEnabled("FastAsyncWorldEdit"))
+        {
+            new WorldEditHook(this);
+        }
+        else
+        {
+            PlexLog.log("WorldEdit protection hook skipped: FastAsyncWorldEdit is not enabled.");
+        }
         updateChecker = new UpdateChecker(this);
         PlexLog.log("Update checking enabled");
 
@@ -274,6 +285,7 @@ public class Plex extends JavaPlugin
         commandHandler = new CommandHandler(this);
 
         punishmentManager = new PunishmentManager(this);
+        punishmentManager.start();
         MessageUtil.onBanInvalidation(
                 invalidation -> punishmentManager.handleBanInvalidation(invalidation.playerId(), invalidation.ip()));
         punishmentManager.mergeIndefiniteBans();
@@ -309,7 +321,9 @@ public class Plex extends JavaPlugin
         }
     }
 
+    // Shutdown stops each owner in a fixed order. onEnable can abort early, so every optional owner keeps its null check.
     @Override
+    @SuppressWarnings("checkstyle:CyclomaticComplexity")
     public void onDisable()
     {
         if (redisConnection != null && redisConnection.isEnabled())
@@ -317,6 +331,7 @@ public class Plex extends JavaPlugin
             PlexLog.log("Disabling Redis/Jedis. No memory leaks in this Anarchy server!");
         }
         MessageUtil.close();
+        if (punishmentManager != null) punishmentManager.close();
         this.getServer().getMessenger().unregisterOutgoingPluginChannel(this);
         this.getServer().getMessenger().unregisterIncomingPluginChannel(this);
 

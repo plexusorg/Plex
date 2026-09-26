@@ -65,12 +65,11 @@ public class RemoveLoginMessageCMD extends ServerCommand
     private Component removeOther(ServerCommandContext context, String playerName)
     {
         context.checkPermission(context.sender(), "plex.removeloginmessage.others");
-        plugin.getPlayerService().findPlayer(playerName).whenComplete((plexPlayer, failure) ->
+        plugin.getPlayerService().resolveCommandPlayer(playerName).whenComplete((plexPlayer, failure) ->
         {
             if (failure != null)
             {
-                PlexLog.warn("Unable to load player {0}: {1}", playerName, failure.getMessage());
-                context.sender().sendMessage(Component.text("Unable to load the player."));
+                context.sender().sendMessage(playerLookupFailure(playerName, failure));
                 return;
             }
             if (plexPlayer == null)

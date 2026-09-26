@@ -12,6 +12,7 @@ import dev.plex.util.PlexUtils;
 import io.papermc.paper.event.player.PlayerServerFullCheckEvent;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,6 +20,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -286,16 +288,16 @@ final class FiniteBanEnforcement
 
     CompletableFuture<Void> refreshMatching(UUID uuid, @Nullable String ip)
     {
-        String canonicalIp = BanDecisionService.canonicalIp(ip);
+        String canonicalIp = BanIpRange.banMatchKey(ip);
         List<OnlinePlayer> matches;
         List<PendingPlayer> pending;
         synchronized (this)
         {
             matches = onlinePlayers.entrySet().stream()
-                    .filter(entry -> entry.getKey().equals(uuid) || (!canonicalIp.isEmpty() && canonicalIp.equals(entry.getValue().ip())))
+                    .filter(entry -> entry.getKey().equals(uuid) || (!canonicalIp.isEmpty() && canonicalIp.equals(BanIpRange.banMatchKey(entry.getValue().ip()))))
                     .map(Map.Entry::getValue).toList();
             pending = pendingAdmissions.entrySet().stream()
-                    .filter(entry -> entry.getKey().equals(uuid) || (!canonicalIp.isEmpty() && canonicalIp.equals(entry.getValue().ip())))
+                    .filter(entry -> entry.getKey().equals(uuid) || (!canonicalIp.isEmpty() && canonicalIp.equals(BanIpRange.banMatchKey(entry.getValue().ip()))))
                     .map(entry -> new PendingPlayer(entry.getKey(), entry.getValue().ip())).toList();
             pending.forEach(player ->
             {
@@ -307,6 +309,61 @@ final class FiniteBanEnforcement
         matches.forEach(online -> updates.add(refreshUntilResolved(online)));
         pending.forEach(player -> updates.add(refreshPendingUntilResolved(player)));
         return CompletableFuture.allOf(updates.toArray(CompletableFuture[]::new));
+    }
+
+    CompletableFuture<Void> enforceTargetBans()
+    {
+        List<OnlinePlayer> players;
+        synchronized (this)
+        {
+            players = List.copyOf(onlinePlayers.values());
+        }
+        List<CompletableFuture<Void>> kicks = new ArrayList<>();
+        for (OnlinePlayer online : players)
+        {
+            kicks.add(enforceTargetBan(online.player()));
+        }
+        return CompletableFuture.allOf(kicks.toArray(CompletableFuture[]::new));
+    }
+
+    CompletableFuture<Void> enforceTargetBan(Player player)
+    {
+        OnlinePlayer online;
+        synchronized (this)
+        {
+            online = onlinePlayers.get(player.getUniqueId());
+        }
+        if (online == null || online.player() != player) return CompletableFuture.completedFuture(null);
+        BanDecisionService.Revision revision = punishmentManager.banDecisionRevision(player.getUniqueId(), online.ip());
+        return punishmentManager.decideTargetAdmission(player.getUniqueId(), player.getName(), online.ip())
+                .thenCompose(ban ->
+                {
+                    if (ban.isEmpty()) return CompletableFuture.completedFuture(null);
+                    CompletableFuture<Void> kicked = new CompletableFuture<>();
+                    ScheduledTask task = player.getScheduler().run(plugin, ignored ->
+                    {
+                        if (!revision.equals(punishmentManager.banDecisionRevision(player.getUniqueId(), online.ip()))
+                                || !ban.get().getEndDate().toInstant().isAfter(Instant.now()))
+                        {
+                            enforceTargetBan(player).whenComplete((unused, failure) ->
+                            {
+                                if (failure == null) kicked.complete(null); else kicked.completeExceptionally(failure);
+                            });
+                            return;
+                        }
+                        try
+                        {
+                            player.kick(Punishment.generateBanMessage(ban.get(), plugin.config.getString("banning.ban_url")));
+                            kicked.complete(null);
+                        }
+                        catch (RuntimeException failure)
+                        {
+                            kicked.completeExceptionally(failure);
+                        }
+                    }, () -> kicked.complete(null));
+                    if (task == null) kicked.complete(null);
+                    return kicked;
+                });
     }
 
     synchronized void beginBanRemoval(UUID owner)
@@ -328,7 +385,7 @@ final class FiniteBanEnforcement
             matches = restrictions.entrySet().stream()
                     .filter(entry -> entry.getValue().punishment.getPunished().equals(owner))
                     .map(entry -> onlinePlayers.get(entry.getKey()))
-                    .filter(java.util.Objects::nonNull).toList();
+                    .filter(Objects::nonNull).toList();
             pending = pendingAdmissions.entrySet().stream()
                     .filter(entry -> entry.getValue().punishment() != null
                             && entry.getValue().punishment().getPunished().equals(owner))
@@ -350,7 +407,7 @@ final class FiniteBanEnforcement
             version = refreshVersions.merge(uuid, 1L, Long::sum);
             protectedFromEviction.add(uuid);
         }
-        return punishmentManager.decideAdmission(online.player().getUniqueId(), online.ip()).thenCompose(ban ->
+        return punishmentManager.decideFiniteAdmission(online.player().getUniqueId(), online.ip()).thenCompose(ban ->
         {
             synchronized (this)
             {
@@ -403,7 +460,7 @@ final class FiniteBanEnforcement
             PendingAdmission current = pendingAdmissions.get(player.uuid());
             if (current == null || !current.ip().equals(player.ip())) return CompletableFuture.completedFuture(null);
         }
-        return punishmentManager.decideAdmission(player.uuid(), player.ip()).thenCompose(ban ->
+        return punishmentManager.decideFiniteAdmission(player.uuid(), player.ip()).thenCompose(ban ->
         {
             OnlinePlayer joined;
             synchronized (this)

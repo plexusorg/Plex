@@ -1,6 +1,8 @@
 package dev.plex.player;
 
 import dev.plex.api.player.TagTooLongException;
+import dev.plex.command.exception.AmbiguousPlayerException;
+import java.util.ArrayList;
 import dev.plex.punishment.admission.BanDecisionService;
 import dev.plex.storage.repository.PlayerRepository;
 import dev.plex.util.minimessage.SafeMiniMessage;
@@ -151,6 +153,33 @@ public class PlayerService
         return cached.isPresent()
                 ? CompletableFuture.completedFuture(cached.get())
                 : read(() -> playerRepository.getByName(username, true));
+    }
+
+    public CompletableFuture<PlexPlayer> resolveCommandPlayer(String name)
+    {
+        return findPlayer(name).thenApply(exact ->
+        {
+            if (exact != null)
+            {
+                return exact;
+            }
+            PlexPlayer match = null;
+            List<String> names = new ArrayList<>();
+            for (PlexPlayer player : players.values())
+            {
+                if (player.getName().regionMatches(true, 0, name, 0, name.length()))
+                {
+                    match = player;
+                    names.add(player.getName());
+                }
+            }
+            if (names.size() > 1)
+            {
+                names.sort(String.CASE_INSENSITIVE_ORDER);
+                throw new AmbiguousPlayerException(names);
+            }
+            return match;
+        });
     }
 
     public CompletableFuture<String> findName(UUID uuid)

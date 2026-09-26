@@ -190,6 +190,8 @@ public class CommandHandler
                 new TempmuteCMD(),
                 new ToggleCMD(),
                 new UnbanCMD(),
+                new UnbanIpCMD(),
+                new UnbanNameCMD(),
                 new UnfreezeCMD(),
                 new UnmuteCMD(),
                 new WhoHasCMD(),
