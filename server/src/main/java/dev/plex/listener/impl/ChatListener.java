@@ -81,6 +81,9 @@ public class ChatListener extends ServerListenerBase
             else broadcast.run();
             return;
         }
+        // Link URLs before later listeners restyle the message. A gradient splits text into one component per
+        // character, so the renderer cannot match a URL after that. Each character keeps the click event.
+        event.message(event.message().replaceText(URL_REPLACEMENT_CONFIG));
         PlexChatRenderer renderer = PlexChatRenderer.forPlayer(plugin, event.getPlayer(), plexPlayer, event.isAsynchronous());
 
         boolean nicknameHover = plugin.config.getBoolean("chat.nickname-hover", true);
