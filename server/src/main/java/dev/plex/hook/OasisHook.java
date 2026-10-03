@@ -4,7 +4,6 @@ import com.oasis.api.Actor;
 import com.oasis.api.Oasis;
 import com.oasis.api.OasisApi;
 import com.oasis.api.Outcome;
-import com.oasis.api.RollbackRequest;
 import com.oasis.api.Selection;
 import dev.plex.Plex;
 import java.time.Instant;
@@ -20,7 +19,7 @@ public class OasisHook
 
     public OasisHook(Plex plugin)
     {
-        api = Oasis.api();
+        api = Oasis.api(plugin);
         this.plugin = plugin;
     }
 
@@ -28,20 +27,19 @@ public class OasisHook
     {
         UUID staff = sender instanceof Player player ? player.getUniqueId() : Actor.CONSOLE.id();
         Instant now = Instant.ofEpochMilli(System.currentTimeMillis());
-        Selection selection = Selection.edits().between(now.minusSeconds(seconds), now);
-        return api.players().resolve(playerName).thenCompose(player ->
+        Selection selection = Selection.all().since(now.minusSeconds(seconds)).until(now);
+        return plugin.getPlayerService().findPlayer(playerName).thenCompose(player ->
         {
-            if (player.isEmpty())
+            if (player == null)
             {
                 return CompletableFuture.completedFuture(0);
             }
-            RollbackRequest request = RollbackRequest.rollback(plugin, selection.players(player.get())).requestedBy(staff);
-            return api.rollbacks().start(request).result().thenApply(result ->
+            return api.operations().rollback(selection.by(player.getUuid())).requestedBy(staff).start().result().thenApply(result ->
             {
                 if (result.outcome() != Outcome.FINISHED)
                 {
                     throw new IllegalStateException("Oasis rollback " + result.outcome() + " after " + result.applied()
-                            + " changes" + result.failureMessage().map(message -> ": " + message).orElse(""));
+                            + " changes" + result.failure().map(message -> ": " + message).orElse(""));
                 }
                 return Math.toIntExact(result.applied());
             });
