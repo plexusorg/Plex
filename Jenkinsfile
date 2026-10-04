@@ -7,7 +7,7 @@ pipeline {
         stage("build") {
             steps {
                 withGradle {
-                    sh "./gradlew build javadoc --no-daemon"
+                    sh "./gradlew build javadoc --no-daemon --refresh-dependencies"
                 }
             }
         }
