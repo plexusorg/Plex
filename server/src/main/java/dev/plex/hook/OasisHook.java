@@ -39,7 +39,7 @@ public class OasisHook
                 if (result.outcome() != Outcome.FINISHED)
                 {
                     throw new IllegalStateException("Oasis rollback " + result.outcome() + " after " + result.applied()
-                            + " changes" + result.failure().map(message -> ": " + message).orElse(""));
+                            + " changes" + result.failure().map(failure -> ": " + failure.message()).orElse(""));
                 }
                 return Math.toIntExact(result.applied());
             });
