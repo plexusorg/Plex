@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -288,6 +289,11 @@ public class PunishmentManager
     public boolean isFiniteBanRestricted(UUID uuid)
     {
         return finiteBanEnforcement.isRestricted(uuid);
+    }
+
+    public Set<UUID> finiteBanRestrictedOnlinePlayers()
+    {
+        return finiteBanEnforcement.restrictedOnlinePlayers();
     }
 
     public Component finiteBanMessage(UUID uuid)

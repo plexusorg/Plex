@@ -8,7 +8,11 @@ import dev.plex.meta.PlayerMeta;
 import dev.plex.player.PlexPlayer;
 import dev.plex.util.PlexUtils;
 import dev.plex.util.minimessage.SafeMiniMessage;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 import net.kyori.adventure.text.Component;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -26,9 +30,45 @@ public class TabListener extends ServerListenerBase
     {
         Player player = event.getPlayer();
         render(player);
+        Set<UUID> unlisted = new HashSet<>();
         // Follow external nickname changes and time-limited prefixes on the entity owner.
-        // The entity scheduler retires this task on disconnect; there is no retained task state.
-        player.getScheduler().runAtFixedRate(plugin, task -> render(player), null, 20, 20);
+        // The viewer task owns Plex's unlisted entries and retires on disconnect.
+        // The first run waits one tick so Paper has sent the viewer's initial player list.
+        player.getScheduler().runAtFixedRate(plugin, task ->
+        {
+            render(player);
+            reconcileListings(player, unlisted);
+        }, null, 1, 20);
+    }
+
+    private void reconcileListings(Player viewer, Set<UUID> unlisted)
+    {
+        Set<UUID> banned = plugin.getPunishmentManager().finiteBanRestrictedOnlinePlayers();
+        Set<UUID> targets = new HashSet<>(unlisted);
+        targets.addAll(banned);
+        boolean admin = viewer.hasPermission("plex.ban");
+        for (UUID uuid : targets)
+        {
+            if (uuid.equals(viewer.getUniqueId())) continue;
+            Player target = Bukkit.getPlayer(uuid);
+            if (target == null)
+            {
+                unlisted.remove(uuid);
+                continue;
+            }
+            if (admin || !banned.contains(uuid))
+            {
+                // Paper cannot list a player hidden by a vanish plugin.
+                if (!viewer.canSee(target)) continue;
+                if (!viewer.isListed(target)) viewer.listPlayer(target);
+                unlisted.remove(uuid);
+            }
+            else if (viewer.isListed(target))
+            {
+                viewer.unlistPlayer(target);
+                unlisted.add(uuid);
+            }
+        }
     }
 
     private void render(Player player)
@@ -45,6 +85,10 @@ public class TabListener extends ServerListenerBase
         PlayerPrefixEvent renderEvent = new PlayerPrefixEvent(player, PlayerPrefixEvent.Target.TAB, name, tag, false);
         plugin.getServer().getPluginManager().callEvent(renderEvent);
         Component entry = Component.empty();
+        if (plugin.getPunishmentManager().isFiniteBanRestricted(player.getUniqueId()))
+        {
+            entry = entry.append(PlexUtils.messageComponent("bannedTabMarker")).append(Component.space());
+        }
         for (Component prefix : renderEvent.getPrefixes())
         {
             entry = entry.append(prefix).append(Component.space());

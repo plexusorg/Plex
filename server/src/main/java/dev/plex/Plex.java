@@ -68,6 +68,7 @@ import org.bstats.bukkit.Metrics;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.Nullable;
 
 @Getter
 @Setter
@@ -114,6 +115,8 @@ public class Plex extends JavaPlugin
     private CoreProtectHook coreProtectHook;
     private OasisHook oasisHook;
     private WorldGuardHook worldGuardHook;
+    @Nullable
+    private WorldEditHook worldEditHook;
     private final WorldModificationPolicy worldModificationPolicy = new WorldModificationPolicy();
 
     public static Plex get()
@@ -240,7 +243,7 @@ public class Plex extends JavaPlugin
         }
         if (getServer().getPluginManager().isPluginEnabled("FastAsyncWorldEdit"))
         {
-            new WorldEditHook(this);
+            worldEditHook = new WorldEditHook(this);
         }
         else
         {

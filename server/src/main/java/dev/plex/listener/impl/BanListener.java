@@ -6,9 +6,12 @@ import dev.plex.punishment.Punishment;
 import dev.plex.punishment.PunishmentManager;
 import dev.plex.punishment.admission.BanDecisionService;
 import dev.plex.util.PlexLog;
+import dev.plex.util.PlexUtils;
 import com.destroystokyo.paper.event.player.PlayerConnectionCloseEvent;
 import io.papermc.paper.event.player.PlayerServerFullCheckEvent;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+import org.bukkit.Bukkit;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -118,6 +121,8 @@ public class BanListener extends ServerListenerBase
         if (plugin.getPunishmentManager().isFiniteBanRestricted(event.getPlayer().getUniqueId()))
         {
             event.joinMessage(null);
+            Bukkit.broadcast(PlexUtils.messageComponent("bannedPlayerJoined",
+                    Placeholder.unparsed("player", event.getPlayer().getName())), "plex.ban");
         }
     }
 
@@ -127,6 +132,8 @@ public class BanListener extends ServerListenerBase
         if (plugin.getPunishmentManager().isFiniteBanRestricted(event.getPlayer().getUniqueId()))
         {
             event.quitMessage(null);
+            Bukkit.broadcast(PlexUtils.messageComponent("bannedPlayerLeft",
+                    Placeholder.unparsed("player", event.getPlayer().getName())), "plex.ban");
         }
         plugin.getPunishmentManager().completeQuit(event.getPlayer().getUniqueId());
     }

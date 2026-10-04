@@ -19,6 +19,7 @@ import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
@@ -50,6 +51,7 @@ public class ListCMD extends ServerCommand
     private Component executeTyped(ServerCommandContext context, ListMode mode)
     {
         CommandSender sender = context.sender();
+        boolean admin = sender instanceof ConsoleCommandSender || sender.hasPermission("plex.ban");
         List<CompletableFuture<ListedPlayer>> captures = plugin.getPlayerService().cachedPlayers().stream()
                 .map(player -> Bukkit.getPlayer(player.getUuid()))
                 .filter(Objects::nonNull)
@@ -60,6 +62,7 @@ public class ListCMD extends ServerCommand
         {
             List<ListedPlayer> players = captures.stream().map(CompletableFuture::join)
                     .filter(Objects::nonNull)
+                    .filter(player -> admin || !player.banned())
                     .filter(player -> mode == ListMode.VANISHED ? player.vanished() : !player.vanished())
                     .toList();
             sender.sendMessage(PlexUtils.messageComponent(players.size() == 1 ? "listHeader" : "listHeaderPlural",
@@ -82,7 +85,8 @@ public class ListCMD extends ServerCommand
             }
             Component prefix = VaultHook.getPrefix(cachedPlayer);
             result.complete(new ListedPlayer(prefix, player.getName(),
-                    player.displayName(), PlayerMeta.isVanished(player)));
+                    player.displayName(), PlayerMeta.isVanished(player),
+                    plugin.getPunishmentManager().isFiniteBanRestricted(player.getUniqueId())));
         }, () -> result.complete(null), 0L);
         if (!scheduled) result.complete(null);
         return result;
@@ -94,6 +98,10 @@ public class ListCMD extends ServerCommand
         for (int i = 0; i < players.size(); i++)
         {
             ListedPlayer player = players.get(i);
+            if (player.banned())
+            {
+                list = list.append(PlexUtils.messageComponent("bannedTabMarker")).append(Component.space());
+            }
             Component prefix = player.prefix();
             if (!List.of(Component.empty(), Component.space()).contains(prefix))
             {
@@ -115,7 +123,7 @@ public class ListCMD extends ServerCommand
         return list;
     }
 
-    private record ListedPlayer(Component prefix, String name, Component displayName, boolean vanished) {}
+    private record ListedPlayer(Component prefix, String name, Component displayName, boolean vanished, boolean banned) {}
 
     private enum ListMode
     {

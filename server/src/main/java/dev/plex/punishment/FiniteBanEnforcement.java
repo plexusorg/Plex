@@ -254,6 +254,16 @@ final class FiniteBanEnforcement
         return restriction != null && restriction.punishment.isActive();
     }
 
+    synchronized Set<UUID> restrictedOnlinePlayers()
+    {
+        Set<UUID> restricted = new LinkedHashSet<>();
+        for (UUID uuid : onlinePlayers.keySet())
+        {
+            if (isRestricted(uuid)) restricted.add(uuid);
+        }
+        return Set.copyOf(restricted);
+    }
+
     synchronized Component restrictionMessage(UUID uuid)
     {
         OnlineRestriction restriction = restrictions.get(uuid);
@@ -516,6 +526,10 @@ final class FiniteBanEnforcement
             }
             if (plan.previous() != null && plan.previous().expiryTask != null) plan.previous().expiryTask.cancel();
             scheduleExpiry(player.getUniqueId(), ip, replacement);
+            if (plugin.getWorldEditHook() != null)
+            {
+                plugin.getWorldEditHook().cancelEdits(player);
+            }
             if (!player.getPersistentDataContainer().has(previousGameModeKey, PersistentDataType.STRING))
             {
                 player.getPersistentDataContainer().set(previousGameModeKey, PersistentDataType.STRING, player.getGameMode().name());

@@ -24,6 +24,11 @@ banStatus: "<red>Banned <dark_gray>• <gold><reason> <dark_gray>• <yellow>Exp
 # <punisher> - Punisher
 banCapacityMessage: "<red>You are banned and all spectator slots are occupied. You may appeal at <gold><appeal_url>.\n<red>Reason: <gold><reason>\n<red>Expires in <gold><expires_in>\n<red>Banned by: <gold><punisher>"
 bannedPriorityKick: "<red>A regular player needed your spectator slot. Reconnect when space is available."
+# <player> - Player name
+bannedPlayerJoined: "<gray>Banned player <yellow><player><gray> joined"
+# <player> - Player name
+bannedPlayerLeft: "<gray>Banned player <yellow><player><gray> left"
+bannedTabMarker: "<dark_red>[BANNED]"
 playerLimitBypassKick: "<red>A player with priority needed your slot. Reconnect when space is available."
 # <reason> - Reason
 # <punisher> - Punisher
