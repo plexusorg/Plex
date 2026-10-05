@@ -2,24 +2,20 @@ package dev.plex.listener.impl;
 
 import dev.plex.Plex;
 import dev.plex.listener.ServerListenerBase;
-import dev.plex.util.BlockUtils;
 import dev.plex.util.PlexUtils;
+import io.papermc.paper.datacomponent.DataComponentType;
+import io.papermc.paper.event.block.BlockPreDispenseEvent;
+import io.papermc.paper.registry.RegistryAccess;
+import io.papermc.paper.registry.RegistryKey;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.block.Block;
-import org.bukkit.block.data.Directional;
-import org.bukkit.entity.Ageable;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
+import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.block.BlockDispenseEvent;
-import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -27,7 +23,6 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 
 public class MobListener extends ServerListenerBase
 {
@@ -36,20 +31,16 @@ public class MobListener extends ServerListenerBase
         super(plugin);
     }
 
-    private static final List<Material> SPAWN_EGGS = Arrays.stream(Material.values()).filter((mat) -> mat.name().endsWith("_SPAWN_EGG")).toList();
+    private static final DataComponentType ENTITY_DATA = RegistryAccess.registryAccess()
+            .getRegistry(RegistryKey.DATA_COMPONENT_TYPE).getOrThrow(NamespacedKey.minecraft("entity_data"));
 
-    private static EntityType spawnEggToEntityType(Material mat)
+    private static void sanitizeEgg(ItemStack item)
     {
-        EntityType eggType;
-        try
+        if (item != null && item.getType().name().endsWith("_SPAWN_EGG"))
         {
-            eggType = EntityType.valueOf(mat.name().substring(0, mat.name().length() - 10));
+            // Restore the egg's default entity type and discard custom entity data.
+            item.resetData(ENTITY_DATA);
         }
-        catch (IllegalArgumentException ignored)
-        {
-            return null;
-        }
-        return eggType;
     }
 
     @EventHandler
@@ -59,14 +50,6 @@ public class MobListener extends ServerListenerBase
         {
             return;
         }
-        if (event.getEntity().getEntitySpawnReason() == CreatureSpawnEvent.SpawnReason.SPAWNER_EGG)
-        {
-            // for the future, we can instead filter and restrict nbt tags right here.
-            // currently, however, the entity from spawn eggs are spawned by other event handlers
-            event.setCancelled(true);
-            return;
-        }
-
         if (plugin.entities.getStringList("blocked_entities").stream().anyMatch(type -> type.equalsIgnoreCase(event.getEntityType().name())))
         {
             event.setCancelled(true);
@@ -87,47 +70,16 @@ public class MobListener extends ServerListenerBase
         }
     }
 
-    @EventHandler
-    public void onDispense(BlockDispenseEvent event)
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onDispense(BlockPreDispenseEvent event)
     {
-        ItemStack item = event.getItem();
-        Material itemType = item.getType();
-        if (SPAWN_EGGS.contains(itemType))
-        {
-            Block block = event.getBlock();
-            Location blockLoc = BlockUtils.relative(block.getLocation(), ((Directional) block.getBlockData()).getFacing()).add(.5, 0, .5);
-            EntityType eggType = spawnEggToEntityType(itemType);
-            if (eggType != null)
-            {
-                blockLoc.getWorld().spawnEntity(blockLoc, eggType);
-            }
-            event.setCancelled(true);
-        }
+        sanitizeEgg(event.getItemStack());
     }
 
-    @EventHandler(priority = EventPriority.HIGH)
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onEntityClick(PlayerInteractEntityEvent event)
     {
-        if (event.isCancelled())
-        {
-            return;
-        }
-        Material handItem = event.getPlayer().getEquipment().getItem(event.getHand()).getType();
-        if (event.getRightClicked() instanceof Ageable entity)
-        {
-            if (SPAWN_EGGS.contains(handItem))
-            {
-                EntityType eggType = spawnEggToEntityType(handItem);
-                if (eggType != null)
-                {
-                    Entity spawned = entity.getWorld().spawnEntity(entity.getLocation(), eggType);
-                    if (spawned instanceof Ageable ageable)
-                    {
-                        ageable.setBaby();
-                    }
-                }
-            }
-        }
+        sanitizeEgg(event.getPlayer().getInventory().getItem(event.getHand()));
     }
 
     @EventHandler(priority = EventPriority.HIGH)
@@ -137,26 +89,9 @@ public class MobListener extends ServerListenerBase
         {
             return;
         }
-        if (event.useInteractedBlock() == Event.Result.DENY)
-        {
-            return;
-        }
         if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK)
         {
-            if (SPAWN_EGGS.contains(event.getMaterial()))
-            {
-                event.setCancelled(true);
-                Block clickedBlock = event.getClickedBlock();
-                if (clickedBlock == null)
-                {
-                    return;
-                }
-                EntityType eggType = spawnEggToEntityType(event.getMaterial());
-                if (eggType != null)
-                {
-                    clickedBlock.getWorld().spawnEntity(clickedBlock.getLocation().add(event.getBlockFace().getDirection().multiply(0.8)).add(0.5, 0.5, 0.5), eggType);
-                }
-            }
+            sanitizeEgg(event.getItem());
         }
     }
 
