@@ -10,7 +10,7 @@ plugins {
     id("org.jetbrains.gradle.plugin.idea-ext")
     id("net.kyori.blossom")
     id("com.gradleup.shadow")
-    id("net.kyori.indra.git") version "4.0.0"
+    id("net.kyori.indra.git") version "4.1.0"
     id("de.eldoria.plugin-yml.paper") version "0.9.0"
 }
 
@@ -23,20 +23,20 @@ repositories {
 
 dependencies {
     implementation(project(":api"))
-    library("org.projectlombok:lombok:1.18.46")
+    library("org.projectlombok:lombok:1.18.48")
     library("commons-io:commons-io:2.22.0")
-    library("redis.clients:jedis:7.5.3")
-    library("org.mariadb.jdbc:mariadb-java-client:3.5.9")
+    library("redis.clients:jedis:8.0.1")
+    library("org.mariadb.jdbc:mariadb-java-client:3.5.10")
     library("org.postgresql:postgresql:42.7.13")
-    library("org.xerial:sqlite-jdbc:3.53.2.0")
+    library("org.xerial:sqlite-jdbc:3.53.4.0")
     library("com.zaxxer:HikariCP:7.1.0")
-    library("org.jdbi:jdbi3-core:3.54.0")
+    library("org.jdbi:jdbi3-core:3.55.0")
     library("org.jetbrains:annotations:26.1.0")
     compileOnly("io.papermc.paper:paper-api:26.2.build.+")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7.1") {
         exclude("org.bukkit", "bukkit")
     }
-    compileOnly("net.coreprotect:coreprotect:24.0")
+    compileOnly("net.coreprotect:coreprotect:24.1")
     compileOnly("com.oasis:oasis-api:3.0-SNAPSHOT")
     compileOnly("com.github.LeonMangler:SuperVanish:6.2.19")
     compileOnly("com.sk89q.worldguard:worldguard-bukkit:7.1.0-SNAPSHOT") {
@@ -47,7 +47,7 @@ dependencies {
     compileOnly("com.fastasyncworldedit:FastAsyncWorldEdit-Bukkit")
     implementation("org.bstats:bstats-base:3.2.1")
     implementation("org.bstats:bstats-bukkit:3.2.1")
-    annotationProcessor("org.projectlombok:lombok:1.18.46")
+    annotationProcessor("org.projectlombok:lombok:1.18.48")
 }
 
 group = rootProject.group

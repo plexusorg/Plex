@@ -45,9 +45,9 @@ sourceSets {
 
 dependencies {
     implementation(project(":api"))
-    compileOnly("org.projectlombok:lombok:1.18.46")
-    annotationProcessor("org.projectlombok:lombok:1.18.46")
-    compileOnly("org.json:json:20260522")
-    compileOnly("com.velocitypowered:velocity-api:4.1.1")
-    annotationProcessor("com.velocitypowered:velocity-api:4.1.1")
+    compileOnly("org.projectlombok:lombok:1.18.48")
+    annotationProcessor("org.projectlombok:lombok:1.18.48")
+    compileOnly("org.json:json:20260814")
+    compileOnly("com.velocitypowered:velocity-api:4.2.0")
+    annotationProcessor("com.velocitypowered:velocity-api:4.2.0")
 }
