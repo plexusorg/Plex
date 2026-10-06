@@ -1,0 +1,56 @@
+# One entry per repository. All repositories are siblings of Plex.
+# folder: repository folder name. module: the module name shown under the Plex wordmark (omit for Plex itself).
+# slug: output file prefix.
+
+[[repo]]
+folder = "Plex"
+tagline = "The core for free-OP and anarchy servers"
+slug = "plex"
+
+[[repo]]
+folder = "Module-FalseOp"
+module = "FalseOp"
+tagline = "Make clients think they have OP"
+slug = "plex-falseop"
+
+[[repo]]
+folder = "Module-Guilds"
+module = "Guilds"
+tagline = "Guilds, guild worlds, and guild chat"
+slug = "plex-guilds"
+
+[[repo]]
+folder = "Module-HTTPD"
+module = "HTTPD"
+tagline = "A web panel for your Plex server"
+slug = "plex-httpd"
+
+[[repo]]
+folder = "Module-LibsDisguises"
+module = "LibsDisguises"
+tagline = "Control LibsDisguises with Plex"
+slug = "plex-libsdisguises"
+
+[[repo]]
+folder = "Module-NickMiniMessage"
+module = "MiniMessage Extensions"
+tagline = "MiniMessage nicknames and chat styles"
+slug = "plex-minimessage-extensions"
+
+[[repo]]
+folder = "Module-NUSH"
+module = "NUSH"
+tagline = "Raid protection from new players"
+slug = "plex-nush"
+
+[[repo]]
+folder = "Module-TFMExtras"
+module = "TFMExtras"
+tagline = "Extra commands in the spirit of TotalFreedomMod"
+slug = "plex-tfmextras"
+
+[[repo]]
+folder = "ExampleModule"
+module = "Example"
+tagline = "A starting point for your own Plex module"
+slug = "plex-example-module"

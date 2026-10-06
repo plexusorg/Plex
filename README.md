@@ -1,17 +1,21 @@
+<p align="center"><img src="branding/plex-hero.svg" alt="Plex: The core for free-OP and anarchy servers" width="800"></p>
+
 # Plex [![Build Status](https://ci.plex.us.org/job/Plex/job/master/badge/icon)](https://ci.plex.us.org/job/Plex/job/master/) [![License](https://img.shields.io/github/license/plexusorg/Plex)](https://github.com/plexusorg/Plex/blob/master/LICENSE.md) [![Discord](https://img.shields.io/discord/927737516864446495)](https://discord.plex.us.org)
 
-Plex is a modern administration plugin for Minecraft freedom servers. It provides the commands, punishments, player
-data, custom worlds, and configuration controls that server owners need. Plex works with standard permission plugins
-through Vault and stores data in SQLite, MariaDB, or PostgreSQL. Optional Redis support connects ban data and messages
-across servers. The module system lets administrators add features without changing the core plugin. Plex is an
-independent project and a flexible alternative to TotalFreedomMod, not a rewrite of it.
+Plex is the core plugin for free-OP and anarchy Minecraft servers. It changes how the entire server works, so that the
+server fits a world where every player has broad powers.
+
+Plex gives staff the tools to run such a server: punishments, player data, custom worlds, and protections. It works
+with standard permission plugins through Vault and stores data in SQLite, MariaDB, or PostgreSQL. Optional Redis
+support shares staff chat and ban updates between servers. Modules add more features without changes to the core
+plugin. Plex is an independent project and a flexible alternative to TotalFreedomMod, not a rewrite of it.
 
 ## Features
 
 - Permission-based freedom. Plex works with any Vault-compatible permissions plugin, such as LuckPerms, so you do not
   need a rank system.
 - Player data storage in SQLite, MariaDB, or PostgreSQL.
-- Optional Redis support for indefinite bans and cross-server messages.
+- Optional Redis support to share staff chat and ban updates between servers.
 - Optional WorldGuard integration for turnkey protected regions and reusable flag presets.
 - Customizable messages, chat format, and custom worlds.
 - A module system to add or remove features.
