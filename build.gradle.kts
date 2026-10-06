@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "dev.plex"
-version = "2.0-SNAPSHOT"
+version = "2.0"
 description = "Plex"
 
 subprojects {
