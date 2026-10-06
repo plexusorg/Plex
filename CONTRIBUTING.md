@@ -1,33 +1,37 @@
-Contributions are welcome. Please follow these rules when you contribute.
+# Contributing
+
+Contributions are welcome. Follow these rules when you contribute.
 
 ## Steps
 
-1. Make an issue and get feedback. It's important to know if your idea will be accepted before writing any code.
+1. Open an issue and wait for feedback. This tells you if the change will be accepted before you write any code.
+   - For a feature request, describe the feature in detail.
+   - For a bug report, give the steps to reproduce the bug and the result that you expected.
+   - For an enhancement, describe the change that you propose in detail.
+2. Fork this repository.
+3. Create a branch with a name that describes the change. For example, `feature/add-xyz` is good. `fix-this-lol` is
+   bad.
+4. Write the code for your change.
+   - In IntelliJ IDEA, the project includes the Plexus Code Style in `.idea/codeStyles`. IntelliJ uses it
+     automatically.
+   - In other editors, follow the Plexus Code Style. It is close to the Allman style: put each opening brace on its own
+     line.
+5. Run `./gradlew build` (on Windows, `gradlew.bat build`). The build must pass, including Checkstyle.
+6. Push your branch and open a pull request from it.
 
-- If it is a feature request, describe the feature and be extremely specific.
-- If it is a bug report, explain how to reproduce the bug and what you expected to happen.
-- If it is an enhancement, describe your proposed changes. Ensure you are extremely specific.
+## Pull request requirements
 
-2. Fork this project
-3. Create a new branch that describes the new feature, enhancement, or bug fix. For example, this is
-   good: `feature/add-xyz`. This is bad: `fix-this-lol`.
-4. Write the code that addresses your change.
-
-- In IntelliJ, import the project's code style. See the [import instructions](https://www.jetbrains.com/help/idea/configuring-code-style.html#import-export-schemes) for help.
-- In other editors, follow the Plexus Code Style, which is close to Allman.
-
-6. Push your changes to your new branch and make a PR based off of that branch.
-
-## Requirements for a PR
-
-- The issue must be marked as approved
-- Address one issue per pull request.
-- Your PR must compile and work. If it does not compile or work, your PR will most likely be rejected.
+- The issue must be approved.
+- Each pull request addresses one issue only.
+- Your code must compile and work. If it does not, we will most likely reject the pull request.
 
 ## Code requirements
 
-- Most importantly, your code must be efficient. Your pull request may be rejected if your code is deemed inefficient or
-  sloppy.
-- Do not repeat yourself. Create functions as needed if you're using large blocks of code over and over again.
-- Do not use an excessive amount of commits when making your PR. It makes the master branch look messy.
-- Your code must be consistent with Plex's codebase. If a function already exists, use it.
+- Your code must be efficient. We can reject a pull request if the code is inefficient or sloppy.
+- Do not repeat code. If you use a large block of code more than once, move it into a method.
+- Do not add many small commits to your pull request. They make the project history hard to read.
+- Follow the existing code. If a method already does what you need, use it.
+
+## Documentation
+
+Read the documentation at [plex.us.org](https://plex.us.org) for setup, configuration, and module development.
