@@ -26,6 +26,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiPredicate;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.Component;
 import net.milkbowl.vault.permission.Permission;
@@ -299,15 +300,26 @@ final class FiniteBanEnforcement
     CompletableFuture<Void> refreshMatching(UUID uuid, @Nullable String ip)
     {
         String canonicalIp = BanIpRange.banMatchKey(ip);
+        return refreshWhere((playerId, playerIp) -> playerId.equals(uuid)
+                || (!canonicalIp.isEmpty() && canonicalIp.equals(BanIpRange.banMatchKey(playerIp))));
+    }
+
+    CompletableFuture<Void> refreshAll()
+    {
+        return refreshWhere((playerId, playerIp) -> true);
+    }
+
+    private CompletableFuture<Void> refreshWhere(BiPredicate<UUID, String> selected)
+    {
         List<OnlinePlayer> matches;
         List<PendingPlayer> pending;
         synchronized (this)
         {
             matches = onlinePlayers.entrySet().stream()
-                    .filter(entry -> entry.getKey().equals(uuid) || (!canonicalIp.isEmpty() && canonicalIp.equals(BanIpRange.banMatchKey(entry.getValue().ip()))))
+                    .filter(entry -> selected.test(entry.getKey(), entry.getValue().ip()))
                     .map(Map.Entry::getValue).toList();
             pending = pendingAdmissions.entrySet().stream()
-                    .filter(entry -> entry.getKey().equals(uuid) || (!canonicalIp.isEmpty() && canonicalIp.equals(BanIpRange.banMatchKey(entry.getValue().ip()))))
+                    .filter(entry -> selected.test(entry.getKey(), entry.getValue().ip()))
                     .map(entry -> new PendingPlayer(entry.getKey(), entry.getValue().ip())).toList();
             pending.forEach(player ->
             {

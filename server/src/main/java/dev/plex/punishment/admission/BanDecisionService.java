@@ -153,6 +153,13 @@ public final class BanDecisionService
                 || canonicalIp != null && key.ip().equals(canonicalIp));
     }
 
+    public void invalidateAll()
+    {
+        Arrays.stream(uuidRevisions).forEach(AtomicLong::incrementAndGet);
+        Arrays.stream(ipRevisions).forEach(AtomicLong::incrementAndGet);
+        cache.invalidateAll();
+    }
+
     public Revision revision(UUID uuid, String ip)
     {
         return new Revision(uuidRevisions[stripe(uuid)].get(), ipRevisions[stripe(BanIpRange.banMatchKey(ip))].get(), targetRevision.get());

@@ -303,9 +303,6 @@ nukerTempbanReason: "You are temporarily banned for five minutes for using a Nuk
 antiSpamMessage: "<gray>Please do not spam."
 # <player> - The player
 banExpiredBroadcast: "Plex - Automatically unbanning <player>"
-# <player> - The player
-redisResetSuccessful: "<yellow>Successfully reset <player>'s Redis punishments!"
-redisResetPlayerNotFound: "Couldn't find player in Redis punishments."
 reappliedGamerules: "<aqua>All game rules have been re-applied!"
 commandNotFound: "<red>That command could not be found!"
 # <command> - The command

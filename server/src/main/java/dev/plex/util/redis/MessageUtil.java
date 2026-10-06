@@ -30,7 +30,7 @@ public final class MessageUtil
     private static Plex plugin;
     private static String serverAddress;
     private static AutoCloseable subscription;
-    private static Consumer<BanCacheInvalidation> invalidationListener;
+    private static volatile BanListeners banListeners;
 
     private MessageUtil()
     {
@@ -45,7 +45,7 @@ public final class MessageUtil
         }
         plugin = currentPlugin;
         serverAddress = Bukkit.getServer().getIp() + ":" + Bukkit.getServer().getPort();
-        subscription = currentPlugin.getRedisConnection().subscribe(MessageUtil::receive,
+        subscription = currentPlugin.getRedisConnection().subscribe(MessageUtil::receive, MessageUtil::subscribed,
                 STAFF_CHAT_CHANNEL, INVALIDATION_CHANNEL);
     }
 
@@ -63,21 +63,24 @@ public final class MessageUtil
             }
         }
         subscription = null;
-        invalidationListener = null;
+        banListeners = null;
         plugin = null;
         serverAddress = null;
     }
 
-    public static synchronized AutoCloseable onBanInvalidation(Consumer<BanCacheInvalidation> listener)
+    // Redis calls resync after each subscription, because pub/sub drops invalidations sent while this server is disconnected.
+    public static synchronized AutoCloseable onBanInvalidation(Consumer<BanCacheInvalidation> invalidation,
+                                                               Runnable resync)
     {
-        invalidationListener = listener;
+        BanListeners listeners = new BanListeners(invalidation, resync);
+        banListeners = listeners;
         return () ->
         {
             synchronized (MessageUtil.class)
             {
-                if (invalidationListener == listener)
+                if (banListeners == listeners)
                 {
-                    invalidationListener = null;
+                    banListeners = null;
                 }
             }
         };
@@ -153,9 +156,9 @@ public final class MessageUtil
                     }
                 });
             }
-            else if (INVALIDATION_CHANNEL.equals(channel) && invalidationListener != null)
+            else if (INVALIDATION_CHANNEL.equals(channel) && banListeners instanceof BanListeners listeners)
             {
-                invalidationListener.accept(new BanCacheInvalidation(
+                listeners.invalidation().accept(new BanCacheInvalidation(
                         UUID.fromString(object.getString("playerId")),
                         object.isNull("ip") ? null : object.getString("ip")));
             }
@@ -164,6 +167,23 @@ public final class MessageUtil
         {
             PlexLog.warn("Ignoring invalid Redis message on {0}: {1}", channel, ex.getMessage());
         }
+    }
+
+    private static void subscribed()
+    {
+        if (!(banListeners instanceof BanListeners listeners)) return;
+        try
+        {
+            listeners.resync().run();
+        }
+        catch (RuntimeException ex)
+        {
+            PlexLog.error("Unable to resynchronize bans after the Redis subscription", ex);
+        }
+    }
+
+    private record BanListeners(Consumer<BanCacheInvalidation> invalidation, Runnable resync)
+    {
     }
 
     public record BanCacheInvalidation(UUID playerId, @Nullable String ip)

@@ -290,7 +290,8 @@ public class Plex extends JavaPlugin
         punishmentManager = new PunishmentManager(this);
         punishmentManager.start();
         MessageUtil.onBanInvalidation(
-                invalidation -> punishmentManager.handleBanInvalidation(invalidation.playerId(), invalidation.ip()));
+                invalidation -> punishmentManager.handleBanInvalidation(invalidation.playerId(), invalidation.ip()),
+                punishmentManager::resynchronizeBans);
         punishmentManager.mergeIndefiniteBans();
         PlexLog.log("Punishment System initialized");
 

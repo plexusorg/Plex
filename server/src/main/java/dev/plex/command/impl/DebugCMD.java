@@ -30,7 +30,7 @@ public class DebugCMD extends ServerCommand
     {
         super(command("pdebug")
             .description("Plex's debug command")
-            .usage("/<command> <aliases <command> | redis | redis-reset <player> | gamerules>")
+            .usage("/<command> <aliases <command> | redis | gamerules>")
             .permission("plex.debug")
             .build());
     }
@@ -40,10 +40,6 @@ public class DebugCMD extends ServerCommand
         command.executes(context -> executeCommand(context, ServerCommandContext::usage));
         command.then(literal("redis")
                 .executes(context -> executeCommand(context, this::redis)));
-        command.then(literal("redis-reset")
-                .then(playerArgument("player")
-                        .executes(context -> executeCommand(context,
-                                commandContext -> resetRedis(commandContext, string(context, "player"))))));
         command.then(literal("gamerules")
                 .executes(context -> executeCommand(context, this::gamerules)));
         command.then(literal("aliases")
@@ -74,34 +70,6 @@ public class DebugCMD extends ServerCommand
             }
             context.sender().sendMessage("Set test to 123. Now outputting key test...");
             context.sender().sendMessage(value);
-        });
-        return null;
-    }
-
-    private Component resetRedis(ServerCommandContext context, String playerName)
-    {
-        Player player = getNonNullPlayer(playerName);
-        String key = player.getUniqueId().toString();
-        String name = player.getName();
-        plugin.getRedisConnection().queryAsync(jedis ->
-        {
-            if (!jedis.exists(key))
-            {
-                return false;
-            }
-            jedis.del(key);
-            return true;
-        }).whenComplete((removed, failure) ->
-        {
-            if (failure != null)
-            {
-                PlexLog.error("Redis reset failed for " + key, failure);
-                context.sender().sendMessage(Component.text("Redis operation failed; check the server logs."));
-                return;
-            }
-            context.sender().sendMessage(removed
-                    ? PlexUtils.messageComponent("redisResetSuccessful", Placeholder.parsed("player", name))
-                    : PlexUtils.messageComponent("redisResetPlayerNotFound"));
         });
         return null;
     }

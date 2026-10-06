@@ -229,6 +229,20 @@ public class PunishmentManager
         });
     }
 
+    public void resynchronizeBans()
+    {
+        synchronized (this)
+        {
+            banDecisionService.invalidateAll();
+        }
+        reloadTargetBans();
+        finiteBanEnforcement.refreshAll().exceptionally(failure ->
+        {
+            PlexLog.error("Unable to refresh online ban state after resynchronizing bans", failure);
+            return null;
+        });
+    }
+
     public synchronized long prepareFiniteBanAdmission(UUID uuid, String ip, @Nullable Punishment punishment,
                                                        BanDecisionService.Revision decisionRevision)
     {

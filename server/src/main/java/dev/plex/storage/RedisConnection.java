@@ -59,14 +59,15 @@ public final class RedisConnection implements AutoCloseable
         }
     }
 
-    public synchronized AutoCloseable subscribe(BiConsumer<String, String> listener, String... channels)
+    public synchronized AutoCloseable subscribe(BiConsumer<String, String> listener, Runnable onSubscribed,
+                                                String... channels)
     {
         available();
         if (subscriber != null)
         {
             throw new IllegalStateException("Redis subscription already exists");
         }
-        subscriber = new RedisSubscriber(listener, channels);
+        subscriber = new RedisSubscriber(listener, onSubscribed, channels);
         subscriber.thread.start();
         return subscriber;
     }
@@ -118,15 +119,17 @@ public final class RedisConnection implements AutoCloseable
     private final class RedisSubscriber implements AutoCloseable, Runnable
     {
         private final BiConsumer<String, String> listener;
+        private final Runnable onSubscribed;
         private final String[] channels;
         private final Thread thread;
         private volatile boolean running = true;
         private volatile Jedis connection;
 
-        private RedisSubscriber(BiConsumer<String, String> listener, String[] channels)
+        private RedisSubscriber(BiConsumer<String, String> listener, Runnable onSubscribed, String[] channels)
         {
             if (channels.length == 0) throw new IllegalArgumentException("At least one Redis channel is required");
             this.listener = listener;
+            this.onSubscribed = onSubscribed;
             this.channels = channels.clone();
             thread = Thread.ofPlatform().daemon().name("Plex-Redis-Subscriber").unstarted(this);
         }
@@ -145,6 +148,12 @@ public final class RedisConnection implements AutoCloseable
                         public void onMessage(String channel, String message)
                         {
                             listener.accept(channel, message);
+                        }
+
+                        @Override
+                        public void onSubscribe(String channel, int subscribedChannels)
+                        {
+                            if (subscribedChannels == channels.length) onSubscribed.run();
                         }
                     };
                     jedis.subscribe(subscription, channels);
