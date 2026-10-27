@@ -17,8 +17,8 @@ plugins {
 repositories {
     maven(url = uri("https://maven.playpro.com"))
     maven(url = uri("https://maven.enginehub.org/repo/"))
-    maven(url = uri("https://nexus.telesphoreo.me/repository/plex-modules/"))
-    maven(url = uri("https://nexus.telesphoreo.me/repository/oasis-snapshots/"))
+    maven(url = uri("https://telesphorepo.com/maven/plex-modules/"))
+    maven(url = uri("https://telesphorepo.com/maven/oasis-snapshots/"))
 }
 
 dependencies {
