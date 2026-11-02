@@ -3,7 +3,7 @@ import net.minecrell.pluginyml.bukkit.BukkitPluginDescription.Permission
 import java.text.SimpleDateFormat
 import java.util.*
 
-val supportedMinecraftVersions = listOf("26.1", "26.1.1", "26.1.2", "26.2")
+val supportedMinecraftVersions = listOf("26.2", "26.3")
 
 plugins {
     java
@@ -25,10 +25,10 @@ dependencies {
     implementation(project(":api"))
     library("org.projectlombok:lombok:1.18.48")
     library("commons-io:commons-io:2.22.0")
-    library("redis.clients:jedis:8.0.1")
-    library("org.mariadb.jdbc:mariadb-java-client:3.5.10")
-    library("org.postgresql:postgresql:42.7.13")
-    library("org.xerial:sqlite-jdbc:3.53.4.0")
+    library("redis.clients:jedis:8.0.2")
+    library("org.mariadb.jdbc:mariadb-java-client:4.0.0")
+    library("org.postgresql:postgresql:42.7.14")
+    library("org.xerial:sqlite-jdbc:3.54.1.0")
     library("com.zaxxer:HikariCP:7.1.0")
     library("org.jdbi:jdbi3-core:3.55.0")
     library("org.jetbrains:annotations:26.1.0")
@@ -62,7 +62,7 @@ paper {
     loader = "dev.plex.PlexLibraryManager"
     website = "https://plex.us.org"
     authors = listOf("Telesphoreo", "taahanis", "supernt")
-    apiVersion = "26.1"
+    apiVersion = "26.2"
     foliaSupported = true
     generateLibrariesJson = true
     // Load BukkitTelnet and LibsDisguises before Plex so the modules register properly

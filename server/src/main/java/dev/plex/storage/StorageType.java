@@ -35,6 +35,7 @@ public enum StorageType
                 public void configure(HikariConfig config, Plex plugin)
                 {
                     configureRemote(config, plugin, "jdbc:mariadb://", driverClass);
+                    config.addDataSourceProperty("sslMode", plugin.config.getString("data.db.ssl-mode"));
                     config.addDataSourceProperty("cachePrepStmts", "true");
                     config.addDataSourceProperty("prepStmtCacheSize", "250");
                     config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");

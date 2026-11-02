@@ -30,8 +30,8 @@ import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntityPotionEffectEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.projectiles.ProjectileSource;
-import org.bukkit.potion.PotionEffectTypeCategory;
 
 public class TogglesListener extends ServerListenerBase
 {
@@ -132,7 +132,7 @@ public class TogglesListener extends ServerListenerBase
     {
         if (plugin.toggles.getBoolean("pvp") || !(event.getEntity() instanceof Player victim) ||
                 event.getNewEffect() == null ||
-                event.getNewEffect().getType().getCategory() != PotionEffectTypeCategory.HARMFUL)
+                event.getNewEffect().getType().getEffectCategory() != PotionEffectType.Category.HARMFUL)
         {
             return;
         }

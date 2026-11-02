@@ -73,8 +73,9 @@ public class PlayerMeta
         return SafeMiniMessage.mmDeserialize(loginFormat(format),
                 Placeholder.parsed("player", loginFormat(plexPlayer.getName())),
                 Placeholder.parsed("group_key", loginFormat(group)),
-                Placeholder.parsed("group", title.isEmpty() ? "" : loginFormat(color + title + "<reset>")),
-                Placeholder.parsed("title", loginFormat(title)),
+                // Component placeholders keep the group's styling, including legacy-code resets, out of the surrounding text.
+                Placeholder.component("group", SafeMiniMessage.mmDeserialize(loginFormat(color + title))),
+                Placeholder.component("title", SafeMiniMessage.mmDeserialize(loginFormat(title))),
                 Placeholder.unparsed("article", getIndefiniteArticle(title)),
                 Placeholder.parsed("group_color", loginFormat(color)));
     }

@@ -72,6 +72,9 @@ data:
     hostname: 127.0.0.1
     port: 3306
     name: "plex"
+    # MariaDB TLS: allow, disable, trust, verify-ca, or verify-full.
+    # allow encrypts and verifies the certificate when the server offers TLS, and connects without TLS otherwise.
+    ssl-mode: allow
   redis: # Leave password blank if auth is false
     enabled: false
     auth: true
