@@ -41,6 +41,11 @@ public final class PlexLog
         LOGGER.warn(message, strings);
     }
 
+    public static void warn(String message, Throwable throwable)
+    {
+        LOGGER.warn(message, throwable);
+    }
+
     public static void setDebugEnabled(boolean debugEnabled)
     {
         LOGGER.setDebugEnabled(debugEnabled);

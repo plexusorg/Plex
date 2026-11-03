@@ -8,9 +8,11 @@ import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
 
 import dev.plex.Plex;
+import dev.plex.api.punishment.IndefiniteBanRequest;
 import dev.plex.api.punishment.PunishmentType;
 import dev.plex.api.punishment.PunishmentSource;
 import com.destroystokyo.paper.event.player.PlayerConnectionCloseEvent;
+import dev.plex.config.Config;
 import dev.plex.player.PlexPlayer;
 import dev.plex.punishment.admission.BanDecisionService;
 import dev.plex.util.PlexLog;
@@ -46,6 +48,7 @@ public class PunishmentManager
     private final BanDecisionService banDecisionService;
     private final FiniteBanEnforcement finiteBanEnforcement;
     private volatile List<IndefiniteBan> indefiniteBans = List.of();
+    private CompletableFuture<?> indefiniteBanWrites = CompletableFuture.completedFuture(null);
     private final ConcurrentHashMap<StateKey, ScheduledTask> timedTasks = new ConcurrentHashMap<>();
     private ScheduledTask targetRefreshTask;
     private static final UUID TARGET_INVALIDATION = new UUID(0L, 0L);
@@ -157,21 +160,76 @@ public class PunishmentManager
 
     public record Admission(Optional<Punishment> punishment, boolean denyLogin) { }
 
+    // Reloads and API writes hold the indefbans.yml monitor while they change its configuration tree and this list.
     public void mergeIndefiniteBans()
     {
-        indefiniteBans = plugin.indefBans.getKeys(false).stream().map(key -> new IndefiniteBan(
-                plugin.getIndefBans().getStringList(key + ".users"),
-                plugin.getIndefBans().getStringList(key + ".uuids").stream().map(UUID::fromString).toList(),
-                plugin.getIndefBans().getStringList(key + ".ips"),
-                plugin.getIndefBans().getString(key + ".reason", ""))).toList();
+        List<IndefiniteBan> loaded;
+        synchronized (plugin.indefBans)
+        {
+            loaded = readIndefiniteBans();
+            indefiniteBans = loaded;
+        }
 
         PlexLog.log("Loaded {0} UUID(s), {1} IP(s), and {2} username(s) as indefinitely banned",
-                indefiniteBans.stream().map(IndefiniteBan::getUuids).mapToLong(Collection::size).sum(),
-                indefiniteBans.stream().map(IndefiniteBan::getIps).mapToLong(Collection::size).sum(),
-                indefiniteBans.stream().map(IndefiniteBan::getUsernames).mapToLong(Collection::size).sum());
+                loaded.stream().map(IndefiniteBan::getUuids).mapToLong(Collection::size).sum(),
+                loaded.stream().map(IndefiniteBan::getIps).mapToLong(Collection::size).sum(),
+                loaded.stream().map(IndefiniteBan::getUsernames).mapToLong(Collection::size).sum());
+    }
+
+    private List<IndefiniteBan> readIndefiniteBans()
+    {
+        Config file = plugin.indefBans;
+        return file.getKeys(false).stream().map(label -> IndefiniteBan.fromFile(label,
+                file.getStringList(label + ".users"),
+                file.getStringList(label + ".uuids").stream().map(UUID::fromString).toList(),
+                file.getStringList(label + ".ips"),
+                file.getString(label + ".reason", ""))).toList();
+    }
+
+    public CompletableFuture<Boolean> createIndefiniteBan(IndefiniteBan ban)
+    {
+        IndefiniteBan.requireSimpleLabel(ban.getLabel());
+        return writeIndefiniteBan(ban.getLabel(), ban, false);
+    }
+
+    public CompletableFuture<Boolean> updateIndefiniteBan(IndefiniteBan ban)
+    {
+        return writeIndefiniteBan(ban.getLabel(), ban, true);
+    }
+
+    public CompletableFuture<Boolean> deleteIndefiniteBan(String label)
+    {
+        return writeIndefiniteBan(label, null, true);
+    }
+
+    // Writes run one at a time in call order on the I/O executor. The next write and the caller's future each start
+    // as a separate I/O task when a write finishes, so a caller callback that waits for a later write cannot hold up
+    // that write.
+    private synchronized CompletableFuture<Boolean> writeIndefiniteBan(String label, @Nullable IndefiniteBan ban,
+                                                                      boolean existing)
+    {
+        CompletableFuture<Boolean> written = indefiniteBanWrites.handleAsync((unused, previousFailure) ->
+        {
+            Config file = plugin.indefBans;
+            synchronized (file)
+            {
+                Config.Change<List<IndefiniteBan>> saved = file.saveChange(
+                        contents -> IndefiniteBanYaml.write(contents, label, ban, existing), this::readIndefiniteBans);
+                indefiniteBans = saved.reloaded();
+                return saved.written();
+            }
+        }, plugin.getIoExecutor());
+        indefiniteBanWrites = written;
+        return written.whenCompleteAsync((changed, failure) -> { }, plugin.getIoExecutor());
     }
 
     public List<IndefiniteBan> getIndefiniteBans() { return indefiniteBans; }
+
+    @Nullable
+    public IndefiniteBan getIndefiniteBanByLabel(String label)
+    {
+        return indefiniteBans.stream().filter(ban -> ban.getLabel().equals(label)).findFirst().orElse(null);
+    }
 
     @Nullable
     public IndefiniteBan getIndefiniteBanByUUID(UUID uuid)
@@ -554,6 +612,9 @@ public class PunishmentManager
     @Getter
     public static final class IndefiniteBan
     {
+        private static final int MAX_LABEL_LENGTH = 122;
+
+        private final String label;
         private final List<String> usernames;
         private final List<UUID> uuids;
         private final List<String> ips;
@@ -561,10 +622,21 @@ public class PunishmentManager
         private final List<BanIpRange> ipRanges;
         private final String reason;
 
-        public IndefiniteBan(List<String> usernames, List<UUID> uuids, List<String> ips, String reason)
+        private IndefiniteBan(String label, List<String> usernames, List<UUID> uuids, List<String> ips,
+                              List<BanIpRange> ipRanges, String reason)
         {
+            this.label = label;
             this.usernames = List.copyOf(usernames);
             this.uuids = List.copyOf(uuids);
+            this.ips = List.copyOf(ips);
+            this.ipRanges = List.copyOf(ipRanges);
+            this.reason = reason == null ? "" : reason;
+        }
+
+        // A hand-edited entry keeps its valid IPs; an API request with an invalid IP is rejected instead.
+        private static IndefiniteBan fromFile(String label, List<String> usernames, List<UUID> uuids, List<String> ips,
+                                              String reason)
+        {
             List<String> validIps = new ArrayList<>();
             List<BanIpRange> ranges = new ArrayList<>();
             for (String ip : ips)
@@ -579,9 +651,39 @@ public class PunishmentManager
                     PlexLog.warn("Skipped invalid indefinite ban IP entry [{0}] in indefbans.yml: {1}", ip, exception.getMessage());
                 }
             }
-            this.ips = List.copyOf(validIps);
-            this.ipRanges = List.copyOf(ranges);
-            this.reason = reason == null ? "" : reason;
+            return new IndefiniteBan(label, usernames, uuids, validIps, ranges, reason);
+        }
+
+        public static IndefiniteBan fromRequest(IndefiniteBanRequest request)
+        {
+            List<BanIpRange> ranges = request.ips().stream().map(BanIpRange::parse).toList();
+            return new IndefiniteBan(requireValidLabel(request.label()), request.usernames(), request.uuids(),
+                    request.ips(), ranges, request.reason());
+        }
+
+        // Any label the file loader accepts, so update and delete reach every entry a hand-edited file can hold.
+        public static String requireValidLabel(String label)
+        {
+            if (!Config.isValidIndefiniteBanLabel(label))
+            {
+                throw new IllegalArgumentException("Invalid indefinite ban label '" + label + "': labels must be non-empty and cannot contain dots.");
+            }
+            return label;
+        }
+
+        // Create writes the label as a simple key. SnakeYAML writes a key as an explicit "? " key once it reaches
+        // 128 characters, counting the 5 of its !!str tag, or when it contains a line break.
+        private static void requireSimpleLabel(String label)
+        {
+            if (label.length() > MAX_LABEL_LENGTH)
+            {
+                throw new IllegalArgumentException("Invalid indefinite ban label of " + label.length()
+                        + " characters: a new label can have at most " + MAX_LABEL_LENGTH + " characters.");
+            }
+            if (label.chars().anyMatch(c -> IndefiniteBanYaml.isLineBreak((char) c)))
+            {
+                throw new IllegalArgumentException("Invalid indefinite ban label: a new label cannot contain line breaks.");
+            }
         }
     }
 

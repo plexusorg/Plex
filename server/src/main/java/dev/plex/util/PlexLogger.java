@@ -38,6 +38,11 @@ public final class PlexLogger implements LoggingApi
         logger.warn(PlexUtils.mmDeserialize("<#eb7c0e>[Plex Warning] <gold>" + format(message, args)));
     }
 
+    public void warn(String message, Throwable throwable)
+    {
+        logger.warn(PlexUtils.mmDeserialize("<#eb7c0e>[Plex Warning] <gold>" + message), throwable);
+    }
+
     public void setDebugEnabled(boolean debugEnabled)
     {
         this.debugEnabled = debugEnabled;

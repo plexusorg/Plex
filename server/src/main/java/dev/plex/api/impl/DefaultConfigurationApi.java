@@ -26,12 +26,6 @@ final class DefaultConfigurationApi implements ConfigurationApi
     }
 
     @Override
-    public PlexConfiguration indefiniteBans()
-    {
-        return new DefaultPlexConfiguration(plugin.indefBans);
-    }
-
-    @Override
     public PlexConfiguration toggles()
     {
         return new DefaultPlexConfiguration(plugin.toggles);

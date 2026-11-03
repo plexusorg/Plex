@@ -1,10 +1,12 @@
 package dev.plex.api.impl;
 
 import dev.plex.Plex;
+import dev.plex.api.punishment.IndefiniteBanRequest;
 import dev.plex.api.punishment.IndefiniteBanView;
 import dev.plex.api.punishment.PunishmentRequest;
 import dev.plex.api.punishment.PunishmentsApi;
 import dev.plex.punishment.Punishment;
+import dev.plex.punishment.PunishmentManager.IndefiniteBan;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -21,6 +23,10 @@ final class DefaultPunishmentsApi implements PunishmentsApi
     @Override public Optional<IndefiniteBanView> indefiniteBanByUuid(UUID uuid) { return Optional.ofNullable(plugin.getPunishmentManager().getIndefiniteBanByUUID(Objects.requireNonNull(uuid, "uuid"))).map(DefaultIndefiniteBanView::new); }
     @Override public Optional<IndefiniteBanView> indefiniteBanByName(String name) { return Optional.ofNullable(plugin.getPunishmentManager().getIndefiniteBanByUsername(Objects.requireNonNull(name, "name"))).map(DefaultIndefiniteBanView::new); }
     @Override public Optional<IndefiniteBanView> indefiniteBanByIp(String ip) { return Optional.ofNullable(plugin.getPunishmentManager().getIndefiniteBanByIP(Objects.requireNonNull(ip, "ip"))).map(DefaultIndefiniteBanView::new); }
+    @Override public Optional<IndefiniteBanView> indefiniteBanByLabel(String label) { return Optional.ofNullable(plugin.getPunishmentManager().getIndefiniteBanByLabel(Objects.requireNonNull(label, "label"))).map(DefaultIndefiniteBanView::new); }
+    @Override public CompletableFuture<Boolean> createIndefiniteBan(IndefiniteBanRequest ban) { return plugin.getPunishmentManager().createIndefiniteBan(IndefiniteBan.fromRequest(Objects.requireNonNull(ban, "ban"))); }
+    @Override public CompletableFuture<Boolean> updateIndefiniteBan(IndefiniteBanRequest ban) { return plugin.getPunishmentManager().updateIndefiniteBan(IndefiniteBan.fromRequest(Objects.requireNonNull(ban, "ban"))); }
+    @Override public CompletableFuture<Boolean> deleteIndefiniteBan(String label) { return plugin.getPunishmentManager().deleteIndefiniteBan(IndefiniteBan.requireValidLabel(Objects.requireNonNull(label, "label"))); }
     @Override public CompletableFuture<Boolean> isBanned(UUID uuid) { return plugin.getPunishmentManager().isBanned(Objects.requireNonNull(uuid, "uuid")); }
     @Override public CompletableFuture<Boolean> isBanned(UUID uuid, String ip) { return plugin.getPunishmentManager().isBanned(Objects.requireNonNull(uuid, "uuid"), ip); }
     @Override public CompletableFuture<Boolean> unban(UUID uuid) { return plugin.getPunishmentManager().unban(Objects.requireNonNull(uuid, "uuid")); }

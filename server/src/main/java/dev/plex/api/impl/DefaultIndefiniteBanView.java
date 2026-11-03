@@ -7,6 +7,7 @@ import java.util.UUID;
 
 record DefaultIndefiniteBanView(PunishmentManager.IndefiniteBan ban) implements IndefiniteBanView
 {
+    @Override public String label() { return ban.getLabel(); }
     @Override public List<String> usernames() { return List.copyOf(ban.getUsernames()); }
     @Override public List<UUID> uuids() { return List.copyOf(ban.getUuids()); }
     @Override public List<String> ips() { return List.copyOf(ban.getIps()); }

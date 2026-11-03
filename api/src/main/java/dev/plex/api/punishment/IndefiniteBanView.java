@@ -9,6 +9,13 @@ import java.util.UUID;
 public interface IndefiniteBanView
 {
     /**
+     * Returns the label of the entry in {@code indefbans.yml}.
+     *
+     * @return entry label
+     */
+    String label();
+
+    /**
      * Returns usernames covered by the ban.
      *
      * @return usernames covered by the ban

@@ -20,13 +20,6 @@ public interface ConfigurationApi
     PlexConfiguration messages();
 
     /**
-     * Returns the indefinite ban configuration.
-     *
-     * @return the indefinite ban configuration
-     */
-    PlexConfiguration indefiniteBans();
-
-    /**
      * Returns the toggle configuration.
      *
      * @return the toggle configuration
