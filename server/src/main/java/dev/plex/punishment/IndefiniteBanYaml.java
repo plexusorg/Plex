@@ -238,6 +238,7 @@ final class IndefiniteBanYaml
     {
         return file.isConfigurationSection(label)
                 && file.getString(label + ".reason", "").equals(ban.getReason())
+                && file.getString(label + ".message", "").equals(ban.getMessage())
                 && file.getStringList(label + ".users").equals(ban.getUsernames())
                 && file.getStringList(label + ".uuids").stream().map(UUID::fromString).toList().equals(ban.getUuids())
                 && file.getStringList(label + ".ips").equals(ban.getIps());
@@ -435,7 +436,8 @@ final class IndefiniteBanYaml
 
     private static void fill(MappingNode entry, IndefiniteBan ban)
     {
-        setReason(entry, ban.getReason());
+        setText(entry, "reason", ban.getReason());
+        setText(entry, "message", ban.getMessage());
         setList(entry, "users", ban.getUsernames(), ScalarStyle.DOUBLE_QUOTED, UnaryOperator.identity());
         setList(entry, "uuids", ban.getUuids().stream().map(UUID::toString).toList(), ScalarStyle.PLAIN,
                 uuid -> uuid.toLowerCase(Locale.ROOT));
@@ -454,28 +456,28 @@ final class IndefiniteBanYaml
         return -1;
     }
 
-    // An empty reason is the default, so it is not added to an entry that has none. The reason is kept when it reads
-    // as requested the way PunishmentManager reads it.
-    private static void setReason(MappingNode entry, String reason)
+    // An empty text is the default, so it is not added to an entry that has none. The text is kept when it reads as
+    // requested the way PunishmentManager reads it.
+    private static void setText(MappingNode entry, String key, String text)
     {
         List<NodeTuple> tuples = entry.getValue();
-        int index = keyIndex(tuples, "reason");
+        int index = keyIndex(tuples, key);
         if (index < 0)
         {
-            if (!reason.isEmpty())
+            if (!text.isEmpty())
             {
-                add(entry, scalar("reason", ScalarStyle.PLAIN), scalar(reason, ScalarStyle.DOUBLE_QUOTED));
+                add(entry, scalar(key, ScalarStyle.PLAIN), scalar(text, ScalarStyle.DOUBLE_QUOTED));
             }
             return;
         }
         NodeTuple tuple = tuples.get(index);
-        if (tuple.getValueNode() instanceof ScalarNode current && reason.equals(String.valueOf(
+        if (tuple.getValueNode() instanceof ScalarNode current && text.equals(String.valueOf(
                 Objects.requireNonNullElse(new YamlConstructor(new LoaderOptions()).construct(current), ""))))
         {
             return;
         }
         tuples.set(index, new NodeTuple(tuple.getKeyNode(),
-                withComments(tuple.getValueNode(), scalar(reason, ScalarStyle.DOUBLE_QUOTED))));
+                withComments(tuple.getValueNode(), scalar(text, ScalarStyle.DOUBLE_QUOTED))));
     }
 
     // Keeps the item node of each remaining value, with its comments and quoting, in the order of the new values.

@@ -183,7 +183,8 @@ public class PunishmentManager
                 file.getStringList(label + ".users"),
                 file.getStringList(label + ".uuids").stream().map(UUID::fromString).toList(),
                 file.getStringList(label + ".ips"),
-                file.getString(label + ".reason", ""))).toList();
+                file.getString(label + ".reason", ""),
+                file.getString(label + ".message", ""))).toList();
     }
 
     public CompletableFuture<Boolean> createIndefiniteBan(IndefiniteBan ban)
@@ -621,9 +622,11 @@ public class PunishmentManager
         @Getter(AccessLevel.NONE)
         private final List<BanIpRange> ipRanges;
         private final String reason;
+        // MiniMessage text shown as the whole ban screen, or empty for the messages.yml screen.
+        private final String message;
 
         private IndefiniteBan(String label, List<String> usernames, List<UUID> uuids, List<String> ips,
-                              List<BanIpRange> ipRanges, String reason)
+                              List<BanIpRange> ipRanges, String reason, String message)
         {
             this.label = label;
             this.usernames = List.copyOf(usernames);
@@ -631,11 +634,12 @@ public class PunishmentManager
             this.ips = List.copyOf(ips);
             this.ipRanges = List.copyOf(ipRanges);
             this.reason = reason == null ? "" : reason;
+            this.message = message;
         }
 
         // A hand-edited entry keeps its valid IPs; an API request with an invalid IP is rejected instead.
         private static IndefiniteBan fromFile(String label, List<String> usernames, List<UUID> uuids, List<String> ips,
-                                              String reason)
+                                              String reason, String message)
         {
             List<String> validIps = new ArrayList<>();
             List<BanIpRange> ranges = new ArrayList<>();
@@ -651,14 +655,14 @@ public class PunishmentManager
                     PlexLog.warn("Skipped invalid indefinite ban IP entry [{0}] in indefbans.yml: {1}", ip, exception.getMessage());
                 }
             }
-            return new IndefiniteBan(label, usernames, uuids, validIps, ranges, reason);
+            return new IndefiniteBan(label, usernames, uuids, validIps, ranges, reason, message);
         }
 
         public static IndefiniteBan fromRequest(IndefiniteBanRequest request)
         {
             List<BanIpRange> ranges = request.ips().stream().map(BanIpRange::parse).toList();
             return new IndefiniteBan(requireValidLabel(request.label()), request.usernames(), request.uuids(),
-                    request.ips(), ranges, request.reason());
+                    request.ips(), ranges, request.reason(), request.message());
         }
 
         // Any label the file loader accepts, so update and delete reach every entry a hand-edited file can hold.

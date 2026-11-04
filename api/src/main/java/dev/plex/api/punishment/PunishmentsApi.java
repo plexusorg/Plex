@@ -66,11 +66,11 @@ public interface PunishmentsApi
     CompletableFuture<Boolean> createIndefiniteBan(IndefiniteBanRequest ban);
 
     /**
-     * Replaces the reason, usernames, UUIDs and IPs of an entry in {@code indefbans.yml}. Indefinite ban writes apply
-     * one at a time in call order and complete on a Plex I/O thread. The write starts from the file on disk, keeps the
-     * rest of it, and keeps the comments on values that remain in block-style lists. When the future completes with
-     * {@code true} the file has been replaced, and with {@code false} it is unchanged; either way, logins are then
-     * checked against its contents, including edits made to it since it was last loaded.
+     * Replaces the reason, message, usernames, UUIDs and IPs of an entry in {@code indefbans.yml}. Indefinite ban
+     * writes apply one at a time in call order and complete on a Plex I/O thread. The write starts from the file on
+     * disk, keeps the rest of it, and keeps the comments on values that remain in block-style lists. When the future
+     * completes with {@code true} the file has been replaced, and with {@code false} it is unchanged; either way,
+     * logins are then checked against its contents, including edits made to it since it was last loaded.
      *
      * @param ban new contents of the entry with the same label
      * @return future containing {@code false} if no entry has the label; it fails, leaving the file and the enforced

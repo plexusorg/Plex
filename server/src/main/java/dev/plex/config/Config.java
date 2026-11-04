@@ -79,7 +79,7 @@ public class Config extends YamlConfiguration
     {
         if (name.equals("indefbans.yml"))
         {
-            validateIndefiniteBanLabels(contents);
+            validateIndefiniteBans(contents);
         }
         super.loadFromString(contents);
         if (name.equals("worlds.yml"))
@@ -88,7 +88,7 @@ public class Config extends YamlConfiguration
         }
     }
 
-    private static void validateIndefiniteBanLabels(String contents) throws InvalidConfigurationException
+    private static void validateIndefiniteBans(String contents) throws InvalidConfigurationException
     {
         // Inspect the original keys before Paper interprets dots as configuration paths.
         LoaderOptions options = new LoaderOptions();
@@ -122,9 +122,15 @@ public class Config extends YamlConfiguration
             {
                 throw new InvalidConfigurationException("Duplicate indefinite ban label '" + label + "'.");
             }
-            if (!(entry.getValue() instanceof Map<?, ?>))
+            if (!(entry.getValue() instanceof Map<?, ?> block))
             {
                 throw new InvalidConfigurationException("Indefinite ban label '" + label + "' must contain a ban block.");
+            }
+            // An empty value counts as no message.
+            Object message = block.get("message");
+            if (message != null && !(message instanceof String))
+            {
+                throw new InvalidConfigurationException("The message of indefinite ban label '" + label + "' must be text; quote it.");
             }
         }
     }

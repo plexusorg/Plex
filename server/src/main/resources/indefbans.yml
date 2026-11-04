@@ -7,8 +7,12 @@
 
 # If you want to get someone's UUID, use https://api.ashcon.app/mojang/v2/user/<username>
 griefers:
-  # The reason is optional. If set, it is shown on the ban screen and in the HTTPD's indefinite bans page.
+  # The reason is optional. If set, it is shown in the HTTPD's indefinite bans page and, without a message, on the
+  # ban screen.
   reason: "Repeated griefing"
+  # The message is optional. If set, this MiniMessage text is the whole ban screen, in place of the indefBanMessage
+  # screens in messages.yml, for example:
+  # message: "<red>You are banned.\n<gray>Appeal at <gold>example.org"
   users:
     - "badplayer123"
     - "badplayer321"

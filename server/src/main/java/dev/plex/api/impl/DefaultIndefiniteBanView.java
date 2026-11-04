@@ -12,4 +12,5 @@ record DefaultIndefiniteBanView(PunishmentManager.IndefiniteBan ban) implements 
     @Override public List<UUID> uuids() { return List.copyOf(ban.getUuids()); }
     @Override public List<String> ips() { return List.copyOf(ban.getIps()); }
     @Override public String reason() { return ban.getReason(); }
+    @Override public String message() { return ban.getMessage(); }
 }

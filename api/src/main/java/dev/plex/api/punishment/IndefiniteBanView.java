@@ -42,4 +42,11 @@ public interface IndefiniteBanView
      * @return ban reason
      */
     String reason();
+
+    /**
+     * Returns the MiniMessage text shown as the whole ban screen in place of the configured indefinite ban screen.
+     *
+     * @return ban screen message, or an empty string when the configured screen is shown
+     */
+    String message();
 }

@@ -170,9 +170,19 @@ public class BanListener extends ServerListenerBase
     private void disallowIndefinite(AsyncPlayerPreLoginEvent event, PunishmentManager.IndefiniteBan ban, String type)
     {
         String reason = ban.getReason();
-        Component message = reason.isEmpty()
-                ? Punishment.generateIndefBanMessage(type, plugin.config.getString("banning.ban_url"))
-                : Punishment.generateIndefBanMessageWithReason(type, plugin.config.getString("banning.ban_url"), reason);
+        Component message;
+        if (!ban.getMessage().isEmpty())
+        {
+            message = PlexUtils.mmDeserialize(ban.getMessage());
+        }
+        else if (reason.isEmpty())
+        {
+            message = Punishment.generateIndefBanMessage(type, plugin.config.getString("banning.ban_url"));
+        }
+        else
+        {
+            message = Punishment.generateIndefBanMessageWithReason(type, plugin.config.getString("banning.ban_url"), reason);
+        }
         event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED, message);
     }
 }
