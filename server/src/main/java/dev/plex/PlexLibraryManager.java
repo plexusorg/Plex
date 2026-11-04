@@ -9,16 +9,18 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.jar.JarFile;
 import java.util.stream.Stream;
 
+import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.eclipse.aether.artifact.DefaultArtifact;
 import org.eclipse.aether.graph.Dependency;
 import org.eclipse.aether.repository.RemoteRepository;
+import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.jetbrains.annotations.NotNull;
 
@@ -37,8 +39,14 @@ public class PlexLibraryManager implements PluginLoader
     {
         PluginLibraries pluginLibraries = load();
         List<RemoteRepository> pluginRepositories = pluginLibraries.asRepositories().toList();
-        List<RemoteRepository> moduleRepositories = loadModuleRepositories().toList();
-        List<Dependency> moduleDependencies = loadModuleDependencies().toList();
+        List<YamlConfiguration> modules = readModuleYmls(classpathBuilder.getContext().getLogger());
+        List<RemoteRepository> moduleRepositories = modules.stream().flatMap(this::moduleRepositories).distinct().toList();
+        List<Dependency> moduleDependencies = modules.stream()
+                .flatMap(module -> module.getStringList("libraries").stream())
+                .filter(library -> !library.isBlank())
+                .distinct()
+                .map(library -> new Dependency(new DefaultArtifact(library), null))
+                .toList();
 
         if (!moduleDependencies.isEmpty())
         {
@@ -66,57 +74,49 @@ public class PlexLibraryManager implements PluginLoader
         }
     }
 
-    private Stream<Dependency> loadModuleDependencies()
+    // The module.yml of every module jar that has a valid one. This runs before the server exists, so it must not use
+    // YamlConfiguration.loadConfiguration, which logs parse errors through Bukkit. A module with an invalid module.yml
+    // gets no libraries here; ModuleManager rejects it with the parse error when it loads modules.
+    private List<YamlConfiguration> readModuleYmls(ComponentLogger logger)
     {
-        File modulesFolder = new File("plugins/Plex/modules");
-        File[] moduleFiles = modulesFolder.listFiles((directory, name) -> name.endsWith(".jar"));
-
+        File[] moduleFiles = new File("plugins/Plex/modules").listFiles((directory, name) -> name.endsWith(".jar"));
         if (moduleFiles == null)
         {
-            return Stream.empty();
+            return List.of();
         }
-
-        return Arrays.stream(moduleFiles)
-                .flatMap(this::readModuleLibraries)
-                .filter(library -> !library.isBlank())
-                .distinct()
-                .map(library -> new Dependency(new DefaultArtifact(library), null));
+        List<YamlConfiguration> modules = new ArrayList<>();
+        for (File moduleFile : moduleFiles)
+        {
+            try (JarFile jarFile = new JarFile(moduleFile))
+            {
+                var moduleYml = jarFile.getJarEntry("module.yml");
+                if (moduleYml == null)
+                {
+                    continue;
+                }
+                YamlConfiguration module = new YamlConfiguration();
+                try (var in = new InputStreamReader(jarFile.getInputStream(moduleYml), StandardCharsets.UTF_8))
+                {
+                    module.load(in);
+                }
+                modules.add(module);
+            }
+            catch (InvalidConfigurationException e)
+            {
+                logger.warn("Module {} has an invalid module.yml, so its libraries are not loaded: {}", moduleFile.getName(),
+                        e.getMessage());
+            }
+            catch (IOException e)
+            {
+                throw new RuntimeException("Failed to read module metadata from " + moduleFile.getName(), e);
+            }
+        }
+        return modules;
     }
 
-    private Stream<RemoteRepository> loadModuleRepositories()
+    private Stream<RemoteRepository> moduleRepositories(YamlConfiguration module)
     {
-        File modulesFolder = new File("plugins/Plex/modules");
-        File[] moduleFiles = modulesFolder.listFiles((directory, name) -> name.endsWith(".jar"));
-
-        if (moduleFiles == null)
-        {
-            return Stream.empty();
-        }
-
-        return Arrays.stream(moduleFiles)
-                .flatMap(this::readModuleRepositories)
-                .distinct();
-    }
-
-    private Stream<String> readModuleLibraries(File moduleFile)
-    {
-        YamlConfiguration moduleYml = readModuleYml(moduleFile);
-        if (moduleYml == null)
-        {
-            return Stream.empty();
-        }
-        return moduleYml.getStringList("libraries").stream();
-    }
-
-    private Stream<RemoteRepository> readModuleRepositories(File moduleFile)
-    {
-        YamlConfiguration moduleYml = readModuleYml(moduleFile);
-        if (moduleYml == null)
-        {
-            return Stream.empty();
-        }
-
-        var repositories = moduleYml.getConfigurationSection("repositories");
+        var repositories = module.getConfigurationSection("repositories");
         if (repositories == null)
         {
             return Stream.empty();
@@ -126,28 +126,6 @@ public class PlexLibraryManager implements PluginLoader
                 .map(id -> Map.entry(id, repositories.getString(id, "")))
                 .filter(entry -> !entry.getValue().isBlank())
                 .flatMap(entry -> runtimeRepository(entry.getKey(), entry.getValue()));
-    }
-
-    private YamlConfiguration readModuleYml(File moduleFile)
-    {
-        try (JarFile jarFile = new JarFile(moduleFile))
-        {
-            var moduleYml = jarFile.getJarEntry("module.yml");
-
-            if (moduleYml == null)
-            {
-                return null;
-            }
-
-            try (var in = new InputStreamReader(jarFile.getInputStream(moduleYml), StandardCharsets.UTF_8))
-            {
-                return YamlConfiguration.loadConfiguration(in);
-            }
-        }
-        catch (IOException e)
-        {
-            throw new RuntimeException("Failed to read module metadata from " + moduleFile.getName(), e);
-        }
     }
 
     private record PluginLibraries(Map<String, String> repositories, List<String> dependencies)
