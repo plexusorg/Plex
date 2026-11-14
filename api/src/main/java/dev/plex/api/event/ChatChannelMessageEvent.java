@@ -9,6 +9,7 @@ import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Fires when a player sends a message on a module's chat channel, such as a guild chat.
@@ -26,6 +27,10 @@ import java.util.Objects;
  *   {@code false} when it is fired on one of them. Bukkit rejects a synchronous event fired from another thread.</li>
  *   <li>When a listener cancels the event, send the message to the sender alone, in the channel's normal format, and
  *   nowhere else. The sender must see no difference from a delivered message.</li>
+ *   <li>Pass a late delivery: what delivers the message as an uncancelled event would, to everyone but the sender,
+ *   who has seen it. That is the broadcast to the conversation, any spy or staff copy, and any console log line. It
+ *   runs on any thread, at most once, possibly after the conversation changed; it delivers to the conversation as it
+ *   is then, and to no one when the conversation no longer exists.</li>
  * </ul>
  *
  * <h2>Contract for listeners</h2>
@@ -34,6 +39,7 @@ import java.util.Objects;
  *   before you use APIs that need a server or region thread.</li>
  *   <li>Cancel the event to keep the message from the rest of the conversation. Do not send the message back to the
  *   sender from the listener, because the firing module already does.</li>
+ *   <li>To let a cancelled message through later, keep the event and call {@link #deliverLate()}.</li>
  *   <li>The event reports the message as the player wrote it. It cannot change the message.</li>
  * </ul>
  */
@@ -45,7 +51,9 @@ public final class ChatChannelMessageEvent extends Event implements Cancellable
     private final Key channel;
     private final String conversation;
     private final Component message;
-    private boolean cancelled;
+    private final Runnable lateDelivery;
+    private final AtomicBoolean delivered = new AtomicBoolean();
+    private volatile boolean cancelled;
 
     /**
      * Creates a chat channel message event.
@@ -55,19 +63,36 @@ public final class ChatChannelMessageEvent extends Event implements Cancellable
      * @param conversation the identifier of the conversation inside the channel, such as a guild UUID
      * @param message the message as the player wrote it
      * @param async whether the event is fired off the server and region threads
+     * @param lateDelivery delivers the message to everyone but the sender after a listener cancelled the event, as the
+     *                     contract for the firing module describes
      */
     public ChatChannelMessageEvent(
             @NotNull Player player,
             @NotNull Key channel,
             @NotNull String conversation,
             @NotNull Component message,
-            boolean async)
+            boolean async,
+            @NotNull Runnable lateDelivery)
     {
         super(async);
         this.player = Objects.requireNonNull(player, "player");
         this.channel = Objects.requireNonNull(channel, "channel");
         this.conversation = Objects.requireNonNull(conversation, "conversation");
         this.message = Objects.requireNonNull(message, "message");
+        this.lateDelivery = Objects.requireNonNull(lateDelivery, "lateDelivery");
+    }
+
+    /**
+     * Delivers a cancelled message to the rest of the conversation as the firing module delivers an uncancelled one,
+     * from any thread. The sender does not get it again. Only the first call while the event is cancelled delivers;
+     * any other call does nothing.
+     */
+    public void deliverLate()
+    {
+        if (cancelled && delivered.compareAndSet(false, true))
+        {
+            lateDelivery.run();
+        }
     }
 
     /**
