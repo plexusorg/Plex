@@ -75,6 +75,11 @@ paper {
             required = false
             load = PaperPluginDescription.RelativeLoadOrder.BEFORE
         }
+        // Module-ECC forwards the chat lines it delivers late to DiscordSRV
+        register("DiscordSRV") {
+            required = false
+            load = PaperPluginDescription.RelativeLoadOrder.BEFORE
+        }
         register("LibsDisguises") {
             required = false
             load = PaperPluginDescription.RelativeLoadOrder.BEFORE
