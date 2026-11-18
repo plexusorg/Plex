@@ -43,8 +43,8 @@ dependencies {
         exclude(group = "com.sk89q.worldedit")
     }
     compileOnly(platform("com.intellectualsites.bom:bom-newest:1.56"))
-    compileOnly("com.fastasyncworldedit:FastAsyncWorldEdit-Core")
-    compileOnly("com.fastasyncworldedit:FastAsyncWorldEdit-Bukkit")
+    compileOnly("com.fastasyncworldedit:FastAsyncWorldEdit-Core:2.16.2")
+    compileOnly("com.fastasyncworldedit:FastAsyncWorldEdit-Bukkit:2.16.2")
     implementation("org.bstats:bstats-base:3.2.1")
     implementation("org.bstats:bstats-bukkit:3.2.1")
     annotationProcessor("org.projectlombok:lombok:1.18.48")
