@@ -90,10 +90,12 @@ block_on_mute:
   - reply
   - mail
 
-# Static updater metadata. The metadata can be hosted as plain JSON on Cloudflare Pages.
 updater:
+  # Should Plex check for new builds of itself and its modules?
   enabled: true
+  # How often to check, in seconds (at least 60)
   interval: 1800
+  # Plex sets this when it starts: dev for a SNAPSHOT build, stable for a release
   channel: "dev"
 
 # Additional logging for debugging

@@ -12,7 +12,7 @@ pipeline {
             }
         }
         // Telesphorepo takes this job's identity token only from Plex/master, so a branch or pull request
-        // that edits this stage cannot publish.
+        // that edits this stage cannot publish. An identity token mints one publish session, so each upload binds its own.
         stage("publish") {
             when {
                 branch "master"
@@ -31,6 +31,9 @@ pipeline {
                             telesphorepo publish
                         fi
                     '''
+                }
+                withCredentials([string(credentialsId: "telesphorepo-id-token", variable: "OIDC_TOKEN")]) {
+                    sh "./gradlew :server:publishUpdaterMetadata --no-daemon"
                 }
             }
         }

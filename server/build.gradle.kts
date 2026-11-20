@@ -12,6 +12,7 @@ plugins {
     id("com.gradleup.shadow")
     id("net.kyori.indra.git") version "4.1.0"
     id("de.eldoria.plugin-yml.paper") version "0.9.0"
+    id("dev.plex.updater") version "1.1"
 }
 
 repositories {
@@ -126,6 +127,16 @@ paper {
             joinClasspath = true
             load = PaperPluginDescription.RelativeLoadOrder.BEFORE
         }
+    }
+}
+
+plexUpdater {
+    projectName = "Plex"
+    // Jenkins archives the jar that copyJars puts in the root build/libs.
+    artifactPath = tasks.shadowJar.flatMap { it.archiveFileName }.map { "build/libs/$it" }
+    minecraftVersions = supportedMinecraftVersions
+    apiCompatibility = providers.fileContents(layout.projectDirectory.file("src/main/java/dev/plex/Plex.java")).asText.map {
+        Regex("""MODULE_API_COMPATIBILITY_VERSION = (\d+)""").find(it)!!.groupValues[1].toInt()
     }
 }
 
