@@ -1,0 +1,6 @@
+server = "https://telesphorepo.com"
+repo = "plex-releases"
+
+[[when]]
+version = "*-SNAPSHOT"
+repo = "plex-snapshots"

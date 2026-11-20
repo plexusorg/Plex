@@ -11,6 +11,29 @@ pipeline {
                 }
             }
         }
+        // Telesphorepo takes this job's identity token only from Plex/master, so a branch or pull request
+        // that edits this stage cannot publish.
+        stage("publish") {
+            when {
+                branch "master"
+            }
+            steps {
+                sh "curl -fsSL https://telesphorepo.com/install.sh | sh"
+                // A release publishes once, the first time its version reaches master.
+                withCredentials([string(credentialsId: "telesphorepo-id-token", variable: "OIDC_TOKEN")]) {
+                    sh '''
+                        export PATH="$HOME/.local/bin:$PATH"
+                        version="$(./gradlew -q --no-daemon properties --property version | sed -n 's/^version: //p')"
+                        pom="https://telesphorepo.com/maven/plex-releases/dev/plex/api/$version/api-$version.pom"
+                        if [ "${version%-SNAPSHOT}" = "$version" ] && curl -fsSI "$pom" > /dev/null; then
+                            echo "Release $version is already published."
+                        else
+                            telesphorepo publish
+                        fi
+                    '''
+                }
+            }
+        }
     }
     post {
         always {

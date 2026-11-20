@@ -1,6 +1,5 @@
 plugins {
     id("java")
-    id("maven-publish")
     id("org.jetbrains.gradle.plugin.idea-ext") version "1.4.1" apply false
     id("net.kyori.blossom") version "2.2.0" apply false
     id("com.gradleup.shadow") version "9.6.1" apply false
@@ -49,20 +48,6 @@ subprojects {
         }
         tasks.withType<ProcessResources>().configureEach {
             filteringCharset = Charsets.UTF_8.name()
-        }
-    }
-
-    plugins.withId("maven-publish") {
-        extensions.configure<PublishingExtension> {
-            repositories {
-                maven {
-                    name = "plex"
-                    val releasesRepoUrl = uri("https://nexus.telesphoreo.me/repository/plex-releases/")
-                    val snapshotsRepoUrl = uri("https://nexus.telesphoreo.me/repository/plex-snapshots/")
-                    url = if (rootProject.version.toString().endsWith("SNAPSHOT")) snapshotsRepoUrl else releasesRepoUrl
-                    credentials(PasswordCredentials::class)
-                }
-            }
         }
     }
 }
